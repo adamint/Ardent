@@ -1,11 +1,11 @@
 package tk.ardentbot.Backend.Commands;
 
-import tk.ardentbot.Backend.Translation.Language;
-import tk.ardentbot.Bot.BotException;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
+import tk.ardentbot.Backend.Translation.Language;
+import tk.ardentbot.Bot.BotException;
 
 import java.util.concurrent.TimeUnit;
 
@@ -41,25 +41,17 @@ class Runner implements Runnable {
             if (announcement != null) {
                 if (!sentAnnouncement.get(guild.getId())) {
                     sentAnnouncement.replace(guild.getId(), true);
-
-                    command.sendTranslatedMessage(announcement, channel);
-
                     executorService.schedule(() -> {
                         try {
-                            command.getBotCommand().onUsage(guild, channel, author, message, args, language);
+                            command.sendTranslatedMessage(announcement, channel);
                         }
                         catch (Exception e) {
                             new BotException(e);
                         }
                     }, 1, TimeUnit.SECONDS);
                 }
-                else {
-                    command.getBotCommand().onUsage(guild, channel, author, message, args, language);
-                }
             }
-            else {
-                command.getBotCommand().onUsage(guild, channel, author, message, args, language);
-            }
+            command.getBotCommand().onUsage(guild, channel, author, message, args, language);
         }
         catch (Exception e) {
             new BotException(e);

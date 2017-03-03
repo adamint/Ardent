@@ -1,7 +1,5 @@
 package tk.ardentbot.Commands.Fun;
 
-import tk.ardentbot.Backend.Commands.BotCommand;
-import tk.ardentbot.Backend.Translation.Language;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
@@ -9,6 +7,8 @@ import net.dv8tion.jda.core.entities.User;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+import tk.ardentbot.Backend.Commands.BotCommand;
+import tk.ardentbot.Backend.Translation.Language;
 
 import java.io.IOException;
 
@@ -34,6 +34,5 @@ public class FML extends BotCommand {
 
     @Override
     public void setupSubcommands() {
-
     }
 }
