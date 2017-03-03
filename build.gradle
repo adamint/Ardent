@@ -1,0 +1,39 @@
+group 'tk.ardentbot'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+
+repositories {
+    jcenter()
+    mavenCentral()
+    maven {
+        url 'http://maven.sedmelluq.com'
+    }
+    maven {
+        url 'https://jitpack.io'
+    }
+}
+
+dependencies {
+    compile 'com.sedmelluq:jda-nas:1.0.2'
+    compile 'net.dv8tion:JDA:3.0.BETA2_140'
+    compile group: 'org.codehaus.groovy', name: 'groovy-jsr223', version: '2.4.7'
+    compile 'com.sedmelluq:lavaplayer:1.2.21'
+    compile group: 'net.objecthunter', name: 'exp4j', version: '0.4.7'
+    compile group: 'com.google.code.gson', name: 'gson', version: '2.7'
+    compile group: 'at.mukprojects', name: 'giphy4j', version: '1.0.1'
+    compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.6'
+    compile 'org.jsoup:jsoup:1.10.1'
+    compile 'com.github.vbauer:yandex-translate-api:1.2.4'
+    compile group: 'ca.pjer', name: 'chatter-bot-api', version: '1.4.3'
+    compile group: 'com.mashape.unirest', name: 'unirest-java', version: '1.4.9'
+    compile 'com.sparkjava:spark-core:2.5.4'
+    compile 'com.sparkjava:spark-template-handlebars:2.3'
+    compile group: 'org.twitter4j', name: 'twitter4j-core', version: '[4.0,)'
+    compile group: 'org.apache.commons', name: 'commons-csv', version: '1.4'
+    compile 'com.vdurmont:emoji-java:3.2.0'
+    compile 'com.github.crowdin:crowdin-java-sdk:v1.0.1'
+
+}

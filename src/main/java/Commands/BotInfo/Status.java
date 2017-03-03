@@ -1,0 +1,115 @@
+package Commands.BotInfo;
+
+import Backend.Commands.BotCommand;
+import Backend.Translation.Language;
+import Backend.Translation.Translation;
+import Backend.Translation.TranslationResponse;
+import Main.Ardent;
+import Utils.MessageUtils;
+import com.sun.management.OperatingSystemMXBean;
+import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.entities.User;
+
+import java.lang.management.ManagementFactory;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static Main.Ardent.conn;
+import static Main.Ardent.jda;
+import static Utils.GuildUtils.getVoiceConnections;
+
+public class Status extends BotCommand {
+    public static ConcurrentHashMap<String, Integer> commandsByGuild = new ConcurrentHashMap<>();
+
+    public Status(CommandSettings commandSettings) {
+        super(commandSettings);
+    }
+
+    @Override
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
+        OperatingSystemMXBean operatingSystemMXBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+        double cpuUsage = operatingSystemMXBean.getSystemCpuLoad() + 0.01;
+        if (cpuUsage < 0) cpuUsage = 0.01;
+        DecimalFormat cpuFormat = new DecimalFormat("#0.00");
+
+        System.gc();
+
+        double totalRAM = Runtime.getRuntime().totalMemory() / 1024 / 1024;
+        double usedRAM = totalRAM - Runtime.getRuntime().freeMemory() / 1024 / 1024;
+
+        StringBuilder devUsernames = new StringBuilder();
+        for (int i = 0; i < Ardent.developers.size(); i++) {
+            User current = jda.getUserById(Ardent.developers.get(i));
+            devUsernames.append(current.getName() + "#" + current.getDiscriminator());
+            if (i < (Ardent.developers.size() - 1)) devUsernames.append(", ");
+        }
+        Translation title = new Translation("status", "title");
+        Translation botstatus = new Translation("status", "botstatus");
+        Translation loadedcommands = new Translation("status", "loadedcommands");
+        Translation receivedmessages = new Translation("status", "receivedmessages");
+        Translation commandsreceived = new Translation("status", "commandsreceived");
+        Translation guilds = new Translation("status", "guilds");
+        Translation audioConnections = new Translation("status", "currentaudioconnections");
+        Translation cpu = new Translation("status", "cpu");
+        Translation ram = new Translation("status", "ram");
+        Translation developers = new Translation("status", "developers");
+        Translation site = new Translation("status", "site");
+        ArrayList<Translation> translationQueries = new ArrayList<>();
+        translationQueries.add(title);
+        translationQueries.add(botstatus);
+        translationQueries.add(loadedcommands);
+        translationQueries.add(receivedmessages);
+        translationQueries.add(commandsreceived);
+        translationQueries.add(guilds);
+        translationQueries.add(audioConnections);
+        translationQueries.add(cpu);
+        translationQueries.add(ram);
+        translationQueries.add(developers);
+        translationQueries.add(site);
+
+        Statement statement = conn.createStatement();
+        ResultSet commands = statement.executeQuery("SELECT * FROM CommandsReceived");
+        int commandsReceived = 0;
+        while (commands.next()) commandsReceived++;
+        DecimalFormat formatter = new DecimalFormat("#,###");
+        String cmds = formatter.format(commandsReceived);
+        commands.close();
+        statement.close();
+
+        HashMap<Integer, TranslationResponse> translations = getTranslations(language, translationQueries);
+
+        EmbedBuilder embedBuilder = MessageUtils.getDefaultEmbed(guild, user, this);
+
+        int amtConnections = getVoiceConnections();
+
+        embedBuilder.setAuthor(translations.get(0).getTranslation(), "https://ardentbot.tk", Ardent.ardent.getAvatarUrl());
+        embedBuilder.setThumbnail("https://a.dryicons.com/images/icon_sets/polygon_icons/png/256x256/computer.png");
+
+        embedBuilder.addField(translations.get(1).getTranslation(), ":thumbsup:", true);
+        embedBuilder.addField(translations.get(2).getTranslation(), String.valueOf(Main.Ardent.factory.getLoadedCommandsAmount()), true);
+
+        embedBuilder.addField(translations.get(3).getTranslation(), String.valueOf(Main.Ardent.factory.getMessagesReceived()), true);
+        embedBuilder.addField(translations.get(4).getTranslation(), cmds, true);
+
+        embedBuilder.addField(translations.get(5).getTranslation(), String.valueOf(jda.getGuilds().size()), true);
+        embedBuilder.addField(translations.get(6).getTranslation(), String.valueOf(amtConnections), true);
+
+        embedBuilder.addField(translations.get(7).getTranslation(), cpuFormat.format(cpuUsage) + "%", true);
+        embedBuilder.addField(translations.get(8).getTranslation(), usedRAM + " / " + totalRAM + " MB", true);
+
+        embedBuilder.addField(translations.get(9).getTranslation(), devUsernames.toString(), true);
+        embedBuilder.addField(translations.get(10).getTranslation(), "https://ardentbot.tk", true);
+
+        sendEmbed(embedBuilder, channel);
+    }
+
+    @Override
+    public void setupSubcommands() {}
+}
