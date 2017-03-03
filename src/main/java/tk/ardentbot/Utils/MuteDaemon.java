@@ -1,14 +1,15 @@
 package tk.ardentbot.Utils;
 
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
 import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Backend.Translation.TranslationResponse;
 import tk.ardentbot.Bot.BotException;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.User;
+import tk.ardentbot.Main.Ardent;
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
 
 import static tk.ardentbot.Main.Ardent.conn;
 import static tk.ardentbot.Main.Ardent.jda;
@@ -17,34 +18,28 @@ import static tk.ardentbot.Utils.SQLUtils.cleanString;
 public class MuteDaemon implements Runnable {
     @Override
     public void run() {
-        try {
-            if (!conn.isClosed()) {
-                Statement statement = conn.createStatement();
-                ResultSet mutes = statement.executeQuery("SELECT * FROM Mutes");
-                while (mutes.next()) {
-                    if (System.currentTimeMillis() > mutes.getLong("UnmuteEpochSecond")) {
-                        String guildID = mutes.getString("GuildID");
-                        String userID = mutes.getString("UserID");
-                        statement.executeUpdate("DELETE FROM Mutes WHERE GuildID='" + guildID + "' AND " +
-                                "UserID='" + userID + "'");
-                        Guild guild = jda.getGuildById(guildID);
-                        User user = jda.getUserById(userID);
-                        user.openPrivateChannel().queue(privateChannel -> {
-                            try {
-                                privateChannel.sendMessage(getTranslationForNonCommands("mute", GuildUtils.getLanguage(guild), "nowabletospeak").getTranslation().replace("{0}", guild.getName())).queue();
-                            }
-                            catch (Exception e) {
-                                new BotException(e);
-                            }
-                        });
-                    }
+        HashMap<String, HashMap<String, Long>> mutes = Ardent.botMuteData.getMutes();
+        for(String guildID : mutes.keySet()){
+
+            Guild guild = jda.getGuildById(guildID);
+
+            for(String userID : mutes.get(guildID).keySet()){
+
+                Member member = guild.getMember(jda.getUserById(userID));
+
+                if(!Ardent.botMuteData.isMuted(member) && Ardent.botMuteData.wasMute(member)){
+                    Ardent.botMuteData.unmute(member);
+                    member.getUser().openPrivateChannel().queue(privateChannel -> {
+                        try {
+                            privateChannel.sendMessage(getTranslationForNonCommands("mute", GuildUtils.getLanguage(guild), "nowabletospeak").getTranslation().replace("{0}", guild.getName())).queue();
+                        }
+                        catch (Exception e) {
+                            new BotException(e);
+                        }
+                    });
                 }
-                mutes.close();
-                statement.close();
+
             }
-        }
-        catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 

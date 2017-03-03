@@ -1,5 +1,6 @@
 package tk.ardentbot.Main;
 
+import tk.ardentbot.Backend.BotData.BotMuteData;
 import tk.ardentbot.Backend.Commands.Category;
 import tk.ardentbot.Backend.Commands.Command;
 import tk.ardentbot.Backend.Commands.CommandFactory;
@@ -67,6 +68,8 @@ import static tk.ardentbot.Commands.GuildAdministration.EmojiPacks.registerEmoji
 
 public class Ardent {
     public static ScheduledExecutorService executorService = Executors.newScheduledThreadPool(100);
+
+    public static BotMuteData botMuteData;
 
     public static ArrayList<Language> crowdinLanguages = new ArrayList<>();
 
@@ -170,6 +173,9 @@ public class Ardent {
                 crowdinLanguages.add(LangFactory.cyrillicserbian);
                 crowdinLanguages.add(LangFactory.spanish);
                 crowdinLanguages.add(LangFactory.dutch);
+
+                // Adding the "handler" for mutes
+                Ardent.botMuteData = new BotMuteData();
 
                 for (Language lang : languages) {
                     if (lang.getLanguageStatus() == Language.Status.MATURE) matureLanguages++;

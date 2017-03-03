@@ -9,7 +9,6 @@ public class StringUtils {
         while ((index = builder.indexOf(from)) != -1) {
             builder.replace(index, index + from.length(), to);
         }
-
     }
 
     public static String replaceFirst(final String text, final String searchString, final String replacement) {
@@ -129,6 +128,29 @@ public class StringUtils {
                 costs[s2.length()] = lastValue;
         }
         return costs[s2.length()];
+    }
+
+    /**
+     * Return the number of millisecond found in commandTime.
+     * @param commandTime Formatted String (ex 2d - 3w - 5h)
+     * @return Number of millisecond
+     */
+    public static long commandeTime(String commandTime){
+        int time = Integer.parseInt(commandTime.replace("w", "").replace("d", "").replace("h", "").replace("m", ""));
+        long now = 0;
+        if (commandTime.endsWith("m")) {
+            now = time * 1000 * 60;
+        }
+        else if (commandTime.endsWith("h")) {
+            now = time * 1000 * 60 * 60;
+        }
+        else if (commandTime.endsWith("d")) {
+            now = time * 1000 * 60 * 60 * 24;
+        }
+        else if (commandTime.endsWith("w")) {
+            now = time * 1000 * 60 * 60 * 24 * 7;
+        }
+        return now;
     }
 
 }

@@ -93,6 +93,16 @@ public class BotMuteData {
     }
 
     /**
+     * Unmute the uset and delete it from the mute list.
+     * @param member Guild's Member
+     */
+    public void unmute(Member member){
+        this.sql_del(member);
+        this.usersGuildMute.get(member.getGuild().getId()).remove(member.getUser().getId());
+    }
+
+
+    /**
      * Check if an user is muted (by his id).
      * @param member Guild's Member.
      * @return True if the user is muted. False if not.
@@ -111,6 +121,17 @@ public class BotMuteData {
     }
 
     /**
+     * Check if an user is in the mute list.
+     * WARNING !! Even if the user is mute,
+     * it will return true !
+     * @param member Guild's Member
+     * @return True if the user is in the mute list.
+     */
+    public boolean wasMute(Member member){
+        return this.usersGuildMute.keySet().contains(member.getGuild().getId()) && this.usersGuildMute.get(member.getGuild().getId()).keySet().contains(member.getUser().getId());
+    }
+
+    /**
      * Get the mute duration left for an user (by his id).
      * @param member Guild's Member
      * @return Duration left until unmute
@@ -118,6 +139,11 @@ public class BotMuteData {
     public long getMuteDuration(Member member){
         if(!this.isMuted(member)) return 0;
         return this.usersGuildMute.get(member.getGuild().getId()).get(member.getUser().getId()) - System.currentTimeMillis();
+    }
+
+
+    public HashMap<String, HashMap<String, Long>> getMutes(){
+        return this.usersGuildMute;
     }
 
 }

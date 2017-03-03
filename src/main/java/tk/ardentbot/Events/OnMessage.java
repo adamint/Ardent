@@ -1,66 +1,54 @@
 package tk.ardentbot.Events;
 
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.hooks.SubscribeEvent;
 import tk.ardentbot.Bot.BotException;
 import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.GuildUtils;
 import tk.ardentbot.Utils.MuteDaemon;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.*;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.core.hooks.SubscribeEvent;
 
 import java.sql.Date;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.time.Instant;
-
-import static tk.ardentbot.Main.Ardent.ardent;
-import static tk.ardentbot.Main.Ardent.conn;
 
 public class OnMessage {
     @SubscribeEvent
     public void onMessage(MessageReceivedEvent event) {
-        User user = event.getAuthor();
-        if (!user.isBot()) {
-            try {
-                Ardent.factory.incrementMessagesReceived();
-                MessageChannel channel = event.getChannel();
-                Message message = event.getMessage();
-                if (channel instanceof PrivateChannel) {
-                    Ardent.factory.pass(event);
-                }
-                else {
-                    Guild guild = event.getGuild();
-                    if (guild != null) {
-                        Member ardentMember = guild.getMember(ardent);
-                        Member userMember = guild.getMember(user);
-                        if (ardentMember != null && userMember != null) {
-                            if (!userMember.hasPermission(Permission.MANAGE_SERVER) && ardentMember.hasPermission(Permission.MESSAGE_MANAGE)) {
-                                Statement statement = conn.createStatement();
-                                ResultSet mutes = statement.executeQuery("SELECT * FROM Mutes WHERE GuildID='" + guild.getId() + "'");
-                                boolean cancel = false;
-                                while (mutes.next()) {
-                                    if (mutes.getString("UserID").equalsIgnoreCase(user.getId())) {
-                                        message.deleteMessage().queue();
-                                        String reply = MuteDaemon.getTranslationForNonCommands("mute", GuildUtils.getLanguage(guild), "youremuted").getTranslation()
-                                                .replace("{0}", guild.getName()).replace("{1}", Date.from(Instant.ofEpochSecond(mutes.getLong("UnmuteEpochSecond") / 1000)).toLocaleString());
-                                        user.openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage(reply).queue());
-                                        cancel = true;
-                                    }
-                                }
-                                mutes.close();
-                                statement.close();
-                                if (!cancel) Ardent.factory.pass(event);
-                            }
-                            else Ardent.factory.pass(event);
-                        }
-                        else Ardent.factory.pass(event);
+        if(event.getAuthor().isBot()) return;
+        try {
+
+            Ardent.factory.incrementMessagesReceived();
+
+            switch (event.getChannel().getType()){
+                case TEXT:
+                    if(event.getGuild() == null) return; // This one will never be executed. But just in case to avoid NPE.
+
+                    Member ardentMember = event.getGuild().getMember(event.getJDA().getSelfUser());
+                    Member userMember = event.getMember();
+
+                    if(ardentMember == null || userMember == null || userMember.hasPermission(Permission.MANAGE_SERVER) || !ardentMember.hasPermission(Permission.MESSAGE_MANAGE)){
+                        Ardent.factory.pass(event);
+                        return; // The event will be handled and musn't be resumed here.
                     }
-                }
+
+                    if(!Ardent.botMuteData.isMuted(event.getMember())){
+                        Ardent.factory.pass(event);
+                        return; // The event will be handled and musn't be resumed here.
+                    }
+
+                    event.getMessage().delete().queue();
+                    String reply = MuteDaemon.getTranslationForNonCommands("mute", GuildUtils.getLanguage(event.getGuild()), "youremuted").getTranslation()
+                            .replace("{0}", event.getGuild().getName()).replace("{1}", Date.from(Instant.ofEpochSecond(Ardent.botMuteData.getMuteDuration(event.getMember()) / 1000)).toLocaleString());
+                    event.getAuthor().openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage(reply).queue());
+
+                    break;
+                case PRIVATE:
+                    Ardent.factory.pass(event);
+                    break;
             }
-            catch (Exception e) {
-                new BotException(e);
-            }
+        }catch (Exception ex){
+            new BotException(ex);
         }
     }
 }
