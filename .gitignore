@@ -1,0 +1,10 @@
+*.xml
+*.class
+*.properties
+.gradle/3.1/taskArtifacts/cache.properties.lock
+*.bin
+*.iml
+*.MF
+gradle/wrapper/gradle-wrapper.jar
+gradlew.bat
+gradlew
