@@ -1,8 +1,16 @@
 package tk.ardentbot.Utils;
 
+import tk.ardentbot.Utils.Tuples.Pair;
+
 import java.util.*;
 
 public class StringUtils {
+
+    public static Comparator<Pair<String, Double>> SIMILARITY = (o1, o2) -> {
+        if (o1.getV() < o2.getV()) return 1;
+        else if (Objects.equals(o1.getV(), o2.getV())) return 0;
+        else return -1;
+    };
 
     public static void replaceAll(final StringBuilder builder, final String from, final String to) {
         int index;
@@ -77,12 +85,6 @@ public class StringUtils {
         }
         return mostSimilar;
     }
-
-    public static Comparator<Pair<String, Double>> SIMILARITY = (o1, o2) -> {
-        if (o1.getV() < o2.getV()) return 1;
-        else if (Objects.equals(o1.getV(), o2.getV())) return 0;
-        else return -1;
-    };
 
     public static double calculateSimilarity(String s1, String s2) {
         String longer = s1, shorter = s2;

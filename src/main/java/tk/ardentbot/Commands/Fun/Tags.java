@@ -1,15 +1,15 @@
 package tk.ardentbot.Commands.Fun;
 
-import tk.ardentbot.Backend.Commands.BotCommand;
-import tk.ardentbot.Backend.Commands.Subcommand;
-import tk.ardentbot.Backend.Translation.Language;
-import tk.ardentbot.Utils.GuildUtils;
-import tk.ardentbot.Utils.StringUtils;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
+import tk.ardentbot.Backend.Commands.BotCommand;
+import tk.ardentbot.Backend.Commands.Subcommand;
+import tk.ardentbot.Backend.Translation.Language;
+import tk.ardentbot.Utils.GuildUtils;
+import tk.ardentbot.Utils.StringUtils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -17,11 +17,23 @@ import java.sql.Statement;
 import java.util.ArrayList;
 
 import static tk.ardentbot.Main.Ardent.conn;
-import static tk.ardentbot.Utils.SQLUtils.cleanString;
+import static tk.ardentbot.Utils.SQL.SQLUtils.cleanString;
 
 public class Tags extends BotCommand {
     public Tags(CommandSettings commandSettings) {
         super(commandSettings);
+    }
+
+    public static ArrayList<String> getTagsForGuild(Guild guild) throws SQLException {
+        ArrayList<String> tags = new ArrayList<>();
+        Statement statement = conn.createStatement();
+        ResultSet set = statement.executeQuery("SELECT * FROM Tags WHERE GuildID='" + guild.getId() + "'");
+        while (set.next()) {
+            tags.add(set.getString("Name"));
+        }
+        set.close();
+        statement.close();
+        return tags;
     }
 
     @Override
@@ -121,17 +133,5 @@ public class Tags extends BotCommand {
                 else sendRetrievedTranslation(channel, "other", language, "needmessagemanage");
             }
         });
-    }
-
-    public static ArrayList<String> getTagsForGuild(Guild guild) throws SQLException {
-        ArrayList<String> tags = new ArrayList<>();
-        Statement statement = conn.createStatement();
-        ResultSet set = statement.executeQuery("SELECT * FROM Tags WHERE GuildID='" + guild.getId() + "'");
-        while (set.next()) {
-            tags.add(set.getString("Name"));
-        }
-        set.close();
-        statement.close();
-        return tags;
     }
 }

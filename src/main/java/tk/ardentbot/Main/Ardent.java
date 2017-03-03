@@ -1,30 +1,5 @@
 package tk.ardentbot.Main;
 
-import tk.ardentbot.Backend.BotData.BotMuteData;
-import tk.ardentbot.Backend.Commands.Category;
-import tk.ardentbot.Backend.Commands.Command;
-import tk.ardentbot.Backend.Commands.CommandFactory;
-import tk.ardentbot.Backend.Translation.Crowdin.PhraseUpdater;
-import tk.ardentbot.Backend.Translation.Crowdin.TranslationUpdater;
-import tk.ardentbot.Backend.Translation.LangFactory;
-import tk.ardentbot.Backend.Translation.Language;
-import tk.ardentbot.Backend.Web.WebServer;
-import tk.ardentbot.Commands.BotAdministration.*;
-import tk.ardentbot.Commands.BotInfo.*;
-import tk.ardentbot.Commands.Fun.*;
-import tk.ardentbot.Commands.Fun.Translate;
-import tk.ardentbot.Commands.GuildAdministration.*;
-import tk.ardentbot.Commands.GuildInfo.Botname;
-import tk.ardentbot.Commands.GuildInfo.GuildInfo;
-import tk.ardentbot.Commands.GuildInfo.Points;
-import tk.ardentbot.Commands.GuildInfo.Whois;
-import tk.ardentbot.Commands.Music.GuildMusicManager;
-import tk.ardentbot.Commands.Music.Music;
-import tk.ardentbot.Events.Join;
-import tk.ardentbot.Events.Leave;
-import tk.ardentbot.Events.OnMessage;
-import tk.ardentbot.Utils.GuildUtils;
-import tk.ardentbot.Utils.MuteDaemon;
 import ch.qos.logback.classic.Level;
 import com.google.code.chatterbotapi.ChatterBot;
 import com.google.code.chatterbotapi.ChatterBotFactory;
@@ -50,6 +25,31 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.hooks.AnnotatedEventManager;
 import org.apache.commons.io.IOUtils;
+import tk.ardentbot.Backend.BotData.BotMuteData;
+import tk.ardentbot.Backend.Commands.Category;
+import tk.ardentbot.Backend.Commands.Command;
+import tk.ardentbot.Backend.Commands.CommandFactory;
+import tk.ardentbot.Backend.Translation.Crowdin.PhraseUpdater;
+import tk.ardentbot.Backend.Translation.Crowdin.TranslationUpdater;
+import tk.ardentbot.Backend.Translation.LangFactory;
+import tk.ardentbot.Backend.Translation.Language;
+import tk.ardentbot.Backend.Web.WebServer;
+import tk.ardentbot.Commands.BotAdministration.*;
+import tk.ardentbot.Commands.BotInfo.*;
+import tk.ardentbot.Commands.Fun.*;
+import tk.ardentbot.Commands.Fun.Translate;
+import tk.ardentbot.Commands.GuildAdministration.*;
+import tk.ardentbot.Commands.GuildInfo.Botname;
+import tk.ardentbot.Commands.GuildInfo.GuildInfo;
+import tk.ardentbot.Commands.GuildInfo.Points;
+import tk.ardentbot.Commands.GuildInfo.Whois;
+import tk.ardentbot.Commands.Music.GuildMusicManager;
+import tk.ardentbot.Commands.Music.Music;
+import tk.ardentbot.Events.Join;
+import tk.ardentbot.Events.Leave;
+import tk.ardentbot.Events.OnMessage;
+import tk.ardentbot.Utils.GuildUtils;
+import tk.ardentbot.Utils.SQL.MuteDaemon;
 import twitter4j.Twitter;
 import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
@@ -67,43 +67,32 @@ import static tk.ardentbot.Backend.Translation.LangFactory.languages;
 import static tk.ardentbot.Commands.GuildAdministration.EmojiPacks.registerEmojis;
 
 public class Ardent {
+    public static final boolean testingBot = false;
     public static ScheduledExecutorService executorService = Executors.newScheduledThreadPool(100);
-
     public static BotMuteData botMuteData;
-
     public static ArrayList<Language> crowdinLanguages = new ArrayList<>();
-
     public static TextChannel botLogs;
-
     public static AudioPlayerManager playerManager;
     public static Map<Long, GuildMusicManager> musicManagers;
-
     public static ChatterBot cleverBot;
     public static ConcurrentHashMap<String, ChatterBotSession> cleverbots = new ConcurrentHashMap<>();
-
     public static ArrayList<String> developers = new ArrayList<>();
     public static ArrayList<String> translators = new ArrayList<>();
-
     public static Gson gson = new Gson();
     public static Connection conn;
     public static Timer timer = new Timer();
     public static CommandFactory factory;
     public static JDA jda;
-
     public static User ardent;
-    private static int gameCounter = 0;
-    private static int matureLanguages = 0;
     public static Twitter twitter;
-
     public static Command help;
     public static Command patreon;
     public static Command translateForArdent;
-
-    public static final boolean testingBot = false;
     public static String url = "https://ardentbot.tk";
-
     public static ConcurrentHashMap<String, Boolean> sentAnnouncement = new ConcurrentHashMap<>();
     public static String announcement;
+    private static int gameCounter = 0;
+    private static int matureLanguages = 0;
 
     public static void main(String[] args) {
         try {
@@ -231,7 +220,6 @@ public class Ardent {
                 factory.registerCommand(new Mute(new Command.CommandSettings("mute", false, true, Category.GUILDADMINISTRATION)));
                 factory.registerCommand(new Automessage(new Command.CommandSettings("automessage", false, true, Category.GUILDADMINISTRATION)));
                 // factory.registerCommand(new EmojiPacks(new Command.CommandSettings("emojipacks", false, true, Category.GUILDADMINISTRATION)));
-                // factory.registerCommand(new CustomCommands(new Command.CommandSettings("cc", false, true, Category.GUILDADMINISTRATION)));
 
                 factory.registerCommand(new GuildInfo(new Command.CommandSettings("guildinfo", false, true, Category.GUILDINFO)));
                 factory.registerCommand(new Whois(new Command.CommandSettings("whois", true, true, Category.GUILDINFO)));

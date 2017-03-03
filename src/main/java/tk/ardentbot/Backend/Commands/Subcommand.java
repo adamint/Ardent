@@ -52,7 +52,7 @@ public abstract class Subcommand {
      * @return SubcommandTranslation object containing translations
      * or null
      */
-    public SubcommandTranslation getTranslations(Language language) {
+    public SubcommandTranslation getSubTranslations(Language language) {
         List<SubcommandTranslation> subcommandTranslations = language.getSubcommands(command);
         Optional<SubcommandTranslation> currentSubcommand = subcommandTranslations.stream()
                 .filter(subcommandTranslation -> subcommandTranslation.getIdentifier()
@@ -61,7 +61,7 @@ public abstract class Subcommand {
             return currentSubcommand.get();
         }
         else {
-            return (language != english) ? getTranslations(english) : null;
+            return (language != english) ? getSubTranslations(english) : null;
         }
     }
 
@@ -73,7 +73,7 @@ public abstract class Subcommand {
      * @throws Exception
      */
     public String getName(Language language) throws Exception {
-        SubcommandTranslation translations = getTranslations(language);
+        SubcommandTranslation translations = getSubTranslations(language);
         return (translations != null) ? translations.getTranslation() : "invalidsubcommand";
     }
 
@@ -85,7 +85,7 @@ public abstract class Subcommand {
      * @throws Exception
      */
     String getSyntax(Language language) throws Exception {
-        SubcommandTranslation translations = getTranslations(language);
+        SubcommandTranslation translations = getSubTranslations(language);
         return (translations != null) ? translations.getSyntax() : "invalidsubcommand";
     }
 
@@ -97,7 +97,7 @@ public abstract class Subcommand {
      * @throws Exception
      */
     String getDescription(Language language) throws Exception {
-        SubcommandTranslation translations = getTranslations(language);
+        SubcommandTranslation translations = getSubTranslations(language);
         return (translations != null) ? translations.getDescription() : "invalidsubcommand";
     }
 }

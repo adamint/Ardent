@@ -1,14 +1,14 @@
 package tk.ardentbot.Commands.GuildAdministration;
 
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.*;
 import tk.ardentbot.Backend.Commands.BotCommand;
 import tk.ardentbot.Backend.Commands.Subcommand;
 import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Backend.Translation.Translation;
 import tk.ardentbot.Backend.Translation.TranslationResponse;
 import tk.ardentbot.Utils.GuildUtils;
-import tk.ardentbot.Utils.Triplet;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.*;
+import tk.ardentbot.Utils.Tuples.Triplet;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -18,11 +18,67 @@ import java.util.HashMap;
 import java.util.List;
 
 import static tk.ardentbot.Main.Ardent.conn;
-import static tk.ardentbot.Utils.SQLUtils.cleanString;
+import static tk.ardentbot.Utils.SQL.SQLUtils.cleanString;
 
 public class Automessage extends BotCommand {
     public Automessage(CommandSettings commandSettings) {
         super(commandSettings);
+    }
+
+    public static void check(Guild guild) throws SQLException {
+        Statement statement = conn.createStatement();
+        ResultSet set = statement.executeQuery("SELECT * FROM Automessages WHERE GuildID='" + guild.getId() + "'");
+        if (!set.next()) {
+            statement.executeUpdate("INSERT INTO Automessages VALUES ('" + guild.getId() + "', '000', '000', '000')");
+        }
+        set.close();
+        statement.close();
+    }
+
+    public static Triplet<String, String, String> getMessagesAndChannel(Guild guild) throws SQLException {
+        Triplet<String, String, String> triplet;
+        check(guild);
+        Statement statement = conn.createStatement();
+        ResultSet set = statement.executeQuery("SELECT * FROM Automessages WHERE GuildID='" + guild.getId() + "'");
+        if (set.next()) {
+            String channel = set.getString("ChannelID");
+            String welcome = set.getString("Welcome");
+            String goodbye = set.getString("Goodbye");
+            if (channel.equalsIgnoreCase("000")) channel = null;
+            if (welcome.equalsIgnoreCase("000")) welcome = null;
+            if (goodbye.equalsIgnoreCase("000")) goodbye = null;
+            triplet = new Triplet<>(channel, welcome, goodbye);
+        }
+        else {
+            triplet = new Triplet<>(null, null, null);
+        }
+        set.close();
+        statement.close();
+        return triplet;
+    }
+
+    public static void remove(Guild guild, int num) throws SQLException {
+        String columnName;
+        if (num == 0) columnName = "ChannelID";
+        else if (num == 1) columnName = "Welcome";
+        else if (num == 2) columnName = "Goodbye";
+        else return;
+        Statement statement = conn.createStatement();
+        statement.executeUpdate("UPDATE Automessages SET " + columnName + "='000' WHERE GuildID='" + guild.getId() +
+                "'");
+        statement.close();
+    }
+
+    public static void set(Guild guild, String text, int num) throws SQLException {
+        String columnName;
+        if (num == 0) columnName = "ChannelID";
+        else if (num == 1) columnName = "Welcome";
+        else if (num == 2) columnName = "Goodbye";
+        else return;
+        Statement statement = conn.createStatement();
+        statement.executeUpdate("UPDATE Automessages SET " + columnName + "='" + cleanString(text) + "' WHERE " +
+                "GuildID='" + guild.getId() + "'");
+        statement.close();
     }
 
     @Override
@@ -159,59 +215,5 @@ public class Automessage extends BotCommand {
                 else sendRetrievedTranslation(channel, "other", language, "needmanageserver");
             }
         });
-    }
-
-    public static void check(Guild guild) throws SQLException {
-        Statement statement = conn.createStatement();
-        ResultSet set = statement.executeQuery("SELECT * FROM Automessages WHERE GuildID='" + guild.getId() + "'");
-        if (!set.next()) {
-            statement.executeUpdate("INSERT INTO Automessages VALUES ('" + guild.getId() + "', '000', '000', '000')");
-        }
-        set.close();
-        statement.close();
-    }
-
-    public static Triplet<String, String, String> getMessagesAndChannel(Guild guild) throws SQLException {
-        Triplet<String, String, String> triplet;
-        check(guild);
-        Statement statement = conn.createStatement();
-        ResultSet set = statement.executeQuery("SELECT * FROM Automessages WHERE GuildID='" + guild.getId() + "'");
-        if (set.next()) {
-            String channel = set.getString("ChannelID");
-            String welcome = set.getString("Welcome");
-            String goodbye = set.getString("Goodbye");
-            if (channel.equalsIgnoreCase("000")) channel = null;
-            if (welcome.equalsIgnoreCase("000")) welcome = null;
-            if (goodbye.equalsIgnoreCase("000")) goodbye = null;
-            triplet = new Triplet<>(channel, welcome, goodbye);
-        }
-        else {
-            triplet = new Triplet<>(null, null, null);
-        }
-        set.close();
-        statement.close();
-        return triplet;
-    }
-
-    public static void remove(Guild guild, int num) throws SQLException {
-        String columnName;
-        if (num == 0) columnName = "ChannelID";
-        else if (num == 1) columnName = "Welcome";
-        else if (num == 2) columnName = "Goodbye";
-        else return;
-        Statement statement = conn.createStatement();
-        statement.executeUpdate("UPDATE Automessages SET " + columnName + "='000' WHERE GuildID='" + guild.getId() + "'");
-        statement.close();
-    }
-
-    public static void set(Guild guild, String text, int num) throws SQLException {
-        String columnName;
-        if (num == 0) columnName = "ChannelID";
-        else if (num == 1) columnName = "Welcome";
-        else if (num == 2) columnName = "Goodbye";
-        else return;
-        Statement statement = conn.createStatement();
-        statement.executeUpdate("UPDATE Automessages SET " + columnName + "='" + cleanString(text) + "' WHERE GuildID='" + guild.getId() + "'");
-        statement.close();
     }
 }

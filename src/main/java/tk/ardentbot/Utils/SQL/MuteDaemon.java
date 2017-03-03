@@ -1,9 +1,10 @@
-package tk.ardentbot.Utils;
+package tk.ardentbot.Utils.SQL;
 
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import tk.ardentbot.Bot.BotException;
 import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Utils.GuildUtils;
 
 import java.util.HashMap;
 

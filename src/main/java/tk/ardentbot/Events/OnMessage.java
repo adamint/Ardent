@@ -7,7 +7,7 @@ import net.dv8tion.jda.core.hooks.SubscribeEvent;
 import tk.ardentbot.Bot.BotException;
 import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.GuildUtils;
-import tk.ardentbot.Utils.MuteDaemon;
+import tk.ardentbot.Utils.SQL.MuteDaemon;
 
 import java.sql.Date;
 import java.time.Instant;

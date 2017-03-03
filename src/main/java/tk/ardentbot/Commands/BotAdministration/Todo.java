@@ -1,16 +1,16 @@
 package tk.ardentbot.Commands.BotAdministration;
 
+import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.Backend.Commands.BotCommand;
 import tk.ardentbot.Backend.Commands.Subcommand;
 import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.GuildUtils;
 import tk.ardentbot.Utils.MessageUtils;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageChannel;
-import net.dv8tion.jda.core.entities.User;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -18,7 +18,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 
 import static tk.ardentbot.Main.Ardent.conn;
-import static tk.ardentbot.Utils.SQLUtils.cleanString;
+import static tk.ardentbot.Utils.SQL.SQLUtils.cleanString;
 
 public class Todo extends BotCommand {
     public Todo(CommandSettings commandSettings) {

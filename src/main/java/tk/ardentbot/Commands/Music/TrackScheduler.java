@@ -1,11 +1,11 @@
 package tk.ardentbot.Commands.Music;
 
-import tk.ardentbot.Utils.Pair;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import net.dv8tion.jda.core.entities.User;
+import tk.ardentbot.Utils.Tuples.Pair;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,8 +14,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class TrackScheduler extends AudioEventAdapter {
     private final AudioPlayer player;
-    private BlockingQueue<Pair<String, AudioTrack>> queue;
     public String ownerOfNowPlaying;
+    private BlockingQueue<Pair<String, AudioTrack>> queue;
 
     /**
      * @param player The audio player this scheduler uses

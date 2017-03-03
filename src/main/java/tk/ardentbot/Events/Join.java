@@ -1,16 +1,16 @@
 package tk.ardentbot.Events;
 
-import tk.ardentbot.Commands.BotInfo.Status;
-import tk.ardentbot.Commands.GuildAdministration.Automessage;
-import tk.ardentbot.Commands.GuildAdministration.DefaultRole;
-import tk.ardentbot.Main.Ardent;
-import tk.ardentbot.Utils.GuildUtils;
-import tk.ardentbot.Utils.Triplet;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.hooks.SubscribeEvent;
+import tk.ardentbot.Commands.BotInfo.Status;
+import tk.ardentbot.Commands.GuildAdministration.Automessage;
+import tk.ardentbot.Commands.GuildAdministration.DefaultRole;
+import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Utils.GuildUtils;
+import tk.ardentbot.Utils.Tuples.Triplet;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

@@ -1,4 +1,4 @@
-package tk.ardentbot.Utils;
+package tk.ardentbot.Utils.Tuples;
 
 public class Pair<K, V> {
     private K k;
@@ -13,12 +13,12 @@ public class Pair<K, V> {
         return k;
     }
 
-    public V getV() {
-        return v;
-    }
-
     public void setK(K k) {
         this.k = k;
+    }
+
+    public V getV() {
+        return v;
     }
 
     public void setV(V v) {

@@ -1,5 +1,9 @@
 package tk.ardentbot.Backend.Commands;
 
+import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.exceptions.PermissionException;
 import tk.ardentbot.Backend.Models.CommandTranslation;
 import tk.ardentbot.Backend.Models.PhraseTranslation;
 import tk.ardentbot.Backend.Translation.LangFactory;
@@ -8,10 +12,7 @@ import tk.ardentbot.Backend.Translation.Translation;
 import tk.ardentbot.Backend.Translation.TranslationResponse;
 import tk.ardentbot.Bot.BotException;
 import tk.ardentbot.Main.Ardent;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.MessageChannel;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.exceptions.PermissionException;
+import tk.ardentbot.Utils.SQL.DatabaseAction;
 
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -19,8 +20,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import static tk.ardentbot.Backend.Translation.LangFactory.english;
 import static tk.ardentbot.Main.Ardent.conn;
-import static tk.ardentbot.Utils.SQLUtils.cleanString;
 
 /**
  * Abstracted from BotCommand for possible future
@@ -37,7 +38,7 @@ public abstract class Command {
      * Handles messages longer than 2000 characters
      *
      * @param translatedString already translated string to send
-     * @param channel channel to send to
+     * @param channel          channel to send to
      */
     public void sendTranslatedMessage(String translatedString, MessageChannel channel) {
         try {
@@ -58,14 +59,7 @@ public abstract class Command {
         catch (PermissionException ex) {
             if (channel instanceof TextChannel) {
                 TextChannel ch = (TextChannel) channel;
-                ch.getHistory().getCachedHistory().get(0).getAuthor().openPrivateChannel().queue(privateChannel -> {
-                    try {
-                        privateChannel.sendMessage(getTranslation("other", LangFactory.english, "nopermissionstotype").getTranslation());
-                    }
-                    catch (Exception e) {
-                        new BotException(e);
-                    }
-                });
+                sendFailed(ch, false);
             }
         }
     }
@@ -73,13 +67,14 @@ public abstract class Command {
     /**
      * Sends a translated message for the supplied translation parameter
      *
-     * @param channel channel to send to
+     * @param channel             channel to send to
      * @param translationCategory the command identifier of the translation
-     * @param language the current language of the guild
-     * @param translationId the identifier of the translation
+     * @param language            the current language of the guild
+     * @param translationId       the identifier of the translation
      * @throws Exception
      */
-    public void sendRetrievedTranslation(MessageChannel channel, String translationCategory, Language language, String translationId) throws Exception {
+    public void sendRetrievedTranslation(MessageChannel channel, String translationCategory, Language language,
+                                         String translationId) throws Exception {
         TranslationResponse response = getTranslation(translationCategory, language, translationId);
         if (response.isTranslationAvailable()) {
             sendTranslatedMessage(response.getTranslation(), channel);
@@ -94,15 +89,54 @@ public abstract class Command {
         catch (PermissionException ex) {
             if (channel instanceof TextChannel) {
                 TextChannel ch = (TextChannel) channel;
-                ch.getHistory().getCachedHistory().get(0).getAuthor().openPrivateChannel().queue(privateChannel -> {
-                    try {
-                        privateChannel.sendMessage(getTranslation("other", LangFactory.english, "nopermissionstosendembeds").getTranslation());
-                    }
-                    catch (Exception e) {
-                        new BotException(e);
-                    }
-                });
+                sendFailed(ch, false);
             }
+        }
+    }
+
+    /**
+     * Tell a user that the bot failed to respond to their command
+     *
+     * @param textChannel channel the command was sent in
+     * @param embed       whether the bot attempted to send an embed or not
+     */
+    private void sendFailed(TextChannel textChannel, boolean embed) {
+        textChannel.getHistory().retrievePast(1).queue(messages -> {
+            messages.get(0).getAuthor().openPrivateChannel().queue(privateChannel -> {
+                try {
+                    if (!embed) {
+                        privateChannel.sendMessage(getTranslation("other", LangFactory.english,
+                                "nopermissionstotype").getTranslation());
+                    }
+                    else {
+                        privateChannel.sendMessage(getTranslation("other", LangFactory.english,
+                                "nopermissionstosendembeds").getTranslation());
+                    }
+                }
+                catch (Exception e) {
+                    new BotException(e);
+                }
+            });
+        });
+    }
+
+    /**
+     * Retrieves the represented translations for this subcommand
+     *
+     * @param language specified language
+     * @return SubcommandTranslation object containing translations
+     * or null
+     */
+    private CommandTranslation getCmdTranslations(Language language) {
+        Queue<CommandTranslation> commandTranslations = language.getCommandTranslations();
+        Optional<CommandTranslation> currentSubcommand = commandTranslations.stream()
+                .filter(subcommandTranslation -> subcommandTranslation.getIdentifier()
+                        .equals(commandIdentifier)).distinct().findFirst();
+        if (currentSubcommand.isPresent()) {
+            return currentSubcommand.get();
+        }
+        else {
+            return (language != english) ? getCmdTranslations(english) : null;
         }
     }
 
@@ -115,20 +149,8 @@ public abstract class Command {
      * @throws Exception
      */
     public String getDescription(Language language) throws Exception {
-        Statement statement = conn.createStatement();
-        ResultSet set = statement.executeQuery("SELECT * FROM Commands WHERE Identifier='" + commandIdentifier + "' AND Language='" + language.getIdentifier() + "'");
-        if (set.next()) {
-            String result = set.getString("Description");
-            set.close();
-            statement.close();
-            return result;
-        }
-        else {
-            set.close();
-            statement.close();
-            if (language == LangFactory.english) return "No name available for this command";
-            else return getDescription(LangFactory.english);
-        }
+        CommandTranslation translations = getCmdTranslations(language);
+        return (translations != null) ? translations.getDescription() : "invalidcommand";
     }
 
     /**
@@ -139,25 +161,8 @@ public abstract class Command {
      * @throws Exception
      */
     public String getName(Language language) throws Exception {
-        final String[] name = {null};
-
-        Queue<CommandTranslation> commandTranslations = language.getCommandTranslations();
-        commandTranslations.forEach(commandTranslation -> {
-            if (commandTranslation.getIdentifier().equalsIgnoreCase(commandIdentifier))
-                name[0] = commandTranslation.getTranslation();
-        });
-
-        if (name[0] == null) {
-            Queue<CommandTranslation> englishCommandTranslations = LangFactory.english.getCommandTranslations();
-            englishCommandTranslations.forEach(commandTranslation -> {
-                if (commandTranslation.getIdentifier().equalsIgnoreCase(commandIdentifier))
-                    name[0] = commandTranslation.getTranslation();
-            });
-        }
-
-        if (name[0] == null) name[0] = "No name available for this command";
-
-        return name[0];
+        CommandTranslation translations = getCmdTranslations(language);
+        return (translations != null) ? translations.getTranslation() : "invalidcommand";
     }
 
     /**
@@ -167,8 +172,8 @@ public abstract class Command {
      * not found locally.
      *
      * @param cmdName the command identifier of the translation
-     * @param lang the current language of the guild
-     * @param id the identifier of the translation
+     * @param lang    the current language of the guild
+     * @param id      the identifier of the translation
      * @return the TranslationResponse representing this translation
      * @throws Exception
      */
@@ -176,7 +181,9 @@ public abstract class Command {
         Queue<PhraseTranslation> phraseTranslations = lang.getPhraseTranslations();
 
         for (PhraseTranslation phraseTranslation : phraseTranslations) {
-            if (phraseTranslation.getCommandIdentifier().equalsIgnoreCase(cmdName) && phraseTranslation.getId().equalsIgnoreCase(id)) {
+            if (phraseTranslation.getCommandIdentifier().equalsIgnoreCase(cmdName) && phraseTranslation.getId()
+                    .equalsIgnoreCase(id))
+            {
                 return new TranslationResponse(phraseTranslation.getTranslation(), lang, true, false, true);
             }
         }
@@ -188,33 +195,38 @@ public abstract class Command {
      * parameters. Queries the database.
      *
      * @param cmdName the command identifier of the translation
-     * @param lang the current language of the guild
-     * @param id the identifier of the translation
+     * @param lang    the current language of the guild
+     * @param id      the identifier of the translation
      * @return the TranslationResponse representing this translation
      * @throws Exception
      */
     private TranslationResponse getTranslationDb(String cmdName, Language lang, String id) throws Exception {
-        Statement statement = conn.createStatement();
-        ResultSet set = statement.executeQuery("SELECT * FROM Translations WHERE CommandIdentifier='" + cleanString(cmdName) + "' AND Language='" + lang.getIdentifier() + "' AND ID='" + cleanString(id) + "'");
-        if (set.next()) {
-            String translation = set.getString("Translation").replace("{newline}", "\n");
-            set.close();
-            statement.close();
-            return new TranslationResponse(translation, lang, true, false, true);
+        TranslationResponse response = null;
+
+        DatabaseAction translationRequest = new DatabaseAction("SELECT * FROM Translations WHERE CommandIdentifier=? " +
+                "AND Language=? AND ID=?");
+        translationRequest.set(1, cmdName).set(2, lang.getIdentifier()).set(3, id);
+        ResultSet langTranslations = translationRequest.request();
+        if (langTranslations.next()) {
+            String translation = langTranslations.getString("Translation").replace("{newline}", "\n");
+            response = new TranslationResponse(translation, lang, true, false, true);
         }
         else {
-            set.close();
-            ResultSet englishSet = statement.executeQuery("SELECT * FROM Translations WHERE CommandIdentifier='" + cleanString(cmdName) + "' AND Language='english' AND ID='" + cleanString(id) + "'");
+            DatabaseAction englishRequest = new DatabaseAction("SELECT * FROM Translations WHERE CommandIdentifier=? " +
+                    "AND Language=? AND ID=?");
+            translationRequest.set(1, cmdName).set(2, "english").set(3, id);
+            ResultSet englishSet = translationRequest.request();
             if (englishSet.next()) {
                 String translation = englishSet.getString("Translation").replace("{newline}", "\n");
-                englishSet.close();
-                statement.close();
-                return new TranslationResponse(translation, lang, true, false, true);
+                response = new TranslationResponse(translation, lang, true, false, true);
             }
-            englishSet.close();
-            statement.close();
-            return new TranslationResponse(null, lang, false, false, false);
+            else {
+                response = new TranslationResponse(null, lang, false, false, false);
+            }
+            englishRequest.close();
         }
+        translationRequest.close();
+        return response;
     }
 
     /**
@@ -223,12 +235,13 @@ public abstract class Command {
      * the database, but queries the database if requested translations are
      * not found locally.
      *
-     * @param language the current language of the guild
+     * @param language     the current language of the guild
      * @param translations a list of translations to request
      * @return the TranslationResponse representing this translation
      * @throws Exception
      */
-    public HashMap<Integer, TranslationResponse> getTranslations(Language language, List<Translation> translations) throws Exception {
+    public HashMap<Integer, TranslationResponse> getTranslations(Language language, List<Translation> translations)
+            throws Exception {
         HashMap<Integer, TranslationResponse> translationResponses = new HashMap<>();
         ConcurrentHashMap<Translation, Integer> originalPlaces = new ConcurrentHashMap<>();
 
@@ -245,7 +258,8 @@ public abstract class Command {
                 if (phraseTranslation.getCommandIdentifier().equalsIgnoreCase(translation.getCommandId()) &&
                         phraseTranslation.getId().equalsIgnoreCase(translation.getId()))
                 {
-                    translationResponses.put(originalPlaces.get(translation), new TranslationResponse(phraseTranslation.getTranslation(), language, true, true, true));
+                    translationResponses.put(originalPlaces.get(translation), new TranslationResponse
+                            (phraseTranslation.getTranslation(), language, true, true, true));
                     translationIterator.remove();
 
                 }
@@ -264,12 +278,13 @@ public abstract class Command {
      * Returns the translation responses representing the given translations'
      * parameters. This method queries the database.
      *
-     * @param language the current language of the guild
+     * @param language     the current language of the guild
      * @param translations a list of translations to request
      * @return the TranslationResponse representing this translation
      * @throws Exception
      */
-    private HashMap<Integer, TranslationResponse> getTranslationsDb(Language language, List<Translation> translations) throws Exception {
+    private HashMap<Integer, TranslationResponse> getTranslationsDb(Language language, List<Translation>
+            translations) throws Exception {
         Statement statement = conn.createStatement();
         ConcurrentHashMap<Translation, Integer> originalPlaces = new ConcurrentHashMap<>();
         for (int i = 0; i < translations.size(); i++) {
@@ -277,15 +292,19 @@ public abstract class Command {
             originalPlaces.put(translation, i);
         }
         HashMap<Integer, TranslationResponse> translationResponses = new HashMap<>();
-        ResultSet langSet = statement.executeQuery("SELECT * FROM Translations WHERE Language='" + language.getIdentifier() + "'");
+        ResultSet langSet = statement.executeQuery("SELECT * FROM Translations WHERE Language='" + language
+                .getIdentifier() + "'");
         while (langSet.next()) {
             String commandIdentifier = langSet.getString("CommandIdentifier");
             String id = langSet.getString("ID");
             for (int i = 0; i < translations.size(); i++) {
                 Translation translation = translations.get(i);
-                if (translation.getCommandId().equalsIgnoreCase(commandIdentifier) && translation.getId().equalsIgnoreCase(id)) {
+                if (translation.getCommandId().equalsIgnoreCase(commandIdentifier) && translation.getId()
+                        .equalsIgnoreCase(id))
+                {
                     String returnedTranslation = langSet.getString("Translation").replace("{newline}", "\n");
-                    translationResponses.put(originalPlaces.get(translation), new TranslationResponse(returnedTranslation, language, true, true, true));
+                    translationResponses.put(originalPlaces.get(translation), new TranslationResponse
+                            (returnedTranslation, language, true, true, true));
                     translations.remove(translation);
                 }
             }
@@ -298,9 +317,12 @@ public abstract class Command {
                 String id = englishSet.getString("ID");
                 for (int i = 0; i < translations.size(); i++) {
                     Translation translation = translations.get(i);
-                    if (translation.getCommandId().equalsIgnoreCase(commandIdentifier) && translation.getId().equalsIgnoreCase(id)) {
+                    if (translation.getCommandId().equalsIgnoreCase(commandIdentifier) && translation.getId()
+                            .equalsIgnoreCase(id))
+                    {
                         String returnedTranslation = englishSet.getString("Translation");
-                        translationResponses.put(originalPlaces.get(translation), new TranslationResponse(returnedTranslation, language, true, true, true));
+                        translationResponses.put(originalPlaces.get(translation), new TranslationResponse
+                                (returnedTranslation, language, true, true, true));
                         translations.remove(translation);
                     }
                 }
@@ -308,43 +330,11 @@ public abstract class Command {
             englishSet.close();
             statement.close();
             for (Translation translation : translations) {
-                translationResponses.put(originalPlaces.get(translation), new TranslationResponse(null, language, false, false, false));
+                translationResponses.put(originalPlaces.get(translation), new TranslationResponse(null, language,
+                        false, false, false));
             }
         }
         return translationResponses;
-    }
-
-    /**
-     * Holds settings for each command
-     */
-    public static class CommandSettings {
-        private String commandIdentifier;
-        private boolean privateChannelUsage;
-        private boolean guildUsage;
-        private Category category;
-
-        public CommandSettings(String commandIdentifier, boolean privateChannelUsage, boolean guildUsage, Category category) {
-            this.commandIdentifier = commandIdentifier;
-            this.privateChannelUsage = privateChannelUsage;
-            this.guildUsage = guildUsage;
-            this.category = category;
-        }
-
-        String getCommandIdentifier() {
-            return commandIdentifier;
-        }
-
-        boolean isPrivateChannelUsage() {
-            return privateChannelUsage;
-        }
-
-        boolean isGuildUsage() {
-            return guildUsage;
-        }
-
-        Category getCategory() {
-            return category;
-        }
     }
 
     public String getCommandIdentifier() {
@@ -370,6 +360,7 @@ public abstract class Command {
 
     /**
      * Compare commands based on identifiers
+     *
      * @param o the command to compare
      * @return whether the identifiers are equivalent
      */
@@ -381,5 +372,39 @@ public abstract class Command {
             else return false;
         }
         else return false;
+    }
+
+    /**
+     * Holds settings for each command
+     */
+    public static class CommandSettings {
+        private String commandIdentifier;
+        private boolean privateChannelUsage;
+        private boolean guildUsage;
+        private Category category;
+
+        public CommandSettings(String commandIdentifier, boolean privateChannelUsage, boolean guildUsage, Category
+                category) {
+            this.commandIdentifier = commandIdentifier;
+            this.privateChannelUsage = privateChannelUsage;
+            this.guildUsage = guildUsage;
+            this.category = category;
+        }
+
+        String getCommandIdentifier() {
+            return commandIdentifier;
+        }
+
+        boolean isPrivateChannelUsage() {
+            return privateChannelUsage;
+        }
+
+        boolean isGuildUsage() {
+            return guildUsage;
+        }
+
+        Category getCategory() {
+            return category;
+        }
     }
 }

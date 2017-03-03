@@ -1,5 +1,7 @@
 package tk.ardentbot.Backend.Web;
 
+import spark.Request;
+import spark.Response;
 import tk.ardentbot.Backend.Commands.CommandFactory;
 import tk.ardentbot.Backend.Translation.LangFactory;
 import tk.ardentbot.Backend.Translation.Language;
@@ -8,10 +10,8 @@ import tk.ardentbot.Backend.Web.Models.Status;
 import tk.ardentbot.Backend.Web.Models.User;
 import tk.ardentbot.Bot.BotException;
 import tk.ardentbot.Main.Ardent;
-import tk.ardentbot.Utils.Pair;
-import tk.ardentbot.Utils.Quintet;
-import spark.Request;
-import spark.Response;
+import tk.ardentbot.Utils.Tuples.Pair;
+import tk.ardentbot.Utils.Tuples.Quintet;
 
 import java.lang.management.ManagementFactory;
 import java.sql.ResultSet;
@@ -20,10 +20,10 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Random;
 
+import static spark.Spark.*;
 import static tk.ardentbot.Commands.BotAdministration.Translate.*;
 import static tk.ardentbot.Main.Ardent.*;
-import static tk.ardentbot.Utils.SQLUtils.cleanString;
-import static spark.Spark.*;
+import static tk.ardentbot.Utils.SQL.SQLUtils.cleanString;
 
 public class WebServer {
     /**

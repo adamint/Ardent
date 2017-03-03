@@ -1,19 +1,19 @@
 package tk.ardentbot.Commands.GuildAdministration;
 
-import tk.ardentbot.Backend.Commands.BotCommand;
-import tk.ardentbot.Backend.Commands.Subcommand;
-import tk.ardentbot.Backend.Translation.Language;
-import tk.ardentbot.Utils.GuildUtils;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
+import tk.ardentbot.Backend.Commands.BotCommand;
+import tk.ardentbot.Backend.Commands.Subcommand;
+import tk.ardentbot.Backend.Translation.Language;
+import tk.ardentbot.Utils.GuildUtils;
 
 import java.sql.Statement;
 
 import static tk.ardentbot.Main.Ardent.conn;
-import static tk.ardentbot.Utils.SQLUtils.cleanString;
+import static tk.ardentbot.Utils.SQL.SQLUtils.cleanString;
 
 public class Prefix extends BotCommand {
     public Prefix(CommandSettings commandSettings) {

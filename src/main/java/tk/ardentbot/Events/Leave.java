@@ -1,8 +1,5 @@
 package tk.ardentbot.Events;
 
-import tk.ardentbot.Commands.GuildAdministration.Automessage;
-import tk.ardentbot.Main.Ardent;
-import tk.ardentbot.Utils.Triplet;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -10,6 +7,9 @@ import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.hooks.SubscribeEvent;
+import tk.ardentbot.Commands.GuildAdministration.Automessage;
+import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Utils.Tuples.Triplet;
 
 import java.sql.SQLException;
 import java.sql.Statement;

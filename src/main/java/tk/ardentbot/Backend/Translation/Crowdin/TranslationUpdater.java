@@ -1,7 +1,5 @@
 package tk.ardentbot.Backend.Translation.Crowdin;
 
-import tk.ardentbot.Backend.Translation.Language;
-import tk.ardentbot.Bot.BotException;
 import com.crowdin.Credentials;
 import com.crowdin.Crwdn;
 import com.crowdin.client.CrowdinApiClient;
@@ -9,6 +7,8 @@ import com.crowdin.parameters.CrowdinApiParametersBuilder;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.io.IOUtils;
+import tk.ardentbot.Backend.Translation.Language;
+import tk.ardentbot.Bot.BotException;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,7 +20,7 @@ import java.util.zip.ZipInputStream;
 
 import static tk.ardentbot.Backend.Translation.Crowdin.PhraseUpdater.*;
 import static tk.ardentbot.Main.Ardent.*;
-import static tk.ardentbot.Utils.SQLUtils.cleanString;
+import static tk.ardentbot.Utils.SQL.SQLUtils.cleanString;
 
 /**
  * Downloads and inserts phrase translations on a loop

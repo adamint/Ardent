@@ -18,35 +18,37 @@ public class BotMuteData {
     private HashMap<String, HashMap<String, Long>> usersGuildMute = new HashMap<>();
 
 
-    public BotMuteData(){
+    public BotMuteData() {
         try {
             Statement statement = conn.createStatement();
             ResultSet mutes = statement.executeQuery("SELECT * FROM Mutes");
-            while (mutes.next()){ // Adding all old mute into the HashMap
+            while (mutes.next()) { // Adding all old mute into the HashMap
                 this.addRaw(mutes.getString("GuildID"), mutes.getString("UserID"), mutes.getLong("UnmuteEpochSecond"));
             }
             mutes.close();
             statement.close();
-        }catch (Exception ex){
+        }
+        catch (Exception ex) {
             new BotException(ex);
         }
     }
 
-    private void addRaw(String gID, String uID, long endMute){
-        if(this.usersGuildMute.keySet().contains(gID)){
+    private void addRaw(String gID, String uID, long endMute) {
+        if (this.usersGuildMute.keySet().contains(gID)) {
             HashMap<String, Long> usersMute = this.usersGuildMute.get(gID);
-            if(!usersMute.keySet().contains(uID)){
+            if (!usersMute.keySet().contains(uID)) {
                 usersMute.put(uID, endMute);
                 this.usersGuildMute.replace(gID, usersMute); // Just in case.
             }
-        }else {
+        }
+        else {
             this.usersGuildMute.put(gID, new HashMap<>());
             this.addRaw(gID, uID, endMute); // Re-run to take the new entry.
         }
     }
 
 
-    private void sql_add(Member m, long d, Member s){
+    private void sql_add(Member m, long d, Member s) {
         try {
             PreparedStatement statement = conn.prepareStatement("INSERT INTO Mutes VALUES (?, ?, ?, ?)");
 
@@ -58,12 +60,13 @@ public class BotMuteData {
             statement.executeUpdate();
 
             statement.close();
-        }catch (Exception ex){
+        }
+        catch (Exception ex) {
             new BotException(ex);
         }
     }
 
-    private void sql_del(Member m){
+    private void sql_del(Member m) {
         try {
             PreparedStatement statement = conn.prepareStatement("DELETE FROM Mutes WHERE GuildID = ? AND UserID = ?");
 
@@ -73,7 +76,8 @@ public class BotMuteData {
             statement.executeUpdate();
 
             statement.close();
-        }catch (Exception ex){
+        }
+        catch (Exception ex) {
             new BotException(ex);
         }
     }
@@ -82,11 +86,12 @@ public class BotMuteData {
      * Mute the user (by his id) for a specified amount of time.
      * If the user is already muted, the duration will be added
      * to the current one.
-     * @param member Guild's Member.
+     *
+     * @param member   Guild's Member.
      * @param duration Duration (in millisecond) for the mute.
      */
-    public boolean mute(Member member, long duration, Member sender){
-        if(this.isMuted(member)) return false;
+    public boolean mute(Member member, long duration, Member sender) {
+        if (this.isMuted(member)) return false;
         this.usersGuildMute.get(member.getGuild().getId()).put(member.getUser().getId(), System.currentTimeMillis() + duration);
         this.sql_add(member, System.currentTimeMillis() + duration, sender);
         return true;
@@ -94,9 +99,10 @@ public class BotMuteData {
 
     /**
      * Unmute the uset and delete it from the mute list.
+     *
      * @param member Guild's Member
      */
-    public void unmute(Member member){
+    public void unmute(Member member) {
         this.sql_del(member);
         this.usersGuildMute.get(member.getGuild().getId()).remove(member.getUser().getId());
     }
@@ -104,17 +110,19 @@ public class BotMuteData {
 
     /**
      * Check if an user is muted (by his id).
+     *
      * @param member Guild's Member.
      * @return True if the user is muted. False if not.
      */
-    public boolean isMuted(Member member){
-        if(this.usersGuildMute.keySet().contains(member.getGuild().getId())){
+    public boolean isMuted(Member member) {
+        if (this.usersGuildMute.keySet().contains(member.getGuild().getId())) {
             boolean muted = this.usersGuildMute.get(member.getGuild().getId()).keySet().contains(member.getUser().getId()) && System.currentTimeMillis() < this.usersGuildMute.get(member.getGuild().getId()).get(member.getUser().getId());
-            if(!muted){
+            if (!muted) {
                 this.sql_del(member);
             }
             return muted;
-        }else{
+        }
+        else {
             this.usersGuildMute.put(member.getGuild().getId(), new HashMap<>()); // Adding the guild to the mutes data. Avoiding NPE.
         }
         return false;
@@ -124,25 +132,27 @@ public class BotMuteData {
      * Check if an user is in the mute list.
      * WARNING !! Even if the user is mute,
      * it will return true !
+     *
      * @param member Guild's Member
      * @return True if the user is in the mute list.
      */
-    public boolean wasMute(Member member){
+    public boolean wasMute(Member member) {
         return this.usersGuildMute.keySet().contains(member.getGuild().getId()) && this.usersGuildMute.get(member.getGuild().getId()).keySet().contains(member.getUser().getId());
     }
 
     /**
      * Get the mute duration left for an user (by his id).
+     *
      * @param member Guild's Member
      * @return Duration left until unmute
      */
-    public long getMuteDuration(Member member){
-        if(!this.isMuted(member)) return 0;
+    public long getMuteDuration(Member member) {
+        if (!this.isMuted(member)) return 0;
         return this.usersGuildMute.get(member.getGuild().getId()).get(member.getUser().getId()) - System.currentTimeMillis();
     }
 
 
-    public HashMap<String, HashMap<String, Long>> getMutes(){
+    public HashMap<String, HashMap<String, Long>> getMutes() {
         return this.usersGuildMute;
     }
 

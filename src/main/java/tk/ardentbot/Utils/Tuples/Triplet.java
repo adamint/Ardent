@@ -1,4 +1,4 @@
-package tk.ardentbot.Utils;
+package tk.ardentbot.Utils.Tuples;
 
 public class Triplet<A, B, C> {
     private A a;
@@ -15,20 +15,20 @@ public class Triplet<A, B, C> {
         return a;
     }
 
-    public B getB() {
-        return b;
-    }
-
-    public C getC() {
-        return c;
-    }
-
     public void setA(A a) {
         this.a = a;
     }
 
+    public B getB() {
+        return b;
+    }
+
     public void setB(B b) {
         this.b = b;
+    }
+
+    public C getC() {
+        return c;
     }
 
     public void setC(C c) {
