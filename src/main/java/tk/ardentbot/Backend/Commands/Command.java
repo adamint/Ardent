@@ -15,13 +15,11 @@ import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static tk.ardentbot.Backend.Translation.LangFactory.english;
-import static tk.ardentbot.Main.Ardent.conn;
 
 /**
  * Abstracted from BotCommand for possible future
@@ -205,7 +203,7 @@ public abstract class Command {
 
         DatabaseAction translationRequest = new DatabaseAction("SELECT * FROM Translations WHERE CommandIdentifier=? " +
                 "AND Language=? AND ID=?");
-        translationRequest.set(1, cmdName).set(2, lang.getIdentifier()).set(3, id);
+        translationRequest.set(cmdName).set(lang.getIdentifier()).set(id);
         ResultSet langTranslations = translationRequest.request();
         if (langTranslations.next()) {
             String translation = langTranslations.getString("Translation").replace("{newline}", "\n");
@@ -214,7 +212,7 @@ public abstract class Command {
         else {
             DatabaseAction englishRequest = new DatabaseAction("SELECT * FROM Translations WHERE CommandIdentifier=? " +
                     "AND Language=? AND ID=?");
-            translationRequest.set(1, cmdName).set(2, "english").set(3, id);
+            translationRequest.set(cmdName).set("english").set(id);
             ResultSet englishSet = translationRequest.request();
             if (englishSet.next()) {
                 String translation = englishSet.getString("Translation").replace("{newline}", "\n");
@@ -285,15 +283,17 @@ public abstract class Command {
      */
     private HashMap<Integer, TranslationResponse> getTranslationsDb(Language language, List<Translation>
             translations) throws Exception {
-        Statement statement = conn.createStatement();
         ConcurrentHashMap<Translation, Integer> originalPlaces = new ConcurrentHashMap<>();
         for (int i = 0; i < translations.size(); i++) {
             Translation translation = translations.get(i);
             originalPlaces.put(translation, i);
         }
         HashMap<Integer, TranslationResponse> translationResponses = new HashMap<>();
-        ResultSet langSet = statement.executeQuery("SELECT * FROM Translations WHERE Language='" + language
-                .getIdentifier() + "'");
+
+        DatabaseAction langRequest = new DatabaseAction("SELECT * FROM Translations WHERE Language=?").set(language
+                .getIdentifier());
+
+        ResultSet langSet = langRequest.request();
         while (langSet.next()) {
             String commandIdentifier = langSet.getString("CommandIdentifier");
             String id = langSet.getString("ID");
@@ -309,9 +309,11 @@ public abstract class Command {
                 }
             }
         }
-        langSet.close();
         if (translations.size() > 0) {
-            ResultSet englishSet = statement.executeQuery("SELECT * FROM Translations WHERE Language='english'");
+            DatabaseAction englishRequest = new DatabaseAction("SELECT * FROM Translations WHERE Language=?").set
+                    ("english");
+
+            ResultSet englishSet = englishRequest.request();
             while (englishSet.next()) {
                 String commandIdentifier = englishSet.getString("CommandIdentifier");
                 String id = englishSet.getString("ID");
@@ -327,13 +329,13 @@ public abstract class Command {
                     }
                 }
             }
-            englishSet.close();
-            statement.close();
             for (Translation translation : translations) {
                 translationResponses.put(originalPlaces.get(translation), new TranslationResponse(null, language,
                         false, false, false));
             }
+            englishRequest.close();
         }
+        langRequest.close();
         return translationResponses;
     }
 

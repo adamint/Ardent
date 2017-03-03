@@ -1,22 +1,20 @@
 package tk.ardentbot.Backend.Translation.Crowdin;
 
-import tk.ardentbot.Backend.Translation.LangFactory;
-import tk.ardentbot.Backend.Translation.Language;
-import tk.ardentbot.Bot.BotException;
 import com.crowdin.Credentials;
 import com.crowdin.Crwdn;
 import com.crowdin.client.CrowdinApiClient;
 import com.crowdin.parameters.CrowdinApiParametersBuilder;
 import org.apache.commons.io.IOUtils;
+import tk.ardentbot.Backend.Translation.LangFactory;
+import tk.ardentbot.Backend.Translation.Language;
+import tk.ardentbot.Bot.BotException;
+import tk.ardentbot.Utils.SQL.DatabaseAction;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
-
-import static tk.ardentbot.Main.Ardent.conn;
 
 /**
  * Updates needed phrases on a loop
@@ -26,6 +24,19 @@ public class PhraseUpdater implements Runnable {
     static final String PROJECT_IDENTIFIER = "ardent";
     public static String PROJECT_KEY;
     public static String ACCOUNT_KEY;
+
+    private static ArrayList<Phrase> getPhrases(Language language) throws SQLException {
+        ArrayList<Phrase> phrases = new ArrayList<>();
+        DatabaseAction queryPhrases = new DatabaseAction("SELECT * FROM Translations WHERE Language=?").set(language
+                .getIdentifier());
+        ResultSet set = queryPhrases.request();
+        while (set.next()) {
+            phrases.add(new Phrase(set.getString("CommandIdentifier"), set.getString("ID"), set.getString
+                    ("Translation")));
+        }
+        queryPhrases.close();
+        return phrases;
+    }
 
     @Override
     public void run() {
@@ -55,16 +66,5 @@ public class PhraseUpdater implements Runnable {
         catch (Exception ex) {
             new BotException(ex);
         }
-    }
-    private static ArrayList<Phrase> getPhrases(Language language) throws SQLException {
-        ArrayList<Phrase> phrases = new ArrayList<>();
-        Statement statement = conn.createStatement();
-        ResultSet set = statement.executeQuery("SELECT * FROM Translations WHERE Language='" + language.getIdentifier() + "'");
-        while (set.next()) {
-            phrases.add(new Phrase(set.getString("CommandIdentifier"), set.getString("ID"), set.getString("Translation")));
-        }
-        set.close();
-        statement.close();
-        return phrases;
     }
 }

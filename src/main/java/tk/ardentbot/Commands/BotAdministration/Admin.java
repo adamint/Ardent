@@ -1,13 +1,13 @@
 package tk.ardentbot.Commands.BotAdministration;
 
+import net.dv8tion.jda.core.entities.*;
+import org.apache.commons.io.FileUtils;
 import tk.ardentbot.Backend.Commands.BotCommand;
 import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Bot.BotException;
 import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.GuildUtils;
 import tk.ardentbot.Utils.UsageUtils;
-import net.dv8tion.jda.core.entities.*;
-import org.apache.commons.io.FileUtils;
 import twitter4j.TwitterException;
 
 import java.io.File;
@@ -20,57 +20,11 @@ import static tk.ardentbot.Main.Ardent.*;
 import static tk.ardentbot.Utils.GuildUtils.getVoiceConnections;
 
 public class Admin extends BotCommand {
+    public static int secondsWaitedForRestart = 0;
     public Admin(CommandSettings commandSettings) {
         super(commandSettings);
     }
-    public static int secondsWaitedForRestart = 0;
-    @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception, TwitterException {
-        if (Ardent.developers.contains(user.getId())) {
-            if (args.length > 1) {
-                if (args[1].equalsIgnoreCase("update")) {
-                    update(this, language, channel);
-                }
-                else if (args[1].equalsIgnoreCase("softupdate")) {
-                    Timer t = new Timer();
-                    t.scheduleAtFixedRate(new TimerTask() {
-                        @Override
-                        public void run() {
-                            if (getVoiceConnections() <= 1 || (secondsWaitedForRestart >= (60 * 60 * 3))) {
-                                if (getVoiceConnections() <= 3) {
-                                    update(Admin.this, language, channel);
-                                }
-                            }
-                            secondsWaitedForRestart += 5;
-                        }
-                    }, 5000, 5000);
-                }
-                else if (args[1].equalsIgnoreCase("getloc")) {
-                    sendTranslatedMessage(this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath(), channel);
-                }
-                else if (args[1].equalsIgnoreCase("usage")) {
-                    Map<Guild, Integer> guildsByUsage = UsageUtils.sortedGuildsByCommandUsage(10);
-                    StringBuilder sb = new StringBuilder();
-                    guildsByUsage.forEach((key, value) -> {
-                        sb.append(key.getName() + " (" + key.getId() + ") : " + value + "\n");
-                    });
-                    sendTranslatedMessage(sb.toString(), channel);
-                }
-                else if (args[1].equalsIgnoreCase("announce")) {
-                    String msg = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " + args[1] + " ", "");
-                    announcement = "** == Important Announcement ==**\n" + msg;
-                    jda.getGuilds().forEach(g -> {
-                        sentAnnouncement.put(g.getId(), false);
-                    });
-                }
-            }
-        }
-        else sendRetrievedTranslation(channel, "other", language, "needdeveloperpermission");
-    }
 
-    @Override
-    public void setupSubcommands() {
-    }
     public static void update(BotCommand command, Language language, MessageChannel channel) {
         channel.sendMessage("Updating...").queue();
         new Timer().schedule(new TimerTask() {
@@ -139,5 +93,57 @@ public class Admin extends BotCommand {
         else {
             return tempFile;
         }
+    }
+
+    @Override
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
+            language) throws Exception, TwitterException {
+        if (Ardent.developers.contains(user.getId())) {
+            if (args.length > 1) {
+                if (args[1].equalsIgnoreCase("update")) {
+                    update(this, language, channel);
+                }
+                else if (args[1].equalsIgnoreCase("softupdate")) {
+                    Timer t = new Timer();
+                    t.scheduleAtFixedRate(new TimerTask() {
+                        @Override
+                        public void run() {
+                            if (getVoiceConnections() <= 1 || (secondsWaitedForRestart >= (60 * 60 * 3))) {
+                                if (getVoiceConnections() <= 3) {
+                                    update(Admin.this, language, channel);
+                                }
+                            }
+                            secondsWaitedForRestart += 5;
+                        }
+                    }, 5000, 5000);
+                }
+                else if (args[1].equalsIgnoreCase("getloc")) {
+                    sendTranslatedMessage(this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath
+                            (), channel);
+                }
+                else if (args[1].equalsIgnoreCase("usage")) {
+                    Map<Guild, Integer> guildsByUsage = UsageUtils.sortedGuildsByCommandUsage(10);
+                    StringBuilder sb = new StringBuilder();
+                    guildsByUsage.forEach((key, value) -> {
+                        sb.append(key.getName() + " (" + key.getId() + ") : " + value + "\n");
+                    });
+                    sendTranslatedMessage(sb.toString(), channel);
+                }
+                else if (args[1].equalsIgnoreCase("announce")) {
+                    String msg = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " +
+                            args[1] + " ", "");
+                    if (announcement != null) sentAnnouncement.clear();
+                    announcement = "** == Important Announcement ==**\n" + msg;
+                    jda.getGuilds().forEach(g -> {
+                        sentAnnouncement.put(g.getId(), false);
+                    });
+                }
+            }
+        }
+        else sendRetrievedTranslation(channel, "other", language, "needdeveloperpermission");
+    }
+
+    @Override
+    public void setupSubcommands() {
     }
 }

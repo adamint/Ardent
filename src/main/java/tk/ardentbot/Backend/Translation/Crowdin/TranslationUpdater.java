@@ -9,6 +9,7 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.io.IOUtils;
 import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Bot.BotException;
+import tk.ardentbot.Utils.SQL.DatabaseAction;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,7 +21,6 @@ import java.util.zip.ZipInputStream;
 
 import static tk.ardentbot.Backend.Translation.Crowdin.PhraseUpdater.*;
 import static tk.ardentbot.Main.Ardent.*;
-import static tk.ardentbot.Utils.SQL.SQLUtils.cleanString;
 
 /**
  * Downloads and inserts phrase translations on a loop
@@ -30,7 +30,8 @@ public class TranslationUpdater implements Runnable {
     private Credentials credentials = new Credentials(BASE_URL, PROJECT_IDENTIFIER, PROJECT_KEY, ACCOUNT_KEY);
     private CrowdinApiClient crwdn = new Crwdn();
 
-    public TranslationUpdater() throws SQLException {}
+    public TranslationUpdater() throws SQLException {
+    }
 
     @Override
     public void run() {
@@ -47,7 +48,8 @@ public class TranslationUpdater implements Runnable {
                 ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(downloaded));
                 zipInputStream.getNextEntry();
 
-                CSVParser parser = new CSVParser(new StringReader(IOUtils.toString(zipInputStream)), CSVFormat.DEFAULT.withDelimiter(';'));
+                CSVParser parser = new CSVParser(new StringReader(IOUtils.toString(zipInputStream)), CSVFormat
+                        .DEFAULT.withDelimiter(';'));
 
                 parser.forEach(record -> {
                     String context = record.get(0);
@@ -61,14 +63,17 @@ public class TranslationUpdater implements Runnable {
 
                     if (!original.equalsIgnoreCase(translation)) {
                         try {
-                            ResultSet set = statement.executeQuery("SELECT * FROM Translations WHERE CommandIdentifier='" + commandId + "' AND " +
-                                    "ID='" + translationId + "' AND Language='" + l.getIdentifier() + "'");
+                            DatabaseAction queryTranslations = new DatabaseAction("SELECT * FROM Translations WHERE " +
+                                    "CommandIdentifier=? AND ID=? AND Language=?").set(commandId).set(translationId)
+                                    .set(l.getIdentifier());
+                            ResultSet set = queryTranslations.request();
                             if (!set.next()) {
-                                statement.executeUpdate("INSERT INTO Translations VALUES ('" + commandId + "','" + cleanString(translation) + "','" +
-                                        translationId + "','" + l.getIdentifier() + "','0')");
-                                p("INSERTED VALUES: Language: " + l.getIdentifier() + " | Command ID: " + commandId + " | Translation ID: " + translationId + " | Translation: " + translation);
+                                new DatabaseAction("INSERT INTO Translations VALUES (?,?,?,?,?").set(commandId)
+                                        .set(translation).set(translationId).set(l.getIdentifier()).set(0).update();
+                                p("INSERTED VALUES: Language: " + l.getIdentifier() + " | Command ID: " + commandId +
+                                        " | Translation ID: " + translationId + " | Translation: " + translation);
                             }
-                            set.close();
+                            queryTranslations.update();
                         }
                         catch (SQLException e) {
                             e.printStackTrace();

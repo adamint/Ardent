@@ -10,6 +10,7 @@ import tk.ardentbot.Backend.Web.Models.Status;
 import tk.ardentbot.Backend.Web.Models.User;
 import tk.ardentbot.Bot.BotException;
 import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.Tuples.Pair;
 import tk.ardentbot.Utils.Tuples.Quintet;
 
@@ -42,7 +43,8 @@ public class WebServer {
             ArrayList<Command> commands = new ArrayList<>();
             factory.getCommands().forEach(command -> {
                 try {
-                    commands.add(new Command(command.getName(LangFactory.english), command.getCategory(), command.getDescription(LangFactory.english)));
+                    commands.add(new Command(command.getName(LangFactory.english), command.getCategory(), command
+                            .getDescription(LangFactory.english)));
                 }
                 catch (Exception e) {
                     new BotException(e);
@@ -56,34 +58,16 @@ public class WebServer {
             for (String id : Ardent.developers) {
                 net.dv8tion.jda.core.entities.User user = jda.getUserById(id);
                 String avatarUrl = user.getAvatarUrl();
-                if (avatarUrl == null) {
-                    int random = new Random().nextInt(4);
-                    if (random == 0)
-                        avatarUrl = "https://i.gyazo.com/41c854b8f366402cd75a4450becd178a.jpg";
-                    else if (random == 1)
-                        avatarUrl = "https://i.gyazo.com/5b07238cf478a02c9565d28ed6bb2b1f.jpg";
-                    else if (random == 2)
-                        avatarUrl = "https://i.gyazo.com/65ab76aa4c70f3b7e85b1cfcc74370df.jpg";
-                    else if (random == 3)
-                        avatarUrl = "https://i.gyazo.com/249ad1d26af8b388ea3b42fc23f52daa.jpg";
-                }
+                if (avatarUrl == null) avatarUrl = getDefaultImage();
+
                 developers.add(new User(id, user.getName(), user.getDiscriminator(), avatarUrl, "developer"));
             }
             ArrayList<User> translators = new ArrayList<>();
             for (String id : Ardent.translators) {
                 net.dv8tion.jda.core.entities.User user = jda.getUserById(id);
                 String avatarUrl = user.getAvatarUrl();
-                if (avatarUrl == null) {
-                    int random = new Random().nextInt(4);
-                    if (random == 0)
-                        avatarUrl = "https://i.gyazo.com/41c854b8f366402cd75a4450becd178a.jpg";
-                    else if (random == 1)
-                        avatarUrl = "https://i.gyazo.com/5b07238cf478a02c9565d28ed6bb2b1f.jpg";
-                    else if (random == 2)
-                        avatarUrl = "https://i.gyazo.com/65ab76aa4c70f3b7e85b1cfcc74370df.jpg";
-                    else if (random == 3)
-                        avatarUrl = "https://i.gyazo.com/249ad1d26af8b388ea3b42fc23f52daa.jpg";
-                }
+                if (avatarUrl == null) avatarUrl = getDefaultImage();
+
                 translators.add(new User(id, user.getName(), user.getDiscriminator(), avatarUrl, "translator"));
             }
             ArrayList<ArrayList<User>> staff = new ArrayList<>();
@@ -91,7 +75,8 @@ public class WebServer {
             staff.add(translators);
             return gson.toJson(staff);
         });
-        get("/api/status", (rq, rs) -> gson.toJson(new Status(factory.getMessagesReceived(), factory.getCommandsReceived(), ManagementFactory.getRuntimeMXBean().getUptime() / 1000,
+        get("/api/status", (rq, rs) -> gson.toJson(new Status(factory.getMessagesReceived(), factory
+                .getCommandsReceived(), ManagementFactory.getRuntimeMXBean().getUptime() / 1000,
                 factory.getLoadedCommandsAmount(), jda.getGuilds().size(), jda.getUsers().size())));
         get("/api/languages", (rq, rs) -> gson.toJson(LangFactory.languages));
         get("/api/translate/*/*/*", WebServer::translate);
@@ -115,7 +100,7 @@ public class WebServer {
      * @return status of the translation
      */
     private static String submit(Request rq) {
-        try (Statement statement = conn.createStatement()) {
+        try {
             String type = rq.queryParams("type");
             if (type != null) {
                 String languageString = rq.queryParams("language");
@@ -126,10 +111,13 @@ public class WebServer {
                             String id = rq.queryParams("identifier");
                             String command = rq.queryParams("commandidentifier");
                             String translation = rq.queryParams("translation");
-                            if (translation != null && !translation.isEmpty() && id != null && !id.isEmpty() && command != null && !command.isEmpty()) {
-                                statement.executeUpdate("INSERT INTO Translations VALUES ('" + command + "', '" + cleanString(translation) + "'," +
-                                        "'" + id + "', '" + language.getIdentifier() + "', '0')");
-                                return "Successfully added your translation. Go back and reload the page or use your base URL to enter in another one!";
+                            if (translation != null && !translation.isEmpty() && id != null && !id.isEmpty() &&
+                                    command != null && !command.isEmpty())
+                            {
+                                new DatabaseAction("INSERT INTO Translations VALUES (?,?,?,?,?)").set(command)
+                                        .set(translation).set(id).set(language.getIdentifier()).set(0).update();
+                                return "Successfully added your translation. Go back and reload the page or use your " +
+                                        "base URL to enter in another one!";
                             }
                             else return "Invalid translation - null or empty!";
                         }
@@ -141,9 +129,10 @@ public class WebServer {
                                     && !id.isEmpty() && !translationName.isEmpty() &&
                                     !translationDescription.isEmpty())
                             {
-                                statement.executeUpdate("INSERT INTO Commands VALUES ('" + id + "', '" + language.getIdentifier() + "', '" +
-                                        cleanString(translationName) + "', '" + cleanString(translationDescription) + "')");
-                                return "Successfully added your translation. Go back and reload the page or use your base URL to enter in another one!";
+                                new DatabaseAction("INSERT INTO Commands VALUES (?,?,?,?)").set(id).set(language
+                                        .getIdentifier()).set(translationName).set(translationDescription).update();
+                                return "Successfully added your translation. Go back and reload the page or use your " +
+                                        "base URL to enter in another one!";
                             }
                             else return "Invalid arguments. Make sure you entered in all the fields.";
                         }
@@ -153,14 +142,17 @@ public class WebServer {
                             String translationName = rq.queryParams("translationname");
                             String translationSyntax = rq.queryParams("translationsyntax");
                             String translationDescription = rq.queryParams("translationdescription");
-                            if (id != null && commandId != null && translationName != null && translationSyntax != null && translationDescription != null
+                            if (id != null && commandId != null && translationName != null && translationSyntax !=
+                                    null && translationDescription != null
                                     && !id.isEmpty() && !commandId.isEmpty() && !translationName.isEmpty() &&
                                     !translationSyntax.isEmpty() && !translationDescription.isEmpty())
                             {
-                                statement.executeUpdate("INSERT INTO Subcommands VALUES ('" + commandId + "', '" +
-                                        id + "', '" + language.getIdentifier() + "', '" + cleanString(translationName) + "', '" +
-                                        cleanString(translationSyntax) + "', '" + cleanString(translationDescription) + "', '1')");
-                                return "Successfully added your translation. Go back and reload the page or use your base URL to enter in another one!";
+                                new DatabaseAction("INSERT INTO Subcommands VALUES (?,?,?,?,?,?,?").set(commandId)
+                                        .set(id).set(language.getIdentifier()).set(translationName).set
+                                        (translationSyntax)
+                                        .set(translationDescription).update();
+                                return "Successfully added your translation. Go back and reload the page or use your " +
+                                        "base URL to enter in another one!";
                             }
                             else return "Invalid arguments. Make sure you entered in all the fields.";
                         }
@@ -186,7 +178,8 @@ public class WebServer {
      * @return translation form
      */
     private static String translate(Request rq, Response rs) {
-        String incorrectArgs = "Incorrect args specified: /api/translate/yourid/(phrases OR commands OR subcommands)/languagecode";
+        String incorrectArgs = "Incorrect args specified: /api/translate/yourid/(phrases OR commands OR subcommands)" +
+                "/languagecode";
         String[] splats = rq.splat();
         if (splats.length == 3) {
             if (Ardent.translators.contains(String.valueOf(Long.valueOf(splats[0]) + 4))) {
@@ -197,7 +190,8 @@ public class WebServer {
                             ArrayList<String> discrepancies = getTranslationDiscrepancies(language);
                             if (discrepancies.size() > 0) {
                                 String discrepancy1 = discrepancies.get(0);
-                                ResultSet set = statement.executeQuery("SELECT * FROM Translations WHERE Translation='" + cleanString(discrepancy1) + "'");
+                                ResultSet set = statement.executeQuery("SELECT * FROM Translations WHERE " +
+                                        "Translation='" + cleanString(discrepancy1) + "'");
                                 if (set.next()) {
                                     String commandIdentifier = set.getString("CommandIdentifier");
                                     String id = set.getString("ID");
@@ -206,16 +200,23 @@ public class WebServer {
                                             "<html>\n" +
                                             "<body>\n" +
                                             "\n" +
-                                            "<h2>Translate Phrases for " + LangFactory.getName(language) + " (" + discrepancies.size() + " phrases left to translate)</h2><br>\n" +
+                                            "<h2>Translate Phrases for " + LangFactory.getName(language) + " (" +
+                                            discrepancies.size() + " phrases left to translate)</h2><br>\n" +
                                             "\n" +
                                             "English Text<br>\n" +
-                                            "<textarea rows=\"4\" cols=\"100\" name=\"original\" form=\"phrases\" disabled>" + discrepancy1 + "</textarea>\n" +
+                                            "<textarea rows=\"4\" cols=\"100\" name=\"original\" form=\"phrases\" " +
+                                            "disabled>" + discrepancy1 + "</textarea>\n" +
                                             "<br>Translate Here <br>\n" +
-                                            "<textarea rows=\"4\" cols=\"100\" name=\"translation\" form=\"phrases\"></textarea>\n" +
+                                            "<textarea rows=\"4\" cols=\"100\" name=\"translation\" " +
+                                            "form=\"phrases\"></textarea>\n" +
                                             "\n" +
                                             "<form action=\"/api/translate/submit\" id=\"phrases\">\n" +
                                             "  <br>\n" +
-                                            "<input type=\"hidden\" name=\"identifier\" value=\"" + id + "\"><input type=\"hidden\" name=\"commandidentifier\" value=\"" + commandIdentifier + "\"><input type=\"hidden\" name=\"language\" value=\"" + LangFactory.getName(language) + "\"><input type=\"hidden\" name=\"type\" value=\"phrases\"><input type=\"submit\" value=\"Add Translation\">\n" +
+                                            "<input type=\"hidden\" name=\"identifier\" value=\"" + id + "\"><input " +
+                                            "type=\"hidden\" name=\"commandidentifier\" value=\"" + commandIdentifier
+                                            + "\"><input type=\"hidden\" name=\"language\" value=\"" + LangFactory
+                                            .getName(language) + "\"><input type=\"hidden\" name=\"type\" " +
+                                            "value=\"phrases\"><input type=\"submit\" value=\"Add Translation\">\n" +
                                             "</form>\n" +
                                             "<br>\n" +
                                             "</body>\n" +
@@ -224,7 +225,8 @@ public class WebServer {
                                 else return "Something went wrong (like really wrong): " + discrepancy1;
                             }
                             else
-                                return "No untranslated phrases for this language! Try commands or subcommand translations.";
+                                return "No untranslated phrases for this language! Try commands or subcommand " +
+                                        "translations.";
                         }
                         else if (splats[1].equalsIgnoreCase("commands")) {
                             ArrayList<Pair<String, String>> discrepancies = getCommandDiscrepancies(language);
@@ -234,30 +236,40 @@ public class WebServer {
                                         "<html>\n" +
                                         "<body>\n" +
                                         "\n" +
-                                        "<h2>Translate tk.ardentbot.Commands for " + LangFactory.getName(language) + " (" + discrepancies.size() + " commands left to translate)</h2><br>\n" +
+                                        "<h2>Translate tk.ardentbot.Commands for " + LangFactory.getName(language) +
+                                        " (" + discrepancies.size() + " commands left to translate)</h2><br>\n" +
                                         "\n" +
                                         "English Name<br>\n" +
-                                        "<textarea rows=\"4\" cols=\"100\" name=\"originalname\" form=\"commands\" disabled>" + discrepancy.getK() + "</textarea>\n" +
+                                        "<textarea rows=\"4\" cols=\"100\" name=\"originalname\" form=\"commands\" " +
+                                        "disabled>" + discrepancy.getK() + "</textarea>\n" +
                                         "<br>Translated Name (make sure it's lowercase) <br>\n" +
-                                        "<textarea rows=\"4\" cols=\"100\" name=\"translationname\" form=\"commands\"></textarea>\n" +
+                                        "<textarea rows=\"4\" cols=\"100\" name=\"translationname\" " +
+                                        "form=\"commands\"></textarea>\n" +
                                         "<br>English Description<br>\n" +
-                                        "<textarea rows=\"4\" cols=\"100\" name=\"originaldescription\" form=\"commands\" disabled>" + discrepancy.getV() + "</textarea>\n" +
+                                        "<textarea rows=\"4\" cols=\"100\" name=\"originaldescription\" " +
+                                        "form=\"commands\" disabled>" + discrepancy.getV() + "</textarea>\n" +
                                         "<br>Translated Description<br>\n" +
-                                        "<textarea rows=\"4\" cols=\"100\" name=\"translationdescription\" form=\"commands\"></textarea>\n" +
+                                        "<textarea rows=\"4\" cols=\"100\" name=\"translationdescription\" " +
+                                        "form=\"commands\"></textarea>\n" +
                                         "\n" +
                                         "<form action=\"/api/translate/submit\" id=\"commands\">\n" +
                                         "  <br>\n" +
-                                        "<input type=\"hidden\" name=\"identifier\" value=\"" + discrepancy.getK() + "\">  <input type=\"hidden\" name=\"language\" value=\"" + LangFactory.getName(language) + "\"><input type=\"hidden\" name=\"type\" value=\"commands\"><input type=\"submit\" value=\"Add Translation\">\n" +
+                                        "<input type=\"hidden\" name=\"identifier\" value=\"" + discrepancy.getK() +
+                                        "\">  <input type=\"hidden\" name=\"language\" value=\"" + LangFactory
+                                        .getName(language) + "\"><input type=\"hidden\" name=\"type\" " +
+                                        "value=\"commands\"><input type=\"submit\" value=\"Add Translation\">\n" +
                                         "</form>\n" +
                                         "<br>\n" +
                                         "</body>\n" +
                                         "</html>\n";
                             }
                             else
-                                return "No untranslated commands for this language! Try phrases or subcommand translations.";
+                                return "No untranslated commands for this language! Try phrases or subcommand " +
+                                        "translations.";
                         }
                         else if (splats[1].equalsIgnoreCase("subcommands")) {
-                            ArrayList<Quintet<String, String, String, String, String>> discrepancies = getSubCommandDiscrepancies(language);
+                            ArrayList<Quintet<String, String, String, String, String>> discrepancies =
+                                    getSubCommandDiscrepancies(language);
                             if (discrepancies.size() > 0) {
                                 Quintet<String, String, String, String, String> discrepancy = discrepancies.get(0);
                                 String cmdId = discrepancy.getA();
@@ -266,30 +278,43 @@ public class WebServer {
                                         "<html>\n" +
                                         "<body>\n" +
                                         "\n" +
-                                        "<h2>Translate Subcommands for " + LangFactory.getName(language) + " (" + discrepancies.size() + " subcommands left to translate)</h2><br>\n" +
+                                        "<h2>Translate Subcommands for " + LangFactory.getName(language) + " (" +
+                                        discrepancies.size() + " subcommands left to translate)</h2><br>\n" +
                                         "\n" +
                                         "Subcommand English Name<br>\n" +
-                                        "<textarea rows=\"4\" cols=\"100\" name=\"originalname\" form=\"subcommands\" disabled>" + discrepancy.getB() + "</textarea>\n" +
+                                        "<textarea rows=\"4\" cols=\"100\" name=\"originalname\" form=\"subcommands\"" +
+                                        " disabled>" + discrepancy.getB() + "</textarea>\n" +
                                         "<br>Translated Subcommand Name (make sure it's lowercase) <br>\n" +
-                                        "<textarea rows=\"4\" cols=\"100\" name=\"translationname\" form=\"subcommands\"></textarea>\n" +
+                                        "<textarea rows=\"4\" cols=\"100\" name=\"translationname\" " +
+                                        "form=\"subcommands\"></textarea>\n" +
                                         "<br>English Syntax<br>\n" +
-                                        "<textarea rows=\"4\" cols=\"100\" name=\"originalsyntax\" form=\"subcommands\" disabled>" + discrepancy.getD() + "</textarea>\n" +
+                                        "<textarea rows=\"4\" cols=\"100\" name=\"originalsyntax\" " +
+                                        "form=\"subcommands\" disabled>" + discrepancy.getD() + "</textarea>\n" +
                                         "<br>Translated Syntax<br>\n" +
-                                        "<textarea rows=\"4\" cols=\"100\" name=\"translationsyntax\" form=\"subcommands\"></textarea>\n" +
-                                        "<br>English Description<br><textarea rows=\"4\" cols=\"100\" name=\"originaldescription\" form=\"subcommands\" disabled>" + discrepancy.getE() + "</textarea>\n" +
+                                        "<textarea rows=\"4\" cols=\"100\" name=\"translationsyntax\" " +
+                                        "form=\"subcommands\"></textarea>\n" +
+                                        "<br>English Description<br><textarea rows=\"4\" cols=\"100\" " +
+                                        "name=\"originaldescription\" form=\"subcommands\" disabled>" + discrepancy
+                                        .getE() + "</textarea>\n" +
                                         "<br>Translated Description<br>\n" +
-                                        "<textarea rows=\"4\" cols=\"100\" name=\"translationdescription\" form=\"subcommands\"></textarea>\n" +
+                                        "<textarea rows=\"4\" cols=\"100\" name=\"translationdescription\" " +
+                                        "form=\"subcommands\"></textarea>\n" +
                                         "\n" +
                                         "<form action=\"/api/translate/submit\" id=\"subcommands\">\n" +
                                         "  <br>\n" +
-                                        "<input type=\"hidden\" name=\"identifier\" value=\"" + id + "\"><input type=\"hidden\" name=\"commandidentifier\" value=\"" + cmdId + "\"><input type=\"hidden\" name=\"language\" value=\"" + LangFactory.getName(language) + "\"><input type=\"hidden\" name=\"type\" value=\"subcommands\"><input type=\"submit\" value=\"Add Translation\">\n" +
+                                        "<input type=\"hidden\" name=\"identifier\" value=\"" + id + "\"><input " +
+                                        "type=\"hidden\" name=\"commandidentifier\" value=\"" + cmdId + "\"><input " +
+                                        "type=\"hidden\" name=\"language\" value=\"" + LangFactory.getName(language)
+                                        + "\"><input type=\"hidden\" name=\"type\" value=\"subcommands\"><input " +
+                                        "type=\"submit\" value=\"Add Translation\">\n" +
                                         "</form>\n" +
                                         "<br>\n" +
                                         "</body>\n" +
                                         "</html>\n";
                             }
                             else
-                                return "No untranslated commands for this language! Try phrases or subcommand translations.";
+                                return "No untranslated commands for this language! Try phrases or subcommand " +
+                                        "translations.";
                         }
                         else return incorrectArgs;
                     }
@@ -302,5 +327,20 @@ public class WebServer {
             else return "You're not a translator!";
         }
         else return incorrectArgs;
+    }
+
+    private static String getDefaultImage() {
+        String avatarUrl = null;
+        int random = new Random().nextInt(4);
+
+        if (random == 0)
+            avatarUrl = "https://i.gyazo.com/41c854b8f366402cd75a4450becd178a.jpg";
+        else if (random == 1)
+            avatarUrl = "https://i.gyazo.com/5b07238cf478a02c9565d28ed6bb2b1f.jpg";
+        else if (random == 2)
+            avatarUrl = "https://i.gyazo.com/65ab76aa4c70f3b7e85b1cfcc74370df.jpg";
+        else if (random == 3)
+            avatarUrl = "https://i.gyazo.com/249ad1d26af8b388ea3b42fc23f52daa.jpg";
+        return avatarUrl;
     }
 }

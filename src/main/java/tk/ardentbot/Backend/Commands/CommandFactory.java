@@ -1,17 +1,8 @@
 package tk.ardentbot.Backend.Commands;
 
-import tk.ardentbot.Backend.Models.CommandTranslation;
-import tk.ardentbot.Backend.Translation.LangFactory;
-import tk.ardentbot.Backend.Translation.Language;
-import tk.ardentbot.Bot.BotException;
-import tk.ardentbot.Commands.BotInfo.Status;
-import tk.ardentbot.Main.Ardent;
-import tk.ardentbot.Utils.GuildUtils;
-import tk.ardentbot.Utils.UsageUtils;
 import com.google.code.chatterbotapi.ChatterBotSession;
 import com.vdurmont.emoji.Emoji;
 import com.vdurmont.emoji.EmojiManager;
-import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
@@ -19,6 +10,15 @@ import net.dv8tion.jda.core.entities.PrivateChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.util.ConcurrentArrayQueue;
+import tk.ardentbot.Backend.Models.CommandTranslation;
+import tk.ardentbot.Backend.Translation.LangFactory;
+import tk.ardentbot.Backend.Translation.Language;
+import tk.ardentbot.Bot.BotException;
+import tk.ardentbot.Commands.BotInfo.Status;
+import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Utils.GuildUtils;
+import tk.ardentbot.Utils.SQL.DatabaseAction;
+import tk.ardentbot.Utils.UsageUtils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -38,6 +38,18 @@ public class CommandFactory {
     private long messagesReceived = 0;
     private long commandsReceived = 0;
 
+    /**
+     * Schedules emoji command updates with 150 second intervals,
+     * as emoji parsing doesn't otherwise work with the existing system
+     */
+    public CommandFactory() {
+        executorService.scheduleAtFixedRate(new EmojiCommandUpdater(), 1, 150, TimeUnit.SECONDS);
+    }
+
+    public static ChatterBotSession getBotSession(Guild guild) {
+        return Ardent.cleverbots.get(guild.getId());
+    }
+
     public ConcurrentArrayQueue<Command> getCommands() {
         return commands;
     }
@@ -54,28 +66,20 @@ public class CommandFactory {
         return commandsReceived;
     }
 
-    public static ChatterBotSession getBotSession(Guild guild) {
-        return Ardent.cleverbots.get(guild.getId());
-    }
-
-    /**
-     * Schedules emoji command updates with 150 second intervals,
-     * as emoji parsing doesn't otherwise work with the existing system
-     */
-    public CommandFactory() {
-        executorService.scheduleAtFixedRate(new EmojiCommandUpdater(), 1, 150, TimeUnit.SECONDS);
-    }
-
     /**
      * Registers a command to the factory, provides a simple check for duplicates
+     *
      * @param command command to be added
      * @throws Exception
      */
     public void registerCommand(Command command) throws Exception {
         BotCommand botCommand = command.botCommand;
         for (Command cmd : commands) {
-            if (StringUtils.stripAccents(cmd.getCommandIdentifier()).equalsIgnoreCase(StringUtils.stripAccents(botCommand.getCommandIdentifier()))) {
-                System.out.println("Multiple commands cannot be registered under the same name. Ignoring new instance.\n" +
+            if (StringUtils.stripAccents(cmd.getCommandIdentifier()).equalsIgnoreCase(StringUtils.stripAccents
+                    (botCommand.getCommandIdentifier())))
+            {
+                System.out.println("Multiple commands cannot be registered under the same name. Ignoring new instance" +
+                        ".\n" +
                         "Name: " + command.toString());
                 return;
             }
@@ -102,22 +106,27 @@ public class CommandFactory {
             if (message.getRawContent().startsWith(ardent.getAsMention())) {
                 BotCommand cmd = help.botCommand;
                 if (message.getRawContent().replace(ardent.getAsMention(), "").length() == 0) {
-                    cmd.sendTranslatedMessage(cmd.getTranslation("other", language, "mentionedhelp").getTranslation().replace("{0}", GuildUtils.getPrefix(guild) +
-                            cmd.getName(language)), channel);
+                    cmd.sendTranslatedMessage(cmd.getTranslation("other", language, "mentionedhelp").getTranslation()
+                            .replace("{0}", GuildUtils.getPrefix(guild) +
+                                    cmd.getName(language)), channel);
                 }
                 else {
                     if (guild != null) {
                         if (message.getRawContent().equalsIgnoreCase(ardent.getAsMention() + " english")) {
-                            if (guild.getMember(event.getAuthor()).hasPermission(Permission.MANAGE_SERVER)) {
-                                Statement statement = conn.createStatement();
-                                statement.executeUpdate("UPDATE Guilds SET Language='english' WHERE GuildID='" + guild.getId() + "'");
-                                statement.close();
-                                cmd.sendRetrievedTranslation(channel, "language", LangFactory.getLanguage("english"), "changedlanguage");
+                            if (GuildUtils.hasManageServerPermission(guild.getMember(event.getAuthor()))) {
+                                DatabaseAction updateLanguage = new DatabaseAction("UPDATE Guilds SET Language=? " +
+                                        "WHERE" +
+                                        " GuildID=?").set("english").set(guild.getId());
+                                updateLanguage.update();
+                                cmd.sendRetrievedTranslation(channel, "language", LangFactory.getLanguage("english"),
+                                        "changedlanguage");
                             }
                             else cmd.sendRetrievedTranslation(channel, "other", language, "needmanageserver");
                         }
-                        /*else {
-                            String query = message.getContent().replace(GuildUtils.getPrefix(guild) + args[0] + " ", "");
+                        // On hold until I can find a suitable pandorabot or other chatbot api
+                        /* else {
+                            String query = message.getContent().replace(GuildUtils.getPrefix(guild) + args[0] + " ",
+                            "");
                             ChatterBotSession session = getBotSession(guild);
                             cmd.sendTranslatedMessage(session.think(query), channel);
                         }*/
@@ -133,16 +142,22 @@ public class CommandFactory {
                         commandNames.forEach(commandTranslation -> {
                             String translation = commandTranslation.getTranslation();
                             String identifier = commandTranslation.getIdentifier();
-                            if (StringUtils.stripAccents(translation).equalsIgnoreCase(StringUtils.stripAccents(args[0]))) {
+                            if (StringUtils.stripAccents(translation).equalsIgnoreCase(StringUtils.stripAccents
+                                    (args[0])))
+                            {
                                 for (Command command : commands) {
-                                    if (StringUtils.stripAccents(command.getCommandIdentifier()).equalsIgnoreCase(StringUtils.stripAccents(identifier))) {
+                                    if (StringUtils.stripAccents(command.getCommandIdentifier()).equalsIgnoreCase
+                                            (StringUtils.stripAccents(identifier)))
+                                    {
                                         try {
                                             if (command.isPrivateChannelUsage()) {
                                                 command.botCommand.usages++;
-                                                executorService.execute(new Runner(command.botCommand, guild, channel, event.getAuthor(), message, args, language));
+                                                executorService.execute(new Runner(command.botCommand, guild,
+                                                        channel, event.getAuthor(), message, args, language));
                                             }
                                             else {
-                                                command.sendRetrievedTranslation(channel, "other", language, "notavailableinprivatechannel");
+                                                command.sendRetrievedTranslation(channel, "other", language,
+                                                        "notavailableinprivatechannel");
                                             }
                                             commandsReceived++;
                                         }
@@ -175,30 +190,34 @@ public class CommandFactory {
                             String translation = commandTranslation.getTranslation().replace(" ", "").replace(":", "");
                             String identifier = commandTranslation.getIdentifier();
                             if (translation.equalsIgnoreCase(args[0])) {
-                                for (Command command : commands) {
-                                    if (command.getCommandIdentifier().equalsIgnoreCase(identifier)) {
-                                        try {
-                                            command.botCommand.usages++;
-                                            boolean beforeCmdFirst = UsageUtils.isGuildFirstInCommands(guild);
-                                            int oldCommandAmount = Status.commandsByGuild.get(guild.getId());
-                                            Status.commandsByGuild.replace(guild.getId(), oldCommandAmount, oldCommandAmount + 1);
-                                            boolean afterCmdFirst = UsageUtils.isGuildFirstInCommands(guild);
+                                commands.stream().filter(command -> command.getCommandIdentifier().equalsIgnoreCase
+                                        (identifier)).forEach(command -> {
+                                    try {
+                                        command.botCommand.usages++;
+                                        boolean beforeCmdFirst = UsageUtils.isGuildFirstInCommands(guild);
+                                        int oldCommandAmount = Status.commandsByGuild.get(guild.getId());
+                                        Status.commandsByGuild.replace(guild.getId(), oldCommandAmount,
+                                                oldCommandAmount + 1);
+                                        boolean afterCmdFirst = UsageUtils.isGuildFirstInCommands(guild);
 
-                                            if (!beforeCmdFirst && afterCmdFirst) {
-                                                command.botCommand.sendRetrievedTranslation(channel, "other", language, "firstincommands");
-                                            }
+                                        if (!beforeCmdFirst && afterCmdFirst) {
+                                            command.botCommand.sendRetrievedTranslation(channel, "other",
+                                                    language, "firstincommands");
+                                        }
 
-                                            executorService.execute(new Runner(command.botCommand, guild, channel, event.getAuthor(), message, args, language));
-                                            commandsReceived++;
-                                            Statement statement = conn.createStatement();
-                                            statement.executeUpdate("INSERT INTO CommandsReceived VALUES ('" + guild.getId() + "', '" + event.getAuthor().getId() + "', '" + command.getCommandIdentifier() + "', '" + Timestamp.from(Instant.now()) + "')");
-                                            statement.close();
-                                        }
-                                        catch (Exception e) {
-                                            new BotException(e);
-                                        }
+                                        executorService.execute(new Runner(command.botCommand, guild, channel,
+                                                event.getAuthor(), message, args, language));
+                                        commandsReceived++;
+
+                                        new DatabaseAction("INSERT INTO CommandsReceived " +
+                                                "VALUES (?,?,?,?)").set(guild.getId()).set(event.getAuthor().getId())
+                                                .set(command.getCommandIdentifier()).set(Timestamp.from(Instant.now()
+                                        )).update();
                                     }
-                                }
+                                    catch (Exception e) {
+                                        new BotException(e);
+                                    }
+                                });
                             }
                         });
                     }
