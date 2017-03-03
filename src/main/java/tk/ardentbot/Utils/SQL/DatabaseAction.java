@@ -36,6 +36,7 @@ public class DatabaseAction {
     }
 
     public void update() throws SQLException {
+        preparedStatement.executeUpdate();
         close();
     }
 
