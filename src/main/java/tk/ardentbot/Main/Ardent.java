@@ -75,7 +75,7 @@ import java.util.logging.Logger;
 import static tk.ardentbot.Backend.Translation.LangFactory.languages;
 
 public class Ardent {
-    public static final boolean testingBot = false;
+    public static final boolean testingBot = true;
     public static ScheduledExecutorService executorService = Executors.newScheduledThreadPool(100);
     public static BotMuteData botMuteData;
     public static BotPrefixData botPrefixData;

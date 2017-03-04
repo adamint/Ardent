@@ -20,7 +20,7 @@ public class EchoCommand extends ArdentCommand {
     // To make some sub command, just check the cmd[1] in a switch case
     // And make some method under this command to call.
 
-    // For exemple !info [user/channel/server].
+    // Par exemple !info [user/channel/server].
     // if(cmd.lenght < 2) return;
     // switch(cmd[1]){
     //    case "user":
