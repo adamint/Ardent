@@ -82,7 +82,7 @@ public class BotMuteData {
     }
 
     /**
-     * Mute the user (by his id) for a specified amount of time.
+     * Mute the user for a specified amount of time.
      * If the user is already muted, the duration will be added
      * to the current one.
      *
@@ -108,7 +108,7 @@ public class BotMuteData {
 
 
     /**
-     * Check if an user is muted (by his id).
+     * Check if an user is muted.
      *
      * @param member Guild's Member.
      * @return True if the user is muted. False if not.
@@ -140,7 +140,7 @@ public class BotMuteData {
     }
 
     /**
-     * Get the mute duration left for an user (by his id).
+     * Get the mute duration left for an user.
      *
      * @param member Guild's Member
      * @return Duration left until unmute
@@ -148,6 +148,17 @@ public class BotMuteData {
     public long getMuteDuration(Member member) {
         if (!this.isMuted(member)) return 0;
         return this.usersGuildMute.get(member.getGuild().getId()).get(member.getUser().getId()) - System.currentTimeMillis();
+    }
+
+    /**
+     * Get the unmute time in millisecond for an user.
+     *
+     * @param member Guild's Member
+     * @return       Unmute Time
+     */
+    public long getUnmuteTime(Member member){
+        if (!this.isMuted(member)) return 0;
+        return this.usersGuildMute.get(member.getGuild().getId()).get(member.getUser().getId());
     }
 
 

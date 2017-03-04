@@ -42,7 +42,7 @@ public class OnMessage {
                     String reply = Ardent.help.getTranslation("mute", GuildUtils.getLanguage(event.getGuild()),
                             "youremuted").getTranslation()
                             .replace("{0}", event.getGuild().getName()).replace("{1}", Date.from(Instant
-                                    .ofEpochSecond(Ardent.botMuteData.getMuteDuration(event.getMember()) / 1000))
+                                    .ofEpochSecond(Ardent.botMuteData.getUnmuteTime(event.getMember()) / 1000))
                                     .toLocaleString());
                     event.getAuthor().openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage(reply)
                             .queue());
