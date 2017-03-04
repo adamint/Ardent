@@ -10,13 +10,13 @@ import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.UsageUtils;
 
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static tk.ardentbot.Main.Ardent.*;
+import static tk.ardentbot.Main.Ardent.botPrefixData;
+import static tk.ardentbot.Main.Ardent.jda;
 
 public class GuildUtils {
 
@@ -63,28 +63,7 @@ public class GuildUtils {
     }
 
     public static Language getLanguage(Guild guild) throws Exception {
-        if (guild == null) return LangFactory.english;
-        Statement statement = conn.createStatement();
-        ResultSet set = statement.executeQuery("SELECT * FROM Guilds WHERE GuildID='" + guild.getId() + "'");
-        if (set.next()) {
-            String language = set.getString("Language");
-            set.close();
-            statement.close();
-            if (language.equalsIgnoreCase("english")) return LangFactory.english;
-            else if (language.equalsIgnoreCase("french")) return LangFactory.french;
-            else if (language.equalsIgnoreCase("turkish")) return LangFactory.turkish;
-            else if (language.equalsIgnoreCase("croatian")) return LangFactory.croatian;
-            else if (language.equalsIgnoreCase("romanian")) return LangFactory.romanian;
-            else if (language.equalsIgnoreCase("portugese")) return LangFactory.portugese;
-            else if (language.equalsIgnoreCase("german")) return LangFactory.german;
-            else if (language.equalsIgnoreCase("cyrillicserbian")) return LangFactory.cyrillicserbian;
-            else if (language.equalsIgnoreCase("spanish")) return LangFactory.spanish;
-            else if (language.equalsIgnoreCase("dutch")) return LangFactory.dutch;
-            else if (language.equalsIgnoreCase("polish")) return LangFactory.polish;
-            else if (language.equalsIgnoreCase("emoji")) return LangFactory.emoji;
-            else return LangFactory.english;
-        }
-        else return LangFactory.english;
+        return Ardent.botLanguageData.getLanguage(guild);
     }
 
     public static boolean hasManageServerPermission(Member member) {

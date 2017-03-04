@@ -25,6 +25,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.hooks.AnnotatedEventManager;
 import org.apache.commons.io.IOUtils;
+import tk.ardentbot.Backend.BotData.BotLanguageData;
 import tk.ardentbot.Backend.BotData.BotMuteData;
 import tk.ardentbot.Backend.BotData.BotPrefixData;
 import tk.ardentbot.Backend.Commands.Category;
@@ -78,6 +79,7 @@ public class Ardent {
     public static ScheduledExecutorService executorService = Executors.newScheduledThreadPool(100);
     public static BotMuteData botMuteData;
     public static BotPrefixData botPrefixData;
+    public static BotLanguageData botLanguageData;
     public static ArrayList<Language> crowdinLanguages = new ArrayList<>();
     public static TextChannel botLogs;
     public static AudioPlayerManager playerManager;
@@ -177,6 +179,9 @@ public class Ardent {
 
         // Adding the handler for prefixes
         Ardent.botMuteData = new BotMuteData();
+
+        // Adding the handler for languages
+        Ardent.botLanguageData = new BotLanguageData();
 
         languages.stream().filter(lang -> lang.getLanguageStatus() == Language.Status.MATURE).forEach(lang ->
                 matureLanguages++);
@@ -361,13 +366,7 @@ public class Ardent {
         // TranslationUpdater translationUpdater = new TranslationUpdater();
 
         MuteDaemon muteDaemon = new MuteDaemon();
-
-        executorService.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                muteDaemon.run();
-            }
-        }, 1, 5, TimeUnit.SECONDS);
+        executorService.scheduleAtFixedRate(muteDaemon, 1, 5, TimeUnit.SECONDS);
 
         Logger.getLogger("org.apache.http").
 
