@@ -61,6 +61,7 @@ public class Status extends BotCommand {
             devUsernames.append(current.getName() + "#" + current.getDiscriminator());
             if (i < (Ardent.developers.size() - 1)) devUsernames.append(", ");
         }
+
         Translation title = new Translation("status", "title");
         Translation botstatus = new Translation("status", "botstatus");
         Translation loadedcommands = new Translation("status", "loadedcommands");
@@ -72,6 +73,7 @@ public class Status extends BotCommand {
         Translation ram = new Translation("status", "ram");
         Translation developers = new Translation("status", "developers");
         Translation site = new Translation("status", "site");
+        Translation botHelp = new Translation("help", "bothelp");
         ArrayList<Translation> translationQueries = new ArrayList<>();
         translationQueries.add(title);
         translationQueries.add(botstatus);
@@ -84,6 +86,7 @@ public class Status extends BotCommand {
         translationQueries.add(ram);
         translationQueries.add(developers);
         translationQueries.add(site);
+        translationQueries.add(botHelp);
 
         Statement statement = conn.createStatement();
         ResultSet commands = statement.executeQuery("SELECT * FROM CommandsReceived");
@@ -117,6 +120,8 @@ public class Status extends BotCommand {
 
         embedBuilder.addField(translations.get(9).getTranslation(), devUsernames.toString(), true);
         embedBuilder.addField(translations.get(10).getTranslation(), "https://ardentbot.tk", true);
+
+        embedBuilder.addField(translations.get(11).getTranslation(), "https://ardentbot.tk/guild", true);
 
         sendEmbed(embedBuilder, channel);
     }

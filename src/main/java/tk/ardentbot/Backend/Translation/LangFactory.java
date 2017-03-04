@@ -23,9 +23,11 @@ public class LangFactory {
 
     public static Language dutch = new Language("dutch", Language.Status.MATURE, "nl", "Dutch");
 
-    public static Language polish = new Language("polish", Language.Status.INFANCY, "pl", "Polish");
-
     public static Language emoji = new Language("emoji", Language.Status.INFANCY, "emoji", "Emoji");
+
+    public static Language hindi = new Language("hindi", Language.Status.INFANCY, "hi", "Hindi");
+
+    public static Language arabic = new Language("arabic", Language.Status.INFANCY, "ar", "Arabic");
 
     public static ArrayList<Language> languages;
 
@@ -59,8 +61,10 @@ public class LangFactory {
                 return spanish;
             case "DUTCH":
                 return dutch;
-            case "POLISH":
-                return polish;
+            case "ARABIC":
+                return arabic;
+            case "HINDI":
+                return hindi;
             case "EMOJI":
                 return emoji;
             default:
@@ -79,7 +83,8 @@ public class LangFactory {
         else if (language == cyrillicserbian) return "Cyrillic_Serbian";
         else if (language == spanish) return "Spanish";
         else if (language == dutch) return "Dutch";
-        else if (language == polish) return "Polish";
+        else if (language == arabic) return "Arabic";
+        else if (language == hindi) return "Hindi";
         else if (language == emoji) return "Emoji";
         else return null;
     }

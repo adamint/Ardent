@@ -16,8 +16,8 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static tk.ardentbot.Commands.BotInfo.Status.getVoiceConnections;
 import static tk.ardentbot.Main.Ardent.*;
-import static tk.ardentbot.Utils.Discord.GuildUtils.getVoiceConnections;
 
 public class Admin extends BotCommand {
     public static int secondsWaitedForRestart = 0;

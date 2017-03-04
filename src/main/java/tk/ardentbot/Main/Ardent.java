@@ -98,6 +98,7 @@ public class Ardent {
     public static Command help;
     public static Command patreon;
     public static Command translateForArdent;
+    public static Command getDevHelp;
     public static String url = "https://ardentbot.tk";
     public static ConcurrentHashMap<String, Boolean> sentAnnouncement = new ConcurrentHashMap<>();
     public static String announcement;
@@ -163,7 +164,8 @@ public class Ardent {
         languages.add(LangFactory.cyrillicserbian);
         languages.add(LangFactory.dutch);
         languages.add(LangFactory.emoji);
-        languages.add(LangFactory.polish);
+        languages.add(LangFactory.arabic);
+        languages.add(LangFactory.hindi);
         languages.add(LangFactory.spanish);
 
         crowdinLanguages.add(LangFactory.croatian);
@@ -173,12 +175,14 @@ public class Ardent {
         crowdinLanguages.add(LangFactory.cyrillicserbian);
         crowdinLanguages.add(LangFactory.spanish);
         crowdinLanguages.add(LangFactory.dutch);
+        crowdinLanguages.add(LangFactory.arabic);
+        crowdinLanguages.add(LangFactory.hindi);
 
         // Adding the "handler" for mutes
         Ardent.botMuteData = new BotMuteData();
 
         // Adding the handler for prefixes
-        Ardent.botMuteData = new BotMuteData();
+        Ardent.botPrefixData = new BotPrefixData();
 
         // Adding the handler for languages
         Ardent.botLanguageData = new BotLanguageData();
@@ -192,12 +196,12 @@ public class Ardent {
         patreon = new Patreon(new Command.CommandSettings("patreon", true, true, Category.GUILDINFO));
         translateForArdent = new TranslateForArdent(new Command.CommandSettings("translateforardent", true,
                 true, Category.BOTINFO));
+        getDevHelp = new Bug(new Command.CommandSettings("bug", false, true, Category.BOTINFO));
 
         // Register tk.ardentbot.Commands
-        factory.registerCommand(new AddEnglishBase(new Command.CommandSettings("addenglishbase", true, true,
-                Category.BOTADMINISTRATION)));
-        factory.registerCommand(new Todo(new Command.CommandSettings("todo", true, true, Category
+        factory.registerCommand(new AddEnglishBase(new Command.CommandSettings("addenglishbase", true, true, Category
                 .BOTADMINISTRATION)));
+        factory.registerCommand(new Todo(new Command.CommandSettings("todo", true, true, Category.BOTADMINISTRATION)));
         factory.registerCommand(new Tweet(new Command.CommandSettings("tweet", true, true, Category
                 .BOTADMINISTRATION)));
         factory.registerCommand(new Admin(new Command.CommandSettings("admin", true, true, Category
@@ -205,24 +209,24 @@ public class Ardent {
         factory.registerCommand(new Eval(new Command.CommandSettings("eval", true, true, Category
                 .BOTADMINISTRATION)));
 
-        factory.registerCommand(new Ping(new Command.CommandSettings("ping", true, true, Category.BOTINFO)));
-        factory.registerCommand(help);
+        factory.registerCommand(getDevHelp);
+        factory.registerCommand(new Support(new Command.CommandSettings("support", true, true, Category.BOTINFO)));
         factory.registerCommand(new Website(new Command.CommandSettings("website", true, true, Category
                 .BOTINFO)));
         factory.registerCommand(new Invite(new Command.CommandSettings("invite", true, true, Category
                 .BOTINFO)));
+        factory.registerCommand(translateForArdent);
+        factory.registerCommand(new Changelog(new Command.CommandSettings("changelog", true, true, Category
+                .BOTINFO)));
+        factory.registerCommand(patreon);
         factory.registerCommand(new Joinmessage(new Command.CommandSettings("joinmessage", true, true,
                 Category.BOTINFO)));
         factory.registerCommand(new Status(new Command.CommandSettings("status", true, true, Category
                 .BOTINFO)));
         factory.registerCommand(new Request(new Command.CommandSettings("request", true, true, Category
                 .BOTINFO)));
-        factory.registerCommand(translateForArdent);
-        factory.registerCommand(new Changelog(new Command.CommandSettings("changelog", true, true, Category
-                .BOTINFO)));
-        factory.registerCommand(patreon);
-        factory.registerCommand(new Support(new Command.CommandSettings("support", true, true, Category
-                .BOTINFO)));
+        factory.registerCommand(new Ping(new Command.CommandSettings("ping", true, true, Category.BOTINFO)));
+        factory.registerCommand(help);
 
         factory.registerCommand(new UD(new Command.CommandSettings("ud", true, true, Category.FUN)));
         factory.registerCommand(new GIF(new Command.CommandSettings("gif", true, true, Category.FUN)));

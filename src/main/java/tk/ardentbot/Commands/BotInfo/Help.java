@@ -20,8 +20,7 @@ import tk.ardentbot.Utils.UsageUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static tk.ardentbot.Main.Ardent.patreon;
-import static tk.ardentbot.Main.Ardent.translateForArdent;
+import static tk.ardentbot.Main.Ardent.*;
 
 public class Help extends BotCommand {
     private Subcommand all;
@@ -47,9 +46,12 @@ public class Help extends BotCommand {
         StringBuilder description = new StringBuilder();
         description.append("**" + responses.get(0).getTranslation() + "**");
         description.append("\n > " + patreon.getName(language) + ": *" + patreon.getDescription(language) + "*");
-        description.append("\n > " + translateForArdent.getName(language) + ": *" + patreon.getDescription(language) + "*");
+        description.append("\n > " + translateForArdent.getName(language) + ": *" + translateForArdent.getDescription
+                (language) + "*");
+        description.append("\n > " + getDevHelp.getName(language) + ": *" + getDevHelp.getDescription(language) + "*");
+
         ArrayList<Command> byUsage = UsageUtils.orderByUsageDesc();
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 3; i++) {
             BotCommand botCommand = byUsage.get(i).getBotCommand();
             description.append("\n > " + botCommand.getName(language) + ": *" + botCommand.getDescription(language) + "*");
         }
@@ -58,9 +60,12 @@ public class Help extends BotCommand {
             description.append("\n > *" + Category.getName(category) + "*");
         }
 
-        description.append("\n\n" + responses.get(2).getTranslation().replace("{0}", GuildUtils.getPrefix(guild) + args[0]));
-        description.append("\n\n" + responses.get(3).getTranslation().replace("{0}", GuildUtils.getPrefix(guild) + args[0]).replace("{1}", all.getName(language)));
-
+        description.append("\n\n" + responses.get(2).getTranslation().replace("{0}", GuildUtils.getPrefix(guild) +
+                args[0]));
+        description.append("\n" + responses.get(3).getTranslation().replace("{0}", GuildUtils.getPrefix(guild) +
+                args[0]).replace("{1}", all.getName(language)));
+        description.append("\n\n" + getTranslation("help", language, "ifyouneedhelp").getTranslation().replace("{0}",
+                "https://ardentbot.tk/guild"));
         embedBuilder.setDescription(description.toString());
         sendEmbed(embedBuilder, channel);
     }
