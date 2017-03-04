@@ -379,9 +379,9 @@ public class Ardent {
         Logger.getLogger("org.apache.http.wire").
 
                 setLevel(java.util.logging.Level.OFF);
-        Logger.getLogger("org.apache.http.headers").
+        Logger.getLogger("org.apache.http.headers").setLevel(java.util.logging.Level.OFF);
 
-                setLevel(java.util.logging.Level.OFF);
+        Music.checkMusicConnections();
 
         ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory
                 .getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
