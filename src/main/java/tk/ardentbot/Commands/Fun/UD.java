@@ -81,8 +81,13 @@ public class UD extends BotCommand {
                 builder.setThumbnail("https://i.gyazo.com/6a40e32928743e68e9006396ee7c2a14.jpg");
                 builder.setColor(Color.decode("#00B7BE"));
 
-                builder.addField(def, list.getDefinition(), true);
-                builder.addField(example, list.getExample(), true);
+                String definitionText = list.getDefinition();
+                String exampleText = list.getExample();
+                if (definitionText.length() > 1024) definitionText = definitionText.substring(0, 1023);
+                if (exampleText.length() > 1024) exampleText = exampleText.substring(0, 1023);
+
+                builder.addField(def, definitionText, true);
+                builder.addField(example, exampleText, true);
 
                 builder.addField(thumbsUp, String.valueOf(list.getThumbsUp() + ":thumbsup:"), true);
                 builder.addField(thumbsDown, String.valueOf(list.getThumbsDown() + ":thumbsdown:"), true);

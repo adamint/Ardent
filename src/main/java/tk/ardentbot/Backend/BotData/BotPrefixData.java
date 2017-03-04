@@ -20,12 +20,13 @@ public class BotPrefixData {
     }
 
     public String getPrefix(Guild guild) {
-        String prefix = guildPrefixes.get(guild.getId());
-        if (prefix == null) {
-            prefix = "/";
-            set(guild, "/");
+        try {
+            return guildPrefixes.get(guild.getId());
         }
-        return prefix;
+        catch (NullPointerException ex) {
+            set(guild, "/");
+            return getPrefix(guild);
+        }
     }
 
     public void set(Guild guild, String prefix) {

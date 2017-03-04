@@ -75,7 +75,8 @@ import java.util.logging.Logger;
 import static tk.ardentbot.Backend.Translation.LangFactory.languages;
 
 public class Ardent {
-    public static final boolean testingBot = true;
+    public static final boolean testingBot = false;
+
     public static ScheduledExecutorService executorService = Executors.newScheduledThreadPool(100);
     public static BotMuteData botMuteData;
     public static BotPrefixData botPrefixData;
@@ -196,7 +197,7 @@ public class Ardent {
         patreon = new Patreon(new Command.CommandSettings("patreon", true, true, Category.GUILDINFO));
         translateForArdent = new TranslateForArdent(new Command.CommandSettings("translateforardent", true,
                 true, Category.BOTINFO));
-        getDevHelp = new Bug(new Command.CommandSettings("bug", false, true, Category.BOTINFO));
+        getDevHelp = new Bug(new Command.CommandSettings("getdevhelp", false, true, Category.BOTINFO));
 
         // Register tk.ardentbot.Commands
         factory.registerCommand(new AddEnglishBase(new Command.CommandSettings("addenglishbase", true, true, Category

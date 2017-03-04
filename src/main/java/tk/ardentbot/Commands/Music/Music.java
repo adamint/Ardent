@@ -145,8 +145,9 @@ public class Music extends BotCommand {
 
                 ScheduledFuture<?> checkIfMuted = executorService.scheduleAtFixedRate(() -> {
                     GuildMusicManager manager = getGuildAudioPlayer(guild);
-                    if (audioManager.isConnected()) {
-                        if (audioManager.isSelfMuted() || audioManager.isSelfDeafened() && !manager.player.isPaused()) {
+                    GuildVoiceState state = guild.getSelfMember().getVoiceState();
+                    if (state.inVoiceChannel()) {
+                        if (state.isGuildMuted() || state.isMuted() && !manager.player.isPaused()) {
                             try {
                                 cmd.sendRetrievedTranslation(channel, "music", language, "mutedinchannelpausingnow");
                                 manager.player.setPaused(true);

@@ -54,9 +54,9 @@ public class Admin extends BotCommand {
 
     public static void shutdown() {
         try {
-            File jar = new File("/root/Ardent-Ardent_main.jar");
-            File ardentloc1 = new File("/root/Ardent/update/Ardent1/Ardent-Ardent_main.jar");
-            File ardentloc2 = new File("/root/Ardent/update/Ardent2/Ardent-Ardent_main.jar");
+            File jar = new File("/root/Ardent_main.jar");
+            File ardentloc1 = new File("/root/Ardent/update/Ardent1/Ardent_main.jar");
+            File ardentloc2 = new File("/root/Ardent/update/Ardent2/Ardent_main.jar");
             boolean useLoc1 = true;
             if (Admin.class.getProtectionDomain().getCodeSource().getLocation().getPath().contains("Ardent1")) {
                 moveAndOverwrite(jar, ardentloc2);
@@ -65,8 +65,8 @@ public class Admin extends BotCommand {
             else {
                 moveAndOverwrite(jar, ardentloc1);
             }
-            if (useLoc1) Runtime.getRuntime().exec("java -jar /root/Ardent/update/Ardent1/Ardent-Ardent_main.jar");
-            else Runtime.getRuntime().exec("java -jar /root/Ardent/update/Ardent2/Ardent-Ardent_main.jar");
+            if (useLoc1) Runtime.getRuntime().exec("java -jar /root/Ardent/update/Ardent1/Ardent_main.jar");
+            else Runtime.getRuntime().exec("java -jar /root/Ardent/update/Ardent2/Ardent_main.jar");
         }
         catch (Exception ex) {
             ex.printStackTrace();
