@@ -7,8 +7,10 @@ import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.hooks.SubscribeEvent;
+import tk.ardentbot.Bot.BotException;
 import tk.ardentbot.Commands.GuildAdministration.Automessage;
 import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.Tuples.Triplet;
 
 import java.sql.SQLException;
@@ -21,6 +23,12 @@ public class Leave {
         String id = guild.getId();
         Ardent.cleverbots.remove(id);
         Ardent.botPrefixData.remove(guild);
+        try {
+            new DatabaseAction("DELETE FROM JoinEvents WHERE GuildID=?").set(id).update();
+        }
+        catch (SQLException e) {
+            new BotException(e);
+        }
     }
 
     @SubscribeEvent

@@ -14,14 +14,12 @@ import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.Discord.MessageUtils;
 
 import java.lang.management.ManagementFactory;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static tk.ardentbot.Main.Ardent.conn;
+import static tk.ardentbot.Main.Ardent.factory;
 import static tk.ardentbot.Main.Ardent.jda;
 
 public class Status extends BotCommand {
@@ -44,8 +42,10 @@ public class Status extends BotCommand {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
-        OperatingSystemMXBean operatingSystemMXBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
+            language) throws Exception {
+        OperatingSystemMXBean operatingSystemMXBean = (OperatingSystemMXBean) ManagementFactory
+                .getOperatingSystemMXBean();
         double cpuUsage = operatingSystemMXBean.getSystemCpuLoad() + 0.01;
         if (cpuUsage < 0) cpuUsage = 0.01;
         DecimalFormat cpuFormat = new DecimalFormat("#0.00");
@@ -88,14 +88,9 @@ public class Status extends BotCommand {
         translationQueries.add(site);
         translationQueries.add(botHelp);
 
-        Statement statement = conn.createStatement();
-        ResultSet commands = statement.executeQuery("SELECT * FROM CommandsReceived");
-        int commandsReceived = 0;
-        while (commands.next()) commandsReceived++;
+        int commandsReceived = (int) factory.getCommandsReceived();
         DecimalFormat formatter = new DecimalFormat("#,###");
         String cmds = formatter.format(commandsReceived);
-        commands.close();
-        statement.close();
 
         HashMap<Integer, TranslationResponse> translations = getTranslations(language, translationQueries);
 
@@ -103,13 +98,16 @@ public class Status extends BotCommand {
 
         int amtConnections = getVoiceConnections();
 
-        embedBuilder.setAuthor(translations.get(0).getTranslation(), "https://ardentbot.tk", Ardent.ardent.getAvatarUrl());
+        embedBuilder.setAuthor(translations.get(0).getTranslation(), "https://ardentbot.tk", Ardent.ardent
+                .getAvatarUrl());
         embedBuilder.setThumbnail("https://a.dryicons.com/images/icon_sets/polygon_icons/png/256x256/computer.png");
 
         embedBuilder.addField(translations.get(1).getTranslation(), ":thumbsup:", true);
-        embedBuilder.addField(translations.get(2).getTranslation(), String.valueOf(tk.ardentbot.Main.Ardent.factory.getLoadedCommandsAmount()), true);
+        embedBuilder.addField(translations.get(2).getTranslation(), String.valueOf(tk.ardentbot.Main.Ardent.factory
+                .getLoadedCommandsAmount()), true);
 
-        embedBuilder.addField(translations.get(3).getTranslation(), String.valueOf(tk.ardentbot.Main.Ardent.factory.getMessagesReceived()), true);
+        embedBuilder.addField(translations.get(3).getTranslation(), String.valueOf(tk.ardentbot.Main.Ardent.factory
+                .getMessagesReceived()), true);
         embedBuilder.addField(translations.get(4).getTranslation(), cmds, true);
 
         embedBuilder.addField(translations.get(5).getTranslation(), String.valueOf(jda.getGuilds().size()), true);
