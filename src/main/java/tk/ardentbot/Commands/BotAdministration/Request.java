@@ -1,9 +1,9 @@
 package tk.ardentbot.Commands.BotAdministration;
 
+import net.dv8tion.jda.core.entities.*;
 import tk.ardentbot.Backend.Commands.BotCommand;
 import tk.ardentbot.Backend.Translation.Language;
-import tk.ardentbot.Utils.GuildUtils;
-import net.dv8tion.jda.core.entities.*;
+import tk.ardentbot.Utils.Discord.GuildUtils;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -42,6 +42,24 @@ public class Request extends BotCommand {
 
     }
 
+    public boolean canRequest(User user) {
+        for (RequestUtil r : usersUnableToRequest) {
+            if (r.id.equalsIgnoreCase(user.getId())) return false;
+        }
+        return true;
+    }
+
+    public String getRequestTime(User user, Language language) throws Exception {
+        for (RequestUtil r : usersUnableToRequest) {
+            if (r.id.equalsIgnoreCase(user.getId())) {
+                int minutes = (int) ((r.ableToRequest.getEpochSecond() - Instant.now().getEpochSecond()) / 60);
+                return Request.this.getTranslation("request", language, "requestin").getTranslation().replace("{0}",
+                        String.valueOf(minutes));
+            }
+        }
+        return null;
+    }
+
     private class RequestUtil {
         public Timer timer = new Timer();
         private Instant ableToRequest;
@@ -58,22 +76,5 @@ public class Request extends BotCommand {
             }, ableToRequest.getEpochSecond() - requestedAt.getEpochSecond());
             usersUnableToRequest.add(this);
         }
-    }
-
-    public boolean canRequest(User user) {
-        for (RequestUtil r : usersUnableToRequest) {
-            if (r.id.equalsIgnoreCase(user.getId())) return false;
-        }
-        return true;
-    }
-
-    public String getRequestTime(User user, Language language) throws Exception {
-        for (RequestUtil r : usersUnableToRequest) {
-            if (r.id.equalsIgnoreCase(user.getId())) {
-                int minutes = (int) ((r.ableToRequest.getEpochSecond() - Instant.now().getEpochSecond()) / 60);
-                return Request.this.getTranslation("request", language, "requestin").getTranslation().replace("{0}", String.valueOf(minutes));
-            }
-        }
-        return null;
     }
 }

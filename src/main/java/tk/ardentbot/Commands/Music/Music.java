@@ -13,7 +13,7 @@ import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Backend.Translation.Translation;
 import tk.ardentbot.Backend.Translation.TranslationResponse;
 import tk.ardentbot.Bot.BotException;
-import tk.ardentbot.Utils.GuildUtils;
+import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.Tuples.Pair;
 
 import java.util.*;

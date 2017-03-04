@@ -1,13 +1,13 @@
 package tk.ardentbot.Commands.GuildInfo;
 
-import tk.ardentbot.Backend.Commands.BotCommand;
-import tk.ardentbot.Backend.Translation.Language;
-import tk.ardentbot.Bot.BotException;
-import tk.ardentbot.Utils.GuildUtils;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
+import tk.ardentbot.Backend.Commands.BotCommand;
+import tk.ardentbot.Backend.Translation.Language;
+import tk.ardentbot.Bot.BotException;
+import tk.ardentbot.Utils.Discord.GuildUtils;
 
 public class Botname extends BotCommand {
     public Botname(CommandSettings commandSettings) {

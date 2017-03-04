@@ -1,13 +1,5 @@
 package tk.ardentbot.Commands.Fun;
 
-import tk.ardentbot.Backend.Commands.BotCommand;
-import tk.ardentbot.Backend.Models.UDList;
-import tk.ardentbot.Backend.Models.UrbanDictionary;
-import tk.ardentbot.Backend.Translation.Language;
-import tk.ardentbot.Backend.Translation.Translation;
-import tk.ardentbot.Backend.Translation.TranslationResponse;
-import tk.ardentbot.Utils.GuildUtils;
-import tk.ardentbot.Utils.MessageUtils;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.mashape.unirest.request.GetRequest;
@@ -16,6 +8,14 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
+import tk.ardentbot.Backend.Commands.BotCommand;
+import tk.ardentbot.Backend.Models.UDList;
+import tk.ardentbot.Backend.Models.UrbanDictionary;
+import tk.ardentbot.Backend.Translation.Language;
+import tk.ardentbot.Backend.Translation.Translation;
+import tk.ardentbot.Backend.Translation.TranslationResponse;
+import tk.ardentbot.Utils.Discord.GuildUtils;
+import tk.ardentbot.Utils.Discord.MessageUtils;
 
 import java.awt.*;
 import java.util.ArrayList;

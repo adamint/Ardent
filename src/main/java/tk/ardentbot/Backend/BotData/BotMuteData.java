@@ -2,10 +2,10 @@ package tk.ardentbot.Backend.BotData;
 
 import net.dv8tion.jda.core.entities.Member;
 import tk.ardentbot.Bot.BotException;
+import tk.ardentbot.Utils.SQL.DatabaseAction;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.HashMap;
 
 import static tk.ardentbot.Main.Ardent.conn;
@@ -20,13 +20,12 @@ public class BotMuteData {
 
     public BotMuteData() {
         try {
-            Statement statement = conn.createStatement();
-            ResultSet mutes = statement.executeQuery("SELECT * FROM Mutes");
+            DatabaseAction selectMutes = new DatabaseAction("SELECT * FROM Mutes");
+            ResultSet mutes = selectMutes.request();
             while (mutes.next()) { // Adding all old mute into the HashMap
                 this.addRaw(mutes.getString("GuildID"), mutes.getString("UserID"), mutes.getLong("UnmuteEpochSecond"));
             }
-            mutes.close();
-            statement.close();
+            selectMutes.close();
         }
         catch (Exception ex) {
             new BotException(ex);

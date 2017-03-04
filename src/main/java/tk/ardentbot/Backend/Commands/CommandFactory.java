@@ -16,7 +16,7 @@ import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Bot.BotException;
 import tk.ardentbot.Commands.BotInfo.Status;
 import tk.ardentbot.Main.Ardent;
-import tk.ardentbot.Utils.GuildUtils;
+import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.UsageUtils;
 

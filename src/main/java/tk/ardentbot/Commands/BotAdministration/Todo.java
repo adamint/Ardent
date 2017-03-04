@@ -9,8 +9,8 @@ import tk.ardentbot.Backend.Commands.BotCommand;
 import tk.ardentbot.Backend.Commands.Subcommand;
 import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Main.Ardent;
-import tk.ardentbot.Utils.GuildUtils;
-import tk.ardentbot.Utils.MessageUtils;
+import tk.ardentbot.Utils.Discord.GuildUtils;
+import tk.ardentbot.Utils.Discord.MessageUtils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

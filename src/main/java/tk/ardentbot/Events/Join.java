@@ -9,7 +9,6 @@ import tk.ardentbot.Commands.BotInfo.Status;
 import tk.ardentbot.Commands.GuildAdministration.Automessage;
 import tk.ardentbot.Commands.GuildAdministration.DefaultRole;
 import tk.ardentbot.Main.Ardent;
-import tk.ardentbot.Utils.GuildUtils;
 import tk.ardentbot.Utils.Tuples.Triplet;
 
 import java.sql.ResultSet;
@@ -43,7 +42,6 @@ public class Join {
         Guild guild = event.getGuild();
         Status.commandsByGuild.put(guild.getId(), 0);
         Ardent.cleverbots.put(guild.getId(), Ardent.cleverBot.createSession());
-
         if (announcement != null) {
             sentAnnouncement.put(guild.getId(), false);
         }
@@ -86,8 +84,6 @@ public class Join {
         catch (SQLException e) {
             e.printStackTrace();
         }
-
-        GuildUtils.guildPrefixes.put(guild.getId(), "/");
     }
 
     @SubscribeEvent

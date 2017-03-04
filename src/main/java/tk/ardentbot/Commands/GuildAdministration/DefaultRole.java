@@ -1,11 +1,11 @@
 package tk.ardentbot.Commands.GuildAdministration;
 
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.*;
 import tk.ardentbot.Backend.Commands.BotCommand;
 import tk.ardentbot.Backend.Commands.Subcommand;
 import tk.ardentbot.Backend.Translation.Language;
-import tk.ardentbot.Utils.GuildUtils;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.*;
+import tk.ardentbot.Utils.Discord.GuildUtils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -17,6 +17,29 @@ import static tk.ardentbot.Main.Ardent.conn;
 public class DefaultRole extends BotCommand {
     public DefaultRole(CommandSettings commandSettings) {
         super(commandSettings);
+    }
+
+    public static Role getDefaultRole(Guild guild) throws SQLException {
+        Role returned;
+        Statement statement = conn.createStatement();
+        ResultSet set = statement.executeQuery("SELECT * FROM DefaultRole WHERE GuildID='" + guild.getId() + "'");
+        if (set.next()) {
+            String id = set.getString("RoleID");
+            if (id.equalsIgnoreCase("none")) {
+                returned = null;
+            }
+            else {
+                returned = guild.getRoleById(id);
+            }
+            set.close();
+            statement.close();
+            return returned;
+        }
+        else {
+            set.close();
+            statement.close();
+            return null;
+        }
     }
 
     @Override
@@ -76,29 +99,6 @@ public class DefaultRole extends BotCommand {
                 else sendRetrievedTranslation(channel, "other", language, "needmanageserver");
             }
         });
-    }
-
-    public static Role getDefaultRole(Guild guild) throws SQLException {
-        Role returned;
-        Statement statement = conn.createStatement();
-        ResultSet set = statement.executeQuery("SELECT * FROM DefaultRole WHERE GuildID='" + guild.getId() + "'");
-        if (set.next()) {
-            String id = set.getString("RoleID");
-            if (id.equalsIgnoreCase("none")) {
-                returned = null;
-            }
-            else {
-                returned = guild.getRoleById(id);
-            }
-            set.close();
-            statement.close();
-            return returned;
-        }
-        else {
-            set.close();
-            statement.close();
-            return null;
-        }
     }
 
     public void removeDefaultRole(Guild guild) throws SQLException {

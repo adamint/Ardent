@@ -1,13 +1,13 @@
 package tk.ardentbot.Commands.BotAdministration;
 
-import tk.ardentbot.Backend.Commands.BotCommand;
-import tk.ardentbot.Backend.Translation.Language;
-import tk.ardentbot.Main.Ardent;
-import tk.ardentbot.Utils.GuildUtils;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
+import tk.ardentbot.Backend.Commands.BotCommand;
+import tk.ardentbot.Backend.Translation.Language;
+import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Utils.Discord.GuildUtils;
 import twitter4j.Status;
 
 import static tk.ardentbot.Main.Ardent.jda;

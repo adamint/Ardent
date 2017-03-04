@@ -1,12 +1,5 @@
 package tk.ardentbot.Commands.GuildInfo;
 
-import tk.ardentbot.Backend.Commands.BotCommand;
-import tk.ardentbot.Backend.Commands.Subcommand;
-import tk.ardentbot.Backend.Translation.Language;
-import tk.ardentbot.Backend.Translation.Translation;
-import tk.ardentbot.Backend.Translation.TranslationResponse;
-import tk.ardentbot.Main.Ardent;
-import tk.ardentbot.Utils.MessageUtils;
 import com.vdurmont.emoji.Emoji;
 import com.vdurmont.emoji.EmojiManager;
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -14,6 +7,13 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
+import tk.ardentbot.Backend.Commands.BotCommand;
+import tk.ardentbot.Backend.Commands.Subcommand;
+import tk.ardentbot.Backend.Translation.Language;
+import tk.ardentbot.Backend.Translation.Translation;
+import tk.ardentbot.Backend.Translation.TranslationResponse;
+import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Utils.Discord.MessageUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;

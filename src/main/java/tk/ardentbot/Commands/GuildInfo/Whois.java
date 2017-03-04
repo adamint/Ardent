@@ -1,13 +1,13 @@
 package tk.ardentbot.Commands.GuildInfo;
 
+import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.*;
 import tk.ardentbot.Backend.Commands.BotCommand;
 import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Backend.Translation.Translation;
 import tk.ardentbot.Backend.Translation.TranslationResponse;
 import tk.ardentbot.Main.Ardent;
-import tk.ardentbot.Utils.MessageUtils;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.*;
+import tk.ardentbot.Utils.Discord.MessageUtils;
 
 import java.time.Instant;
 import java.time.ZoneOffset;

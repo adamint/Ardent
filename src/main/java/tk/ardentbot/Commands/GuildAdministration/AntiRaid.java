@@ -1,5 +1,10 @@
 package tk.ardentbot.Commands.GuildAdministration;
 
+import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.Backend.Commands.BotCommand;
 import tk.ardentbot.Backend.Commands.Subcommand;
 import tk.ardentbot.Backend.Translation.Language;
@@ -7,12 +12,7 @@ import tk.ardentbot.Backend.Translation.Translation;
 import tk.ardentbot.Backend.Translation.TranslationResponse;
 import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.AntiRaidSettings;
-import tk.ardentbot.Utils.MessageUtils;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageChannel;
-import net.dv8tion.jda.core.entities.User;
+import tk.ardentbot.Utils.Discord.MessageUtils;
 
 import java.awt.*;
 import java.sql.ResultSet;
@@ -26,6 +26,16 @@ import static tk.ardentbot.Main.Ardent.conn;
 public class AntiRaid extends BotCommand {
     public AntiRaid(CommandSettings commandSettings) {
         super(commandSettings);
+    }
+
+    public static void isInserted(Guild guild) throws SQLException {
+        Statement statement = conn.createStatement();
+        ResultSet set = statement.executeQuery("SELECT * FROM AntiRaidSettings WHERE GuildID='" + guild.getId() + "'");
+        if (!set.next()) {
+            statement.executeUpdate("INSERT INTO AntiRaidSettings VALUES ('" + guild.getId() + "','0','2','1')");
+        }
+        set.close();
+        statement.close();
     }
 
     @Override
@@ -75,15 +85,5 @@ public class AntiRaid extends BotCommand {
         }
         statement.close();
         return null;
-    }
-
-    public static void isInserted(Guild guild) throws SQLException {
-        Statement statement = conn.createStatement();
-        ResultSet set = statement.executeQuery("SELECT * FROM AntiRaidSettings WHERE GuildID='" + guild.getId() + "'");
-        if (!set.next()) {
-            statement.executeUpdate("INSERT INTO AntiRaidSettings VALUES ('" + guild.getId() + "','0','2','1')");
-        }
-        set.close();
-        statement.close();
     }
 }

@@ -1,15 +1,15 @@
 package tk.ardentbot.Commands.Fun;
 
-import tk.ardentbot.Backend.Commands.BotCommand;
-import tk.ardentbot.Backend.Translation.Language;
-import tk.ardentbot.Backend.Web.Models.EightBallResponse;
-import tk.ardentbot.Utils.GuildUtils;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
+import tk.ardentbot.Backend.Commands.BotCommand;
+import tk.ardentbot.Backend.Translation.Language;
+import tk.ardentbot.Backend.Web.Models.EightBallResponse;
+import tk.ardentbot.Utils.Discord.GuildUtils;
 
 import static tk.ardentbot.Main.Ardent.gson;
 
@@ -19,7 +19,8 @@ public class EightBall extends BotCommand {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
+            language) throws Exception {
         if (args.length == 1) {
             sendRetrievedTranslation(channel, "8ball", language, "addargs");
         }
@@ -39,5 +40,6 @@ public class EightBall extends BotCommand {
     }
 
     @Override
-    public void setupSubcommands() {}
+    public void setupSubcommands() {
+    }
 }

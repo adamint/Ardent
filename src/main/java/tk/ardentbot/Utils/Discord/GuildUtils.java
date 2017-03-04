@@ -1,54 +1,30 @@
-package tk.ardentbot.Utils;
+package tk.ardentbot.Utils.Discord;
 
-import tk.ardentbot.Backend.Translation.LangFactory;
-import tk.ardentbot.Backend.Translation.Language;
-import tk.ardentbot.Main.Ardent;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
+import tk.ardentbot.Backend.Translation.LangFactory;
+import tk.ardentbot.Backend.Translation.Language;
+import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Utils.SQL.DatabaseAction;
+import tk.ardentbot.Utils.UsageUtils;
 
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import static tk.ardentbot.Main.Ardent.conn;
-import static tk.ardentbot.Main.Ardent.jda;
+import static tk.ardentbot.Main.Ardent.*;
 
 public class GuildUtils {
-    public static ConcurrentHashMap<String, String> guildPrefixes = new ConcurrentHashMap<>();
-
-    public static int getVoiceConnections() {
-        int amtConnections = 0;
-        for (Guild g : jda.getGuilds()) {
-            if (g.getAudioManager().isConnected()) amtConnections++;
-        }
-        return amtConnections;
-    }
 
     public static void updatePrefix(String prefix, Guild guild) {
-        String old = guildPrefixes.get(guild.getId());
-        guildPrefixes.replace(guild.getId(), old, prefix);
+        botPrefixData.set(guild, prefix);
     }
 
-    public static void addAllPrefixes() throws Exception {
-        Statement statement = conn.createStatement();
-        ResultSet guilds = statement.executeQuery("SELECT * FROM Guilds");
-        ArrayList<String> guildIds = getGuildIds();
-        while (guilds.next()) {
-            String id = guilds.getString("GuildID");
-            if (guildIds.contains(id)) {
-                guildPrefixes.put(id, guilds.getString("Prefix"));
-            }
-        }
-        guilds.close();
-        statement.close();
-    }
-
-    public static ArrayList<String> getGuildIds() {
+    private static ArrayList<String> getGuildIds() {
         ArrayList<String> guildIds = new ArrayList<>();
         jda.getGuilds().forEach(guild -> {
             guildIds.add(guild.getId());
@@ -58,7 +34,7 @@ public class GuildUtils {
 
     public static String getPrefix(Guild guild) throws Exception {
         if (guild == null) return "/";
-        else return guildPrefixes.get(guild.getId());
+        else return botPrefixData.getPrefix(guild);
     }
 
     public static Map<String, Integer> getLanguageUsages() throws Exception {
@@ -69,9 +45,8 @@ public class GuildUtils {
 
         ArrayList<String> guildIds = getGuildIds();
 
-        Statement statement = conn.createStatement();
-        ResultSet set = statement.executeQuery("SELECT * FROM Guilds");
-
+        DatabaseAction languageUsages = new DatabaseAction("SELECT * FROM Guilds");
+        ResultSet set = languageUsages.request();
         while (set.next()) {
             String id = set.getString("GuildID");
             if (guildIds.contains(id)) {
@@ -83,9 +58,7 @@ public class GuildUtils {
                 }
             }
         }
-
-        set.close();
-        statement.close();
+        languageUsages.close();
         return UsageUtils.sortByValue(languageUses);
     }
 
@@ -115,9 +88,7 @@ public class GuildUtils {
     }
 
     public static boolean hasManageServerPermission(Member member) {
-        if (member.hasPermission(Permission.MANAGE_SERVER) || Ardent.developers.contains(member.getUser().getId()))
-            return true;
-        else return false;
+        return member.hasPermission(Permission.MANAGE_SERVER) || Ardent.developers.contains(member.getUser().getId());
     }
 
 }

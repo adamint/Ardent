@@ -6,7 +6,7 @@ import tk.ardentbot.Backend.Commands.BotCommand;
 import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Bot.BotException;
 import tk.ardentbot.Main.Ardent;
-import tk.ardentbot.Utils.GuildUtils;
+import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.UsageUtils;
 import twitter4j.TwitterException;
 
@@ -17,7 +17,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import static tk.ardentbot.Main.Ardent.*;
-import static tk.ardentbot.Utils.GuildUtils.getVoiceConnections;
+import static tk.ardentbot.Utils.Discord.GuildUtils.getVoiceConnections;
 
 public class Admin extends BotCommand {
     public static int secondsWaitedForRestart = 0;

@@ -21,7 +21,8 @@ public class Mute extends BotCommand {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
+            language) throws Exception {
         sendHelp(language, channel);
     }
 
@@ -29,7 +30,8 @@ public class Mute extends BotCommand {
     public void setupSubcommands() throws Exception {
         subcommands.add(new Subcommand(this, "list") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
+                               Language language) throws Exception {
                 Statement statement = conn.createStatement();
                 ResultSet set = statement.executeQuery("SELECT * FROM Mutes WHERE GuildID='" + guild.getId() + "'");
                 String until = getTranslation("mute", language, "until").getTranslation();
@@ -37,7 +39,8 @@ public class Mute extends BotCommand {
                 int amt = 0;
                 while (set.next()) {
                     amt++;
-                    sb.append(" - " + jda.getUserById(set.getString("UserID")).getAsMention() + " " + until + " " + new Date(set.getLong("UnmuteEpochSecond")) + "\n");
+                    sb.append(" - " + jda.getUserById(set.getString("UserID")).getAsMention() + " " + until + " " +
+                            new Date(set.getLong("UnmuteEpochSecond")) + "\n");
                 }
                 if (amt == 0) {
                     sb = new StringBuilder();
@@ -50,25 +53,30 @@ public class Mute extends BotCommand {
         });
         subcommands.add(new Subcommand(this, "add") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
+                               Language language) throws Exception {
                 Member author = guild.getMember(message.getAuthor());
                 if (author.hasPermission(Permission.ADMINISTRATOR)) {
                     if (message.getMentionedUsers().size() > 0) {
 
                         Member mentioned = message.getGuild().getMember(message.getMentionedUsers().get(0));
 
-                        if(Ardent.botMuteData.isMuted(mentioned)){
+                        if (Ardent.botMuteData.isMuted(mentioned)) {
                             sendRetrievedTranslation(channel, "mute", language, "alreadymuted");
-                        }else{
-                            if(Ardent.botMuteData.wasMute(mentioned)){
+                        }
+                        else {
+                            if (Ardent.botMuteData.wasMute(mentioned)) {
                                 Ardent.botMuteData.unmute(mentioned); // Do delete it from the list
                             }
                             String muteTime = args[3];
-                            if (muteTime.endsWith("w") || muteTime.endsWith("h") || muteTime.endsWith("d") || muteTime.endsWith("m")) {
+                            if (muteTime.endsWith("w") || muteTime.endsWith("h") || muteTime.endsWith("d") ||
+                                    muteTime.endsWith("m"))
+                            {
                                 try {
                                     long now = StringUtils.commandeTime(muteTime);
                                     Ardent.botMuteData.mute(mentioned, now, guild.getMember(message.getAuthor()));
-                                    String reply = getTranslation("mute", language, "nowmuteduntil").getTranslation().replace("{0}", mentioned.getUser().getName())
+                                    String reply = getTranslation("mute", language, "nowmuteduntil").getTranslation()
+                                            .replace("{0}", mentioned.getUser().getName())
                                             .replace("{1}", String.valueOf(new Date(now)));
                                     sendTranslatedMessage(reply, channel);
                                 }

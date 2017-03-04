@@ -1,4 +1,4 @@
-package tk.ardentbot.Utils;
+package tk.ardentbot.Utils.Discord;
 
 public class Emoji {
     private String packName;

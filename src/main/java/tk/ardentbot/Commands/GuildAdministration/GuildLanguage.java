@@ -1,14 +1,14 @@
 package tk.ardentbot.Commands.GuildAdministration;
 
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.*;
 import tk.ardentbot.Backend.Commands.BotCommand;
 import tk.ardentbot.Backend.Commands.Subcommand;
 import tk.ardentbot.Backend.Translation.LangFactory;
 import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Backend.Translation.Translation;
 import tk.ardentbot.Backend.Translation.TranslationResponse;
-import tk.ardentbot.Utils.GuildUtils;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.*;
+import tk.ardentbot.Utils.Discord.GuildUtils;
 
 import java.sql.Statement;
 import java.text.DecimalFormat;
@@ -20,11 +20,11 @@ import static tk.ardentbot.Main.Ardent.conn;
 import static tk.ardentbot.Main.Ardent.jda;
 
 public class GuildLanguage extends BotCommand {
+    public Subcommand set;
+
     public GuildLanguage(CommandSettings commandSettings) {
         super(commandSettings);
     }
-
-    public Subcommand set;
 
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, tk.ardentbot.Backend.Translation.Language language) throws Exception {

@@ -1,10 +1,10 @@
-package tk.ardentbot.Utils;
+package tk.ardentbot.Utils.Discord;
 
-import tk.ardentbot.Backend.Commands.Command;
-import tk.ardentbot.Backend.Translation.Language;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.User;
+import tk.ardentbot.Backend.Commands.Command;
+import tk.ardentbot.Backend.Translation.Language;
 
 import java.awt.*;
 

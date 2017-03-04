@@ -8,7 +8,7 @@ import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.Backend.Commands.BotCommand;
 import tk.ardentbot.Backend.Commands.Subcommand;
 import tk.ardentbot.Backend.Translation.Language;
-import tk.ardentbot.Utils.GuildUtils;
+import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.StringUtils;
 
 import java.sql.ResultSet;

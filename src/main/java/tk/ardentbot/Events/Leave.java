@@ -12,24 +12,15 @@ import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.Tuples.Triplet;
 
 import java.sql.SQLException;
-import java.sql.Statement;
-
-import static tk.ardentbot.Main.Ardent.conn;
 
 @SuppressWarnings("Duplicates")
 public class Leave {
     @SubscribeEvent
     public void onLeave(GuildLeaveEvent event) {
-        String id = event.getGuild().getId();
+        Guild guild = event.getGuild();
+        String id = guild.getId();
         Ardent.cleverbots.remove(id);
-        try {
-            Statement statement = conn.createStatement();
-            statement.executeUpdate("DELETE FROM SlowmodeSettings WHERE GuildID='" + id + "'");
-            statement.close();
-        }
-        catch (SQLException e) {
-            e.printStackTrace();
-        }
+        Ardent.botPrefixData.remove(guild);
     }
 
     @SubscribeEvent

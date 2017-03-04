@@ -1,17 +1,17 @@
 package tk.ardentbot.Commands.BotInfo;
 
-import tk.ardentbot.Backend.Commands.BotCommand;
-import tk.ardentbot.Backend.Translation.Language;
-import tk.ardentbot.Backend.Translation.Translation;
-import tk.ardentbot.Backend.Translation.TranslationResponse;
-import tk.ardentbot.Main.Ardent;
-import tk.ardentbot.Utils.MessageUtils;
 import com.sun.management.OperatingSystemMXBean;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
+import tk.ardentbot.Backend.Commands.BotCommand;
+import tk.ardentbot.Backend.Translation.Language;
+import tk.ardentbot.Backend.Translation.Translation;
+import tk.ardentbot.Backend.Translation.TranslationResponse;
+import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Utils.Discord.MessageUtils;
 
 import java.lang.management.ManagementFactory;
 import java.sql.ResultSet;
@@ -23,13 +23,24 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static tk.ardentbot.Main.Ardent.conn;
 import static tk.ardentbot.Main.Ardent.jda;
-import static tk.ardentbot.Utils.GuildUtils.getVoiceConnections;
 
 public class Status extends BotCommand {
     public static ConcurrentHashMap<String, Integer> commandsByGuild = new ConcurrentHashMap<>();
 
     public Status(CommandSettings commandSettings) {
         super(commandSettings);
+    }
+
+    public static int getVoiceConnections() {
+        int counter = 0;
+        for (Guild guild : jda.getGuilds()) {
+            if (guild.getAudioManager().isConnected()) counter++;
+        }
+        return counter;
+    }
+
+    public static int getUserAmount() {
+        return jda.getUsers().size();
     }
 
     @Override

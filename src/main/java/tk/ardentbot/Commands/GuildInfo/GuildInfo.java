@@ -1,14 +1,14 @@
 package tk.ardentbot.Commands.GuildInfo;
 
-import tk.ardentbot.Backend.Commands.BotCommand;
-import tk.ardentbot.Backend.Translation.Language;
-import tk.ardentbot.Backend.Translation.Translation;
-import tk.ardentbot.Backend.Translation.TranslationResponse;
-import tk.ardentbot.Utils.GuildUtils;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
+import tk.ardentbot.Backend.Commands.BotCommand;
+import tk.ardentbot.Backend.Translation.Language;
+import tk.ardentbot.Backend.Translation.Translation;
+import tk.ardentbot.Backend.Translation.TranslationResponse;
+import tk.ardentbot.Utils.Discord.GuildUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
