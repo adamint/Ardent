@@ -25,12 +25,11 @@ public class BotPrefixData {
         }
         catch (NullPointerException ex) {
             set(guild, "/");
-            return getPrefix(guild);
+            return "/";
         }
     }
 
     public void set(Guild guild, String prefix) {
-        if (guildPrefixes.containsKey(guild.getId())) guildPrefixes.remove(guild.getId());
         guildPrefixes.put(guild.getId(), prefix);
     }
 

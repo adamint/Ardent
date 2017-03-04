@@ -22,7 +22,6 @@ public class BotLanguageData {
     }
 
     public void set(Guild guild, String language) {
-        if (guildLanguages.get(guild.getId()) != null) guildLanguages.remove(guild.getId());
         guildLanguages.put(guild.getId(), language);
     }
 
@@ -33,7 +32,7 @@ public class BotLanguageData {
         }
         catch (NullPointerException ex) {
             set(guild, LangFactory.english.getIdentifier());
-            return getLanguage(guild);
+            return LangFactory.english;
         }
     }
 }
