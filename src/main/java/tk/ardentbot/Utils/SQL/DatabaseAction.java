@@ -5,7 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
-import static tk.ardentbot.Main.Config.conn;
+import static tk.ardentbot.Main.Ardent.ardent;
 
 
 public class DatabaseAction {
@@ -13,7 +13,7 @@ public class DatabaseAction {
     private int currentPlace = 1;
 
     public DatabaseAction(String sql) throws SQLException {
-        preparedStatement = conn.prepareStatement(sql);
+        preparedStatement = ardent.conn.prepareStatement(sql);
     }
 
     public DatabaseAction set(Object o) throws SQLException {
@@ -31,6 +31,9 @@ public class DatabaseAction {
         }
         else if (o instanceof Double) {
             preparedStatement.setDouble(currentPlace, (Double) o);
+        }
+        else if (o instanceof Boolean) {
+            preparedStatement.setBoolean(currentPlace, (Boolean) o);
         }
         currentPlace++;
         return this;

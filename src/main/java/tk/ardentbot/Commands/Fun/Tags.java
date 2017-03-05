@@ -37,7 +37,7 @@ public class Tags extends BotCommand {
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
             language) throws Exception {
-        sendTranslatedMessage(getHelp(language), channel);
+        sendHelp(language, channel, guild, user, this);
     }
 
     @Override

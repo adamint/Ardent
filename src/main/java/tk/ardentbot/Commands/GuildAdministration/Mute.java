@@ -5,15 +5,13 @@ import net.dv8tion.jda.core.entities.*;
 import tk.ardentbot.Backend.Commands.BotCommand;
 import tk.ardentbot.Backend.Commands.Subcommand;
 import tk.ardentbot.Backend.Translation.Language;
-import tk.ardentbot.Main.Config;
 import tk.ardentbot.Utils.StringUtils;
 
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Date;
 
-import static tk.ardentbot.Main.Config.conn;
-import static tk.ardentbot.Main.Config.jda;
+import static tk.ardentbot.Main.Ardent.ardent;
 
 public class Mute extends BotCommand {
     public Mute(CommandSettings commandSettings) {
@@ -23,7 +21,7 @@ public class Mute extends BotCommand {
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
             language) throws Exception {
-        sendHelp(language, channel);
+        sendHelp(language, channel, guild, user, this);
     }
 
     @Override
@@ -32,14 +30,15 @@ public class Mute extends BotCommand {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
-                Statement statement = conn.createStatement();
+                Statement statement = ardent.conn.createStatement();
                 ResultSet set = statement.executeQuery("SELECT * FROM Mutes WHERE GuildID='" + guild.getId() + "'");
                 String until = getTranslation("mute", language, "until").getTranslation();
                 StringBuilder sb = new StringBuilder();
                 int amt = 0;
                 while (set.next()) {
                     amt++;
-                    sb.append(" - " + jda.getUserById(set.getString("UserID")).getAsMention() + " " + until + " " +
+                    sb.append(" - " + ardent.jda.getUserById(set.getString("UserID")).getAsMention() + " " + until +
+                            " " +
                             new Date(set.getLong("UnmuteEpochSecond")) + "\n");
                 }
                 if (amt == 0) {
@@ -61,12 +60,12 @@ public class Mute extends BotCommand {
 
                         Member mentioned = message.getGuild().getMember(message.getMentionedUsers().get(0));
 
-                        if (Config.botMuteData.isMuted(mentioned)) {
+                        if (ardent.botMuteData.isMuted(mentioned)) {
                             sendRetrievedTranslation(channel, "mute", language, "alreadymuted");
                         }
                         else {
-                            if (Config.botMuteData.wasMute(mentioned)) {
-                                Config.botMuteData.unmute(mentioned); // Do delete it from the list
+                            if (ardent.botMuteData.wasMute(mentioned)) {
+                                ardent.botMuteData.unmute(mentioned); // Do delete it from the list
                             }
                             String muteTime = args[3];
                             if (muteTime.endsWith("w") || muteTime.endsWith("h") || muteTime.endsWith("d") ||
@@ -74,7 +73,7 @@ public class Mute extends BotCommand {
                             {
                                 try {
                                     long now = StringUtils.commandeTime(muteTime);
-                                    Config.botMuteData.mute(mentioned, now, guild.getMember(message.getAuthor()));
+                                    ardent.botMuteData.mute(mentioned, now, guild.getMember(message.getAuthor()));
                                     String reply = getTranslation("mute", language, "nowmuteduntil").getTranslation()
                                             .replace("{0}", mentioned.getUser().getName())
                                             .replace("{1}", String.valueOf(new Date(now)));

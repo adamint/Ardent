@@ -15,7 +15,6 @@ import tk.ardentbot.Backend.Translation.LangFactory;
 import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Bot.BotException;
 import tk.ardentbot.Commands.BotInfo.Status;
-import tk.ardentbot.Main.Config;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.UsageUtils;
@@ -29,7 +28,7 @@ import java.util.ArrayList;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 
-import static tk.ardentbot.Main.Config.*;
+import static tk.ardentbot.Main.Ardent.ardent;
 
 public class CommandFactory {
     private ArrayList<String> emojiCommandTags = new ArrayList<>();
@@ -43,11 +42,11 @@ public class CommandFactory {
      * as emoji parsing doesn't otherwise work with the existing system
      */
     public CommandFactory() {
-        executorService.scheduleAtFixedRate(new EmojiCommandUpdater(), 1, 150, TimeUnit.SECONDS);
+        ardent.executorService.scheduleAtFixedRate(new EmojiCommandUpdater(), 1, 150, TimeUnit.SECONDS);
     }
 
     public static ChatterBotSession getBotSession(Guild guild) {
-        return Config.cleverbots.get(guild.getId());
+        return ardent.cleverbots.get(guild.getId());
     }
 
     public ConcurrentArrayQueue<Command> getCommands() {
@@ -103,16 +102,16 @@ public class CommandFactory {
             String[] args = message.getContent().split(" ");
             Guild guild = event.getGuild();
             Language language = GuildUtils.getLanguage(guild);
-            if (message.getRawContent().startsWith(ardent.getAsMention())) {
-                BotCommand cmd = help.botCommand;
-                if (message.getRawContent().replace(ardent.getAsMention(), "").length() == 0) {
+            if (message.getRawContent().startsWith(ardent.bot.getAsMention())) {
+                BotCommand cmd = ardent.help.botCommand;
+                if (message.getRawContent().replace(ardent.bot.getAsMention(), "").length() == 0) {
                     cmd.sendTranslatedMessage(cmd.getTranslation("other", language, "mentionedhelp").getTranslation()
                             .replace("{0}", GuildUtils.getPrefix(guild) +
                                     cmd.getName(language)), channel);
                 }
                 else {
                     if (guild != null) {
-                        if (message.getRawContent().equalsIgnoreCase(ardent.getAsMention() + " english")) {
+                        if (message.getRawContent().equalsIgnoreCase(ardent.bot.getAsMention() + " english")) {
                             if (GuildUtils.hasManageServerPermission(guild.getMember(event.getAuthor()))) {
                                 DatabaseAction updateLanguage = new DatabaseAction("UPDATE Guilds SET Language=? " +
                                         "WHERE" +
@@ -152,7 +151,7 @@ public class CommandFactory {
                                         try {
                                             if (command.isPrivateChannelUsage()) {
                                                 command.botCommand.usages++;
-                                                executorService.execute(new Runner(command.botCommand, guild,
+                                                ardent.executorService.execute(new Runner(command.botCommand, guild,
                                                         channel, event.getAuthor(), message, args, language));
                                             }
                                             else {
@@ -205,7 +204,7 @@ public class CommandFactory {
                                                     language, "firstincommands");
                                         }
 
-                                        executorService.execute(new Runner(command.botCommand, guild, channel,
+                                        ardent.executorService.execute(new Runner(command.botCommand, guild, channel,
                                                 event.getAuthor(), message, args, language));
                                         commandsReceived++;
 
@@ -240,7 +239,7 @@ public class CommandFactory {
         @Override
         public void run() {
             try {
-                Statement statement = conn.createStatement();
+                Statement statement = ardent.conn.createStatement();
                 ResultSet emojis = statement.executeQuery("SELECT * FROM Commands WHERE Language='emoji'");
                 while (emojis.next()) {
                     emojiCommandTags.add(emojis.getString("Translation").replace("\\:", ""));

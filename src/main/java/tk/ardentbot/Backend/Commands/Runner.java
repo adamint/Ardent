@@ -9,7 +9,7 @@ import tk.ardentbot.Bot.BotException;
 
 import java.util.concurrent.TimeUnit;
 
-import static tk.ardentbot.Main.Config.*;
+import static tk.ardentbot.Main.Ardent.ardent;
 
 class Runner implements Runnable {
 
@@ -38,12 +38,12 @@ class Runner implements Runnable {
     @Override
     public void run() {
         try {
-            if (announcement != null) {
-                if (!sentAnnouncement.get(guild.getId())) {
-                    sentAnnouncement.replace(guild.getId(), true);
-                    executorService.schedule(() -> {
+            if (ardent.announcement != null) {
+                if (!ardent.sentAnnouncement.get(guild.getId())) {
+                    ardent.sentAnnouncement.replace(guild.getId(), true);
+                    ardent.executorService.schedule(() -> {
                         try {
-                            command.sendTranslatedMessage(announcement, channel);
+                            command.sendTranslatedMessage(ardent.announcement, channel);
                         }
                         catch (Exception e) {
                             new BotException(e);

@@ -9,7 +9,7 @@ import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import twitter4j.Status;
 
-import static tk.ardentbot.Main.Config.*;
+import static tk.ardentbot.Main.Ardent.ardent;
 
 public class Tweet extends BotCommand {
     public Tweet(CommandSettings commandSettings) {
@@ -18,7 +18,7 @@ public class Tweet extends BotCommand {
 
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
-        if (developers.contains(user.getId())) {
+        if (ardent.developers.contains(user.getId())) {
             if (args.length == 1) {
                 sendTranslatedMessage("Bro, you gotta include an actual tweet with that", channel);
             }
@@ -29,11 +29,11 @@ public class Tweet extends BotCommand {
                     mentionEveryone = true;
                     content = content.replace("{{mentionall}}", "");
                 }
-                Status status = twitter.tweets().updateStatus(content);
+                Status status = ardent.twitter.tweets().updateStatus(content);
                 StringBuilder sb = new StringBuilder();
                 sb.append("**New Tweet** by Ardent\n" + content + "\n\nIf you liked this, follow us on twitter & like the post - https://twitter.com/ardentbot/status/" + status.getId());
                 if (mentionEveryone) sb.append("\n@everyone");
-                jda.getTextChannelById("272411413031419904").sendMessage(sb.toString()).queue();
+                ardent.jda.getTextChannelById("272411413031419904").sendMessage(sb.toString()).queue();
             }
         }
         else sendRetrievedTranslation(channel, "other", language, "needdeveloperpermission");

@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-import static tk.ardentbot.Main.Config.executorService;
+import static tk.ardentbot.Main.Ardent.ardent;
 
 public class Roll extends BotCommand {
     public Roll(CommandSettings commandSettings) {
@@ -31,7 +31,7 @@ public class Roll extends BotCommand {
         String after = responses.get(1).getTranslation();
 
         channel.sendMessage(before).queue(message1 -> {
-            executorService.schedule(() -> {
+            ardent.executorService.schedule(() -> {
                 int roll = new Random().nextInt(6) + 1;
                 message1.editMessage(after.replace("{0}", String.valueOf(roll))).queue();
             }, 2, TimeUnit.SECONDS);

@@ -4,10 +4,11 @@ import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 import tk.ardentbot.Backend.Commands.BotCommand;
 import tk.ardentbot.Backend.Translation.Language;
-import tk.ardentbot.Main.Config;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 
 import java.util.List;
+
+import static tk.ardentbot.Main.Ardent.ardent;
 
 public class Unmute extends BotCommand {
     public Unmute(CommandSettings commandSettings) {
@@ -29,8 +30,8 @@ public class Unmute extends BotCommand {
                     User mentioned = mentionedUsers.get(0);
                     Member m = guild.getMember(mentioned);
 
-                    if (Config.botMuteData.isMuted(m)) {
-                        Config.botMuteData.unmute(m);
+                    if (ardent.botMuteData.isMuted(m)) {
+                        ardent.botMuteData.unmute(m);
                         sendRetrievedTranslation(channel, "unmute", language, "unmuteduser");
                     }else{
                         sendRetrievedTranslation(channel, "unmute", language, "notmuted");

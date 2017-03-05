@@ -1,15 +1,20 @@
 package tk.ardentbot.Backend.Commands;
 
-import tk.ardentbot.Backend.Models.SubcommandTranslation;
-import tk.ardentbot.Backend.Translation.Language;
-import tk.ardentbot.Bot.BotException;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
+import tk.ardentbot.Backend.Models.SubcommandTranslation;
+import tk.ardentbot.Backend.Translation.Language;
+import tk.ardentbot.Bot.BotException;
+import tk.ardentbot.Utils.Discord.MessageUtils;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import static tk.ardentbot.Main.Ardent.ardent;
 
 public abstract class BotCommand extends Command {
     public int usages = 0;
@@ -45,24 +50,28 @@ public abstract class BotCommand extends Command {
 
     public abstract void setupSubcommands() throws Exception;
 
-    public void sendHelp(Language language, MessageChannel channel) throws Exception {
-        sendTranslatedMessage(getHelp(language), channel);
+    public void sendHelp(Language language, MessageChannel channel, Guild guild, User author, Command command) throws
+            Exception {
+        sendEmbed(getHelp(language, guild, author, command), channel);
     }
 
-    protected String getHelp(Language language) throws Exception {
-        StringBuilder help = new StringBuilder();
+    protected EmbedBuilder getHelp(Language language, Guild guild, User author, Command command) throws Exception {
+        EmbedBuilder embedBuilder = MessageUtils.getDefaultEmbed(guild, author, command);
+        embedBuilder.setColor(Color.ORANGE);
         String name = getName(language);
         name = name.substring(0, 1).toUpperCase() + name.substring(1);
-        help.append("**" + name + "**\n");
-        help.append(getDescription(language) + "\n\n");
+        embedBuilder.setAuthor(name, ardent.url, ardent.bot.getAvatarUrl());
+        StringBuilder description = new StringBuilder();
+        description.append("*" + getDescription(language) + "*");
 
         if (subcommands.size() > 0) {
-            help.append("**" + getTranslation("other", language, "subcommands").getTranslation() + "**\n");
+            description.append("\n\n**" + getTranslation("other", language, "subcommands").getTranslation() + "**\n");
             for (Subcommand subcommand : subcommands) {
-                help.append("- " + subcommand.getSyntax(language) + ": " + subcommand.getDescription(language) + "\n");
+                description.append("- " + subcommand.getSyntax(language) + ": *" + subcommand.getDescription(language) + "*\n");
             }
         }
-        return help.toString();
+        embedBuilder.setDescription(description.toString());
+        return embedBuilder;
     }
 
     /**

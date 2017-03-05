@@ -19,8 +19,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-import static tk.ardentbot.Main.Config.conn;
-import static tk.ardentbot.Main.Config.translators;
+import static tk.ardentbot.Main.Ardent.ardent;
 import static tk.ardentbot.Utils.SQL.SQLUtils.cleanString;
 
 public class Translate extends BotCommand {
@@ -81,7 +80,7 @@ public class Translate extends BotCommand {
 
     public static ArrayList<Quintet<String, String, String, String, String>> getSubCommandDiscrepancies(Language
                                                                                                                 language) throws SQLException {
-        Statement statement = conn.createStatement();
+        Statement statement = ardent.conn.createStatement();
         ArrayList<Quintet<String, String, String, String, String>> discrepanciesInEnglish = new ArrayList<>();
         ArrayList<Quintet<String, String, String, String, String>> englishTranslations = new ArrayList<>();
         ResultSet translations = statement.executeQuery("SELECT * FROM Subcommands WHERE Language='english'");
@@ -122,7 +121,7 @@ public class Translate extends BotCommand {
         subcommands.add(new Subcommand(this, "basic") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
-                if (translators.contains(user.getId())) {
+                if (ardent.translators.contains(user.getId())) {
                     if (args.length >= 5) {
                         Language translateTo = LangFactory.getLanguage(args[2]);
                         if (translateTo != null) {
@@ -133,12 +132,13 @@ public class Translate extends BotCommand {
                                     String translationOf = discrepanciesInTableTranslations.get((place - 1));
                                     String translation = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " +
                                             args[1] + " " + args[2] + " " + args[3] + " ", "");
-                                    ResultSet set = conn.prepareStatement("SELECT * FROM Translations WHERE Language='english' AND " +
+                                    ResultSet set = ardent.conn.prepareStatement("SELECT * FROM Translations WHERE " +
+                                            "Language='english' AND " +
                                             "Translation='" + cleanString(translationOf) + "'").executeQuery();
                                     if (set.next()) {
                                         String commandID = set.getString("CommandIdentifier");
                                         String id = set.getString("ID");
-                                        conn.prepareStatement("INSERT INTO Translations VALUES ('" + commandID + "', '" + cleanString(translation) + "'," +
+                                        ardent.conn.prepareStatement("INSERT INTO Translations VALUES ('" + commandID + "', '" + cleanString(translation) + "'," +
                                                 "'" + id + "', '" + translateTo.getIdentifier() + "', '0')").executeUpdate();
                                         sendTranslatedMessage("Good job and thanks! Please do /translate " + translateTo.getIdentifier() + " again " +
                                                 "because the place values have shifted!", channel);
@@ -163,8 +163,9 @@ public class Translate extends BotCommand {
 
         subcommands.add(new Subcommand(this, "cmds") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
-                if (translators.contains(user.getId())) {
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
+                               Language language) throws Exception {
+                if (ardent.translators.contains(user.getId())) {
                     if (args.length >= 5) {
                         Language translateTo = LangFactory.getLanguage(args[2]);
                         if (translateTo != null) {
@@ -176,12 +177,18 @@ public class Translate extends BotCommand {
                                     String unformattedTranslation = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " + args[1] + " " + args[2] + " " + args[3] + " ", "");
                                     String[] parts = unformattedTranslation.split("//");
                                     if (parts.length == 2) {
-                                        ResultSet set = conn.prepareStatement("SELECT * FROM Commands WHERE Language='english' AND " +
-                                                "Translation='" + cleanString(translationOf.getK()) + "' AND Description='" + cleanString(translationOf.getV()) + "'").executeQuery();
+
+                                        ResultSet set = new DatabaseAction("SELECT * FROM Commands WHERE Language = ? AND Translation = ? AND Description = ?")
+                                                .set("english").set(translationOf.getK())
+                                                .set(translationOf.getV()).request();
+
                                         if (set.next()) {
                                             String commandID = set.getString("Identifier");
-                                            conn.prepareStatement("INSERT INTO Commands VALUES ('" + commandID + "','" + translateTo.getIdentifier() + "', '" +
-                                                    cleanString(parts[0]) + "', '" + cleanString(parts[1]) + "')").executeUpdate();
+
+                                            new DatabaseAction("INSERT INTO Commands VALUES(?, ?, ?, ?)")
+                                                    .set(commandID).set(translateTo.getIdentifier())
+                                                    .set(parts[0]).set(parts[1]).update();
+                                            
                                             sendTranslatedMessage("Good job and thanks! Please do /translate " + translateTo.getIdentifier() + "cmds again " +
                                                     "because the place values have shifted!", channel);
                                         }
@@ -209,8 +216,9 @@ public class Translate extends BotCommand {
         for (Language language : LangFactory.languages) {
             subcommands.add(new Subcommand(this, language.getIdentifier()) {
                 @Override
-                public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
-                    if (translators.contains(user.getId())) {
+                public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
+                                   Language language) throws Exception {
+                    if (ardent.translators.contains(user.getId())) {
                         Language translateTo = LangFactory.getLanguage(args[1]);
                         if (translateTo != null) {
                             ArrayList<String> discrepanciesInTableTranslations = getTranslationDiscrepancies(translateTo);
@@ -230,7 +238,7 @@ public class Translate extends BotCommand {
             subcommands.add(new Subcommand(this, language.getIdentifier() + "cmds") {
                 @Override
                 public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
-                    if (translators.contains(user.getId())) {
+                    if (ardent.translators.contains(user.getId())) {
                         Language translateTo = LangFactory.getLanguage(args[1].replace("cmds", ""));
                         if (translateTo != null) {
                             ArrayList<Pair<String, String>> discrepanciesInCommandTranslations = getCommandDiscrepancies(translateTo);

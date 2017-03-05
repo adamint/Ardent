@@ -6,13 +6,11 @@ import tk.ardentbot.Backend.Commands.BotCommand;
 import tk.ardentbot.Backend.Commands.Subcommand;
 import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Utils.Discord.GuildUtils;
+import tk.ardentbot.Utils.SQL.DatabaseAction;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.List;
-
-import static tk.ardentbot.Main.Config.conn;
 
 public class DefaultRole extends BotCommand {
     public DefaultRole(CommandSettings commandSettings) {
@@ -20,44 +18,38 @@ public class DefaultRole extends BotCommand {
     }
 
     public static Role getDefaultRole(Guild guild) throws SQLException {
-        Role returned;
-        Statement statement = conn.createStatement();
-        ResultSet set = statement.executeQuery("SELECT * FROM DefaultRole WHERE GuildID='" + guild.getId() + "'");
+        Role returned = null;
+        DatabaseAction retrieve = new DatabaseAction("SELECT * FROM DefaultRole WHERE GuildID=?").set(guild.getId());
+        ResultSet set = retrieve.request();
         if (set.next()) {
-            String id = set.getString("RoleID");
-            if (id.equalsIgnoreCase("none")) {
-                returned = null;
+            String roleID = set.getString("RoleID");
+            if (!roleID.equalsIgnoreCase("none")) {
+                returned = guild.getRoleById(roleID);
             }
-            else {
-                returned = guild.getRoleById(id);
-            }
-            set.close();
-            statement.close();
-            return returned;
         }
-        else {
-            set.close();
-            statement.close();
-            return null;
-        }
+        retrieve.close();
+        return returned;
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
-        sendHelp(language, channel);
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
+            language) throws Exception {
+        sendHelp(language, channel, guild, user, this);
     }
 
     @Override
     public void setupSubcommands() throws Exception {
         subcommands.add(new Subcommand(this, "view") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
+                               Language language) throws Exception {
                 Role role = getDefaultRole(guild);
                 if (role == null) {
                     sendRetrievedTranslation(channel, "defaultrole", language, "nodefaultrole");
                 }
                 else {
-                    String reply = getTranslation("defaultrole", language, "currentdefaultrole").getTranslation().replace("{0}", role.getName());
+                    String reply = getTranslation("defaultrole", language, "currentdefaultrole").getTranslation()
+                            .replace("{0}", role.getName());
                     sendTranslatedMessage(reply, channel);
                 }
             }
@@ -65,7 +57,8 @@ public class DefaultRole extends BotCommand {
 
         subcommands.add(new Subcommand(this, "remove") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
+                               Language language) throws Exception {
                 Role role = getDefaultRole(guild);
                 if (role == null) {
                     sendRetrievedTranslation(channel, "defaultrole", language, "nodefaultrole");
@@ -82,9 +75,11 @@ public class DefaultRole extends BotCommand {
 
         subcommands.add(new Subcommand(this, "set") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
+                               Language language) throws Exception {
                 if (guild.getMember(user).hasPermission(Permission.MANAGE_SERVER)) {
-                    String roleName = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " + args[1] + " ", "");
+                    String roleName = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " "
+                            + args[1] + " ", "");
                     List<Role> roles = guild.getRolesByName(roleName, true);
                     if (roles.size() == 0) {
                         sendRetrievedTranslation(channel, "defaultrole", language, "needtotyperole");
@@ -92,7 +87,8 @@ public class DefaultRole extends BotCommand {
                     else {
                         Role role = roles.get(0);
                         setDefaultRole(role, guild);
-                        String reply = getTranslation("defaultrole", language, "setdefaultrole").getTranslation().replace("{0}", role.getName());
+                        String reply = getTranslation("defaultrole", language, "setdefaultrole").getTranslation()
+                                .replace("{0}", role.getName());
                         sendTranslatedMessage(reply, channel);
                     }
                 }
@@ -101,22 +97,20 @@ public class DefaultRole extends BotCommand {
         });
     }
 
-    public void removeDefaultRole(Guild guild) throws SQLException {
-        Statement statement = conn.createStatement();
-        statement.executeUpdate("UPDATE DefaultRole SET RoleID='none' WHERE GuildID='" + guild.getId() + "'");
-        statement.close();
+    private void removeDefaultRole(Guild guild) throws SQLException {
+        new DatabaseAction("UPDATE DefaultRole SET RoleID=? WHERE GuildID=?").set("none").set(guild.getId()).update();
     }
 
-    public void setDefaultRole(Role role, Guild guild) throws SQLException {
-        Statement statement = conn.createStatement();
-        ResultSet isIn = statement.executeQuery("SELECT * FROM DefaultRole WHERE GuildID='" + guild.getId() + "'");
+    private void setDefaultRole(Role role, Guild guild) throws SQLException {
+        DatabaseAction retrieve = new DatabaseAction("SELECT * FROM DefaultRole WHERE GuildID=?").set(guild.getId());
+        ResultSet isIn = retrieve.request();
         if (isIn.next()) {
-            statement.executeUpdate("UPDATE DefaultRole SET RoleID='" + role.getId() + "' WHERE GuildID='" + guild.getId() + "'");
+            new DatabaseAction("UPDATE DefaultRole SET RoleID=? WHERE GuildID=?").set(role.getId()).set(guild.getId()
+            ).update();
         }
         else {
-            statement.executeUpdate("INSERT INTO DefaultRole VALUES ('" + guild.getId() + "', '" + role.getId() + "')");
+            new DatabaseAction("INSERT INTO DefaultRole VALUES (?,?)").set(guild.getId()).set(role.getId()).update();
         }
-        isIn.close();
-        statement.close();
+        retrieve.close();
     }
 }

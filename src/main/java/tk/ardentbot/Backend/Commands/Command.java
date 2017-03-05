@@ -11,7 +11,6 @@ import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Backend.Translation.Translation;
 import tk.ardentbot.Backend.Translation.TranslationResponse;
 import tk.ardentbot.Bot.BotException;
-import tk.ardentbot.Main.Config;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 
 import java.sql.ResultSet;
@@ -20,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static tk.ardentbot.Backend.Translation.LangFactory.english;
+import static tk.ardentbot.Main.Ardent.ardent;
 
 /**
  * Abstracted from BotCommand for possible future
@@ -212,8 +212,8 @@ public abstract class Command {
         else {
             DatabaseAction englishRequest = new DatabaseAction("SELECT * FROM Translations WHERE CommandIdentifier=? " +
                     "AND Language=? AND ID=?");
-            translationRequest.set(cmdName).set("english").set(id);
-            ResultSet englishSet = translationRequest.request();
+            englishRequest.set(cmdName).set("english").set(id);
+            ResultSet englishSet = englishRequest.request();
             if (englishSet.next()) {
                 String translation = englishSet.getString("Translation").replace("{newline}", "\n");
                 response = new TranslationResponse(translation, lang, true, false, true);
@@ -356,7 +356,7 @@ public abstract class Command {
     }
 
     public ArrayList<Command> getCommandsInCategory(Category category) {
-        return Config.factory.getCommands().stream().filter(command -> command.getCategory() == category)
+        return ardent.factory.getCommands().stream().filter(command -> command.getCategory() == category)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 

@@ -4,13 +4,12 @@ import net.dv8tion.jda.core.entities.Guild;
 import org.eclipse.jetty.util.ConcurrentArrayQueue;
 import tk.ardentbot.Backend.Commands.Command;
 import tk.ardentbot.Commands.BotInfo.Status;
-import tk.ardentbot.Main.Config;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import static tk.ardentbot.Main.Config.jda;
+import static tk.ardentbot.Main.Ardent.ardent;
 
 public class UsageUtils {
     private static Comparator<Command> SORT_BY_USAGE = (o1, o2) -> {
@@ -20,7 +19,7 @@ public class UsageUtils {
     };
 
     public static ArrayList<Command> orderByUsageDesc() {
-        ConcurrentArrayQueue<Command> unsorted = Config.factory.getCommands();
+        ConcurrentArrayQueue<Command> unsorted = ardent.factory.getCommands();
         ArrayList<Command> commands = new ArrayList<>();
         for (Command c : unsorted) {
             if (!c.getCommandIdentifier().equalsIgnoreCase("patreon") && !c.getCommandIdentifier().equalsIgnoreCase("translateforardent") && !c.getCommandIdentifier().equalsIgnoreCase("tweet") && !c.getCommandIdentifier().equalsIgnoreCase("eval") && !c.getCommandIdentifier().equalsIgnoreCase("addenglishbase") && !c.getCommandIdentifier().equalsIgnoreCase("help") && !c.getCommandIdentifier().equalsIgnoreCase("admin")) {
@@ -58,7 +57,7 @@ public class UsageUtils {
         final int[] counter = {0};
         allValues.forEach((key, value) -> {
             if (counter[0] < amount) {
-                finalValues.put(jda.getGuildById(key), value);
+                finalValues.put(ardent.jda.getGuildById(key), value);
                 counter[0]++;
             }
         });

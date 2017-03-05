@@ -10,8 +10,7 @@ import tk.ardentbot.Utils.Discord.GuildUtils;
 
 import java.sql.Statement;
 
-import static tk.ardentbot.Main.Config.conn;
-import static tk.ardentbot.Main.Config.developers;
+import static tk.ardentbot.Main.Ardent.ardent;
 import static tk.ardentbot.Utils.SQL.SQLUtils.cleanString;
 
 public class AddEnglishBase extends BotCommand {
@@ -21,7 +20,7 @@ public class AddEnglishBase extends BotCommand {
 
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, tk.ardentbot.Backend.Translation.Language language) throws Exception {
-        sendHelp(language, channel);
+        sendHelp(language, channel, guild, user, this);
     }
 
     @Override
@@ -29,13 +28,13 @@ public class AddEnglishBase extends BotCommand {
         subcommands.add(new Subcommand(this, "basic") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, tk.ardentbot.Backend.Translation.Language language) throws Exception {
-                if (developers.contains(user.getId())) {
+                if (ardent.developers.contains(user.getId())) {
                     if (args.length >= 4) {
                         String commandID = args[2];
                         String id = args[3];
                         String lang = "english";
                         String translation = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " + args[1] + " " + args[2] + " " + args[3] + " ", "");
-                        Statement statement = conn.createStatement();
+                        Statement statement = ardent.conn.createStatement();
                         statement.executeUpdate("INSERT INTO Translations VALUES ('" + commandID + "', '" + cleanString(translation) + "', '" +
                                 id + "', '" + lang + "', '1')");
                         statement.close();
@@ -50,13 +49,13 @@ public class AddEnglishBase extends BotCommand {
         subcommands.add(new Subcommand(this, "commands") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, tk.ardentbot.Backend.Translation.Language language) throws Exception {
-                if (developers.contains(user.getId())) {
+                if (ardent.developers.contains(user.getId())) {
                     if (args.length > 4) {
                         String commandID = args[2];
                         String translation = args[3];
                         String lang = "english";
                         String description = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " + args[1] + " " + args[2] + " " + args[3] + " ", "");
-                        Statement statement = conn.createStatement();
+                        Statement statement = ardent.conn.createStatement();
                         statement.executeUpdate("INSERT INTO Commands VALUES ('" + commandID + "', '" + lang + "', '" +
                                 cleanString(translation) + "', '" + cleanString(description) + "')");
                         statement.close();
@@ -71,7 +70,7 @@ public class AddEnglishBase extends BotCommand {
         subcommands.add(new Subcommand(this, "subcommands") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, tk.ardentbot.Backend.Translation.Language language) throws Exception {
-                if (developers.contains(user.getId())) {
+                if (ardent.developers.contains(user.getId())) {
                     if (args.length >= 6) {
                         String commandID = args[2];
                         String identifier = args[3];
@@ -81,7 +80,8 @@ public class AddEnglishBase extends BotCommand {
                         String left = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " + args[1] + " " + args[2] + " " + args[3] + " " + args[4] + " " + args[5] + " ", "");
                         String[] syntaxDescription = left.split("//");
                         if (syntaxDescription.length == 2) {
-                            conn.prepareStatement("INSERT INTO Subcommands VALUES ('" + commandID + "', '" + identifier + "', '" +
+                            ardent.conn.prepareStatement("INSERT INTO Subcommands VALUES ('" + commandID + "', '" +
+                                    identifier + "', '" +
                                     lang + "', '" + cleanString(translation) + "', '" + cleanString(syntaxDescription[0]) + "', '" +
                                     cleanString(syntaxDescription[1]) + "', '" + needsDb + "')").executeUpdate();
                             sendTranslatedMessage("Inserted new subcommand successfully.", channel);

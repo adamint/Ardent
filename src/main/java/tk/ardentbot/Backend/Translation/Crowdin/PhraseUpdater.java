@@ -21,7 +21,7 @@ import java.util.ArrayList;
  */
 public class PhraseUpdater implements Runnable {
     static final String BASE_URL = "https://api.crowdin.com/api/";
-    static final String PROJECT_IDENTIFIER = "ardent";
+    static final String PROJECT_IDENTIFIER = "bot";
     public static String PROJECT_KEY;
     public static String ACCOUNT_KEY;
 

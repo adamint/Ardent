@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-import static tk.ardentbot.Main.Config.executorService;
+import static tk.ardentbot.Main.Ardent.ardent;
 
 public class Coinflip extends BotCommand {
     public Coinflip(CommandSettings commandSettings) {
@@ -31,7 +31,7 @@ public class Coinflip extends BotCommand {
         translations.add(new Translation("coinflip", "after"));
         HashMap<Integer, TranslationResponse> responses = getTranslations(language, translations);
         channel.sendMessage(responses.get(0).getTranslation()).queue(message1 -> {
-            executorService.schedule(() -> {
+            ardent.executorService.schedule(() -> {
                 String after = responses.get(3).getTranslation();
                 boolean heads = new Random().nextBoolean();
                 if (heads) {

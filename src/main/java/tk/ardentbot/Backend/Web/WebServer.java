@@ -9,7 +9,6 @@ import tk.ardentbot.Backend.Web.Models.Command;
 import tk.ardentbot.Backend.Web.Models.Status;
 import tk.ardentbot.Backend.Web.Models.User;
 import tk.ardentbot.Bot.BotException;
-import tk.ardentbot.Main.Config;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.Tuples.Pair;
 import tk.ardentbot.Utils.Tuples.Quintet;
@@ -23,7 +22,7 @@ import java.util.Random;
 
 import static spark.Spark.*;
 import static tk.ardentbot.Commands.BotAdministration.Translate.*;
-import static tk.ardentbot.Main.Config.*;
+import static tk.ardentbot.Main.Ardent.ardent;
 import static tk.ardentbot.Utils.SQL.SQLUtils.cleanString;
 
 public class WebServer {
@@ -31,15 +30,15 @@ public class WebServer {
      * Sets up the web server and the endpoints
      */
     public static void setup() {
-        if (testingBot) {
-            port(668);
+        if (ardent.testingBot) {
+            return;
         }
         else {
             port(666);
             secure("/root/keystore.jks", "mortimer5", null, null);
         }
         get("/api/commands", (rq, rs) -> {
-            CommandFactory factory = Config.factory;
+            CommandFactory factory = ardent.factory;
             ArrayList<Command> commands = new ArrayList<>();
             factory.getCommands().forEach(command -> {
                 try {
@@ -50,21 +49,21 @@ public class WebServer {
                     new BotException(e);
                 }
             });
-            return gson.toJson(commands);
+            return ardent.gson.toJson(commands);
         });
 
         get("/api/staff", (rq, rs) -> {
             ArrayList<User> developers = new ArrayList<>();
-            for (String id : Config.developers) {
-                net.dv8tion.jda.core.entities.User user = jda.getUserById(id);
+            for (String id : ardent.developers) {
+                net.dv8tion.jda.core.entities.User user = ardent.jda.getUserById(id);
                 String avatarUrl = user.getAvatarUrl();
                 if (avatarUrl == null) avatarUrl = getDefaultImage();
 
                 developers.add(new User(id, user.getName(), user.getDiscriminator(), avatarUrl, "developer"));
             }
             ArrayList<User> translators = new ArrayList<>();
-            for (String id : Config.translators) {
-                net.dv8tion.jda.core.entities.User user = jda.getUserById(id);
+            for (String id : ardent.translators) {
+                net.dv8tion.jda.core.entities.User user = ardent.jda.getUserById(id);
                 String avatarUrl = user.getAvatarUrl();
                 if (avatarUrl == null) avatarUrl = getDefaultImage();
 
@@ -73,12 +72,14 @@ public class WebServer {
             ArrayList<ArrayList<User>> staff = new ArrayList<>();
             staff.add(developers);
             staff.add(translators);
-            return gson.toJson(staff);
+            return ardent.gson.toJson(staff);
         });
-        get("/api/status", (rq, rs) -> gson.toJson(new Status(factory.getMessagesReceived(), factory
+        get("/api/status", (rq, rs) -> ardent.gson.toJson(new Status(ardent.factory.getMessagesReceived(), ardent
+                .factory
                 .getCommandsReceived(), ManagementFactory.getRuntimeMXBean().getUptime() / 1000,
-                factory.getLoadedCommandsAmount(), jda.getGuilds().size(), jda.getUsers().size())));
-        get("/api/languages", (rq, rs) -> gson.toJson(LangFactory.languages));
+                ardent.factory.getLoadedCommandsAmount(), ardent.jda.getGuilds().size(), ardent.jda.getUsers().size()
+        )));
+        get("/api/languages", (rq, rs) -> ardent.gson.toJson(LangFactory.languages));
         get("/api/translate/*/*/*", WebServer::translate);
         get("/api/translate/submit", (rq, rs) -> {
             String response = submit(rq);
@@ -182,10 +183,10 @@ public class WebServer {
                 "/languagecode";
         String[] splats = rq.splat();
         if (splats.length == 3) {
-            if (Config.translators.contains(String.valueOf(Long.valueOf(splats[0]) + 4))) {
+            if (ardent.translators.contains(String.valueOf(Long.valueOf(splats[0]) + 4))) {
                 Language language = LangFactory.getLanguage(splats[2]);
                 if (language != null) {
-                    try (Statement statement = conn.createStatement()) {
+                    try (Statement statement = ardent.conn.createStatement()) {
                         if (splats[1].equalsIgnoreCase("phrases")) {
                             ArrayList<String> discrepancies = getTranslationDiscrepancies(language);
                             if (discrepancies.size() > 0) {

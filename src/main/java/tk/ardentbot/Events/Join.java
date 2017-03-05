@@ -9,7 +9,6 @@ import tk.ardentbot.Bot.BotException;
 import tk.ardentbot.Commands.BotInfo.Status;
 import tk.ardentbot.Commands.GuildAdministration.Automessage;
 import tk.ardentbot.Commands.GuildAdministration.DefaultRole;
-import tk.ardentbot.Main.Config;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.Tuples.Triplet;
 
@@ -17,11 +16,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-import static tk.ardentbot.Main.Config.*;
+import static tk.ardentbot.Main.Ardent.ardent;
 
 public class Join {
+    public static ArrayList<Instant> botJoinEvents = new ArrayList<>();
+    public static ArrayList<Instant> userJoinEvents = new ArrayList<>();
+
     public static String welcomeText = "Thanks for adding Ardent, we mean it! This bot has everything from mutes to " +
             "music and everything " +
             "in between for your enjoyment.\n\n" +
@@ -45,11 +48,12 @@ public class Join {
 
     @SubscribeEvent
     public void onJoin(GuildJoinEvent event) {
+        botJoinEvents.add(Instant.now());
         Guild guild = event.getGuild();
         Status.commandsByGuild.put(guild.getId(), 0);
-        Config.cleverbots.put(guild.getId(), Config.cleverBot.createSession());
-        if (announcement != null) {
-            sentAnnouncement.put(guild.getId(), false);
+        ardent.cleverbots.put(guild.getId(), ardent.cleverBot.createSession());
+        if (ardent.announcement != null) {
+            ardent.sentAnnouncement.put(guild.getId(), false);
         }
 
         TextChannel channel = guild.getPublicChannel();
@@ -71,8 +75,8 @@ public class Join {
                 language = isGuildIn.getString("Language");
             }
 
-            Config.botPrefixData.set(guild, prefix);
-            Config.botLanguageData.set(guild, language);
+            ardent.botPrefixData.set(guild, prefix);
+            ardent.botLanguageData.set(guild, language);
 
             getGuild.close();
 
@@ -80,10 +84,10 @@ public class Join {
                     .set(Timestamp.from(Instant.now())).update();
 
             Status.commandsByGuild.put(guild.getId(), 0);
-            executorService.schedule(() -> {
+            ardent.executorService.schedule(() -> {
                 channel.sendMessage(welcomeText).queue();
                 guild.getOwner().getUser().openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage
-                        ("Hey! Thanks for adding Config. If you have **any** " +
+                        ("Hey! Thanks for adding Ardent. If you have **any** " +
                                 "questions, comments, concerns, or bug reports, please join our support guild at " +
                                 "https://discordapp.com/invite/rfGSxNA\n" +
                                 "Also, please don't hesitate to contact Adam#9261 or join our guild.").queue());
@@ -96,6 +100,8 @@ public class Join {
 
     @SubscribeEvent
     public void onJoinUser(GuildMemberJoinEvent event) throws SQLException {
+        userJoinEvents.add(Instant.now());
+
         Member joined = event.getMember();
         User joinedUser = joined.getUser();
         Guild guild = event.getGuild();
