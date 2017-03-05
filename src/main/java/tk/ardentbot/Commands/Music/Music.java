@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import static tk.ardentbot.Main.Ardent.*;
+import static tk.ardentbot.Main.Config.*;
 
 public class Music extends BotCommand {
     public static HashMap<String, String> textChannels = new HashMap<>();

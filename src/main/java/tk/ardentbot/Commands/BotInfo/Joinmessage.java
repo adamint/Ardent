@@ -1,12 +1,12 @@
 package tk.ardentbot.Commands.BotInfo;
 
-import tk.ardentbot.Backend.Commands.BotCommand;
-import tk.ardentbot.Backend.Translation.Language;
-import tk.ardentbot.Events.Join;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
+import tk.ardentbot.Backend.Commands.BotCommand;
+import tk.ardentbot.Backend.Translation.Language;
+import tk.ardentbot.Events.Join;
 
 public class Joinmessage extends BotCommand {
     public Joinmessage(CommandSettings commandSettings) {

@@ -1,20 +1,26 @@
 package tk.ardentbot.Utils;
 
-import tk.ardentbot.Backend.Commands.Command;
-import tk.ardentbot.Commands.BotInfo.Status;
-import tk.ardentbot.Main.Ardent;
 import net.dv8tion.jda.core.entities.Guild;
 import org.eclipse.jetty.util.ConcurrentArrayQueue;
+import tk.ardentbot.Backend.Commands.Command;
+import tk.ardentbot.Commands.BotInfo.Status;
+import tk.ardentbot.Main.Config;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import static tk.ardentbot.Main.Ardent.jda;
+import static tk.ardentbot.Main.Config.jda;
 
 public class UsageUtils {
+    private static Comparator<Command> SORT_BY_USAGE = (o1, o2) -> {
+        if (o1.getBotCommand().usages < o2.getBotCommand().usages) return 1;
+        else if (Objects.equals(o1.getBotCommand().usages, o2.getBotCommand().usages)) return 0;
+        else return -1;
+    };
+
     public static ArrayList<Command> orderByUsageDesc() {
-        ConcurrentArrayQueue<Command> unsorted = Ardent.factory.getCommands();
+        ConcurrentArrayQueue<Command> unsorted = Config.factory.getCommands();
         ArrayList<Command> commands = new ArrayList<>();
         for (Command c : unsorted) {
             if (!c.getCommandIdentifier().equalsIgnoreCase("patreon") && !c.getCommandIdentifier().equalsIgnoreCase("translateforardent") && !c.getCommandIdentifier().equalsIgnoreCase("tweet") && !c.getCommandIdentifier().equalsIgnoreCase("eval") && !c.getCommandIdentifier().equalsIgnoreCase("addenglishbase") && !c.getCommandIdentifier().equalsIgnoreCase("help") && !c.getCommandIdentifier().equalsIgnoreCase("admin")) {
@@ -24,12 +30,6 @@ public class UsageUtils {
         Collections.sort(commands, SORT_BY_USAGE);
         return commands;
     }
-
-    private static Comparator<Command> SORT_BY_USAGE = (o1, o2) -> {
-        if (o1.getBotCommand().usages < o2.getBotCommand().usages) return 1;
-        else if (Objects.equals(o1.getBotCommand().usages, o2.getBotCommand().usages)) return 0;
-        else return -1;
-    };
 
     public static boolean isGuildFirstInCommands(Guild guild) {
         ConcurrentHashMap<String, Integer> commandsByGuild = Status.commandsByGuild;

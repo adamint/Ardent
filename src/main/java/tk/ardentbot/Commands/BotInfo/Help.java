@@ -12,7 +12,6 @@ import tk.ardentbot.Backend.Commands.Subcommand;
 import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Backend.Translation.Translation;
 import tk.ardentbot.Backend.Translation.TranslationResponse;
-import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.Discord.MessageUtils;
 import tk.ardentbot.Utils.UsageUtils;
@@ -20,7 +19,7 @@ import tk.ardentbot.Utils.UsageUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static tk.ardentbot.Main.Ardent.*;
+import static tk.ardentbot.Main.Config.*;
 
 public class Help extends BotCommand {
     private Subcommand all;
@@ -30,9 +29,11 @@ public class Help extends BotCommand {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
+            language) throws Exception {
         EmbedBuilder embedBuilder = MessageUtils.getDefaultEmbed(guild, user, this);
-        embedBuilder.setAuthor(getTranslation("help", language, "bothelp").getTranslation(), "https://ardentbot.tk/guild", Ardent.ardent.getAvatarUrl());
+        embedBuilder.setAuthor(getTranslation("help", language, "bothelp").getTranslation(), "https://ardentbot" +
+                ".tk/guild", ardent.getAvatarUrl());
         embedBuilder.setThumbnail("https://a.dryicons.com/images/icon_sets/polygon_icons/png/256x256/computer.png");
 
         ArrayList<Translation> translations = new ArrayList<>();
@@ -53,7 +54,8 @@ public class Help extends BotCommand {
         ArrayList<Command> byUsage = UsageUtils.orderByUsageDesc();
         for (int i = 0; i < 3; i++) {
             BotCommand botCommand = byUsage.get(i).getBotCommand();
-            description.append("\n > " + botCommand.getName(language) + ": *" + botCommand.getDescription(language) + "*");
+            description.append("\n > " + botCommand.getName(language) + ": *" + botCommand.getDescription(language) +
+                    "*");
         }
         description.append("\n\n**" + responses.get(1).getTranslation() + "**");
         for (Category category : Category.values()) {
@@ -74,17 +76,22 @@ public class Help extends BotCommand {
     public void setupSubcommands() {
         all = new Subcommand(this, "all") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
+                               Language language) throws Exception {
                 EmbedBuilder helpEmbed = MessageUtils.getDefaultEmbed(guild, user, Help.this);
-                helpEmbed.setAuthor(getTranslation("help", language, "bothelp").getTranslation(), "https://ardentbot.tk/guild", Ardent.ardent.getAvatarUrl());
-                helpEmbed.setThumbnail("https://a.dryicons.com/images/icon_sets/polygon_icons/png/256x256/computer.png");
+                helpEmbed.setAuthor(getTranslation("help", language, "bothelp").getTranslation(), "https://ardentbot" +
+                        ".tk/guild", ardent.getAvatarUrl());
+                helpEmbed.setThumbnail("https://a.dryicons.com/images/icon_sets/polygon_icons/png/256x256/computer" +
+                        ".png");
                 StringBuilder description = new StringBuilder();
                 description.append(getTranslation("help", language, "commandcategories").getTranslation() + "\n");
                 for (Category category : Category.values()) {
                     description.append(" > **" + category.name().toLowerCase() + "**\n");
                 }
-                description.append("\n" + getTranslation("help", language, "viewsubcategories").getTranslation().replace("{0}", GuildUtils.getPrefix(guild) + args[0]) + "\n\n");
-                description.append(getTranslation("help", language, "ifyouneedhelp").getTranslation().replace("{0}", "https://ardentbot.tk/guild"));
+                description.append("\n" + getTranslation("help", language, "viewsubcategories").getTranslation()
+                        .replace("{0}", GuildUtils.getPrefix(guild) + args[0]) + "\n\n");
+                description.append(getTranslation("help", language, "ifyouneedhelp").getTranslation().replace("{0}",
+                        "https://ardentbot.tk/guild"));
                 helpEmbed.setDescription(description.toString());
                 sendEmbed(helpEmbed, channel);
             }
@@ -95,13 +102,17 @@ public class Help extends BotCommand {
         for (Category category : Category.values()) {
             subcommands.add(new Subcommand(this, Category.getName(category)) {
                 @Override
-                public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
+                public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
+                                   Language language) throws Exception {
                     EmbedBuilder embedBuilder = MessageUtils.getDefaultEmbed(guild, user, Help.this);
-                    embedBuilder.setAuthor(getTranslation("help", language, "commandsincategory").getTranslation().replace("{0}", category.name().toLowerCase()), "https://ardentbot.tk/guild", Ardent.ardent.getAvatarUrl());
+                    embedBuilder.setAuthor(getTranslation("help", language, "commandsincategory").getTranslation()
+                            .replace("{0}", category.name().toLowerCase()), "https://ardentbot.tk/guild", ardent
+                            .getAvatarUrl());
                     ArrayList<Command> commandsInCategory = Help.this.getCommandsInCategory(category);
                     StringBuilder description = new StringBuilder();
                     for (Command command : commandsInCategory) {
-                        description.append(" > **" + command.getName(language) + "**: " + command.getDescription(language) + "\n");
+                        description.append(" > **" + command.getName(language) + "**: " + command.getDescription
+                                (language) + "\n");
                     }
                     embedBuilder.setDescription(description.toString());
                     sendEmbed(embedBuilder, channel);

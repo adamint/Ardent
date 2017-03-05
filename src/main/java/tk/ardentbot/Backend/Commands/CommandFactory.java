@@ -15,7 +15,7 @@ import tk.ardentbot.Backend.Translation.LangFactory;
 import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Bot.BotException;
 import tk.ardentbot.Commands.BotInfo.Status;
-import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Main.Config;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.UsageUtils;
@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 
-import static tk.ardentbot.Main.Ardent.*;
+import static tk.ardentbot.Main.Config.*;
 
 public class CommandFactory {
     private ArrayList<String> emojiCommandTags = new ArrayList<>();
@@ -47,7 +47,7 @@ public class CommandFactory {
     }
 
     public static ChatterBotSession getBotSession(Guild guild) {
-        return Ardent.cleverbots.get(guild.getId());
+        return Config.cleverbots.get(guild.getId());
     }
 
     public ConcurrentArrayQueue<Command> getCommands() {

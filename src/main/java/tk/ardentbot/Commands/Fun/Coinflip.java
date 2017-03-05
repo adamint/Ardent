@@ -1,20 +1,20 @@
 package tk.ardentbot.Commands.Fun;
 
-import tk.ardentbot.Backend.Commands.BotCommand;
-import tk.ardentbot.Backend.Translation.Language;
-import tk.ardentbot.Backend.Translation.Translation;
-import tk.ardentbot.Backend.Translation.TranslationResponse;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
+import tk.ardentbot.Backend.Commands.BotCommand;
+import tk.ardentbot.Backend.Translation.Language;
+import tk.ardentbot.Backend.Translation.Translation;
+import tk.ardentbot.Backend.Translation.TranslationResponse;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
-import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
-import static tk.ardentbot.Main.Ardent.timer;
+import static tk.ardentbot.Main.Config.executorService;
 
 public class Coinflip extends BotCommand {
     public Coinflip(CommandSettings commandSettings) {
@@ -22,7 +22,8 @@ public class Coinflip extends BotCommand {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
+            language) throws Exception {
         ArrayList<Translation> translations = new ArrayList<>();
         translations.add(new Translation("coinflip", "original"));
         translations.add(new Translation("coinflip", "heads"));
@@ -30,20 +31,17 @@ public class Coinflip extends BotCommand {
         translations.add(new Translation("coinflip", "after"));
         HashMap<Integer, TranslationResponse> responses = getTranslations(language, translations);
         channel.sendMessage(responses.get(0).getTranslation()).queue(message1 -> {
-            timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    String after = responses.get(3).getTranslation();
-                    boolean heads = new Random().nextBoolean();
-                    if (heads) {
-                        after = after.replace("{0}", responses.get(1).getTranslation());
-                    }
-                    else {
-                        after = after.replace("{0}", responses.get(2).getTranslation());
-                    }
-                    message1.editMessage(after).queue();
+            executorService.schedule(() -> {
+                String after = responses.get(3).getTranslation();
+                boolean heads = new Random().nextBoolean();
+                if (heads) {
+                    after = after.replace("{0}", responses.get(1).getTranslation());
                 }
-            }, 2000);
+                else {
+                    after = after.replace("{0}", responses.get(2).getTranslation());
+                }
+                message1.editMessage(after).queue();
+            }, 2, TimeUnit.SECONDS);
         });
     }
 

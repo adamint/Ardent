@@ -14,7 +14,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 
-import static tk.ardentbot.Main.Ardent.executorService;
+import static tk.ardentbot.Main.Config.executorService;
 
 /**
  * Holds a language, with automatically updating phrases,

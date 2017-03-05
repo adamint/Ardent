@@ -6,7 +6,7 @@ import tk.ardentbot.Backend.Commands.BotCommand;
 import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Backend.Translation.Translation;
 import tk.ardentbot.Backend.Translation.TranslationResponse;
-import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Main.Config;
 import tk.ardentbot.Utils.Discord.MessageUtils;
 
 import java.time.Instant;
@@ -56,7 +56,8 @@ public class Whois extends BotCommand {
         }
 
         EmbedBuilder builder = MessageUtils.getDefaultEmbed(guild, message.getAuthor(), this);
-        builder.setAuthor(responses.get(0).getTranslation().replace("{0}", member.getUser().getName()), "https://ardentbot.tk/guild", Ardent.ardent.getAvatarUrl());
+        builder.setAuthor(responses.get(0).getTranslation().replace("{0}", member.getUser().getName()),
+                "https://ardentbot.tk/guild", Config.ardent.getAvatarUrl());
         builder.setThumbnail(member.getUser().getAvatarUrl());
 
         builder.addField(responses.get(1).getTranslation(), member.getUser().getName(), true);

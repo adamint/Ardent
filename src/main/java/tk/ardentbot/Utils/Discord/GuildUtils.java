@@ -4,15 +4,13 @@ import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import tk.ardentbot.Backend.Translation.Language;
-import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.UsageUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import static tk.ardentbot.Main.Ardent.botPrefixData;
-import static tk.ardentbot.Main.Ardent.jda;
+import static tk.ardentbot.Main.Config.*;
 
 public class GuildUtils {
     public static void updatePrefix(String prefix, Guild guild) {
@@ -41,11 +39,11 @@ public class GuildUtils {
     }
 
     public static Language getLanguage(Guild guild) throws Exception {
-        return Ardent.botLanguageData.getLanguage(guild);
+        return botLanguageData.getLanguage(guild);
     }
 
     public static boolean hasManageServerPermission(Member member) {
-        return member.hasPermission(Permission.MANAGE_SERVER) || Ardent.developers.contains(member.getUser().getId());
+        return member.hasPermission(Permission.MANAGE_SERVER) || developers.contains(member.getUser().getId());
     }
 
 }

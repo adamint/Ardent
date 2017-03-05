@@ -5,7 +5,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
-import static tk.ardentbot.Main.Ardent.conn;
+import static tk.ardentbot.Main.Config.conn;
+
 
 public class DatabaseAction {
     private PreparedStatement preparedStatement = null;

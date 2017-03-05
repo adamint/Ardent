@@ -9,7 +9,7 @@ import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.hooks.SubscribeEvent;
 import tk.ardentbot.Bot.BotException;
 import tk.ardentbot.Commands.GuildAdministration.Automessage;
-import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Main.Config;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.Tuples.Triplet;
 
@@ -21,8 +21,8 @@ public class Leave {
     public void onLeave(GuildLeaveEvent event) {
         Guild guild = event.getGuild();
         String id = guild.getId();
-        Ardent.cleverbots.remove(id);
-        Ardent.botPrefixData.remove(guild);
+        Config.cleverbots.remove(id);
+        Config.botPrefixData.remove(guild);
         try {
             new DatabaseAction("DELETE FROM JoinEvents WHERE GuildID=?").set(id).update();
         }

@@ -8,7 +8,7 @@ import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.Backend.Commands.BotCommand;
 import tk.ardentbot.Backend.Commands.Subcommand;
 import tk.ardentbot.Backend.Translation.Language;
-import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Main.Config;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.Discord.MessageUtils;
 
@@ -17,7 +17,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-import static tk.ardentbot.Main.Ardent.conn;
+import static tk.ardentbot.Main.Config.conn;
 import static tk.ardentbot.Utils.SQL.SQLUtils.cleanString;
 
 public class Todo extends BotCommand {
@@ -30,7 +30,7 @@ public class Todo extends BotCommand {
         ArrayList<String> todos = getTodos();
         EmbedBuilder embedBuilder = MessageUtils.getDefaultEmbed(guild, user, this);
         String upcoming = getTranslation("todo", language, "upcoming").getTranslation();
-        embedBuilder.setAuthor(upcoming, "https://ardentbot.tk", Ardent.ardent.getAvatarUrl());
+        embedBuilder.setAuthor(upcoming, "https://ardentbot.tk", Config.ardent.getAvatarUrl());
         StringBuilder description = new StringBuilder();
         description.append("**" + upcoming + "**");
         for (int i = 0; i < todos.size(); i++) {
@@ -45,7 +45,7 @@ public class Todo extends BotCommand {
         subcommands.add(new Subcommand(this, "add") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
-                if (Ardent.developers.contains(user.getId())) {
+                if (Config.developers.contains(user.getId())) {
                     String todo = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " + args[1] + " ", "");
                     Statement statement = conn.createStatement();
                     statement.executeUpdate("INSERT INTO Todo VALUES ('" + cleanString(todo) + "')");
@@ -59,7 +59,7 @@ public class Todo extends BotCommand {
         subcommands.add(new Subcommand(this, "remove") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
-                if (Ardent.developers.contains(user.getId())) {
+                if (Config.developers.contains(user.getId())) {
                     if (args.length == 3) {
                         try {
                             ArrayList<String> todos = getTodos();

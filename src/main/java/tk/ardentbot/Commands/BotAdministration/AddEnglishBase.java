@@ -6,12 +6,12 @@ import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.Backend.Commands.BotCommand;
 import tk.ardentbot.Backend.Commands.Subcommand;
-import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 
 import java.sql.Statement;
 
-import static tk.ardentbot.Main.Ardent.conn;
+import static tk.ardentbot.Main.Config.conn;
+import static tk.ardentbot.Main.Config.developers;
 import static tk.ardentbot.Utils.SQL.SQLUtils.cleanString;
 
 public class AddEnglishBase extends BotCommand {
@@ -29,7 +29,7 @@ public class AddEnglishBase extends BotCommand {
         subcommands.add(new Subcommand(this, "basic") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, tk.ardentbot.Backend.Translation.Language language) throws Exception {
-                if (Ardent.developers.contains(user.getId())) {
+                if (developers.contains(user.getId())) {
                     if (args.length >= 4) {
                         String commandID = args[2];
                         String id = args[3];
@@ -50,7 +50,7 @@ public class AddEnglishBase extends BotCommand {
         subcommands.add(new Subcommand(this, "commands") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, tk.ardentbot.Backend.Translation.Language language) throws Exception {
-                if (Ardent.developers.contains(user.getId())) {
+                if (developers.contains(user.getId())) {
                     if (args.length > 4) {
                         String commandID = args[2];
                         String translation = args[3];
@@ -71,7 +71,7 @@ public class AddEnglishBase extends BotCommand {
         subcommands.add(new Subcommand(this, "subcommands") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, tk.ardentbot.Backend.Translation.Language language) throws Exception {
-                if (Ardent.developers.contains(user.getId())) {
+                if (developers.contains(user.getId())) {
                     if (args.length >= 6) {
                         String commandID = args[2];
                         String identifier = args[3];

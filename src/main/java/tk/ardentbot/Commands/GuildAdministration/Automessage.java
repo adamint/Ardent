@@ -8,6 +8,7 @@ import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Backend.Translation.Translation;
 import tk.ardentbot.Backend.Translation.TranslationResponse;
 import tk.ardentbot.Utils.Discord.GuildUtils;
+import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.Tuples.Triplet;
 
 import java.sql.ResultSet;
@@ -17,7 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static tk.ardentbot.Main.Ardent.conn;
+import static tk.ardentbot.Main.Config.conn;
 import static tk.ardentbot.Utils.SQL.SQLUtils.cleanString;
 
 public class Automessage extends BotCommand {
@@ -26,13 +27,14 @@ public class Automessage extends BotCommand {
     }
 
     public static void check(Guild guild) throws SQLException {
-        Statement statement = conn.createStatement();
-        ResultSet set = statement.executeQuery("SELECT * FROM Automessages WHERE GuildID='" + guild.getId() + "'");
+        DatabaseAction selectAutomessage = new DatabaseAction("SELECT * FROM Automessages WHERE GuildID=?")
+                .set(guild.getId());
+        ResultSet set = selectAutomessage.request();
         if (!set.next()) {
-            statement.executeUpdate("INSERT INTO Automessages VALUES ('" + guild.getId() + "', '000', '000', '000')");
+            new DatabaseAction("INSERT INTO Automessages VALUES (?,?,?,?").set(guild.getId()).set("000")
+                    .set("000").set("000").update();
         }
-        set.close();
-        statement.close();
+        selectAutomessage.close();
     }
 
     public static Triplet<String, String, String> getMessagesAndChannel(Guild guild) throws SQLException {
@@ -82,7 +84,8 @@ public class Automessage extends BotCommand {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
+            language) throws Exception {
         sendHelp(language, channel);
     }
 
@@ -90,7 +93,8 @@ public class Automessage extends BotCommand {
     public void setupSubcommands() throws Exception {
         subcommands.add(new Subcommand(this, "view") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
+                               Language language) throws Exception {
                 ArrayList<Translation> translations = new ArrayList<>();
                 translations.add(new Translation("automessage", "settings"));
                 translations.add(new Translation("automessage", "nochannel"));
@@ -127,7 +131,8 @@ public class Automessage extends BotCommand {
 
         subcommands.add(new Subcommand(this, "arguments") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
+                               Language language) throws Exception {
                 StringBuilder sb = new StringBuilder();
                 sb.append(getTranslation("automessage", language, "availablearguments").getTranslation());
                 sendTranslatedMessage(sb.toString(), channel);
@@ -136,7 +141,8 @@ public class Automessage extends BotCommand {
 
         subcommands.add(new Subcommand(this, "set") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
+                               Language language) throws Exception {
                 if (guild.getMember(user).hasPermission(Permission.MANAGE_SERVER)) {
                     if (args.length < 4) {
                         sendRetrievedTranslation(channel, "automessage", language, "specifytype");
@@ -147,22 +153,30 @@ public class Automessage extends BotCommand {
                             if (mentionedChannels.size() > 0) {
                                 TextChannel mentioned = mentionedChannels.get(0);
                                 set(guild, mentioned.getId(), 0);
-                                sendTranslatedMessage(getTranslation("automessage", language, "successfullyset").getTranslation()
-                                        .replace("{0}", getTranslation("automessage", language, "channelword").getTranslation()).replace("{1}", mentioned.getName()), channel);
+                                sendTranslatedMessage(getTranslation("automessage", language, "successfullyset")
+                                        .getTranslation()
+                                        .replace("{0}", getTranslation("automessage", language, "channelword")
+                                                .getTranslation()).replace("{1}", mentioned.getName()), channel);
                             }
                             else sendRetrievedTranslation(channel, "automessage", language, "mentionchannel");
                         }
                         else if (args[2].equalsIgnoreCase("join")) {
-                            String msg = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " + args[1] + " " + args[2] + " ", "");
+                            String msg = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " "
+                                    + args[1] + " " + args[2] + " ", "");
                             set(guild, msg, 1);
-                            sendTranslatedMessage(getTranslation("automessage", language, "successfullyset").getTranslation()
-                                    .replace("{0}", getTranslation("automessage", language, "joinword").getTranslation()).replace("{1}", msg), channel);
+                            sendTranslatedMessage(getTranslation("automessage", language, "successfullyset")
+                                    .getTranslation()
+                                    .replace("{0}", getTranslation("automessage", language, "joinword")
+                                            .getTranslation()).replace("{1}", msg), channel);
                         }
                         else if (args[2].equalsIgnoreCase("leave")) {
-                            String msg = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " + args[1] + " " + args[2] + " ", "");
+                            String msg = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " "
+                                    + args[1] + " " + args[2] + " ", "");
                             set(guild, msg, 2);
-                            sendTranslatedMessage(getTranslation("automessage", language, "successfullyset").getTranslation()
-                                    .replace("{0}", getTranslation("automessage", language, "leaveword").getTranslation()).replace("{1}", msg), channel);
+                            sendTranslatedMessage(getTranslation("automessage", language, "successfullyset")
+                                    .getTranslation()
+                                    .replace("{0}", getTranslation("automessage", language, "leaveword")
+                                            .getTranslation()).replace("{1}", msg), channel);
 
                         }
                         else sendRetrievedTranslation(channel, "tag", language, "invalidarguments");
@@ -174,7 +188,8 @@ public class Automessage extends BotCommand {
 
         subcommands.add(new Subcommand(this, "remove") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
+                               Language language) throws Exception {
                 if (guild.getMember(user).hasPermission(Permission.MANAGE_SERVER)) {
                     if (args.length == 2) {
                         sendRetrievedTranslation(channel, "automessage", language, "specifytype");
@@ -188,7 +203,8 @@ public class Automessage extends BotCommand {
                             }
                             else {
                                 remove(guild, 0);
-                                sendTranslatedMessage(getTranslation("automessage", language, "successfullyremovedchannel").getTranslation(), channel);
+                                sendTranslatedMessage(getTranslation("automessage", language,
+                                        "successfullyremovedchannel").getTranslation(), channel);
                             }
                         }
                         else if (type.equalsIgnoreCase("join")) {
@@ -197,7 +213,8 @@ public class Automessage extends BotCommand {
                             }
                             else {
                                 remove(guild, 1);
-                                sendTranslatedMessage(getTranslation("automessage", language, "successfullyremovedwelcome").getTranslation(), channel);
+                                sendTranslatedMessage(getTranslation("automessage", language,
+                                        "successfullyremovedwelcome").getTranslation(), channel);
                             }
                         }
                         else if (type.equalsIgnoreCase("leave")) {
@@ -206,7 +223,8 @@ public class Automessage extends BotCommand {
                             }
                             else {
                                 remove(guild, 2);
-                                sendTranslatedMessage(getTranslation("automessage", language, "successfullyremovedgoodbye").getTranslation(), channel);
+                                sendTranslatedMessage(getTranslation("automessage", language,
+                                        "successfullyremovedgoodbye").getTranslation(), channel);
                             }
                         }
                         else sendRetrievedTranslation(channel, "tag", language, "invalidarguments");

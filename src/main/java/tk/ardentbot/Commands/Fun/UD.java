@@ -21,8 +21,8 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static tk.ardentbot.Main.Ardent.ardent;
-import static tk.ardentbot.Main.Ardent.gson;
+import static tk.ardentbot.Main.Config.ardent;
+import static tk.ardentbot.Main.Config.gson;
 
 public class UD extends BotCommand {
     public UD(CommandSettings commandSettings) {

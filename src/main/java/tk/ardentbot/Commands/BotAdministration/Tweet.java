@@ -6,12 +6,10 @@ import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.Backend.Commands.BotCommand;
 import tk.ardentbot.Backend.Translation.Language;
-import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import twitter4j.Status;
 
-import static tk.ardentbot.Main.Ardent.jda;
-import static tk.ardentbot.Main.Ardent.twitter;
+import static tk.ardentbot.Main.Config.*;
 
 public class Tweet extends BotCommand {
     public Tweet(CommandSettings commandSettings) {
@@ -20,7 +18,7 @@ public class Tweet extends BotCommand {
 
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
-        if (Ardent.developers.contains(user.getId())) {
+        if (developers.contains(user.getId())) {
             if (args.length == 1) {
                 sendTranslatedMessage("Bro, you gotta include an actual tweet with that", channel);
             }

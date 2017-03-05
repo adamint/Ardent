@@ -6,11 +6,11 @@ import net.dv8tion.jda.core.exceptions.PermissionException;
 import tk.ardentbot.Backend.Commands.BotCommand;
 import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Bot.BotException;
-import tk.ardentbot.Main.Ardent;
 
 import java.util.concurrent.TimeUnit;
 
-import static tk.ardentbot.Main.Ardent.jda;
+import static tk.ardentbot.Main.Config.ardent;
+import static tk.ardentbot.Main.Config.jda;
 
 public class Bug extends BotCommand {
     public Bug(CommandSettings commandSettings) {
@@ -24,7 +24,7 @@ public class Bug extends BotCommand {
         final boolean[] delete = {false};
         tch.getInvites().queue(invites -> {
             for (Invite invite : invites) {
-                if (invite.getInviter().equals(Ardent.ardent)) {
+                if (invite.getInviter().equals(ardent)) {
                     try {
                         sendRetrievedTranslation(channel, "bug", language, "disabled");
                     }

@@ -10,7 +10,7 @@ import tk.ardentbot.Backend.Commands.Subcommand;
 import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Backend.Translation.Translation;
 import tk.ardentbot.Backend.Translation.TranslationResponse;
-import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Main.Config;
 import tk.ardentbot.Utils.AntiRaidSettings;
 import tk.ardentbot.Utils.Discord.MessageUtils;
 
@@ -21,7 +21,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static tk.ardentbot.Main.Ardent.conn;
+import static tk.ardentbot.Main.Config.conn;
 
 public class AntiRaid extends BotCommand {
     public AntiRaid(CommandSettings commandSettings) {
@@ -59,7 +59,7 @@ public class AntiRaid extends BotCommand {
                 String title = responses.get(1).getTranslation();
 
                 EmbedBuilder embedBuilder = MessageUtils.getDefaultEmbed(guild, user, AntiRaid.this);
-                embedBuilder.setTitle(title, Ardent.url);
+                embedBuilder.setTitle(title, Config.url);
                 embedBuilder.setColor(Color.ORANGE);
 
                 AntiRaidSettings settings = getSettings(guild);

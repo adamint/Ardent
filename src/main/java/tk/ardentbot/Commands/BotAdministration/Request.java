@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static tk.ardentbot.Main.Ardent.jda;
+import static tk.ardentbot.Main.Config.jda;
 
 public class Request extends BotCommand {
     private static ArrayList<RequestUtil> usersUnableToRequest = new ArrayList<>();
@@ -20,16 +20,19 @@ public class Request extends BotCommand {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
+            language) throws Exception {
         String prefix = GuildUtils.getPrefix(guild);
         if (args.length == 1) {
-            sendTranslatedMessage(getTranslation("request", language, "requesthelp").getTranslation().replace("{0}", prefix + args[0]), channel);
+            sendTranslatedMessage(getTranslation("request", language, "requesthelp").getTranslation().replace("{0}",
+                    prefix + args[0]), channel);
         }
         else {
             if (canRequest(user)) {
                 String request = message.getRawContent().replace(prefix + args[0] + " ", "");
                 TextChannel ideasChannel = jda.getTextChannelById("262810786186002432");
-                ideasChannel.sendMessage("**Request** by " + user.getName() + "#" + user.getDiscriminator() + " (" + user.getId() + "): " + request).queue();
+                ideasChannel.sendMessage("**Request** by " + user.getName() + "#" + user.getDiscriminator() + " (" +
+                        user.getId() + "): " + request).queue();
                 usersUnableToRequest.add(new RequestUtil(Instant.now(), user));
                 sendRetrievedTranslation(channel, "request", language, "successfullyrequested");
             }
@@ -39,17 +42,16 @@ public class Request extends BotCommand {
 
     @Override
     public void setupSubcommands() {
-
     }
 
-    public boolean canRequest(User user) {
+    private boolean canRequest(User user) {
         for (RequestUtil r : usersUnableToRequest) {
             if (r.id.equalsIgnoreCase(user.getId())) return false;
         }
         return true;
     }
 
-    public String getRequestTime(User user, Language language) throws Exception {
+    private String getRequestTime(User user, Language language) throws Exception {
         for (RequestUtil r : usersUnableToRequest) {
             if (r.id.equalsIgnoreCase(user.getId())) {
                 int minutes = (int) ((r.ableToRequest.getEpochSecond() - Instant.now().getEpochSecond()) / 60);
@@ -61,11 +63,11 @@ public class Request extends BotCommand {
     }
 
     private class RequestUtil {
-        public Timer timer = new Timer();
+        Timer timer = new Timer();
         private Instant ableToRequest;
         private String id;
 
-        public RequestUtil(Instant requestedAt, User user) {
+        RequestUtil(Instant requestedAt, User user) {
             this.ableToRequest = requestedAt.plusSeconds(60 * 5);
             this.id = user.getId();
             timer.schedule(new TimerTask() {

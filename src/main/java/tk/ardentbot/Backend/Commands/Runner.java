@@ -9,7 +9,7 @@ import tk.ardentbot.Bot.BotException;
 
 import java.util.concurrent.TimeUnit;
 
-import static tk.ardentbot.Main.Ardent.*;
+import static tk.ardentbot.Main.Config.*;
 
 class Runner implements Runnable {
 

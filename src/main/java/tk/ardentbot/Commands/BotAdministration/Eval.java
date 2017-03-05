@@ -9,7 +9,7 @@ import net.dv8tion.jda.core.requests.RestAction;
 import org.apache.commons.lang3.tuple.Triple;
 import tk.ardentbot.Backend.Commands.BotCommand;
 import tk.ardentbot.Backend.Translation.Language;
-import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Main.Config;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.Engine;
 import twitter4j.TwitterException;
@@ -18,7 +18,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static tk.ardentbot.Main.Ardent.conn;
+import static tk.ardentbot.Main.Config.conn;
 
 public class Eval extends BotCommand {
     public Eval(CommandSettings commandSettings) {
@@ -27,7 +27,7 @@ public class Eval extends BotCommand {
 
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception, TwitterException {
-        if (Ardent.developers.contains(user.getId())) {
+        if (Config.developers.contains(user.getId())) {
             if (args.length == 1) channel.sendMessage("Use " + args[0] + " (code) to evaluate stuff");
             else {
                 String content = message.getContent().replace(GuildUtils.getPrefix(guild) + args[0] + " ", "");

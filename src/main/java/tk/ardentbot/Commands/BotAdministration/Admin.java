@@ -6,7 +6,7 @@ import tk.ardentbot.Backend.Commands.BotCommand;
 import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Bot.BotException;
 import tk.ardentbot.Commands.Music.Music;
-import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Main.Config;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.UsageUtils;
 
@@ -17,7 +17,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import static tk.ardentbot.Commands.BotInfo.Status.getVoiceConnections;
-import static tk.ardentbot.Main.Ardent.*;
+import static tk.ardentbot.Main.Config.*;
 
 public class Admin extends BotCommand {
     private static int secondsWaitedForRestart = 0;
@@ -97,7 +97,7 @@ public class Admin extends BotCommand {
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
             language) throws Exception {
-        if (Ardent.developers.contains(user.getId())) {
+        if (Config.developers.contains(user.getId())) {
             if (args.length > 1) {
                 if (args[1].equalsIgnoreCase("update")) {
                     update(this, language, channel);
