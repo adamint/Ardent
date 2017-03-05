@@ -54,13 +54,26 @@ public class Join {
 
         TextChannel channel = guild.getPublicChannel();
         try {
+            String prefix;
+            String language;
+
             DatabaseAction getGuild = new DatabaseAction("SELECT * FROM Guilds WHERE GuildID=?")
                     .set(guild.getId());
             ResultSet isGuildIn = getGuild.request();
             if (!isGuildIn.next()) {
                 new DatabaseAction("INSERT INTO Guilds VALUES (?,?,?)").set(guild.getId())
                         .set("english").set("/").update();
+                prefix = "/";
+                language = "english";
             }
+            else {
+                prefix = isGuildIn.getString("Prefix");
+                language = isGuildIn.getString("Language");
+            }
+
+            Ardent.botPrefixData.set(guild, prefix);
+            Ardent.botLanguageData.set(guild, language);
+
             getGuild.close();
 
             new DatabaseAction("INSERT INTO JoinEvents VALUES (?,?)").set(guild.getId())

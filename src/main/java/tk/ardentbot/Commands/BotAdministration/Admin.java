@@ -5,10 +5,10 @@ import org.apache.commons.io.FileUtils;
 import tk.ardentbot.Backend.Commands.BotCommand;
 import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Bot.BotException;
+import tk.ardentbot.Commands.Music.Music;
 import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.UsageUtils;
-import twitter4j.TwitterException;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,7 +20,7 @@ import static tk.ardentbot.Commands.BotInfo.Status.getVoiceConnections;
 import static tk.ardentbot.Main.Ardent.*;
 
 public class Admin extends BotCommand {
-    public static int secondsWaitedForRestart = 0;
+    private static int secondsWaitedForRestart = 0;
     public Admin(CommandSettings commandSettings) {
         super(commandSettings);
     }
@@ -32,7 +32,7 @@ public class Admin extends BotCommand {
             public void run() {
                 for (Guild g : jda.getGuilds()) {
                     if (g.getAudioManager().isConnected()) {
-                        for (TextChannel tch : g.getTextChannels()) {
+                        TextChannel tch = g.getTextChannelById(Music.textChannels.get(g.getId()));
                             if (tch.canTalk()) {
                                 try {
                                     tch.sendMessage(command.getTranslation("other", language, "restartmusic").getTranslation()).complete();
@@ -42,7 +42,6 @@ public class Admin extends BotCommand {
                                 }
                                 break;
                             }
-                        }
                     }
                 }
                 jda.getPresence().setGame(Game.of("- UPDATING! -", "https://www.ardentbot.tk"));
@@ -52,7 +51,7 @@ public class Admin extends BotCommand {
         }, 5000);
     }
 
-    public static void shutdown() {
+    private static void shutdown() {
         try {
             File jar = new File("/root/Ardent_main.jar");
             File ardentloc1 = new File("/root/Ardent/update/Ardent1/Ardent_main.jar");
@@ -97,7 +96,7 @@ public class Admin extends BotCommand {
 
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
-            language) throws Exception, TwitterException {
+            language) throws Exception {
         if (Ardent.developers.contains(user.getId())) {
             if (args.length > 1) {
                 if (args[1].equalsIgnoreCase("update")) {
