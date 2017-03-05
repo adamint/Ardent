@@ -176,12 +176,18 @@ public class Translate extends BotCommand {
                                     String unformattedTranslation = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " + args[1] + " " + args[2] + " " + args[3] + " ", "");
                                     String[] parts = unformattedTranslation.split("//");
                                     if (parts.length == 2) {
-                                        ResultSet set = conn.prepareStatement("SELECT * FROM Commands WHERE Language='english' AND " +
-                                                "Translation='" + cleanString(translationOf.getK()) + "' AND Description='" + cleanString(translationOf.getV()) + "'").executeQuery();
+
+                                        ResultSet set = new DatabaseAction("SELECT * FROM Commands WHERE Language = ? AND Translation = ? AND Description = ?")
+                                                .set("english").set(translationOf.getK())
+                                                .set(translationOf.getV()).request();
+
                                         if (set.next()) {
                                             String commandID = set.getString("Identifier");
-                                            conn.prepareStatement("INSERT INTO Commands VALUES ('" + commandID + "','" + translateTo.getIdentifier() + "', '" +
-                                                    cleanString(parts[0]) + "', '" + cleanString(parts[1]) + "')").executeUpdate();
+
+                                            new DatabaseAction("INSERT INTO Commands VALUES(?, ?, ?, ?)")
+                                                    .set(commandID).set(translateTo.getIdentifier())
+                                                    .set(parts[0]).set(parts[1]).update();
+                                            
                                             sendTranslatedMessage("Good job and thanks! Please do /translate " + translateTo.getIdentifier() + "cmds again " +
                                                     "because the place values have shifted!", channel);
                                         }
