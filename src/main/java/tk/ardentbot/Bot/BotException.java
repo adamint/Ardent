@@ -2,8 +2,8 @@ package tk.ardentbot.Bot;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
-import static tk.ardentbot.Main.Ardent.help;
-import static tk.ardentbot.Main.Ardent.jda;
+import static tk.ardentbot.Main.Config.help;
+import static tk.ardentbot.Main.Config.jda;
 
 /**
  * Sends exceptions to the error channel

@@ -12,7 +12,6 @@ import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Main.Config;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.Engine;
-import twitter4j.TwitterException;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,7 +25,8 @@ public class Eval extends BotCommand {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception, TwitterException {
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
+            language) throws Exception {
         if (Config.developers.contains(user.getId())) {
             if (args.length == 1) channel.sendMessage("Use " + args[0] + " (code) to evaluate stuff");
             else {
@@ -73,9 +73,7 @@ public class Eval extends BotCommand {
             }
         }
     }
-
     @Override
     public void setupSubcommands() throws Exception {
-
     }
 }

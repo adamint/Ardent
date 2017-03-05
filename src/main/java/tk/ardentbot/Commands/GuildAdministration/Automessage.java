@@ -86,7 +86,7 @@ public class Automessage extends BotCommand {
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
             language) throws Exception {
-        sendHelp(language, channel);
+        sendHelp(language, channel, guild, user, this);
     }
 
     @Override

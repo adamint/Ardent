@@ -8,7 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.HashMap;
 
-import static tk.ardentbot.Main.Ardent.conn;
+import static tk.ardentbot.Main.Config.conn;
 
 public class BotMuteData {
 

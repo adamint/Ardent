@@ -214,9 +214,7 @@ public class Music extends BotCommand {
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
             language) throws Exception {
-        String help = getHelp(language);
-        help += "\n**" + getTranslation("music", language, "youtubeid").getTranslation() + "**";
-        sendTranslatedMessage(help, channel);
+        sendHelp(language, channel, guild, user, this);
     }
 
     @Override
