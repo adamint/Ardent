@@ -38,10 +38,7 @@ public class Bug extends BotCommand {
                 tch.createInvite().setUnique(true).setTemporary(true).setMaxAge((long) 1, TimeUnit.DAYS).queue
                         (invite -> {
                             ardent.jda.getTextChannelById("267404524484820994").sendMessage("**Request for help by "
-                                    + invite
-                                    .getInviter
-                                            ().getName() + "\n" +
-                                    invite.getCode()).queue(successMsg -> {
+                                    + user.getName() + "**\n" + invite.getCode()).queue(successMsg -> {
                                 try {
                                     sendRetrievedTranslation(channel, "bug", language, "success");
                                 }

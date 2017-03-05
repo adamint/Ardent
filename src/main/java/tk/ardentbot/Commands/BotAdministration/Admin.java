@@ -6,6 +6,8 @@ import tk.ardentbot.Backend.Commands.BotCommand;
 import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Bot.BotException;
 import tk.ardentbot.Commands.Music.Music;
+import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Main.Instance;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.UsageUtils;
 
@@ -135,6 +137,11 @@ public class Admin extends BotCommand {
                     ardent.jda.getGuilds().forEach(g -> {
                         ardent.sentAnnouncement.put(g.getId(), false);
                     });
+                }
+                else if (args[1].equalsIgnoreCase("restart")) {
+                    Instance ardent = Ardent.ardent;
+                    ardent.jda.shutdown(false);
+                    Ardent.ardent = new Instance();
                 }
             }
         }
