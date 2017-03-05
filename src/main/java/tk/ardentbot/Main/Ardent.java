@@ -11,10 +11,8 @@ import com.sedmelluq.discord.lavaplayer.player.AudioConfiguration;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
-import com.sedmelluq.discord.lavaplayer.source.bandcamp.BandcampAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.http.HttpAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.soundcloud.SoundCloudAudioSourceManager;
-import com.sedmelluq.discord.lavaplayer.source.vimeo.VimeoAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
@@ -75,7 +73,7 @@ import java.util.logging.Logger;
 import static tk.ardentbot.Backend.Translation.LangFactory.languages;
 
 public class Ardent {
-    public static final boolean testingBot = false;
+    public static final boolean testingBot = true;
 
     public static ScheduledExecutorService executorService = Executors.newScheduledThreadPool(100);
     public static BotMuteData botMuteData;
@@ -107,13 +105,9 @@ public class Ardent {
     private static int matureLanguages = 0;
 
     public static void main(String[] args) throws Exception {
-        PhraseUpdater.ACCOUNT_KEY = IOUtils.toString(new FileReader(new File("/root/Ardent/crowdin_account_key" +
-                ".key")));
-        PhraseUpdater.PROJECT_KEY = IOUtils.toString(new FileReader(new File("/root/Ardent/crowdin_project_key" +
-                ".key")));
         String token;
         if (testingBot) {
-            token = IOUtils.toString(new FileReader(new File("/root/Ardent/testbottoken.key")));
+            token = IOUtils.toString(new FileReader(new File("C:\\Users\\AMR\\Desktop\\Ardent\\v2testtoken.key")));
         }
         else token = IOUtils.toString(new FileReader(new File("/root/Ardent/v2bottoken.key")));
 
@@ -131,23 +125,39 @@ public class Ardent {
 
         ardent = jda.getUserById(jda.getSelfUser().getId());
 
-        ConfigurationBuilder cb = new ConfigurationBuilder();
-        cb.setDebugEnabled(true)
-                .setOAuthConsumerKey("Fi9IjqqsGmOXqjR5uYK8YM2Pr")
-                .setOAuthConsumerSecret(IOUtils.toString(new FileReader(new File
-                        ("/root/Ardent/twitterconsumersecret.key"))))
-                .setOAuthAccessToken("818984879018954752-aCzxyML6Xp0QcRpq5sjoe8wfp0sjVDt")
-                .setOAuthAccessTokenSecret(IOUtils.toString(new FileReader(new File
-                        ("/root/Ardent/twitteroauthsecret.key"))));
-        TwitterFactory tf = new TwitterFactory(cb.build());
-        twitter = tf.getInstance();
+        Class.forName("com.mysql.jdbc.Driver");
+
+        if (!testingBot) {
+            PhraseUpdater.ACCOUNT_KEY = IOUtils.toString(new FileReader(new File("/root/Ardent/crowdin_account_key" +
+                    ".key")));
+            PhraseUpdater.PROJECT_KEY = IOUtils.toString(new FileReader(new File("/root/Ardent/crowdin_project_key" +
+                    ".key")));
+
+            ConfigurationBuilder cb = new ConfigurationBuilder();
+            cb.setDebugEnabled(true)
+                    .setOAuthConsumerKey("Fi9IjqqsGmOXqjR5uYK8YM2Pr")
+                    .setOAuthConsumerSecret(IOUtils.toString(new FileReader(new File
+                            ("/root/Ardent/twitterconsumersecret.key"))))
+                    .setOAuthAccessToken("818984879018954752-aCzxyML6Xp0QcRpq5sjoe8wfp0sjVDt")
+                    .setOAuthAccessTokenSecret(IOUtils.toString(new FileReader(new File
+                            ("/root/Ardent/twitteroauthsecret.key"))));
+            TwitterFactory tf = new TwitterFactory(cb.build());
+            twitter = tf.getInstance();
+
+            conn = DriverManager.getConnection(IOUtils.toString(new FileReader(new File("/root/Ardent/v2url.key"))),
+                    IOUtils.toString(new FileReader(new File("/root/Ardent/v2user.key"))), IOUtils.toString(new
+                            FileReader(new File("/root/Ardent/v2password.key"))));
+        }
+        else {
+            conn = DriverManager.getConnection(IOUtils.toString(new FileReader(new File("C:\\Users\\AMR\\Desktop" +
+                            "\\Ardent\\dburl.key"))),
+                    IOUtils.toString(new FileReader(new File("C:\\Users\\AMR\\Desktop\\Ardent\\dbuser.key"))),
+                    IOUtils.toString(new
+                            FileReader(new File("C:\\Users\\AMR\\Desktop\\Ardent\\dbpassword.key"))));
+        }
 
         GIF.setupCategories();
 
-        Class.forName("com.mysql.jdbc.Driver");
-        conn = DriverManager.getConnection(IOUtils.toString(new FileReader(new File("/root/Ardent/v2url.key"))),
-                IOUtils.toString(new FileReader(new File("/root/Ardent/v2user.key"))), IOUtils.toString(new
-                        FileReader(new File("/root/Ardent/v2password.key"))));
         // Register event listeners
         jda.addEventListener(new OnMessage());
         jda.addEventListener(new Join());
@@ -317,8 +327,6 @@ public class Ardent {
         playerManager.getConfiguration().setResamplingQuality(AudioConfiguration.ResamplingQuality.LOW);
         playerManager.registerSourceManager(new YoutubeAudioSourceManager());
         playerManager.registerSourceManager(new SoundCloudAudioSourceManager());
-        playerManager.registerSourceManager(new VimeoAudioSourceManager());
-        playerManager.registerSourceManager(new BandcampAudioSourceManager());
         playerManager.registerSourceManager(new HttpAudioSourceManager());
 
         AudioSourceManagers.registerRemoteSources(playerManager);
