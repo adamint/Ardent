@@ -1,7 +1,6 @@
 package tk.ardentbot.Commands.BotAdministration;
 
 import net.dv8tion.jda.core.entities.*;
-import org.apache.commons.io.FileUtils;
 import tk.ardentbot.Backend.Commands.BotCommand;
 import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Bot.BotException;
@@ -11,87 +10,76 @@ import tk.ardentbot.Main.Instance;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.UsageUtils;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 import static tk.ardentbot.Commands.BotInfo.Status.getVoiceConnections;
 import static tk.ardentbot.Main.Ardent.ardent;
 
 public class Admin extends BotCommand {
     private static int secondsWaitedForRestart = 0;
+
     public Admin(CommandSettings commandSettings) {
         super(commandSettings);
     }
 
     public static void update(BotCommand command, Language language, MessageChannel channel) {
         channel.sendMessage("Updating...").queue();
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                for (Guild g : ardent.jda.getGuilds()) {
-                    if (g.getAudioManager().isConnected()) {
-                        TextChannel tch = g.getTextChannelById(Music.textChannels.get(g.getId()));
-                            if (tch.canTalk()) {
-                                try {
-                                    tch.sendMessage(command.getTranslation("other", language, "restartmusic").getTranslation()).complete();
-                                }
-                                catch (Exception e) {
-                                    new BotException(e);
-                                }
-                                break;
-                            }
+        ardent.executorService.schedule(() -> {
+            for (Guild g : ardent.jda.getGuilds()) {
+                if (g.getAudioManager().isConnected()) {
+                    TextChannel tch = g.getTextChannelById(Music.textChannels.get(g.getId()));
+                    if (tch.canTalk()) {
+                        try {
+                            tch.sendMessage(command.getTranslation("other", language, "restartingfiveminutes")
+                                    .getTranslation()).queue();
+                            tch.sendMessage(command.getTranslation("other", language, "restartmusic").getTranslation
+                                    ()).complete();
+                        }
+                        catch (Exception e) {
+                            new BotException(e);
+                        }
+                        break;
                     }
                 }
-                ardent.jda.getPresence().setGame(Game.of("- UPDATING! -", "https://www.ardentbot.tk"));
-                shutdown();
-                System.exit(0);
             }
-        }, 5000);
+        }, 5, TimeUnit.SECONDS);
+
+        ardent.executorService.schedule(() -> {
+            for (Guild g : ardent.jda.getGuilds()) {
+                if (g.getAudioManager().isConnected()) {
+                    TextChannel tch = g.getTextChannelById(Music.textChannels.get(g.getId()));
+                    if (tch.canTalk()) {
+                        try {
+                            tch.sendMessage(command.getTranslation("other", language, "restartmusic").getTranslation
+                                    ()).queue();
+                        }
+                        catch (Exception e) {
+                            new BotException(e);
+                        }
+                        break;
+                    }
+                }
+            }
+            ardent.jda.getPresence().setGame(Game.of("- UPDATING! -", "https://www.ardentbot.tk"));
+            shutdown();
+        }, 5, TimeUnit.MINUTES);
     }
 
     private static void shutdown() {
         try {
-            File jar = new File("/root/Ardent_main.jar");
-            File ardentloc1 = new File("/root/Ardent/update/Ardent1/Ardent_main.jar");
-            File ardentloc2 = new File("/root/Ardent/update/Ardent2/Ardent_main.jar");
+            System.exit(0);
             boolean useLoc1 = true;
             if (Admin.class.getProtectionDomain().getCodeSource().getLocation().getPath().contains("Ardent1")) {
-                moveAndOverwrite(jar, ardentloc2);
                 useLoc1 = false;
-            }
-            else {
-                moveAndOverwrite(jar, ardentloc1);
             }
             if (useLoc1) Runtime.getRuntime().exec("java -jar /root/Ardent/update/Ardent1/Ardent_main.jar");
             else Runtime.getRuntime().exec("java -jar /root/Ardent/update/Ardent2/Ardent_main.jar");
         }
         catch (Exception ex) {
             ex.printStackTrace();
-        }
-    }
-
-    private static void moveAndOverwrite(File source, File dest) throws IOException {
-        File backup = getNonExistingTempFile(dest);
-        FileUtils.copyFile(dest, backup);
-        FileUtils.copyFile(source, dest);
-        if (!source.delete()) {
-            throw new IOException("Failed to delete " + source.getName());
-        }
-        if (!backup.delete()) {
-            throw new IOException("Failed to delete " + backup.getName());
-        }
-    }
-
-    private static File getNonExistingTempFile(File inputFile) {
-        File tempFile = new File(inputFile.getParentFile(), inputFile.getName() + "_temp");
-        if (tempFile.exists()) {
-            return getNonExistingTempFile(tempFile);
-        }
-        else {
-            return tempFile;
         }
     }
 
