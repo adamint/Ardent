@@ -397,7 +397,6 @@ public class Music extends BotCommand {
             }
         });
 
-
         subcommands.add(new Subcommand(this, "clear") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
@@ -546,5 +545,19 @@ public class Music extends BotCommand {
                 else sendRetrievedTranslation(channel, "other", language, "needmanageserver");
             }
         });
+
+        /*                    [ BETA ]
+                     * This feature need some detail like:
+                     *   > The permission needed to use it
+                     *   > Check if the stream played is a live. In that case this feature can be used.
+                     *
+
+        subcommands.add(new Subcommand(this, "restart") {
+            @Override
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
+                GuildMusicManager musicManager = getGuildAudioPlayer(guild);
+                musicManager.player.getPlayingTrack().setPosition(0);
+            }
+        });*/
     }
 }
