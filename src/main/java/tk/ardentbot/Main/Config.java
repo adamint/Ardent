@@ -25,7 +25,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class Config {
-    public static final boolean testingBot = true;
+    public static final boolean testingBot = false;
     public static ScheduledExecutorService executorService = Executors.newScheduledThreadPool(100);
     public static BotMuteData botMuteData;
     public static BotPrefixData botPrefixData;

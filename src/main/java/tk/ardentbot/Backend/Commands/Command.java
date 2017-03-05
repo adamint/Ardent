@@ -212,8 +212,8 @@ public abstract class Command {
         else {
             DatabaseAction englishRequest = new DatabaseAction("SELECT * FROM Translations WHERE CommandIdentifier=? " +
                     "AND Language=? AND ID=?");
-            translationRequest.set(cmdName).set("english").set(id);
-            ResultSet englishSet = translationRequest.request();
+            englishRequest.set(cmdName).set("english").set(id);
+            ResultSet englishSet = englishRequest.request();
             if (englishSet.next()) {
                 String translation = englishSet.getString("Translation").replace("{newline}", "\n");
                 response = new TranslationResponse(translation, lang, true, false, true);
