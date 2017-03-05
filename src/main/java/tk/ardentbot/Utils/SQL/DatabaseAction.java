@@ -32,6 +32,9 @@ public class DatabaseAction {
         else if (o instanceof Double) {
             preparedStatement.setDouble(currentPlace, (Double) o);
         }
+        else if (o instanceof Boolean) {
+            preparedStatement.setBoolean(currentPlace, (Boolean) o);
+        }
         currentPlace++;
         return this;
     }
