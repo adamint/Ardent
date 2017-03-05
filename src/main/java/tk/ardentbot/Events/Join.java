@@ -9,7 +9,7 @@ import tk.ardentbot.Bot.BotException;
 import tk.ardentbot.Commands.BotInfo.Status;
 import tk.ardentbot.Commands.GuildAdministration.Automessage;
 import tk.ardentbot.Commands.GuildAdministration.DefaultRole;
-import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Main.Config;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.Tuples.Triplet;
 
@@ -19,7 +19,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 
-import static tk.ardentbot.Main.Ardent.*;
+import static tk.ardentbot.Main.Config.*;
 
 public class Join {
     public static String welcomeText = "Thanks for adding Ardent, we mean it! This bot has everything from mutes to " +
@@ -47,7 +47,7 @@ public class Join {
     public void onJoin(GuildJoinEvent event) {
         Guild guild = event.getGuild();
         Status.commandsByGuild.put(guild.getId(), 0);
-        Ardent.cleverbots.put(guild.getId(), Ardent.cleverBot.createSession());
+        Config.cleverbots.put(guild.getId(), Config.cleverBot.createSession());
         if (announcement != null) {
             sentAnnouncement.put(guild.getId(), false);
         }
@@ -71,8 +71,8 @@ public class Join {
                 language = isGuildIn.getString("Language");
             }
 
-            Ardent.botPrefixData.set(guild, prefix);
-            Ardent.botLanguageData.set(guild, language);
+            Config.botPrefixData.set(guild, prefix);
+            Config.botLanguageData.set(guild, language);
 
             getGuild.close();
 
@@ -83,7 +83,7 @@ public class Join {
             executorService.schedule(() -> {
                 channel.sendMessage(welcomeText).queue();
                 guild.getOwner().getUser().openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage
-                        ("Hey! Thanks for adding Ardent. If you have **any** " +
+                        ("Hey! Thanks for adding Config. If you have **any** " +
                                 "questions, comments, concerns, or bug reports, please join our support guild at " +
                                 "https://discordapp.com/invite/rfGSxNA\n" +
                                 "Also, please don't hesitate to contact Adam#9261 or join our guild.").queue());

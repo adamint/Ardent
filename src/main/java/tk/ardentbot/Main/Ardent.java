@@ -1,26 +1,19 @@
 package tk.ardentbot.Main;
 
 import ch.qos.logback.classic.Level;
-import com.google.code.chatterbotapi.ChatterBot;
 import com.google.code.chatterbotapi.ChatterBotFactory;
-import com.google.code.chatterbotapi.ChatterBotSession;
 import com.google.code.chatterbotapi.ChatterBotType;
-import com.google.gson.Gson;
 import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import com.sedmelluq.discord.lavaplayer.player.AudioConfiguration;
-import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.source.http.HttpAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.soundcloud.SoundCloudAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import net.dv8tion.jda.core.AccountType;
-import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Game;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.hooks.AnnotatedEventManager;
 import org.apache.commons.io.IOUtils;
 import tk.ardentbot.Backend.BotData.BotLanguageData;
@@ -43,67 +36,29 @@ import tk.ardentbot.Commands.GuildInfo.Botname;
 import tk.ardentbot.Commands.GuildInfo.GuildInfo;
 import tk.ardentbot.Commands.GuildInfo.Points;
 import tk.ardentbot.Commands.GuildInfo.Whois;
-import tk.ardentbot.Commands.Music.GuildMusicManager;
 import tk.ardentbot.Commands.Music.Music;
 import tk.ardentbot.Events.Join;
 import tk.ardentbot.Events.Leave;
 import tk.ardentbot.Events.OnMessage;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.SQL.MuteDaemon;
-import twitter4j.Twitter;
 import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
 
 import java.io.File;
 import java.io.FileReader;
-import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Timer;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import static tk.ardentbot.Backend.Translation.LangFactory.languages;
+import static tk.ardentbot.Main.Config.*;
 
 public class Ardent {
-    public static final boolean testingBot = true;
-
-    public static ScheduledExecutorService executorService = Executors.newScheduledThreadPool(100);
-    public static BotMuteData botMuteData;
-    public static BotPrefixData botPrefixData;
-    public static BotLanguageData botLanguageData;
-    public static ArrayList<Language> crowdinLanguages = new ArrayList<>();
-    public static TextChannel botLogs;
-    public static AudioPlayerManager playerManager;
-    public static Map<Long, GuildMusicManager> musicManagers;
-    public static ChatterBot cleverBot;
-    public static ConcurrentHashMap<String, ChatterBotSession> cleverbots = new ConcurrentHashMap<>();
-    public static ArrayList<String> developers = new ArrayList<>();
-    public static ArrayList<String> translators = new ArrayList<>();
-    public static Gson gson = new Gson();
-    public static Connection conn;
-    public static Timer timer = new Timer();
-    public static CommandFactory factory;
-    public static JDA jda;
-    public static User ardent;
-    public static Twitter twitter;
-    public static Command help;
-    public static Command patreon;
-    public static Command translateForArdent;
-    public static Command getDevHelp;
-    public static String url = "https://ardentbot.tk";
-    public static ConcurrentHashMap<String, Boolean> sentAnnouncement = new ConcurrentHashMap<>();
-    public static String announcement;
-    private static int gameCounter = 0;
-    private static int matureLanguages = 0;
-
     public static void main(String[] args) throws Exception {
         String token;
         if (testingBot) {
@@ -190,13 +145,13 @@ public class Ardent {
         crowdinLanguages.add(LangFactory.hindi);
 
         // Adding the "handler" for mutes
-        Ardent.botMuteData = new BotMuteData();
+        Config.botMuteData = new BotMuteData();
 
         // Adding the handler for prefixes
-        Ardent.botPrefixData = new BotPrefixData();
+        Config.botPrefixData = new BotPrefixData();
 
         // Adding the handler for languages
-        Ardent.botLanguageData = new BotLanguageData();
+        Config.botLanguageData = new BotLanguageData();
 
         languages.stream().filter(lang -> lang.getLanguageStatus() == Language.Status.MATURE).forEach(lang ->
                 matureLanguages++);
@@ -368,7 +323,7 @@ public class Ardent {
                 default:
                     game = "with many languages";
             }
-            jda.getPresence().setGame(Game.of(game, Ardent.url));
+            jda.getPresence().setGame(Game.of(game, url));
 
             if (gameCounter == 3) gameCounter = 0;
             else gameCounter++;

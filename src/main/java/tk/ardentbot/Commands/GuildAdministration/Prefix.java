@@ -12,7 +12,7 @@ import tk.ardentbot.Utils.Discord.GuildUtils;
 
 import java.sql.Statement;
 
-import static tk.ardentbot.Main.Ardent.conn;
+import static tk.ardentbot.Main.Config.conn;
 import static tk.ardentbot.Utils.SQL.SQLUtils.cleanString;
 
 public class Prefix extends BotCommand {

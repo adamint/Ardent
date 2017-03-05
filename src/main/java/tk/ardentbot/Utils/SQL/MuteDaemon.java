@@ -3,18 +3,19 @@ package tk.ardentbot.Utils.SQL;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import tk.ardentbot.Bot.BotException;
-import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Main.Config;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 
 import java.util.HashMap;
 
-import static tk.ardentbot.Main.Ardent.help;
-import static tk.ardentbot.Main.Ardent.jda;
+import static tk.ardentbot.Main.Config.help;
+import static tk.ardentbot.Main.Config.jda;
+
 
 public class MuteDaemon implements Runnable {
     @Override
     public void run() {
-        HashMap<String, HashMap<String, Long>> mutes = Ardent.botMuteData.getMutes();
+        HashMap<String, HashMap<String, Long>> mutes = Config.botMuteData.getMutes();
         for(String guildID : mutes.keySet()){
 
             Guild guild = jda.getGuildById(guildID);
@@ -23,8 +24,8 @@ public class MuteDaemon implements Runnable {
 
                 Member member = guild.getMember(jda.getUserById(userID));
 
-                if(!Ardent.botMuteData.isMuted(member) && Ardent.botMuteData.wasMute(member)){
-                    Ardent.botMuteData.unmute(member);
+                if (!Config.botMuteData.isMuted(member) && Config.botMuteData.wasMute(member)) {
+                    Config.botMuteData.unmute(member);
                     member.getUser().openPrivateChannel().queue(privateChannel -> {
                         try {
                             privateChannel.sendMessage(help.getTranslation("mute", GuildUtils.getLanguage(guild), "nowabletospeak").getTranslation().replace("{0}", guild.getName())).queue();

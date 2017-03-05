@@ -5,7 +5,7 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.SubscribeEvent;
 import tk.ardentbot.Bot.BotException;
-import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Main.Config;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 
 import java.sql.Date;
@@ -16,7 +16,7 @@ public class OnMessage {
     public void onMessage(MessageReceivedEvent event) {
         if (event.getAuthor().isBot()) return;
         try {
-            Ardent.factory.incrementMessagesReceived();
+            Config.factory.incrementMessagesReceived();
 
             switch (event.getChannel().getType()) {
                 case TEXT:
@@ -29,27 +29,27 @@ public class OnMessage {
                     if (ardentMember == null || userMember == null || userMember.hasPermission(Permission
                             .MANAGE_SERVER) || !ardentMember.hasPermission(Permission.MESSAGE_MANAGE))
                     {
-                        Ardent.factory.pass(event);
+                        Config.factory.pass(event);
                         return; // The event will be handled and musn't be resumed here.
                     }
 
-                    if (!Ardent.botMuteData.isMuted(event.getMember())) {
-                        Ardent.factory.pass(event);
+                    if (!Config.botMuteData.isMuted(event.getMember())) {
+                        Config.factory.pass(event);
                         return; // The event will be handled and musn't be resumed here.
                     }
 
                     event.getMessage().delete().queue();
-                    String reply = Ardent.help.getTranslation("mute", GuildUtils.getLanguage(event.getGuild()),
+                    String reply = Config.help.getTranslation("mute", GuildUtils.getLanguage(event.getGuild()),
                             "youremuted").getTranslation()
                             .replace("{0}", event.getGuild().getName()).replace("{1}", Date.from(Instant
-                                    .ofEpochSecond(Ardent.botMuteData.getUnmuteTime(event.getMember()) / 1000))
+                                    .ofEpochSecond(Config.botMuteData.getUnmuteTime(event.getMember()) / 1000))
                                     .toLocaleString());
                     event.getAuthor().openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage(reply)
                             .queue());
 
                     break;
                 case PRIVATE:
-                    Ardent.factory.pass(event);
+                    Config.factory.pass(event);
                     break;
             }
         }

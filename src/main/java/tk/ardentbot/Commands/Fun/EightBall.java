@@ -11,7 +11,7 @@ import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Backend.Web.Models.EightBallResponse;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 
-import static tk.ardentbot.Main.Ardent.gson;
+import static tk.ardentbot.Main.Config.gson;
 
 public class EightBall extends BotCommand {
     public EightBall(CommandSettings commandSettings) {

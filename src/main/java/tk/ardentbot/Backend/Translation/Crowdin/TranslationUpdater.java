@@ -20,7 +20,7 @@ import java.sql.Statement;
 import java.util.zip.ZipInputStream;
 
 import static tk.ardentbot.Backend.Translation.Crowdin.PhraseUpdater.*;
-import static tk.ardentbot.Main.Ardent.*;
+import static tk.ardentbot.Main.Config.*;
 
 /**
  * Downloads and inserts phrase translations on a loop

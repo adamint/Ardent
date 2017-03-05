@@ -9,6 +9,7 @@ import tk.ardentbot.Backend.Commands.Subcommand;
 import tk.ardentbot.Backend.Translation.LangFactory;
 import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Utils.Discord.GuildUtils;
+import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.Tuples.Pair;
 import tk.ardentbot.Utils.Tuples.Quintet;
 import tk.ardentbot.Utils.Tuples.Triplet;
@@ -18,8 +19,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-import static tk.ardentbot.Main.Ardent.conn;
-import static tk.ardentbot.Main.Ardent.translators;
+import static tk.ardentbot.Main.Config.conn;
+import static tk.ardentbot.Main.Config.translators;
 import static tk.ardentbot.Utils.SQL.SQLUtils.cleanString;
 
 public class Translate extends BotCommand {
@@ -30,48 +31,51 @@ public class Translate extends BotCommand {
     }
 
     public static ArrayList<String> getTranslationDiscrepancies(Language language) throws SQLException {
-        Statement statement = conn.createStatement();
+        DatabaseAction getTranslations = new DatabaseAction("SELECT * FROM Translations WHERE Language=?")
+                .set("english");
         ArrayList<String> discrepanciesInEnglish = new ArrayList<>();
         ArrayList<Triplet<String, String, String>> englishTranslations = new ArrayList<>();
-        ResultSet translations = statement.executeQuery("SELECT * FROM Translations WHERE Language='english'");
+        ResultSet translations = getTranslations.request();
         while (translations.next()) {
             englishTranslations.add(new Triplet<>(translations.getString("CommandIdentifier"), translations.getString
                     ("ID"), translations.getString("Translation")));
         }
         translations.close();
         for (Triplet<String, String, String> translation : englishTranslations) {
-            ResultSet exists = statement.executeQuery("SELECT * FROM Translations WHERE CommandIdentifier='" +
-                    cleanString(translation.getA()) + "' AND " +
-                    "ID='" + translation.getB() + "' AND Language='" + language.getIdentifier() + "'");
+            DatabaseAction getCommandTranslations = new DatabaseAction("SELECT * FROM Translations WHERE " +
+                    "CommandIdentifier=?" +
+                    " AND ID=? AND Language=?").set(translation.getA()).set(translation.getB()).set(language
+                    .getIdentifier());
+            ResultSet exists = getCommandTranslations.request();
             if (!exists.next()) {
                 discrepanciesInEnglish.add(translation.getC());
             }
-            exists.close();
+            getCommandTranslations.close();
         }
-        statement.close();
+        getTranslations.close();
         return discrepanciesInEnglish;
     }
 
     public static ArrayList<Pair<String, String>> getCommandDiscrepancies(Language language) throws SQLException {
-        Statement statement = conn.createStatement();
         ArrayList<Pair<String, String>> discrepanciesInEnglish = new ArrayList<>();
         ArrayList<Triplet<String, String, String>> englishTranslations = new ArrayList<>();
-        ResultSet translations = statement.executeQuery("SELECT * FROM Commands WHERE Language='english'");
+        DatabaseAction getTranslations = new DatabaseAction("SELECT * FROM Translations WHERE Language=?")
+                .set("english");
+        ResultSet translations = getTranslations.request();
         while (translations.next()) {
             englishTranslations.add(new Triplet<>(translations.getString("Identifier"), translations.getString
                     ("Language"), translations.getString("Description")));
         }
-        translations.close();
+        getTranslations.close();
         for (Triplet<String, String, String> translation : englishTranslations) {
-            ResultSet exists = statement.executeQuery("SELECT * FROM Commands WHERE Identifier='" + translation.getA
-                    () + "' AND " +
-                    "Language='" + language.getIdentifier() + "'");
+            DatabaseAction getLang = new DatabaseAction("SELECT * FROM Commands WHERE Identifier=? AND Language=?")
+                    .set(translation.getA()).set(language.getIdentifier());
+            ResultSet exists = getLang.request();
             if (!exists.next()) {
                 discrepanciesInEnglish.add(new Pair<>(translation.getA(), translation.getC()));
             }
-            exists.close();
+            getLang.close();
         }
-        statement.close();
         return discrepanciesInEnglish;
     }
 

@@ -5,15 +5,15 @@ import net.dv8tion.jda.core.entities.*;
 import tk.ardentbot.Backend.Commands.BotCommand;
 import tk.ardentbot.Backend.Commands.Subcommand;
 import tk.ardentbot.Backend.Translation.Language;
-import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Main.Config;
 import tk.ardentbot.Utils.StringUtils;
 
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Date;
 
-import static tk.ardentbot.Main.Ardent.conn;
-import static tk.ardentbot.Main.Ardent.jda;
+import static tk.ardentbot.Main.Config.conn;
+import static tk.ardentbot.Main.Config.jda;
 
 public class Mute extends BotCommand {
     public Mute(CommandSettings commandSettings) {
@@ -61,12 +61,12 @@ public class Mute extends BotCommand {
 
                         Member mentioned = message.getGuild().getMember(message.getMentionedUsers().get(0));
 
-                        if (Ardent.botMuteData.isMuted(mentioned)) {
+                        if (Config.botMuteData.isMuted(mentioned)) {
                             sendRetrievedTranslation(channel, "mute", language, "alreadymuted");
                         }
                         else {
-                            if (Ardent.botMuteData.wasMute(mentioned)) {
-                                Ardent.botMuteData.unmute(mentioned); // Do delete it from the list
+                            if (Config.botMuteData.wasMute(mentioned)) {
+                                Config.botMuteData.unmute(mentioned); // Do delete it from the list
                             }
                             String muteTime = args[3];
                             if (muteTime.endsWith("w") || muteTime.endsWith("h") || muteTime.endsWith("d") ||
@@ -74,7 +74,7 @@ public class Mute extends BotCommand {
                             {
                                 try {
                                     long now = StringUtils.commandeTime(muteTime);
-                                    Ardent.botMuteData.mute(mentioned, now, guild.getMember(message.getAuthor()));
+                                    Config.botMuteData.mute(mentioned, now, guild.getMember(message.getAuthor()));
                                     String reply = getTranslation("mute", language, "nowmuteduntil").getTranslation()
                                             .replace("{0}", mentioned.getUser().getName())
                                             .replace("{1}", String.valueOf(new Date(now)));

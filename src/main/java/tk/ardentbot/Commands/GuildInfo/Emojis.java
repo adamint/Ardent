@@ -12,7 +12,7 @@ import tk.ardentbot.Backend.Commands.Subcommand;
 import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Backend.Translation.Translation;
 import tk.ardentbot.Backend.Translation.TranslationResponse;
-import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Main.Config;
 import tk.ardentbot.Utils.Discord.MessageUtils;
 
 import java.util.ArrayList;
@@ -43,7 +43,7 @@ public class Emojis extends BotCommand {
                     Emoji emoji = EmojiManager.getForAlias(args[2]);
                     if (emoji != null) {
                         EmbedBuilder builder = MessageUtils.getDefaultEmbed(guild, user, Emojis.this);
-                        builder.setTitle(responses.get(0).getTranslation(), Ardent.url);
+                        builder.setTitle(responses.get(0).getTranslation(), Config.url);
 
                         StringBuilder description = new StringBuilder();
                         description.append(responses.get(1).getTranslation().replace("{0}", args[2]));

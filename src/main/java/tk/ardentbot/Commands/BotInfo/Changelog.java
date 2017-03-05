@@ -10,16 +10,20 @@ import tk.ardentbot.Backend.Commands.Subcommand;
 import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Backend.Translation.Translation;
 import tk.ardentbot.Backend.Translation.TranslationResponse;
-import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.Log;
+import tk.ardentbot.Utils.SQL.DatabaseAction;
 
-import java.sql.*;
+import java.sql.Date;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static tk.ardentbot.Main.Ardent.conn;
+import static tk.ardentbot.Main.Config.developers;
+import static tk.ardentbot.Main.Config.url;
 
 public class Changelog extends BotCommand {
     public Changelog(CommandSettings commandSettings) {
@@ -28,8 +32,8 @@ public class Changelog extends BotCommand {
 
     private static ArrayList<Log> getLogs() throws SQLException {
         ArrayList<Log> logs = new ArrayList<>();
-        Statement statement = conn.createStatement();
-        ResultSet set = statement.executeQuery("SELECT * FROM Changelog ORDER BY Time DESC");
+        DatabaseAction getChangelogs = new DatabaseAction("SELECT * FROM Changelog ORDER BY Time DESC");
+        ResultSet set = getChangelogs.request();
         while (set.next()) {
             ArrayList<String> features = new ArrayList<>();
             String featuresUnformatted = set.getString("Information");
@@ -37,13 +41,13 @@ public class Changelog extends BotCommand {
             for (String s : parsed) features.add(s);
             logs.add(new Log(set.getString("Title"), features, set.getTimestamp("Time")));
         }
-        set.close();
-        statement.close();
+        getChangelogs.close();
         return logs;
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
+            language) throws Exception {
         ArrayList<Translation> translations = new ArrayList<>();
         translations.add(new Translation("changelog", "listtitle"));
         translations.add(new Translation("changelog", "updatesbydate"));
@@ -52,7 +56,7 @@ public class Changelog extends BotCommand {
 
         ArrayList<Log> logs = getLogs();
         EmbedBuilder builder = new EmbedBuilder();
-        builder.setTitle(responses.get(0).getTranslation(), Ardent.url);
+        builder.setTitle(responses.get(0).getTranslation(), url);
 
         StringBuilder description = new StringBuilder();
         description.append(responses.get(1).getTranslation() + "\n");
@@ -61,7 +65,8 @@ public class Changelog extends BotCommand {
             description.append("#" + (i + 1) + ": " + current.getTitle() + "\n");
         }
 
-        description.append("\n" + responses.get(2).getTranslation().replace("{0}", GuildUtils.getPrefix(guild) + args[0]));
+        description.append("\n" + responses.get(2).getTranslation().replace("{0}", GuildUtils.getPrefix(guild) +
+                args[0]));
         builder.setDescription(description.toString());
 
         sendEmbed(builder, channel);
@@ -71,30 +76,34 @@ public class Changelog extends BotCommand {
     public void setupSubcommands() throws Exception {
         subcommands.add(new Subcommand(this, "add") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
-                if (Ardent.developers.contains(user.getId())) {
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
+                               Language language) throws Exception {
+                if (developers.contains(user.getId())) {
                     if (args.length > 3) {
-                        String input = message.getContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " + args[1] + " ", "");
+                        String input = message.getContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " +
+                                args[1] + " ", "");
                         String[] parsed = input.split("@next@");
                         if (parsed.length == 2) {
                             String title = parsed[0];
                             String information = parsed[1];
-                            Statement statement = conn.createStatement();
-                            statement.executeUpdate("INSERT INTO Changelog VALUES ('" + title + "', '" + information + "', '" + Timestamp.from(Instant.now()) + "')");
-                            statement.close();
+                            new DatabaseAction("INSERT INTO Changelog VALUES (?,?,?)").set(title).set(information)
+                                    .set(Timestamp.from(Instant.now())).update();
                         }
                         else
-                            sendTranslatedMessage("Idiot, delineate the seperation of title & information by @next@", channel);
+                            sendTranslatedMessage("Idiot, delineate the seperation of title & information by @next@",
+                                    channel);
                     }
                     else
-                        sendTranslatedMessage("Idiot, delineate the seperation of title & information by @next@", channel);
+                        sendTranslatedMessage("Idiot, delineate the seperation of title & information by @next@",
+                                channel);
                 }
                 else sendRetrievedTranslation(channel, "other", language, "needdeveloperpermission");
             }
         });
         subcommands.add(new Subcommand(this, "view") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
+                               Language language) throws Exception {
                 if (args.length > 2) {
                     try {
                         int number = Integer.parseInt(args[2]) - 1;
@@ -107,7 +116,7 @@ public class Changelog extends BotCommand {
                             HashMap<Integer, TranslationResponse> responses = getTranslations(language, translations);
 
                             EmbedBuilder builder = new EmbedBuilder();
-                            builder.setTitle(responses.get(0).getTranslation(), Ardent.url);
+                            builder.setTitle(responses.get(0).getTranslation(), url);
 
                             StringBuilder description = new StringBuilder();
                             description.append("**" + log.getTitle() + "**\n\n");
@@ -115,7 +124,8 @@ public class Changelog extends BotCommand {
                                 description.append(" - " + line + "\n\n");
                             }
                             description.append(Date.from(log.getTimestamp().toInstant()));
-                            description.append("\n\n" + responses.get(1).getTranslation().replace("{0}", GuildUtils.getPrefix(guild) + args[0]));
+                            description.append("\n\n" + responses.get(1).getTranslation().replace("{0}", GuildUtils
+                                    .getPrefix(guild) + args[0]));
                             builder.setDescription(description.toString());
 
                             sendEmbed(builder, channel);

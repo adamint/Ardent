@@ -10,7 +10,7 @@ import tk.ardentbot.Backend.Commands.BotCommand;
 import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Backend.Translation.Translation;
 import tk.ardentbot.Backend.Translation.TranslationResponse;
-import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Main.Config;
 import tk.ardentbot.Utils.Discord.MessageUtils;
 
 import java.lang.management.ManagementFactory;
@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static tk.ardentbot.Main.Ardent.factory;
-import static tk.ardentbot.Main.Ardent.jda;
+import static tk.ardentbot.Main.Config.factory;
+import static tk.ardentbot.Main.Config.jda;
 
 public class Status extends BotCommand {
     public static ConcurrentHashMap<String, Integer> commandsByGuild = new ConcurrentHashMap<>();
@@ -56,10 +56,10 @@ public class Status extends BotCommand {
         double usedRAM = totalRAM - Runtime.getRuntime().freeMemory() / 1024 / 1024;
 
         StringBuilder devUsernames = new StringBuilder();
-        for (int i = 0; i < Ardent.developers.size(); i++) {
-            User current = jda.getUserById(Ardent.developers.get(i));
+        for (int i = 0; i < Config.developers.size(); i++) {
+            User current = jda.getUserById(Config.developers.get(i));
             devUsernames.append(current.getName() + "#" + current.getDiscriminator());
-            if (i < (Ardent.developers.size() - 1)) devUsernames.append(", ");
+            if (i < (Config.developers.size() - 1)) devUsernames.append(", ");
         }
 
         Translation title = new Translation("status", "title");
@@ -98,15 +98,15 @@ public class Status extends BotCommand {
 
         int amtConnections = getVoiceConnections();
 
-        embedBuilder.setAuthor(translations.get(0).getTranslation(), "https://ardentbot.tk", Ardent.ardent
+        embedBuilder.setAuthor(translations.get(0).getTranslation(), "https://ardentbot.tk", Config.ardent
                 .getAvatarUrl());
         embedBuilder.setThumbnail("https://a.dryicons.com/images/icon_sets/polygon_icons/png/256x256/computer.png");
 
         embedBuilder.addField(translations.get(1).getTranslation(), ":thumbsup:", true);
-        embedBuilder.addField(translations.get(2).getTranslation(), String.valueOf(tk.ardentbot.Main.Ardent.factory
+        embedBuilder.addField(translations.get(2).getTranslation(), String.valueOf(Config.factory
                 .getLoadedCommandsAmount()), true);
 
-        embedBuilder.addField(translations.get(3).getTranslation(), String.valueOf(tk.ardentbot.Main.Ardent.factory
+        embedBuilder.addField(translations.get(3).getTranslation(), String.valueOf(Config.factory
                 .getMessagesReceived()), true);
         embedBuilder.addField(translations.get(4).getTranslation(), cmds, true);
 
