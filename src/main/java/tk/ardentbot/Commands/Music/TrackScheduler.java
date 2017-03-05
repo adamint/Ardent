@@ -9,6 +9,7 @@ import tk.ardentbot.Utils.Tuples.Pair;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -69,14 +70,22 @@ public class TrackScheduler extends AudioEventAdapter {
         return queue;
     }
 
-    public void resetQueue() {
+    void resetQueue() {
         this.queue = new LinkedBlockingQueue<>();
     }
 
-    public void shuffle() {
+    void shuffle() {
         ArrayList<Pair<String, AudioTrack>> tracks = new ArrayList<>();
         queue.forEach((tracks::add));
         Collections.shuffle(tracks);
         queue = new LinkedBlockingQueue<>(tracks);
+    }
+
+    void removeFrom(User user) {
+        Iterator<Pair<String, AudioTrack>> iterator = queue.iterator();
+        while (iterator.hasNext()) {
+            Pair<String, AudioTrack> trackPair = iterator.next();
+            if (trackPair.getK().equalsIgnoreCase(user.getId())) iterator.remove();
+        }
     }
 }
