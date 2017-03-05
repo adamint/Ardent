@@ -2,6 +2,7 @@ package tk.ardentbot.Commands.BotInfo;
 
 import com.sun.management.OperatingSystemMXBean;
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
@@ -10,7 +11,6 @@ import tk.ardentbot.Backend.Commands.BotCommand;
 import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Backend.Translation.Translation;
 import tk.ardentbot.Backend.Translation.TranslationResponse;
-import tk.ardentbot.Main.Config;
 import tk.ardentbot.Utils.Discord.MessageUtils;
 
 import java.lang.management.ManagementFactory;
@@ -19,8 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static tk.ardentbot.Main.Config.factory;
-import static tk.ardentbot.Main.Config.jda;
+import static tk.ardentbot.Main.Ardent.ardent;
 
 public class Status extends BotCommand {
     public static ConcurrentHashMap<String, Integer> commandsByGuild = new ConcurrentHashMap<>();
@@ -31,19 +30,20 @@ public class Status extends BotCommand {
 
     public static int getVoiceConnections() {
         int counter = 0;
-        for (Guild guild : jda.getGuilds()) {
+        for (Guild guild : ardent.jda.getGuilds()) {
             if (guild.getAudioManager().isConnected()) counter++;
         }
         return counter;
     }
 
     public static int getUserAmount() {
-        return jda.getUsers().size();
+        return ardent.jda.getUsers().size();
     }
 
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
             language) throws Exception {
+        JDA jda = ardent.jda;
         OperatingSystemMXBean operatingSystemMXBean = (OperatingSystemMXBean) ManagementFactory
                 .getOperatingSystemMXBean();
         double cpuUsage = operatingSystemMXBean.getSystemCpuLoad() + 0.01;
@@ -56,10 +56,10 @@ public class Status extends BotCommand {
         double usedRAM = totalRAM - Runtime.getRuntime().freeMemory() / 1024 / 1024;
 
         StringBuilder devUsernames = new StringBuilder();
-        for (int i = 0; i < Config.developers.size(); i++) {
-            User current = jda.getUserById(Config.developers.get(i));
+        for (int i = 0; i < ardent.developers.size(); i++) {
+            User current = jda.getUserById(ardent.developers.get(i));
             devUsernames.append(current.getName() + "#" + current.getDiscriminator());
-            if (i < (Config.developers.size() - 1)) devUsernames.append(", ");
+            if (i < (ardent.developers.size() - 1)) devUsernames.append(", ");
         }
 
         Translation title = new Translation("status", "title");
@@ -88,7 +88,7 @@ public class Status extends BotCommand {
         translationQueries.add(site);
         translationQueries.add(botHelp);
 
-        int commandsReceived = (int) factory.getCommandsReceived();
+        int commandsReceived = (int) ardent.factory.getCommandsReceived();
         DecimalFormat formatter = new DecimalFormat("#,###");
         String cmds = formatter.format(commandsReceived);
 
@@ -98,15 +98,15 @@ public class Status extends BotCommand {
 
         int amtConnections = getVoiceConnections();
 
-        embedBuilder.setAuthor(translations.get(0).getTranslation(), "https://ardentbot.tk", Config.ardent
+        embedBuilder.setAuthor(translations.get(0).getTranslation(), "https://ardentbot.tk", ardent.bot
                 .getAvatarUrl());
         embedBuilder.setThumbnail("https://a.dryicons.com/images/icon_sets/polygon_icons/png/256x256/computer.png");
 
         embedBuilder.addField(translations.get(1).getTranslation(), ":thumbsup:", true);
-        embedBuilder.addField(translations.get(2).getTranslation(), String.valueOf(Config.factory
+        embedBuilder.addField(translations.get(2).getTranslation(), String.valueOf(ardent.factory
                 .getLoadedCommandsAmount()), true);
 
-        embedBuilder.addField(translations.get(3).getTranslation(), String.valueOf(Config.factory
+        embedBuilder.addField(translations.get(3).getTranslation(), String.valueOf(ardent.factory
                 .getMessagesReceived()), true);
         embedBuilder.addField(translations.get(4).getTranslation(), cmds, true);
 

@@ -12,11 +12,12 @@ import tk.ardentbot.Backend.Commands.Subcommand;
 import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Backend.Translation.Translation;
 import tk.ardentbot.Backend.Translation.TranslationResponse;
-import tk.ardentbot.Main.Config;
 import tk.ardentbot.Utils.Discord.MessageUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import static tk.ardentbot.Main.Ardent.ardent;
 
 public class Emojis extends BotCommand {
     public Emojis(CommandSettings commandSettings) {
@@ -24,7 +25,8 @@ public class Emojis extends BotCommand {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
+            language) throws Exception {
         sendHelp(language, channel, guild, user, this);
     }
 
@@ -32,7 +34,8 @@ public class Emojis extends BotCommand {
     public void setupSubcommands() throws Exception {
         subcommands.add(new Subcommand(this, "info") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
+                               Language language) throws Exception {
                 if (args.length > 2) {
                     ArrayList<Translation> queries = new ArrayList<>();
                     queries.add(new Translation("emojis", "lookuptitle"));
@@ -43,7 +46,7 @@ public class Emojis extends BotCommand {
                     Emoji emoji = EmojiManager.getForAlias(args[2]);
                     if (emoji != null) {
                         EmbedBuilder builder = MessageUtils.getDefaultEmbed(guild, user, Emojis.this);
-                        builder.setTitle(responses.get(0).getTranslation(), Config.url);
+                        builder.setTitle(responses.get(0).getTranslation(), ardent.url);
 
                         StringBuilder description = new StringBuilder();
                         description.append(responses.get(1).getTranslation().replace("{0}", args[2]));

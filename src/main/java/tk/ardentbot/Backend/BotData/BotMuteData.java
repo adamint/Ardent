@@ -8,7 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.HashMap;
 
-import static tk.ardentbot.Main.Config.conn;
+import static tk.ardentbot.Main.Ardent.ardent;
 
 public class BotMuteData {
 
@@ -49,7 +49,7 @@ public class BotMuteData {
 
     private void sql_add(Member m, long d, Member s) {
         try {
-            PreparedStatement statement = conn.prepareStatement("INSERT INTO Mutes VALUES (?, ?, ?, ?)");
+            PreparedStatement statement = ardent.conn.prepareStatement("INSERT INTO Mutes VALUES (?, ?, ?, ?)");
 
             statement.setString(1, m.getGuild().getId());
             statement.setString(2, s.getUser().getId());
@@ -67,7 +67,8 @@ public class BotMuteData {
 
     private void sql_del(Member m) {
         try {
-            PreparedStatement statement = conn.prepareStatement("DELETE FROM Mutes WHERE GuildID = ? AND UserID = ?");
+            PreparedStatement statement = ardent.conn.prepareStatement("DELETE FROM Mutes WHERE GuildID = ? AND " +
+                    "UserID = ?");
 
             statement.setString(1, m.getGuild().getId());
             statement.setString(2, m.getUser().getId());

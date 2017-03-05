@@ -13,15 +13,15 @@ import java.util.Iterator;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class TrackScheduler extends AudioEventAdapter {
+class TrackScheduler extends AudioEventAdapter {
     private final AudioPlayer player;
-    public String ownerOfNowPlaying;
+    String ownerOfNowPlaying;
     private BlockingQueue<Pair<String, AudioTrack>> queue;
 
     /**
      * @param player The audio player this scheduler uses
      */
-    public TrackScheduler(AudioPlayer player) {
+    TrackScheduler(AudioPlayer player) {
         this.player = player;
         this.queue = new LinkedBlockingQueue<>();
     }
@@ -44,7 +44,7 @@ public class TrackScheduler extends AudioEventAdapter {
     /**
      * Start the next track, stopping the current one if it is playing.
      */
-    public void nextTrack() {
+    void nextTrack() {
         // Start the next track, regardless of if something is already playing or not. In case queue was empty, we are
         // giving null to startTrack, which is a valid argument and will simply stop the player.
         Pair<String, AudioTrack> pair = queue.poll();

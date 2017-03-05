@@ -11,7 +11,6 @@ import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Backend.Translation.Translation;
 import tk.ardentbot.Backend.Translation.TranslationResponse;
 import tk.ardentbot.Bot.BotException;
-import tk.ardentbot.Main.Config;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 
 import java.sql.ResultSet;
@@ -20,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static tk.ardentbot.Backend.Translation.LangFactory.english;
+import static tk.ardentbot.Main.Ardent.ardent;
 
 /**
  * Abstracted from BotCommand for possible future
@@ -356,7 +356,7 @@ public abstract class Command {
     }
 
     public ArrayList<Command> getCommandsInCategory(Category category) {
-        return Config.factory.getCommands().stream().filter(command -> command.getCategory() == category)
+        return ardent.factory.getCommands().stream().filter(command -> command.getCategory() == category)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 

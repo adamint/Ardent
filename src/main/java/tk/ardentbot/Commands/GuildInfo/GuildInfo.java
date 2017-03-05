@@ -25,8 +25,6 @@ public class GuildInfo extends BotCommand {
         translations.add(new Translation("guildinfo", "language"));
         translations.add(new Translation("guildinfo", "prefix"));
         translations.add(new Translation("guildinfo", "numberofusers"));
-        translations.add(new Translation("guildinfo", "oneoffirstservers"));
-        translations.add(new Translation("guildinfo", "guildposition"));
         HashMap<Integer, TranslationResponse> responses = getTranslations(language, translations);
         StringBuilder sb = new StringBuilder();
         sb.append("**" + responses.get(0).getTranslation() + "**\n" +
@@ -34,7 +32,6 @@ public class GuildInfo extends BotCommand {
         sb.append(" **>** *" + responses.get(1).getTranslation() + ": " + language.getIdentifier() + "*\n");
         sb.append(" **>** *" + responses.get(2).getTranslation() + ": " + GuildUtils.getPrefix(guild) + "*\n");
         sb.append(" **>** *" + responses.get(3).getTranslation() + ": " + guild.getMembers().size() + "*\n");
-        sb.append(" **>** *" + responses.get(5).getTranslation() + ": " + responses.get(4).getTranslation() + "!*");
         sendTranslatedMessage(sb.toString(), channel);
     }
 

@@ -8,7 +8,6 @@ import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.Backend.Commands.BotCommand;
 import tk.ardentbot.Backend.Commands.Subcommand;
 import tk.ardentbot.Backend.Translation.Language;
-import tk.ardentbot.Main.Config;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.Discord.MessageUtils;
 
@@ -17,7 +16,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-import static tk.ardentbot.Main.Config.conn;
+import static tk.ardentbot.Main.Ardent.ardent;
 import static tk.ardentbot.Utils.SQL.SQLUtils.cleanString;
 
 public class Todo extends BotCommand {
@@ -30,7 +29,7 @@ public class Todo extends BotCommand {
         ArrayList<String> todos = getTodos();
         EmbedBuilder embedBuilder = MessageUtils.getDefaultEmbed(guild, user, this);
         String upcoming = getTranslation("todo", language, "upcoming").getTranslation();
-        embedBuilder.setAuthor(upcoming, "https://ardentbot.tk", Config.ardent.getAvatarUrl());
+        embedBuilder.setAuthor(upcoming, "https://ardentbot.tk", ardent.bot.getAvatarUrl());
         StringBuilder description = new StringBuilder();
         description.append("**" + upcoming + "**");
         for (int i = 0; i < todos.size(); i++) {
@@ -45,9 +44,9 @@ public class Todo extends BotCommand {
         subcommands.add(new Subcommand(this, "add") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
-                if (Config.developers.contains(user.getId())) {
+                if (ardent.developers.contains(user.getId())) {
                     String todo = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " + args[1] + " ", "");
-                    Statement statement = conn.createStatement();
+                    Statement statement = ardent.conn.createStatement();
                     statement.executeUpdate("INSERT INTO Todo VALUES ('" + cleanString(todo) + "')");
                     statement.close();
                     sendTranslatedMessage("Added todo successfully", channel);
@@ -59,13 +58,13 @@ public class Todo extends BotCommand {
         subcommands.add(new Subcommand(this, "remove") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
-                if (Config.developers.contains(user.getId())) {
+                if (ardent.developers.contains(user.getId())) {
                     if (args.length == 3) {
                         try {
                             ArrayList<String> todos = getTodos();
                             int place = Integer.parseInt(args[2]) - 1;
                             if (place > -1 && place < todos.size()) {
-                                Statement statement = conn.createStatement();
+                                Statement statement = ardent.conn.createStatement();
                                 statement.executeUpdate("DELETE FROM Todo WHERE Text='" + cleanString(todos.get(place)) + "'");
                                 statement.close();
                                 sendTranslatedMessage("Removed todo successfully", channel);
@@ -85,7 +84,7 @@ public class Todo extends BotCommand {
 
     public ArrayList<String> getTodos() throws SQLException {
         ArrayList<String> todos = new ArrayList<>();
-        Statement statement = conn.createStatement();
+        Statement statement = ardent.conn.createStatement();
         ResultSet set = statement.executeQuery("SELECT * FROM Todo");
         while (set.next()) {
             todos.add(set.getString("Text"));

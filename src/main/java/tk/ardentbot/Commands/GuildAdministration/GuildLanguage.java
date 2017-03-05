@@ -8,7 +8,6 @@ import tk.ardentbot.Backend.Translation.LangFactory;
 import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Backend.Translation.Translation;
 import tk.ardentbot.Backend.Translation.TranslationResponse;
-import tk.ardentbot.Main.Config;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 
@@ -17,7 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import static tk.ardentbot.Main.Config.jda;
+import static tk.ardentbot.Main.Ardent.ardent;
 
 public class GuildLanguage extends BotCommand {
     public Subcommand set;
@@ -78,7 +77,7 @@ public class GuildLanguage extends BotCommand {
                         if (changeTo != null) {
                             new DatabaseAction("UPDATE Guilds SET Language=? WHERE GuildID=?").set(changeTo
                                     .getIdentifier()).set(guild.getId()).update();
-                            Config.botLanguageData.set(guild, changeTo.getIdentifier());
+                            ardent.botLanguageData.set(guild, changeTo.getIdentifier());
                             sendRetrievedTranslation(channel, "language", changeTo, "changedlanguage");
                         }
                         else sendRetrievedTranslation(channel, "language", language, "invalidlanguage");
@@ -100,7 +99,7 @@ public class GuildLanguage extends BotCommand {
                 translations.add(new Translation("status", "guilds"));
                 HashMap<Integer, TranslationResponse> responses = getTranslations(language, translations);
                 Map<String, Integer> usages = GuildUtils.getLanguageUsages();
-                int guilds = jda.getGuilds().size();
+                int guilds = ardent.jda.getGuilds().size();
                 DecimalFormat format = new DecimalFormat("##");
                 StringBuilder sb = new StringBuilder();
                 sb.append("**" + responses.get(0).getTranslation() + "**\n");

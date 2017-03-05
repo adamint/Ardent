@@ -25,6 +25,10 @@ public class Prune extends BotCommand {
             if (guild.getMember(user).hasPermission(Permission.MANAGE_SERVER)) {
                 try {
                     int day = Integer.parseInt(args[1]);
+                    if (day <= 0) {
+                        sendRetrievedTranslation(channel, "prune", language, "atleastaday");
+                        return;
+                    }
                     guild.getController().prune(day).queue(integer -> {
                         try {
                             sendTranslatedMessage(getTranslation("prune", language, "success").getTranslation().replace("{0}", String.valueOf(integer)), channel);

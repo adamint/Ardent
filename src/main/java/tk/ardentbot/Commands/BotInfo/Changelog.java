@@ -22,8 +22,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static tk.ardentbot.Main.Config.developers;
-import static tk.ardentbot.Main.Config.url;
+import static tk.ardentbot.Main.Ardent.ardent;
 
 public class Changelog extends BotCommand {
     public Changelog(CommandSettings commandSettings) {
@@ -56,7 +55,7 @@ public class Changelog extends BotCommand {
 
         ArrayList<Log> logs = getLogs();
         EmbedBuilder builder = new EmbedBuilder();
-        builder.setTitle(responses.get(0).getTranslation(), url);
+        builder.setTitle(responses.get(0).getTranslation(), ardent.url);
 
         StringBuilder description = new StringBuilder();
         description.append(responses.get(1).getTranslation() + "\n");
@@ -78,7 +77,7 @@ public class Changelog extends BotCommand {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
-                if (developers.contains(user.getId())) {
+                if (ardent.developers.contains(user.getId())) {
                     if (args.length > 3) {
                         String input = message.getContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " +
                                 args[1] + " ", "");
@@ -116,7 +115,7 @@ public class Changelog extends BotCommand {
                             HashMap<Integer, TranslationResponse> responses = getTranslations(language, translations);
 
                             EmbedBuilder builder = new EmbedBuilder();
-                            builder.setTitle(responses.get(0).getTranslation(), url);
+                            builder.setTitle(responses.get(0).getTranslation(), ardent.url);
 
                             StringBuilder description = new StringBuilder();
                             description.append("**" + log.getTitle() + "**\n\n");

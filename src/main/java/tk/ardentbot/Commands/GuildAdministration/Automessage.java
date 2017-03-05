@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static tk.ardentbot.Main.Config.conn;
+import static tk.ardentbot.Main.Ardent.ardent;
 import static tk.ardentbot.Utils.SQL.SQLUtils.cleanString;
 
 public class Automessage extends BotCommand {
@@ -40,7 +40,7 @@ public class Automessage extends BotCommand {
     public static Triplet<String, String, String> getMessagesAndChannel(Guild guild) throws SQLException {
         Triplet<String, String, String> triplet;
         check(guild);
-        Statement statement = conn.createStatement();
+        Statement statement = ardent.conn.createStatement();
         ResultSet set = statement.executeQuery("SELECT * FROM Automessages WHERE GuildID='" + guild.getId() + "'");
         if (set.next()) {
             String channel = set.getString("ChannelID");
@@ -65,7 +65,7 @@ public class Automessage extends BotCommand {
         else if (num == 1) columnName = "Welcome";
         else if (num == 2) columnName = "Goodbye";
         else return;
-        Statement statement = conn.createStatement();
+        Statement statement = ardent.conn.createStatement();
         statement.executeUpdate("UPDATE Automessages SET " + columnName + "='000' WHERE GuildID='" + guild.getId() +
                 "'");
         statement.close();
@@ -77,7 +77,7 @@ public class Automessage extends BotCommand {
         else if (num == 1) columnName = "Welcome";
         else if (num == 2) columnName = "Goodbye";
         else return;
-        Statement statement = conn.createStatement();
+        Statement statement = ardent.conn.createStatement();
         statement.executeUpdate("UPDATE Automessages SET " + columnName + "='" + cleanString(text) + "' WHERE " +
                 "GuildID='" + guild.getId() + "'");
         statement.close();

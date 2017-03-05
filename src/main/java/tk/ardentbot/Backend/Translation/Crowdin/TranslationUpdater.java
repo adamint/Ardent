@@ -20,13 +20,13 @@ import java.sql.Statement;
 import java.util.zip.ZipInputStream;
 
 import static tk.ardentbot.Backend.Translation.Crowdin.PhraseUpdater.*;
-import static tk.ardentbot.Main.Config.*;
+import static tk.ardentbot.Main.Ardent.ardent;
 
 /**
  * Downloads and inserts phrase translations on a loop
  */
 public class TranslationUpdater implements Runnable {
-    private Statement statement = conn.createStatement();
+    private Statement statement = ardent.conn.createStatement();
     private Credentials credentials = new Credentials(BASE_URL, PROJECT_IDENTIFIER, PROJECT_KEY, ACCOUNT_KEY);
     private CrowdinApiClient crwdn = new Crwdn();
 
@@ -36,7 +36,7 @@ public class TranslationUpdater implements Runnable {
     @Override
     public void run() {
         try {
-            for (Language l : crowdinLanguages) {
+            for (Language l : ardent.crowdinLanguages) {
                 CrowdinApiParametersBuilder parameters = new CrowdinApiParametersBuilder();
 
                 File temp = new File("null" + l.getCrowdinLangCode() + ".zip");
@@ -89,6 +89,6 @@ public class TranslationUpdater implements Runnable {
     }
 
     private void p(String s) {
-        botLogs.sendMessage(s).queue();
+        ardent.botLogs.sendMessage(s).queue();
     }
 }

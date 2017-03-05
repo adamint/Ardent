@@ -10,7 +10,6 @@ import tk.ardentbot.Backend.Commands.Subcommand;
 import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Backend.Translation.Translation;
 import tk.ardentbot.Backend.Translation.TranslationResponse;
-import tk.ardentbot.Main.Config;
 import tk.ardentbot.Utils.AntiRaidSettings;
 import tk.ardentbot.Utils.Discord.MessageUtils;
 
@@ -21,7 +20,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static tk.ardentbot.Main.Config.conn;
+import static tk.ardentbot.Main.Ardent.ardent;
 
 public class AntiRaid extends BotCommand {
     public AntiRaid(CommandSettings commandSettings) {
@@ -29,7 +28,7 @@ public class AntiRaid extends BotCommand {
     }
 
     public static void isInserted(Guild guild) throws SQLException {
-        Statement statement = conn.createStatement();
+        Statement statement = ardent.conn.createStatement();
         ResultSet set = statement.executeQuery("SELECT * FROM AntiRaidSettings WHERE GuildID='" + guild.getId() + "'");
         if (!set.next()) {
             statement.executeUpdate("INSERT INTO AntiRaidSettings VALUES ('" + guild.getId() + "','0','2','1')");
@@ -59,7 +58,7 @@ public class AntiRaid extends BotCommand {
                 String title = responses.get(1).getTranslation();
 
                 EmbedBuilder embedBuilder = MessageUtils.getDefaultEmbed(guild, user, AntiRaid.this);
-                embedBuilder.setTitle(title, Config.url);
+                embedBuilder.setTitle(title, ardent.url);
                 embedBuilder.setColor(Color.ORANGE);
 
                 AntiRaidSettings settings = getSettings(guild);
@@ -78,7 +77,7 @@ public class AntiRaid extends BotCommand {
 
     public AntiRaidSettings getSettings(Guild guild) throws SQLException {
         isInserted(guild);
-        Statement statement = conn.createStatement();
+        Statement statement = ardent.conn.createStatement();
         ResultSet set = statement.executeQuery("SELECT * FROM AntiRaidSettings WHERE GuildID='" + guild.getId() + "'");
         if (set.next()) {
             return new AntiRaidSettings(guild.getId(), set.getBoolean("Enabled"), set.getInt("MinutesBeforeSpeaking"), set.getInt("Level"));

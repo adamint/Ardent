@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static tk.ardentbot.Main.Config.jda;
+import static tk.ardentbot.Main.Ardent.ardent;
 
 public class Request extends BotCommand {
     private static ArrayList<RequestUtil> usersUnableToRequest = new ArrayList<>();
@@ -30,7 +30,7 @@ public class Request extends BotCommand {
         else {
             if (canRequest(user)) {
                 String request = message.getRawContent().replace(prefix + args[0] + " ", "");
-                TextChannel ideasChannel = jda.getTextChannelById("262810786186002432");
+                TextChannel ideasChannel = ardent.jda.getTextChannelById("262810786186002432");
                 ideasChannel.sendMessage("**Request** by " + user.getName() + "#" + user.getDiscriminator() + " (" +
                         user.getId() + "): " + request).queue();
                 usersUnableToRequest.add(new RequestUtil(Instant.now(), user));

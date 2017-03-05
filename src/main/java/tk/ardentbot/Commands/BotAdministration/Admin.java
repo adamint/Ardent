@@ -6,7 +6,6 @@ import tk.ardentbot.Backend.Commands.BotCommand;
 import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Bot.BotException;
 import tk.ardentbot.Commands.Music.Music;
-import tk.ardentbot.Main.Config;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.UsageUtils;
 
@@ -17,7 +16,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import static tk.ardentbot.Commands.BotInfo.Status.getVoiceConnections;
-import static tk.ardentbot.Main.Config.*;
+import static tk.ardentbot.Main.Ardent.ardent;
 
 public class Admin extends BotCommand {
     private static int secondsWaitedForRestart = 0;
@@ -30,7 +29,7 @@ public class Admin extends BotCommand {
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
-                for (Guild g : jda.getGuilds()) {
+                for (Guild g : ardent.jda.getGuilds()) {
                     if (g.getAudioManager().isConnected()) {
                         TextChannel tch = g.getTextChannelById(Music.textChannels.get(g.getId()));
                             if (tch.canTalk()) {
@@ -44,7 +43,7 @@ public class Admin extends BotCommand {
                             }
                     }
                 }
-                jda.getPresence().setGame(Game.of("- UPDATING! -", "https://www.ardentbot.tk"));
+                ardent.jda.getPresence().setGame(Game.of("- UPDATING! -", "https://www.ardentbot.tk"));
                 shutdown();
                 System.exit(0);
             }
@@ -97,7 +96,7 @@ public class Admin extends BotCommand {
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
             language) throws Exception {
-        if (Config.developers.contains(user.getId())) {
+        if (ardent.developers.contains(user.getId())) {
             if (args.length > 1) {
                 if (args[1].equalsIgnoreCase("update")) {
                     update(this, language, channel);
@@ -131,10 +130,10 @@ public class Admin extends BotCommand {
                 else if (args[1].equalsIgnoreCase("announce")) {
                     String msg = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " +
                             args[1] + " ", "");
-                    if (announcement != null) sentAnnouncement.clear();
-                    announcement = "** == Important Announcement ==**\n" + msg;
-                    jda.getGuilds().forEach(g -> {
-                        sentAnnouncement.put(g.getId(), false);
+                    if (ardent.announcement != null) ardent.sentAnnouncement.clear();
+                    ardent.announcement = "** == Important Announcement ==**\n" + msg;
+                    ardent.jda.getGuilds().forEach(g -> {
+                        ardent.sentAnnouncement.put(g.getId(), false);
                     });
                 }
             }

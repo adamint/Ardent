@@ -9,7 +9,6 @@ import net.dv8tion.jda.core.requests.RestAction;
 import org.apache.commons.lang3.tuple.Triple;
 import tk.ardentbot.Backend.Commands.BotCommand;
 import tk.ardentbot.Backend.Translation.Language;
-import tk.ardentbot.Main.Config;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.Engine;
 
@@ -17,7 +16,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static tk.ardentbot.Main.Config.conn;
+import static tk.ardentbot.Main.Ardent.ardent;
 
 public class Eval extends BotCommand {
     public Eval(CommandSettings commandSettings) {
@@ -27,7 +26,7 @@ public class Eval extends BotCommand {
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
             language) throws Exception {
-        if (Config.developers.contains(user.getId())) {
+        if (ardent.developers.contains(user.getId())) {
             if (args.length == 1) channel.sendMessage("Use " + args[0] + " (code) to evaluate stuff");
             else {
                 String content = message.getContent().replace(GuildUtils.getPrefix(guild) + args[0] + " ", "");
@@ -43,7 +42,7 @@ public class Eval extends BotCommand {
                 shortcuts.put("msg", message);
                 shortcuts.put("me", message.getAuthor());
                 shortcuts.put("bot", message.getJDA().getSelfUser());
-                shortcuts.put("conn", conn);
+                shortcuts.put("conn", ardent.conn);
 
                 final int timeout = 10;
 

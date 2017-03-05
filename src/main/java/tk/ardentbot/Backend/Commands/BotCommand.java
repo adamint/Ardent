@@ -8,14 +8,13 @@ import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.Backend.Models.SubcommandTranslation;
 import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Bot.BotException;
-import tk.ardentbot.Main.Config;
 import tk.ardentbot.Utils.Discord.MessageUtils;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static tk.ardentbot.Main.Config.ardent;
+import static tk.ardentbot.Main.Ardent.ardent;
 
 public abstract class BotCommand extends Command {
     public int usages = 0;
@@ -61,7 +60,7 @@ public abstract class BotCommand extends Command {
         embedBuilder.setColor(Color.ORANGE);
         String name = getName(language);
         name = name.substring(0, 1).toUpperCase() + name.substring(1);
-        embedBuilder.setAuthor(name, Config.url, ardent.getAvatarUrl());
+        embedBuilder.setAuthor(name, ardent.url, ardent.bot.getAvatarUrl());
         StringBuilder description = new StringBuilder();
         description.append("*" + getDescription(language) + "*");
 

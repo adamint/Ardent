@@ -14,7 +14,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 
-import static tk.ardentbot.Main.Config.executorService;
+import static tk.ardentbot.Main.Ardent.ardent;
 
 /**
  * Holds a language, with automatically updating phrases,
@@ -32,7 +32,7 @@ public class Language {
         this.name = name;
         this.languageStatus = languageStatus;
         this.crowdinLangCode = crowdinLangCode;
-        executorService.scheduleAtFixedRate(() -> {
+        ardent.executorService.scheduleAtFixedRate(() -> {
             phraseTranslations.clear();
             commandTranslations.clear();
             subcommandTranslations.clear();

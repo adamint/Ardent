@@ -21,8 +21,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static tk.ardentbot.Main.Config.ardent;
-import static tk.ardentbot.Main.Config.gson;
+import static tk.ardentbot.Main.Ardent.ardent;
 
 public class UD extends BotCommand {
     public UD(CommandSettings commandSettings) {
@@ -43,7 +42,7 @@ public class UD extends BotCommand {
             catch (UnirestException e) {
                 e.printStackTrace();
             }
-            UrbanDictionary definition = gson.fromJson(json, UrbanDictionary.class);
+            UrbanDictionary definition = ardent.gson.fromJson(json, UrbanDictionary.class);
             if (definition.getList().size() == 0) {
                 sendRetrievedTranslation(channel, "ud", language, "notranslations");
             }
@@ -77,7 +76,7 @@ public class UD extends BotCommand {
                 String thumbsDown = translations.get(5).getTranslation();
                 String urbanDictionary = translations.get(6).getTranslation();
 
-                builder.setAuthor(urbanDictionary, ardent.getAvatarUrl(), ardent.getAvatarUrl());
+                builder.setAuthor(urbanDictionary, ardent.bot.getAvatarUrl(), ardent.bot.getAvatarUrl());
                 builder.setThumbnail("https://i.gyazo.com/6a40e32928743e68e9006396ee7c2a14.jpg");
                 builder.setColor(Color.decode("#00B7BE"));
 
