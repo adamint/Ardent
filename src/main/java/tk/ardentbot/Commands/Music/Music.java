@@ -549,8 +549,9 @@ public class Music extends BotCommand {
         /*                    [ BETA ]
                      * This feature need some detail like:
                      *   > The permission needed to use it
-                     *   > Check if the stream played is a live. In that case this feature can be used.
-                     *
+                     *   > Check if the stream played is a live. In that case this feature can't be used.
+                     *   > Include help
+                     *   > Include Translation
 
         subcommands.add(new Subcommand(this, "restart") {
             @Override
