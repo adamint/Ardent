@@ -15,8 +15,11 @@ import tk.ardentbot.Backend.Translation.Translation;
 import tk.ardentbot.Backend.Translation.TranslationResponse;
 import tk.ardentbot.Bot.BotException;
 import tk.ardentbot.Utils.Discord.GuildUtils;
+import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.Tuples.Pair;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -211,6 +214,17 @@ public class Music extends BotCommand {
                 .format("%02d", (lengthMinutes % 60)) + ":" + String.format("%02d", (lengthSeconds % 60)) + "]";
     }
 
+    private boolean shouldDeleteMessages(Guild guild) throws SQLException {
+        boolean returnValue = false;
+        DatabaseAction action = new DatabaseAction("SELECT * FROM MusicSettings WHERE GuildID=?").set(guild.getId());
+        ResultSet set = action.request();
+        if (set.next()) {
+            if (set.getBoolean("RemoveAdditionMessages")) returnValue = true;
+        }
+        action.close();
+        return returnValue;
+    }
+
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
             language) throws Exception {
@@ -226,16 +240,26 @@ public class Music extends BotCommand {
                 if (args.length > 2) {
                     AudioManager audioManager = guild.getAudioManager();
                     String url = message.getRawContent().replace(args[0] + " " + args[1] + " ", "");
+                    boolean shouldDeleteMessage = shouldDeleteMessages(guild);
+                    boolean implement = false;
                     if (!audioManager.isConnected()) {
                         VoiceChannel success = joinChannel(guild, guild.getMember(user), language, Music.this,
                                 audioManager, channel);
                         if (success != null) {
                             loadAndPlay(user, Music.this, language, (TextChannel) channel, url, success, false);
+                            implement = true;
                         }
                     }
-                    else
+                    else {
                         loadAndPlay(user, Music.this, language, (TextChannel) channel, url, audioManager
                                 .getConnectedChannel(), false);
+                        implement = true;
+                    }
+                    if (implement) {
+                        if (shouldDeleteMessage) {
+                            message.delete().queue();
+                        }
+                    }
                 }
                 else sendRetrievedTranslation(channel, "tag", language, "invalidarguments");
             }
@@ -524,7 +548,7 @@ public class Music extends BotCommand {
                     }
                     else sendRetrievedTranslation(channel, "other", language, "needmanageserver");
                 }
-                else sendRetrievedTranslation(channel, "tag", language, "invalidarguments");
+                else sendRetrievedTranslation(channel, "music", language, "loopsyntaxhelp");
             }
         });
 
