@@ -29,7 +29,6 @@ import tk.ardentbot.Backend.BotData.BotPrefixData;
 import tk.ardentbot.Backend.Commands.Category;
 import tk.ardentbot.Backend.Commands.Command;
 import tk.ardentbot.Backend.Commands.CommandFactory;
-import tk.ardentbot.Backend.Translation.Crowdin.PhraseUpdater;
 import tk.ardentbot.Backend.Translation.LangFactory;
 import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Bot.BotException;
@@ -46,6 +45,8 @@ import tk.ardentbot.Commands.Music.Music;
 import tk.ardentbot.Events.Join;
 import tk.ardentbot.Events.Leave;
 import tk.ardentbot.Events.OnMessage;
+import tk.ardentbot.Updaters.BotlistUpdater;
+import tk.ardentbot.Updaters.PhraseUpdater;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.SQL.MuteDaemon;
 import twitter4j.Twitter;
@@ -61,7 +62,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -71,7 +71,7 @@ import java.util.logging.Logger;
 import static tk.ardentbot.Backend.Translation.LangFactory.languages;
 
 public class Instance {
-    public boolean testingBot = true;
+    public boolean testingBot = false;
     public ScheduledExecutorService executorService = Executors.newScheduledThreadPool(100);
     public BotMuteData botMuteData;
     public BotPrefixData botPrefixData;
@@ -86,7 +86,6 @@ public class Instance {
     public ArrayList<String> translators = new ArrayList<>();
     public Gson gson = new Gson();
     public Connection conn;
-    public Timer timer = new Timer();
     public CommandFactory factory;
     public JDA jda;
     public User bot;
@@ -98,15 +97,22 @@ public class Instance {
     public String url = "https://ardentbot.tk";
     public ConcurrentHashMap<String, Boolean> sentAnnouncement = new ConcurrentHashMap<>();
     public String announcement;
-    public int gameCounter = 0;
-    public int matureLanguages = 0;
+    public BotlistUpdater botlistUpdater;
+    public String botsDiscordPwToken;
+    public String discordBotsOrgToken;
+    private int gameCounter = 0;
+    private int matureLanguages = 0;
 
     public Instance() throws Exception {
         String token;
         if (testingBot) {
             token = IOUtils.toString(new FileReader(new File("C:\\Users\\AMR\\Desktop\\Ardent\\v2testtoken.key")));
         }
-        else token = IOUtils.toString(new FileReader(new File("/root/Ardent/v2bottoken.key")));
+        else {
+            token = IOUtils.toString(new FileReader(new File("/root/Ardent/v2bottoken.key")));
+            botsDiscordPwToken = IOUtils.toString(new FileReader(new File("/root/Ardent/botsdiscordpw.key")));
+            discordBotsOrgToken = IOUtils.toString(new FileReader(new File("/root/Ardent/discordbotsorg.key")));
+        }
 
         jda = new JDABuilder(AccountType.BOT)
                 .setEventManager(new AnnotatedEventManager())
@@ -196,6 +202,9 @@ public class Instance {
 
                 // Adding the handler for languages
                 botLanguageData = new BotLanguageData();
+
+                // Instantiate the bot list updater
+                botlistUpdater = new BotlistUpdater();
 
                 languages.stream().filter(lang -> lang.getLanguageStatus() == Language.Status.MATURE).forEach(lang ->
                         matureLanguages++);
@@ -378,6 +387,8 @@ public class Instance {
 
                     if (gameCounter == 3) gameCounter = 0;
                     else gameCounter++;
+
+                    botlistUpdater.run();
                 }, 10, 25, TimeUnit.SECONDS);
 
                 // On hold for a bit

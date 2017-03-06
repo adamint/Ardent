@@ -320,7 +320,8 @@ public class WebServer {
                         else return incorrectArgs;
                     }
                     catch (SQLException ex) {
-                        return "The database returned status code 304 - please try again";
+                        new BotException(ex);
+                        return "The database returned an error which has been logged";
                     }
                 }
                 else return "Incorrect language specified";

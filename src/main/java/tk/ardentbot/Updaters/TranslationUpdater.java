@@ -1,4 +1,4 @@
-package tk.ardentbot.Backend.Translation.Crowdin;
+package tk.ardentbot.Updaters;
 
 import com.crowdin.Credentials;
 import com.crowdin.Crwdn;
@@ -19,7 +19,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.zip.ZipInputStream;
 
-import static tk.ardentbot.Backend.Translation.Crowdin.PhraseUpdater.*;
 import static tk.ardentbot.Main.Ardent.ardent;
 
 /**
@@ -27,7 +26,8 @@ import static tk.ardentbot.Main.Ardent.ardent;
  */
 public class TranslationUpdater implements Runnable {
     private Statement statement = ardent.conn.createStatement();
-    private Credentials credentials = new Credentials(BASE_URL, PROJECT_IDENTIFIER, PROJECT_KEY, ACCOUNT_KEY);
+    private Credentials credentials = new Credentials(PhraseUpdater.BASE_URL, PhraseUpdater.PROJECT_IDENTIFIER,
+            PhraseUpdater.PROJECT_KEY, PhraseUpdater.ACCOUNT_KEY);
     private CrowdinApiClient crwdn = new Crwdn();
 
     public TranslationUpdater() throws SQLException {
