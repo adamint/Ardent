@@ -1,4 +1,4 @@
-package tk.ardentbot.Backend.Translation.Crowdin;
+package tk.ardentbot.Updaters;
 
 import com.crowdin.Credentials;
 import com.crowdin.Crwdn;
@@ -7,6 +7,7 @@ import com.crowdin.parameters.CrowdinApiParametersBuilder;
 import org.apache.commons.io.IOUtils;
 import tk.ardentbot.Backend.Translation.LangFactory;
 import tk.ardentbot.Backend.Translation.Language;
+import tk.ardentbot.Backend.Translation.Phrase;
 import tk.ardentbot.Bot.BotException;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 

@@ -72,7 +72,7 @@ public class Mute extends BotCommand {
                                     muteTime.endsWith("m"))
                             {
                                 try {
-                                    long now = StringUtils.commandeTime(muteTime);
+                                    long now = System.currentTimeMillis() + StringUtils.commandeTime(muteTime);
                                     ardent.botMuteData.mute(mentioned, now, guild.getMember(message.getAuthor()));
                                     String reply = getTranslation("mute", language, "nowmuteduntil").getTranslation()
                                             .replace("{0}", mentioned.getUser().getName())
