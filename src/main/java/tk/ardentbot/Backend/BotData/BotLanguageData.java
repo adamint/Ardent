@@ -26,6 +26,12 @@ public class BotLanguageData {
     }
 
     public Language getLanguage(Guild guild) {
-        return LangFactory.getLanguage(guildLanguages.get(guild.getId()));
+        try {
+            return LangFactory.getLanguage(guildLanguages.get(guild.getId()));
+        }
+        catch (NullPointerException ex) {
+            set(guild, "english");
+            return LangFactory.english;
+        }
     }
 }

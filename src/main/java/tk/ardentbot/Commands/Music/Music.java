@@ -2,11 +2,13 @@ package tk.ardentbot.Commands.Music;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
+import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.managers.AudioManager;
 import tk.ardentbot.Backend.Commands.BotCommand;
 import tk.ardentbot.Backend.Commands.Subcommand;
@@ -233,6 +235,19 @@ public class Music extends BotCommand {
 
     @Override
     public void setupSubcommands() throws Exception {
+        subcommands.add(new Subcommand(this, "resetplayer") {
+            @Override
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
+                               Language language) throws Exception {
+                if (guild.getMember(user).hasPermission(Permission.MANAGE_SERVER)) {
+                    long guildId = Long.parseLong(guild.getId());
+                    ardent.musicManagers.remove(guildId);
+                    ardent.musicManagers.put(guildId, new GuildMusicManager(new DefaultAudioPlayerManager()));
+                    sendRetrievedTranslation(channel, "music", language, "resetplayer");
+                }
+                else sendRetrievedTranslation(channel, "other", language, "needmanageserver");
+            }
+        });
         subcommands.add(new Subcommand(this, "play") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
@@ -257,7 +272,16 @@ public class Music extends BotCommand {
                     }
                     if (implement) {
                         if (shouldDeleteMessage) {
-                            message.delete().queue();
+                            try {
+                                message.delete().queue();
+                            }
+                            catch (PermissionException ex) {
+                                guild.getOwner().getUser().openPrivateChannel().queue(privateChannel -> {
+                                    privateChannel.sendMessage("Auto-deleting music play messages is enabled, " +
+                                            "but you need to give me the `MANAGE MESSAGES` permission so I can " +
+                                            "actually delete the messages.");
+                                });
+                            }
                         }
                     }
                 }

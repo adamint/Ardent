@@ -22,7 +22,13 @@ public class UsageUtils {
         ConcurrentArrayQueue<Command> unsorted = ardent.factory.getCommands();
         ArrayList<Command> commands = new ArrayList<>();
         for (Command c : unsorted) {
-            if (!c.getCommandIdentifier().equalsIgnoreCase("patreon") && !c.getCommandIdentifier().equalsIgnoreCase("translateforardent") && !c.getCommandIdentifier().equalsIgnoreCase("tweet") && !c.getCommandIdentifier().equalsIgnoreCase("eval") && !c.getCommandIdentifier().equalsIgnoreCase("addenglishbase") && !c.getCommandIdentifier().equalsIgnoreCase("help") && !c.getCommandIdentifier().equalsIgnoreCase("admin")) {
+            if (!c.getCommandIdentifier().equalsIgnoreCase("patreon") && !c.getCommandIdentifier().equalsIgnoreCase
+                    ("translateforardent") && !c.getCommandIdentifier().equalsIgnoreCase("tweet") && !c
+                    .getCommandIdentifier().equalsIgnoreCase("eval") && !c.getCommandIdentifier().equalsIgnoreCase
+                    ("addenglishbase") && !c.getCommandIdentifier().equalsIgnoreCase("help") && !c
+                    .getCommandIdentifier().equalsIgnoreCase("manage") && !c.getCommandIdentifier().equalsIgnoreCase
+                    ("admin"))
+            {
                 commands.add(c);
             }
         }
@@ -51,6 +57,7 @@ public class UsageUtils {
                         LinkedHashMap::new
                 ));
     }
+
     public static Map<Guild, Integer> sortedGuildsByCommandUsage(int amount) {
         Map<String, Integer> allValues = sortByValue(Status.commandsByGuild);
         Map<Guild, Integer> finalValues = new LinkedHashMap<>();

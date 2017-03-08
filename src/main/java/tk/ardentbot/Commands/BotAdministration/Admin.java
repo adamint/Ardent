@@ -33,9 +33,9 @@ public class Admin extends BotCommand {
                     TextChannel tch = g.getTextChannelById(Music.textChannels.get(g.getId()));
                     if (tch.canTalk()) {
                         try {
-                            tch.sendMessage(command.getTranslation("other", language, "restartingfiveminutes")
+                            tch.sendMessage(command.getTranslation("music", language, "restartingfiveminutes")
                                     .getTranslation()).queue();
-                            tch.sendMessage(command.getTranslation("other", language, "restartmusic").getTranslation
+                            tch.sendMessage(command.getTranslation("music", language, "restartmusic").getTranslation
                                     ()).complete();
                         }
                         catch (Exception e) {

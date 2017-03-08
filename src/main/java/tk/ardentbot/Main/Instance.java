@@ -69,7 +69,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import static tk.ardentbot.Backend.Translation.LangFactory.languages;
-
 public class Instance {
     public boolean testingBot = false;
     public ScheduledExecutorService executorService = Executors.newScheduledThreadPool(100);
@@ -94,6 +93,7 @@ public class Instance {
     public Command patreon;
     public Command translateForArdent;
     public Command getDevHelp;
+    public Command manage;
     public String url = "https://ardentbot.tk";
     public ConcurrentHashMap<String, Boolean> sentAnnouncement = new ConcurrentHashMap<>();
     public String announcement;
@@ -216,7 +216,8 @@ public class Instance {
                 translateForArdent = new TranslateForArdent(new Command.CommandSettings("translateforardent", true,
                         true, Category.BOTINFO));
                 getDevHelp = new Bug(new Command.CommandSettings("getdevhelp", false, true, Category.BOTINFO));
-
+                manage = new Manage(new Command.CommandSettings("manage", false, true, Category
+                        .BOTADMINISTRATION));
                 // Register tk.ardentbot.Commands
                 factory.registerCommand(new AddEnglishBase(new Command.CommandSettings("addenglishbase", true, true,
                         Category
@@ -230,6 +231,7 @@ public class Instance {
                         .BOTADMINISTRATION)));
                 factory.registerCommand(new Eval(new Command.CommandSettings("eval", true, true, Category
                         .BOTADMINISTRATION)));
+                factory.registerCommand(manage);
 
                 factory.registerCommand(getDevHelp);
                 factory.registerCommand(new Support(new Command.CommandSettings("support", true, true, Category
@@ -348,6 +350,7 @@ public class Instance {
                 AudioSourceManagers.registerLocalSource(playerManager);
 
                 jda.getGuilds().forEach((guild -> {
+                    musicManagers.put(Long.parseLong(guild.getId()), new GuildMusicManager(playerManager));
                     Status.commandsByGuild.put(guild.getId(), 0);
                     cleverbots.put(guild.getId(), cleverBot.createSession());
                     try {
@@ -372,13 +375,13 @@ public class Instance {
                             game = "Join our team! /translateforardent";
                             break;
                         case 1:
-                            game = "Serving " + Status.getUserAmount() + " users";
+                            game = "serving " + Status.getUserAmount() + " users";
                             break;
                         case 2:
-                            game = "Serving " + jda.getGuilds().size() + " guilds";
+                            game = "serving " + jda.getGuilds().size() + " guilds";
                             break;
                         case 3:
-                            game = "Music for " + Status.getVoiceConnections() + " servers!";
+                            game = "music for " + Status.getVoiceConnections() + " servers!";
                             break;
                         default:
                             game = "with many languages";
