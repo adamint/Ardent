@@ -5,13 +5,13 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 
 public class GuildMusicManager {
     /**
+     * Track scheduler for the player.
+     */
+    public final TrackScheduler scheduler;
+    /**
      * Audio player for the guild.
      */
     final AudioPlayer player;
-    /**
-     * Track scheduler for the player.
-     */
-    final TrackScheduler scheduler;
 
     /**
      * Creates a player and a track scheduler.

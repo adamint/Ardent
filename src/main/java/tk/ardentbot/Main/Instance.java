@@ -22,7 +22,6 @@ import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.hooks.AnnotatedEventManager;
-import net.dv8tion.jda.core.utils.SimpleLog;
 import org.apache.commons.io.IOUtils;
 import tk.ardentbot.Backend.BotData.BotLanguageData;
 import tk.ardentbot.Backend.BotData.BotMuteData;
@@ -47,6 +46,7 @@ import tk.ardentbot.Events.Join;
 import tk.ardentbot.Events.Leave;
 import tk.ardentbot.Events.OnMessage;
 import tk.ardentbot.Updaters.BotlistUpdater;
+import tk.ardentbot.Updaters.GuildDaemon;
 import tk.ardentbot.Updaters.PhraseUpdater;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.SQL.MuteDaemon;
@@ -273,6 +273,8 @@ public class Instance {
                         .GUILDADMINISTRATION)));
                 factory.registerCommand(new GuildLanguage(new Command.CommandSettings("language", false, true,
                         Category.GUILDADMINISTRATION)));
+                factory.registerCommand(new Iam(new Command.CommandSettings("iam", false, true,
+                        Category.GUILDADMINISTRATION)));
                 factory.registerCommand(new Setnickname(new Command.CommandSettings("setnickname", false, true,
                         Category.GUILDADMINISTRATION)));
                 factory.registerCommand(new Prune(new Command.CommandSettings("prune", false, true, Category
@@ -326,7 +328,6 @@ public class Instance {
                                 default:
                                     new BotException("Something went wrong in staff parsing for {0}".replace("{0}",
                                             id));
-
                             }
                         }
                         getStaff.close();
@@ -336,8 +337,7 @@ public class Instance {
                     }
                 }, 1, 60, TimeUnit.SECONDS);
 
-
-                botLogs = jda.getTextChannelById("272865411471638528");
+                botLogs = jda.getTextChannelById("270572632343183361");
 
                 musicManagers = new HashMap<>();
 
@@ -353,19 +353,6 @@ public class Instance {
                 jda.getGuilds().forEach((guild -> {
                     Status.commandsByGuild.put(guild.getId(), 0);
                     cleverbots.put(guild.getId(), cleverBot.createSession());
-                    try {
-                        DatabaseAction getGuild = new DatabaseAction("SELECT * FROM Guilds WHERE GuildID=?")
-                                .set(guild.getId());
-                        ResultSet isGuildIn = getGuild.request();
-                        if (!isGuildIn.next()) {
-                            new DatabaseAction("INSERT INTO Guilds VALUES (?,?,?)").set(guild.getId())
-                                    .set("english").set("/").update();
-                        }
-                        getGuild.close();
-                    }
-                    catch (SQLException e) {
-                        new BotException(e);
-                    }
                 }));
 
                 executorService.scheduleAtFixedRate(() -> {
@@ -398,6 +385,9 @@ public class Instance {
                 // PhraseUpdater phraseUpdater = new PhraseUpdater();
                 // TranslationUpdater translationUpdater = new TranslationUpdater();
 
+                GuildDaemon guildDaemon = new GuildDaemon();
+                executorService.scheduleAtFixedRate(guildDaemon, 1, 5, TimeUnit.SECONDS);
+
                 MuteDaemon muteDaemon = new MuteDaemon();
                 executorService.scheduleAtFixedRate(muteDaemon, 1, 5, TimeUnit.SECONDS);
 
@@ -414,8 +404,6 @@ public class Instance {
                 ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory
                         .getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
                 root.setLevel(Level.OFF);
-
-                SimpleLog.LEVEL = SimpleLog.Level.ALL;
             }
             catch (Exception ex) {
                 new BotException(ex);

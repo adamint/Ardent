@@ -26,12 +26,12 @@ public class Automessage extends BotCommand {
         super(commandSettings);
     }
 
-    public static void check(Guild guild) throws SQLException {
+    private static void check(Guild guild) throws SQLException {
         DatabaseAction selectAutomessage = new DatabaseAction("SELECT * FROM Automessages WHERE GuildID=?")
                 .set(guild.getId());
         ResultSet set = selectAutomessage.request();
         if (!set.next()) {
-            new DatabaseAction("INSERT INTO Automessages VALUES (?,?,?,?").set(guild.getId()).set("000")
+            new DatabaseAction("INSERT INTO Automessages VALUES (?,?,?,?)").set(guild.getId()).set("000")
                     .set("000").set("000").update();
         }
         selectAutomessage.close();

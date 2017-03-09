@@ -96,8 +96,6 @@ public class Status extends BotCommand {
 
         EmbedBuilder embedBuilder = MessageUtils.getDefaultEmbed(guild, user, this);
 
-        int amtConnections = getVoiceConnections();
-
         embedBuilder.setAuthor(translations.get(0).getTranslation(), "https://ardentbot.tk", ardent.bot
                 .getAvatarUrl());
         embedBuilder.setThumbnail("https://a.dryicons.com/images/icon_sets/polygon_icons/png/256x256/computer.png");
@@ -111,7 +109,7 @@ public class Status extends BotCommand {
         embedBuilder.addField(translations.get(4).getTranslation(), cmds, true);
 
         embedBuilder.addField(translations.get(5).getTranslation(), String.valueOf(jda.getGuilds().size()), true);
-        embedBuilder.addField(translations.get(6).getTranslation(), String.valueOf(amtConnections), true);
+        embedBuilder.addField(translations.get(6).getTranslation(), String.valueOf(countCurrentlyPlaying()), true);
 
         embedBuilder.addField(translations.get(7).getTranslation(), cpuFormat.format(cpuUsage) + "%", true);
         embedBuilder.addField(translations.get(8).getTranslation(), usedRAM + " / " + totalRAM + " MB", true);
@@ -126,4 +124,12 @@ public class Status extends BotCommand {
 
     @Override
     public void setupSubcommands() {}
+
+    public int countCurrentlyPlaying() {
+        final int[] playing = {0};
+        ardent.musicManagers.forEach((id, guildMusicManager) -> {
+            if (guildMusicManager.scheduler.manager.isTrackCurrentlyPlaying()) playing[0]++;
+        });
+        return playing[0];
+    }
 }

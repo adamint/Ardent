@@ -58,7 +58,7 @@ public class Translate extends BotCommand {
     public static ArrayList<Pair<String, String>> getCommandDiscrepancies(Language language) throws SQLException {
         ArrayList<Pair<String, String>> discrepanciesInEnglish = new ArrayList<>();
         ArrayList<Triplet<String, String, String>> englishTranslations = new ArrayList<>();
-        DatabaseAction getTranslations = new DatabaseAction("SELECT * FROM Translations WHERE Language=?")
+        DatabaseAction getTranslations = new DatabaseAction("SELECT * FROM Commands WHERE Language=?")
                 .set("english");
         ResultSet translations = getTranslations.request();
         while (translations.next()) {

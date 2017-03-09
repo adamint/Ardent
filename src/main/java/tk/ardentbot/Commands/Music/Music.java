@@ -2,7 +2,6 @@ package tk.ardentbot.Commands.Music;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
-import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -18,7 +17,6 @@ import tk.ardentbot.Backend.Translation.TranslationResponse;
 import tk.ardentbot.Bot.BotException;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
-import tk.ardentbot.Utils.Tuples.Pair;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -51,11 +49,11 @@ public class Music extends BotCommand {
     }
 
     private static void play(User user, Guild guild, VoiceChannel channel, GuildMusicManager musicManager, AudioTrack
-            track) {
+            track, TextChannel textChannel) {
         if (guild.getAudioManager().getConnectedChannel() == null) {
             guild.getAudioManager().openAudioConnection(channel);
         }
-        musicManager.scheduler.queue(user, track);
+        musicManager.scheduler.manager.addToQueue(new ArdentTrack(user.getId(), textChannel, track));
     }
 
     private static void loadAndPlay(User user, BotCommand command, Language language, final TextChannel channel,
@@ -90,7 +88,7 @@ public class Music extends BotCommand {
                 catch (Exception e) {
                     new BotException(e);
                 }
-                play(user, guild, voiceChannel, musicManager, track);
+                play(user, guild, voiceChannel, musicManager, track, channel);
             }
 
             @Override
@@ -107,7 +105,7 @@ public class Music extends BotCommand {
                 catch (Exception e) {
                     new BotException(e);
                 }
-                play(user, guild, voiceChannel, musicManager, firstTrack);
+                play(user, guild, voiceChannel, musicManager, firstTrack, channel);
             }
 
             @Override
@@ -129,7 +127,6 @@ public class Music extends BotCommand {
             public void loadFailed(FriendlyException exception) {
                 try {
                     command.sendRetrievedTranslation(channel, "music", language, "notabletoplay");
-                    new BotException(exception);
                 }
                 catch (Exception e) {
                     new BotException(e);
@@ -240,10 +237,16 @@ public class Music extends BotCommand {
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
                 if (guild.getMember(user).hasPermission(Permission.MANAGE_SERVER)) {
-                    long guildId = Long.parseLong(guild.getId());
-                    ardent.musicManagers.remove(guildId);
-                    ardent.musicManagers.put(guildId, new GuildMusicManager(new DefaultAudioPlayerManager()));
-                    sendRetrievedTranslation(channel, "music", language, "resetplayer");
+                    AudioManager audioManager = guild.getAudioManager();
+                    Member member = guild.getMember(user);
+                    if (GuildUtils.hasManageServerPermission(member)) {
+                        if (audioManager.isConnected()) {
+                            audioManager.closeAudioConnection();
+                            sendRetrievedTranslation(channel, "music", language, "resetplayer");
+                        }
+                        else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel");
+                    }
+                    else sendRetrievedTranslation(channel, "other", language, "needmanageserver");
                 }
                 else sendRetrievedTranslation(channel, "other", language, "needmanageserver");
             }
@@ -289,6 +292,23 @@ public class Music extends BotCommand {
             }
         });
 
+        subcommands.add(new Subcommand(this, "config") {
+            @Override
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
+                               Language language) throws Exception {
+                DatabaseAction action = new DatabaseAction("SELECT * FROM MusicSettings WHERE GuildID=?").set(guild
+                        .getId());
+                ResultSet set = action.request();
+                if (set.next()) {
+                    sendTranslatedMessage("**Music Settings**\n" + "Delete music play messages: " + set.getBoolean
+                            ("RemoveAdditionMessages"), channel);
+                }
+                else
+                    sendTranslatedMessage("Your guild has no set music settings! Type **/manage** to find your portal" +
+                            " link", channel);
+            }
+        });
+
         subcommands.add(new Subcommand(this, "queue") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
@@ -301,14 +321,15 @@ public class Music extends BotCommand {
                 StringBuilder sb = new StringBuilder();
                 String queuedBy = response.get(1).getTranslation();
                 sb.append("__" + response.get(0).getTranslation() + "__\n");
-                BlockingQueue<Pair<String, AudioTrack>> queue = getGuildAudioPlayer(guild).scheduler.getQueue();
-                Iterator<Pair<String, AudioTrack>> iterator = queue.iterator();
+                BlockingQueue<ArdentTrack> queue = getGuildAudioPlayer(guild).scheduler.manager.getQueue();
+                Iterator<ArdentTrack> iterator = queue.iterator();
                 int current = 1;
                 while (iterator.hasNext()) {
-                    Pair<String, AudioTrack> pair = iterator.next();
-                    AudioTrack track = pair.getV();
+                    ArdentTrack ardentTrack = iterator.next();
+                    AudioTrack track = ardentTrack.getTrack();
                     sb.append("#" + current + ": " + track.getInfo().title + ": " + track.getInfo().author + " " +
-                            getDuration(track) + "\n     *" + queuedBy + " " + ardent.jda.getUserById(pair.getK())
+                            getDuration(track) + "\n     *" + queuedBy + " " + ardent.jda.getUserById(ardentTrack
+                            .getAuthor())
                             .getName()
                             + "*\n");
                     current++;
@@ -332,7 +353,7 @@ public class Music extends BotCommand {
                         String ownerId = manager.scheduler.ownerOfNowPlaying;
                         if (ownerId == null) ownerId = "";
                         if (GuildUtils.hasManageServerPermission(member) || (user.getId().equalsIgnoreCase(ownerId))) {
-                            manager.scheduler.nextTrack();
+                            manager.scheduler.manager.nextTrack();
                             sendRetrievedTranslation(channel, "music", language, "skippedcurrent");
                         }
                         else sendRetrievedTranslation(channel, "music", language, "queuedorhavepermissions");
@@ -351,22 +372,22 @@ public class Music extends BotCommand {
                 if (audioManager.isConnected()) {
                     try {
                         GuildMusicManager manager = getGuildAudioPlayer(guild);
-                        BlockingQueue<Pair<String, AudioTrack>> queue = manager.scheduler.getQueue();
+                        BlockingQueue<ArdentTrack> queue = manager.scheduler.manager.getQueue();
                         int numberToRemove = Integer.parseInt(args[2]) - 1;
                         if (numberToRemove > queue.size() || numberToRemove < 0)
                             sendRetrievedTranslation(channel, "tag", language, "invalidarguments");
                         else {
-                            Iterator<Pair<String, AudioTrack>> iterator = queue.iterator();
+                            Iterator<ArdentTrack> iterator = queue.iterator();
                             int current = 0;
                             while (iterator.hasNext()) {
-                                Pair<String, AudioTrack> pair = iterator.next();
-                                AudioTrack track = pair.getV();
+                                ArdentTrack ardentTrack = iterator.next();
+                                AudioTrack track = ardentTrack.getTrack();
                                 String name = track.getInfo().title;
                                 if (current == numberToRemove) {
-                                    if (GuildUtils.hasManageServerPermission(member) || pair.getK().equalsIgnoreCase
-                                            (user.getId()))
+                                    if (GuildUtils.hasManageServerPermission(member) || ardentTrack.getAuthor()
+                                            .equalsIgnoreCase(user.getId()))
                                     {
-                                        queue.remove(pair);
+                                        queue.remove(ardentTrack);
                                         sendTranslatedMessage(getTranslation("music", language, "removedfromqueue")
                                                 .getTranslation().replace("{0}", name), channel);
                                     }
@@ -437,7 +458,7 @@ public class Music extends BotCommand {
                     if (audioManager.isConnected()) {
                         GuildMusicManager manager = getGuildAudioPlayer(guild);
                         if (manager.player.getPlayingTrack() != null) manager.player.stopTrack();
-                        manager.scheduler.resetQueue();
+                        manager.scheduler.manager.resetQueue();
                         sendRetrievedTranslation(channel, "music", language, "stoppedandcleared");
                     }
                     else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel");
@@ -456,7 +477,7 @@ public class Music extends BotCommand {
                 if (GuildUtils.hasManageServerPermission(member)) {
                     if (audioManager.isConnected()) {
                         GuildMusicManager manager = getGuildAudioPlayer(guild);
-                        manager.scheduler.resetQueue();
+                        manager.scheduler.manager.resetQueue();
                         sendRetrievedTranslation(channel, "music", language, "clearedallsongs");
                     }
                     else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel");
@@ -494,7 +515,7 @@ public class Music extends BotCommand {
                 if (GuildUtils.hasManageServerPermission(member)) {
                     if (audioManager.isConnected()) {
                         GuildMusicManager manager = getGuildAudioPlayer(guild);
-                        manager.scheduler.shuffle();
+                        manager.scheduler.manager.shuffle();
                         sendTranslatedMessage("Shuffled the queue!", channel);
                     }
                     else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel");
@@ -538,7 +559,7 @@ public class Music extends BotCommand {
 
                             GuildMusicManager guildMusicManager = getGuildAudioPlayer(guild);
                             TrackScheduler trackScheduler = guildMusicManager.scheduler;
-                            BlockingQueue<Pair<String, AudioTrack>> queue = trackScheduler.getQueue();
+                            BlockingQueue<ArdentTrack> queue = trackScheduler.manager.getQueue();
                             int amountOfTracks = queue.size();
 
                             if (songsToLoop < 0 || songsToLoop > amountOfTracks) {
@@ -550,14 +571,15 @@ public class Music extends BotCommand {
                                 }
                                 else {
                                     ArrayList<AudioTrack> tracksToLoop = new ArrayList<>();
-                                    Iterator<Pair<String, AudioTrack>> trackIterator = queue.iterator();
+                                    Iterator<ArdentTrack> trackIterator = queue.iterator();
                                     for (int i = 0; i < songsToLoop; i++) {
-                                        Pair<String, AudioTrack> track = trackIterator.next();
-                                        tracksToLoop.add(track.getV());
+                                        ArdentTrack ardentTrack = trackIterator.next();
+                                        tracksToLoop.add(ardentTrack.getTrack());
                                     }
                                     for (int i = 0; i < amountOfTimes; i++) {
                                         tracksToLoop.forEach(track -> {
-                                            trackScheduler.queue(user, track.makeClone());
+                                            trackScheduler.manager.addToQueue(new ArdentTrack(user.getId(),
+                                                    (TextChannel) channel, track.makeClone()));
                                         });
                                     }
                                     sendTranslatedMessage(getTranslation("music", language, "addedtheloop")
@@ -585,7 +607,7 @@ public class Music extends BotCommand {
                     List<User> mentionedUsers = message.getMentionedUsers();
                     if (mentionedUsers.size() == 1) {
                         User deleteFrom = mentionedUsers.get(0);
-                        getGuildAudioPlayer(guild).scheduler.removeFrom(deleteFrom);
+                        getGuildAudioPlayer(guild).scheduler.manager.removeFrom(deleteFrom);
 
                         sendTranslatedMessage(getTranslation("music", language, "deletealltracksfrom").getTranslation()
                                 .replace("{0}", deleteFrom.getName()), channel);
