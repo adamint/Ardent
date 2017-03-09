@@ -22,6 +22,7 @@ import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.hooks.AnnotatedEventManager;
+import net.dv8tion.jda.core.utils.SimpleLog;
 import org.apache.commons.io.IOUtils;
 import tk.ardentbot.Backend.BotData.BotLanguageData;
 import tk.ardentbot.Backend.BotData.BotMuteData;
@@ -350,7 +351,6 @@ public class Instance {
                 AudioSourceManagers.registerLocalSource(playerManager);
 
                 jda.getGuilds().forEach((guild -> {
-                    musicManagers.put(Long.parseLong(guild.getId()), new GuildMusicManager(playerManager));
                     Status.commandsByGuild.put(guild.getId(), 0);
                     cleverbots.put(guild.getId(), cleverBot.createSession());
                     try {
@@ -414,6 +414,8 @@ public class Instance {
                 ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory
                         .getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
                 root.setLevel(Level.OFF);
+
+                SimpleLog.LEVEL = SimpleLog.Level.ALL;
             }
             catch (Exception ex) {
                 new BotException(ex);

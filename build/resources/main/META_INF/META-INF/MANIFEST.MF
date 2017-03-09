@@ -15,7 +15,7 @@ Class-Path: jackson-xc-1.9.2.jar jetty-security-9.3.6.v20151106.jar st
  .6.jar activation-1.1.jar spark-core-2.5.5.jar jcip-annotations-1.0.j
  ar jetty-webapp-9.3.6.v20151106.jar jackson-annotations-2.8.0.jar log
  back-core-1.1.2.jar okio-1.11.0.jar giphy4j-1.0.1.jar JDA-3.0.BETA2_1
- 43.jar log4j-core-2.5.jar logback-classic-1.1.2.jar websocket-servlet
+ 46.jar log4j-core-2.5.jar logback-classic-1.1.2.jar websocket-servlet
  -9.3.6.v20151106.jar yandex-translate-api-1.2.4.jar websocket-common-
  9.3.6.v20151106.jar jersey-json-1.19.1.jar jackson-databind-2.8.6.jar
   httpcore-4.4.4.jar mockito-all-1.10.19.jar nv-websocket-client-1.30.
@@ -24,7 +24,7 @@ Class-Path: jackson-xc-1.9.2.jar jetty-security-9.3.6.v20151106.jar st
  jar twitter4j-core-4.0.6.jar jna-4.2.2.jar gson-2.8.0.jar antlr4-runt
  ime-4.5.1-1.jar commons-codec-1.9.jar handlebars-4.0.6.jar httpmime-4
  .5.2.jar jackson-core-asl-1.9.2.jar udp-queue-1.0.4.jar commons-io-2.
- 5.jar jda-nas-1.0.3.jar groovy-jsr223-2.4.9.jar lavaplayer-1.2.25.jar
+ 5.jar jda-nas-1.0.3.jar groovy-jsr223-2.4.9.jar lavaplayer-1.2.29.jar
   groovy-2.4.9.jar emoji-java-3.2.0.jar jsoup-1.10.2.jar crowdin-java-
  sdk-v1.0.1.jar lavaplayer-common-1.0.4.jar exp4j-0.4.8.jar unirest-ja
  va-1.4.9.jar rhino-1.7R4.jar jetty-util-9.3.6.v20151106.jar commons-i

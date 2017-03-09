@@ -35,8 +35,6 @@ public class Admin extends BotCommand {
                         try {
                             tch.sendMessage(command.getTranslation("music", language, "restartingfiveminutes")
                                     .getTranslation()).queue();
-                            tch.sendMessage(command.getTranslation("music", language, "restartmusic").getTranslation
-                                    ()).complete();
                         }
                         catch (Exception e) {
                             new BotException(e);
