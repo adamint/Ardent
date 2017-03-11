@@ -7,6 +7,7 @@ import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.Backend.Commands.BotCommand;
 import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Bot.BotException;
+import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.UsageUtils;
 
@@ -53,7 +54,7 @@ public class Admin extends BotCommand {
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
             language) throws Exception {
-        if (ardent.developers.contains(user.getId())) {
+        if (Ardent.developers.contains(user.getId())) {
             if (args.length > 1) {
                 if (args[1].equalsIgnoreCase("update")) {
                     update(this, language, channel);

@@ -12,6 +12,7 @@ import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Backend.Translation.Translation;
 import tk.ardentbot.Backend.Translation.TranslationResponse;
 import tk.ardentbot.Commands.Music.Music;
+import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.Discord.MessageUtils;
 import tk.ardentbot.Utils.Tuples.Pair;
 
@@ -58,10 +59,10 @@ public class Status extends BotCommand {
         double usedRAM = totalRAM - Runtime.getRuntime().freeMemory() / 1024 / 1024;
 
         StringBuilder devUsernames = new StringBuilder();
-        for (int i = 0; i < ardent.developers.size(); i++) {
-            User current = jda.getUserById(ardent.developers.get(i));
+        for (int i = 0; i < Ardent.developers.size(); i++) {
+            User current = jda.getUserById(Ardent.developers.get(i));
             devUsernames.append(current.getName() + "#" + current.getDiscriminator());
-            if (i < (ardent.developers.size() - 1)) devUsernames.append(", ");
+            if (i < (Ardent.developers.size() - 1)) devUsernames.append(", ");
         }
 
         Translation title = new Translation("status", "title");

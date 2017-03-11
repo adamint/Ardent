@@ -9,6 +9,7 @@ import net.dv8tion.jda.core.requests.RestAction;
 import org.apache.commons.lang3.tuple.Triple;
 import tk.ardentbot.Backend.Commands.BotCommand;
 import tk.ardentbot.Backend.Translation.Language;
+import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.Engine;
 
@@ -26,7 +27,7 @@ public class Eval extends BotCommand {
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
             language) throws Exception {
-        if (ardent.developers.contains(user.getId())) {
+        if (Ardent.developers.contains(user.getId())) {
             if (args.length == 1) channel.sendMessage("Use " + args[0] + " (code) to evaluate stuff");
             else {
                 String content = message.getContent().replace(GuildUtils.getPrefix(guild) + args[0] + " ", "");

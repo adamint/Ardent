@@ -5,6 +5,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import tk.ardentbot.Backend.Translation.LangFactory;
 import tk.ardentbot.Backend.Translation.Language;
+import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.UsageUtils;
 
@@ -31,7 +32,7 @@ public class GuildUtils {
     public static String getPrefix(Guild guild) throws Exception {
         if (guild == null) return "/";
         else {
-            String prefix = null;
+            String prefix;
             DatabaseAction action = new DatabaseAction("SELECT * FROM Guilds WHERE GuildID=?").set(guild.getId());
             ResultSet set = action.request();
             if (set.next()) {
@@ -58,7 +59,7 @@ public class GuildUtils {
     public static Language getLanguage(Guild guild) throws Exception {
         if (guild == null) return LangFactory.english;
         else {
-            Language language = null;
+            Language language;
             DatabaseAction action = new DatabaseAction("SELECT * FROM Guilds WHERE GuildID=?").set(guild.getId());
             ResultSet set = action.request();
             if (set.next()) {
@@ -76,7 +77,7 @@ public class GuildUtils {
     }
 
     public static boolean hasManageServerPermission(Member member) {
-        return member.hasPermission(Permission.MANAGE_SERVER) || ardent.developers.contains(member.getUser().getId());
+        return member.hasPermission(Permission.MANAGE_SERVER) || Ardent.developers.contains(member.getUser().getId());
     }
 
 }

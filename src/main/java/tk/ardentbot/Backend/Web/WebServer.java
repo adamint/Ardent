@@ -9,6 +9,7 @@ import tk.ardentbot.Backend.Web.Models.Command;
 import tk.ardentbot.Backend.Web.Models.Status;
 import tk.ardentbot.Backend.Web.Models.User;
 import tk.ardentbot.Bot.BotException;
+import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.Tuples.Pair;
 import tk.ardentbot.Utils.Tuples.Quintet;
@@ -54,7 +55,7 @@ public class WebServer {
 
         get("/api/staff", (rq, rs) -> {
             ArrayList<User> developers = new ArrayList<>();
-            for (String id : ardent.developers) {
+            for (String id : Ardent.developers) {
                 net.dv8tion.jda.core.entities.User user = ardent.jda.getUserById(id);
                 String avatarUrl = user.getAvatarUrl();
                 if (avatarUrl == null) avatarUrl = getDefaultImage();
@@ -62,7 +63,7 @@ public class WebServer {
                 developers.add(new User(id, user.getName(), user.getDiscriminator(), avatarUrl, "developer"));
             }
             ArrayList<User> translators = new ArrayList<>();
-            for (String id : ardent.translators) {
+            for (String id : Ardent.translators) {
                 net.dv8tion.jda.core.entities.User user = ardent.jda.getUserById(id);
                 String avatarUrl = user.getAvatarUrl();
                 if (avatarUrl == null) avatarUrl = getDefaultImage();
@@ -183,7 +184,7 @@ public class WebServer {
                 "/languagecode";
         String[] splats = rq.splat();
         if (splats.length == 3) {
-            if (ardent.translators.contains(String.valueOf(Long.valueOf(splats[0]) + 4))) {
+            if (Ardent.translators.contains(String.valueOf(Long.valueOf(splats[0])))) {
                 Language language = LangFactory.getLanguage(splats[2]);
                 if (language != null) {
                     try (Statement statement = ardent.conn.createStatement()) {

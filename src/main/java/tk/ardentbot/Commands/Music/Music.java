@@ -17,6 +17,7 @@ import tk.ardentbot.Backend.Translation.Translation;
 import tk.ardentbot.Backend.Translation.TranslationResponse;
 import tk.ardentbot.Bot.BotException;
 import tk.ardentbot.Utils.Discord.GuildUtils;
+import tk.ardentbot.Utils.Discord.UserUtils;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.Tuples.Pair;
 
@@ -32,9 +33,6 @@ import java.util.concurrent.TimeUnit;
 import static tk.ardentbot.Main.Ardent.ardent;
 
 public class Music extends BotCommand {
-
-    public static HashMap<String, String> textChannels = new HashMap<>();
-
     public Music(CommandSettings commandSettings) {
         super(commandSettings);
     }
@@ -77,7 +75,6 @@ public class Music extends BotCommand {
     private static void loadAndPlay(User user, BotCommand command, Language language, final TextChannel channel,
                                     String trackUrl, final VoiceChannel voiceChannel, boolean search) {
         Guild guild = channel.getGuild();
-        textChannels.put(guild.getId(), channel.getId());
         GuildMusicManager musicManager = getGuildAudioPlayer(channel.getGuild());
         if (trackUrl.contains("watch?v=") && !search) {
             String[] parsed = trackUrl.split("watch\\?v=");
@@ -182,20 +179,24 @@ public class Music extends BotCommand {
                     GuildMusicManager manager = getGuildAudioPlayer(guild);
                     GuildVoiceState voiceState = guild.getSelfMember().getVoiceState();
                     if (voiceState.inVoiceChannel()) {
-                        TextChannel channel = guild.getTextChannelById(textChannels.get(guild.getId()));
-                        VoiceChannel voiceChannel = voiceState.getChannel();
-                        Language language = GuildUtils.getLanguage(guild);
-                        AudioPlayer player = manager.player;
-                        if (voiceState.isGuildMuted()) {
-                            ardent.help.sendRetrievedTranslation(channel,
-                                    "music", language,
-                                    "mutedinchannelpausingnow");
-                            player.setPaused(true);
-                        }
-                        if (voiceChannel.getMembers().size() == 1) {
-                            ardent.help.sendTranslatedMessage(ardent.help.getTranslation("music", language, "leftbcnic")
-                                    .getTranslation().replace("{0}", voiceChannel.getName()), channel);
-                            guild.getAudioManager().closeAudioConnection();
+                        TextChannel channel = guild.getPublicChannel();
+                        if (channel.canTalk()) {
+                            VoiceChannel voiceChannel = voiceState.getChannel();
+                            Language language = GuildUtils.getLanguage(guild);
+                            AudioPlayer player = manager.player;
+                            if (voiceState.isGuildMuted()) {
+                                ardent.help.sendRetrievedTranslation(channel,
+                                        "music", language,
+                                        "mutedinchannelpausingnow");
+                                player.setPaused(true);
+                            }
+                            if (voiceChannel.getMembers().size() == 1) {
+                                ardent.help.sendTranslatedMessage(ardent.help.getTranslation("music", language,
+                                        "leftbcnic")
+
+                                        .getTranslation().replace("{0}", voiceChannel.getName()), channel);
+                                guild.getAudioManager().closeAudioConnection();
+                            }
                         }
                     }
                 }
@@ -250,23 +251,35 @@ public class Music extends BotCommand {
 
     @Override
     public void setupSubcommands() throws Exception {
-        subcommands.add(new Subcommand(this, "resetplayer") {
+        subcommands.add(new Subcommand(this, "volume") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
-                if (guild.getMember(user).hasPermission(Permission.MANAGE_SERVER)) {
-                    AudioManager audioManager = guild.getAudioManager();
-                    Member member = guild.getMember(user);
-                    if (GuildUtils.hasManageServerPermission(member)) {
-                        if (audioManager.isConnected()) {
-                            audioManager.closeAudioConnection();
-                            sendRetrievedTranslation(channel, "music", language, "resetplayer");
-                        }
-                        else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel");
+                AudioManager audioManager = guild.getAudioManager();
+                if (audioManager.isConnected()) {
+                    GuildMusicManager guildMusicManager = getGuildAudioPlayer(guild);
+                    AudioPlayer player = guildMusicManager.player;
+                    if (args.length == 2) {
+                        sendTranslatedMessage(getTranslation("music", language, "currentplayervolume").getTranslation
+                                ().replace("{0}", String.valueOf(player.getVolume())), channel);
                     }
-                    else sendRetrievedTranslation(channel, "other", language, "needmanageserver");
+                    else {
+                        if (UserUtils.isPatron(user)) {
+                            try {
+                                int volume = Integer.parseInt(args[2]);
+                                player.setVolume(volume);
+                                sendTranslatedMessage(getTranslation("music", language, "setplayervolume")
+                                        .getTranslation()
+                                        .replace("{0}", String.valueOf(volume)), channel);
+                            }
+                            catch (NumberFormatException ex) {
+                                sendRetrievedTranslation(channel, "prune", language, "notanumber");
+                            }
+                        }
+                        else sendRetrievedTranslation(channel, "other", language, "mustbestafforpatron");
+                    }
                 }
-                else sendRetrievedTranslation(channel, "other", language, "needmanageserver");
+                else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel");
             }
         });
         subcommands.add(new Subcommand(this, "play") {
@@ -387,42 +400,47 @@ public class Music extends BotCommand {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
-                AudioManager audioManager = guild.getAudioManager();
-                Member member = guild.getMember(user);
-                if (audioManager.isConnected()) {
-                    try {
-                        GuildMusicManager manager = getGuildAudioPlayer(guild);
-                        BlockingQueue<ArdentTrack> queue = manager.scheduler.manager.getQueue();
-                        int numberToRemove = Integer.parseInt(args[2]) - 1;
-                        if (numberToRemove > queue.size() || numberToRemove < 0)
-                            sendRetrievedTranslation(channel, "tag", language, "invalidarguments");
-                        else {
-                            Iterator<ArdentTrack> iterator = queue.iterator();
-                            int current = 0;
-                            while (iterator.hasNext()) {
-                                ArdentTrack ardentTrack = iterator.next();
-                                AudioTrack track = ardentTrack.getTrack();
-                                String name = track.getInfo().title;
-                                if (current == numberToRemove) {
-                                    if (GuildUtils.hasManageServerPermission(member) || ardentTrack.getAuthor()
-                                            .equalsIgnoreCase(user.getId()))
-                                    {
-                                        queue.remove(ardentTrack);
-                                        sendTranslatedMessage(getTranslation("music", language, "removedfromqueue")
-                                                .getTranslation().replace("{0}", name), channel);
+                if (args.length > 2) {
+                    AudioManager audioManager = guild.getAudioManager();
+                    Member member = guild.getMember(user);
+                    if (audioManager.isConnected()) {
+                        try {
+                            GuildMusicManager manager = getGuildAudioPlayer(guild);
+                            BlockingQueue<ArdentTrack> queue = manager.scheduler.manager.getQueue();
+                            int numberToRemove = Integer.parseInt(args[2]) - 1;
+                            if (numberToRemove > queue.size() || numberToRemove < 0)
+                                sendRetrievedTranslation(channel, "tag", language, "invalidarguments");
+                            else {
+                                Iterator<ArdentTrack> iterator = queue.iterator();
+                                int current = 0;
+                                while (iterator.hasNext()) {
+                                    ArdentTrack ardentTrack = iterator.next();
+                                    AudioTrack track = ardentTrack.getTrack();
+                                    String name = track.getInfo().title;
+                                    if (current == numberToRemove) {
+                                        if (GuildUtils.hasManageServerPermission(member) || ardentTrack.getAuthor()
+                                                .equalsIgnoreCase(user.getId()))
+                                        {
+                                            queue.remove(ardentTrack);
+                                            sendTranslatedMessage(getTranslation("music", language, "removedfromqueue")
+                                                    .getTranslation().replace("{0}", name), channel);
+                                        }
+                                        else
+                                            sendRetrievedTranslation(channel, "music", language,
+                                                    "queuedorhavepermissions");
+
                                     }
-                                    else
-                                        sendRetrievedTranslation(channel, "music", language, "queuedorhavepermissions");
+                                    current++;
                                 }
-                                current++;
                             }
                         }
+                        catch (NumberFormatException ex) {
+                            sendRetrievedTranslation(channel, "tag", language, "invalidarguments");
+                        }
                     }
-                    catch (NumberFormatException ex) {
-                        sendRetrievedTranslation(channel, "tag", language, "invalidarguments");
-                    }
+                    else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel");
                 }
-                else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel");
+                else sendRetrievedTranslation(channel, "prune", language, "notanumber");
             }
         });
 
@@ -659,6 +677,25 @@ public class Music extends BotCommand {
                     else sendRetrievedTranslation(channel, "music", language, "queuedorhavepermissions");
                 }
                 else sendRetrievedTranslation(channel, "music", language, "notplayingrn");
+            }
+        });
+        subcommands.add(new Subcommand(this, "resetplayer") {
+            @Override
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
+                               Language language) throws Exception {
+                if (guild.getMember(user).hasPermission(Permission.MANAGE_SERVER)) {
+                    AudioManager audioManager = guild.getAudioManager();
+                    Member member = guild.getMember(user);
+                    if (GuildUtils.hasManageServerPermission(member)) {
+                        if (audioManager.isConnected()) {
+                            audioManager.closeAudioConnection();
+                            sendRetrievedTranslation(channel, "music", language, "resetplayer");
+                        }
+                        else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel");
+                    }
+                    else sendRetrievedTranslation(channel, "other", language, "needmanageserver");
+                }
+                else sendRetrievedTranslation(channel, "other", language, "needmanageserver");
             }
         });
     }
