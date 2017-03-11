@@ -391,7 +391,7 @@ public class Music extends Command {
                     if (track != null) {
                         String ownerId = track.getAuthor();
                         if (ownerId == null) ownerId = "";
-                        if (GuildUtils.hasManageServerPermission(member) || (user.getId().equalsIgnoreCase(ownerId))) {
+                        if (UserUtils.hasManageServerOrStaff(member) || (user.getId().equalsIgnoreCase(ownerId))) {
                             ardentMusicManager.nextTrack();
                             sendRetrievedTranslation(channel, "music", language, "skippedcurrent");
                         }
@@ -424,7 +424,7 @@ public class Music extends Command {
                                     AudioTrack track = ardentTrack.getTrack();
                                     String name = track.getInfo().title;
                                     if (current == numberToRemove) {
-                                        if (GuildUtils.hasManageServerPermission(member) || ardentTrack.getAuthor()
+                                        if (UserUtils.hasManageServerOrStaff(member) || ardentTrack.getAuthor()
                                                 .equalsIgnoreCase(user.getId()))
                                         {
                                             queue.remove(ardentTrack);
@@ -456,7 +456,7 @@ public class Music extends Command {
                                Language language) throws Exception {
                 AudioManager audioManager = guild.getAudioManager();
                 Member member = guild.getMember(user);
-                if (GuildUtils.hasManageServerPermission(member)) {
+                if (UserUtils.hasManageServerOrStaff(member)) {
                     if (audioManager.isConnected()) {
                         String name = audioManager.getConnectedChannel().getName();
                         audioManager.closeAudioConnection();
@@ -475,7 +475,7 @@ public class Music extends Command {
                                Language language) throws Exception {
                 AudioManager audioManager = guild.getAudioManager();
                 Member member = guild.getMember(user);
-                if (GuildUtils.hasManageServerPermission(member)) {
+                if (UserUtils.hasManageServerOrStaff(member)) {
                     if (audioManager.isConnected()) {
                         GuildMusicManager manager = getGuildAudioPlayer(guild, channel);
                         if (manager.player.isPaused()) {
@@ -498,7 +498,7 @@ public class Music extends Command {
                                Language language) throws Exception {
                 AudioManager audioManager = guild.getAudioManager();
                 Member member = guild.getMember(user);
-                if (GuildUtils.hasManageServerPermission(member)) {
+                if (UserUtils.hasManageServerOrStaff(member)) {
                     if (audioManager.isConnected()) {
                         GuildMusicManager manager = getGuildAudioPlayer(guild, channel);
                         if (manager.player.getPlayingTrack() != null) manager.player.stopTrack();
@@ -518,7 +518,7 @@ public class Music extends Command {
                                Language language) throws Exception {
                 AudioManager audioManager = guild.getAudioManager();
                 Member member = guild.getMember(user);
-                if (GuildUtils.hasManageServerPermission(member)) {
+                if (UserUtils.hasManageServerOrStaff(member)) {
                     if (audioManager.isConnected()) {
                         GuildMusicManager manager = getGuildAudioPlayer(guild, channel);
                         manager.scheduler.manager.resetQueue();
@@ -560,7 +560,7 @@ public class Music extends Command {
                                Language language) throws Exception {
                 AudioManager audioManager = guild.getAudioManager();
                 Member member = guild.getMember(user);
-                if (GuildUtils.hasManageServerPermission(member)) {
+                if (UserUtils.hasManageServerOrStaff(member)) {
                     if (audioManager.isConnected()) {
                         GuildMusicManager manager = getGuildAudioPlayer(guild, channel);
                         manager.scheduler.manager.shuffle();
@@ -578,7 +578,7 @@ public class Music extends Command {
                                Language language) throws Exception {
                 AudioManager audioManager = guild.getAudioManager();
                 Member member = guild.getMember(user);
-                if (GuildUtils.hasManageServerPermission(member)) {
+                if (UserUtils.hasManageServerOrStaff(member)) {
                     if (audioManager.isConnected()) {
                         GuildMusicManager manager = getGuildAudioPlayer(guild, channel);
                         if (!manager.player.isPaused()) {
@@ -600,7 +600,7 @@ public class Music extends Command {
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
                 if (args.length == 4) {
-                    if (GuildUtils.hasManageServerPermission(guild.getMember(user))) {
+                    if (UserUtils.hasManageServerOrStaff(guild.getMember(user))) {
                         try {
                             int songsToLoop = Integer.parseInt(args[2]);
                             int amountOfTimes = Integer.parseInt(args[3]);
@@ -651,7 +651,7 @@ public class Music extends Command {
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
                 Member member = guild.getMember(user);
-                if (GuildUtils.hasManageServerPermission(member)) {
+                if (UserUtils.hasManageServerOrStaff(member)) {
                     List<User> mentionedUsers = message.getMentionedUsers();
                     if (mentionedUsers.size() == 1) {
                         User deleteFrom = mentionedUsers.get(0);
@@ -672,7 +672,7 @@ public class Music extends Command {
                 ArdentMusicManager player = musicManager.scheduler.manager;
                 ArdentTrack current = player.getCurrentlyPlaying();
                 if (current != null) {
-                    if (GuildUtils.hasManageServerPermission(guild.getMember(user)) || user.getId().equalsIgnoreCase
+                    if (UserUtils.hasManageServerOrStaff(guild.getMember(user)) || user.getId().equalsIgnoreCase
                             (current.getAuthor()))
                     {
                         AudioTrack track = current.getTrack();
@@ -683,25 +683,6 @@ public class Music extends Command {
                     else sendRetrievedTranslation(channel, "music", language, "queuedorhavepermissions");
                 }
                 else sendRetrievedTranslation(channel, "music", language, "notplayingrn");
-            }
-        });
-        subcommands.add(new Subcommand(this, "resetplayer") {
-            @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
-                               Language language) throws Exception {
-                if (guild.getMember(user).hasPermission(Permission.MANAGE_SERVER)) {
-                    AudioManager audioManager = guild.getAudioManager();
-                    Member member = guild.getMember(user);
-                    if (GuildUtils.hasManageServerPermission(member)) {
-                        if (audioManager.isConnected()) {
-                            audioManager.closeAudioConnection();
-                            sendRetrievedTranslation(channel, "music", language, "resetplayer");
-                        }
-                        else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel");
-                    }
-                    else sendRetrievedTranslation(channel, "other", language, "needmanageserver");
-                }
-                else sendRetrievedTranslation(channel, "other", language, "needmanageserver");
             }
         });
     }

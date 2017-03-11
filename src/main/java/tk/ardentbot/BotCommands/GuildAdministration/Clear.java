@@ -1,10 +1,10 @@
 package tk.ardentbot.BotCommands.GuildAdministration;
 
-import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.Exceptions.BotException;
 import tk.ardentbot.Core.Translation.Language;
+import tk.ardentbot.Utils.Discord.GuildUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +20,7 @@ public class Clear extends Command {
             sendRetrievedTranslation(channel, "clear", language, "help");
         }
         else {
-            if (guild.getMember(user).hasPermission(Permission.MESSAGE_MANAGE)) {
+            if (GuildUtils.hasManageServerPermission(guild.getMember(user))) {
                 if (args.length == 2) {
                     try {
                         int num = Integer.parseInt(args[1]);

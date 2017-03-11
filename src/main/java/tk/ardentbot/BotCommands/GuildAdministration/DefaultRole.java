@@ -77,7 +77,7 @@ public class DefaultRole extends Command {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
-                if (guild.getMember(user).hasPermission(Permission.MANAGE_SERVER)) {
+                if (GuildUtils.hasManageServerPermission(guild.getMember(user))) {
                     String roleName = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " "
                             + args[1] + " ", "");
                     List<Role> roles = guild.getRolesByName(roleName, true);

@@ -1,6 +1,5 @@
 package tk.ardentbot.BotCommands.Fun;
 
-import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
@@ -101,7 +100,7 @@ public class Tags extends Command {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
-                if (guild.getMember(user).hasPermission(Permission.MESSAGE_MANAGE)) {
+                if (GuildUtils.hasManageServerPermission(guild.getMember(user))) {
                     if (args.length > 3) {
                         String name = args[2];
                         String result = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " +
@@ -124,7 +123,7 @@ public class Tags extends Command {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
-                if (guild.getMember(user).hasPermission(Permission.MESSAGE_MANAGE)) {
+                if (GuildUtils.hasManageServerPermission(guild.getMember(user))) {
                     if (args.length == 3) {
                         String name = args[2];
                         if (getTagsForGuild(guild).contains(name)) {
