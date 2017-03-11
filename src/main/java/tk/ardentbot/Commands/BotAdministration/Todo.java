@@ -8,6 +8,7 @@ import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.Backend.Commands.BotCommand;
 import tk.ardentbot.Backend.Commands.Subcommand;
 import tk.ardentbot.Backend.Translation.Language;
+import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.Discord.MessageUtils;
 
@@ -44,7 +45,7 @@ public class Todo extends BotCommand {
         subcommands.add(new Subcommand(this, "add") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
-                if (ardent.developers.contains(user.getId())) {
+                if (Ardent.developers.contains(user.getId())) {
                     String todo = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " + args[1] + " ", "");
                     Statement statement = ardent.conn.createStatement();
                     statement.executeUpdate("INSERT INTO Todo VALUES ('" + cleanString(todo) + "')");
@@ -58,7 +59,7 @@ public class Todo extends BotCommand {
         subcommands.add(new Subcommand(this, "remove") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
-                if (ardent.developers.contains(user.getId())) {
+                if (Ardent.developers.contains(user.getId())) {
                     if (args.length == 3) {
                         try {
                             ArrayList<String> todos = getTodos();

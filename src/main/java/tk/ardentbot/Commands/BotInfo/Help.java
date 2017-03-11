@@ -51,7 +51,8 @@ public class Help extends BotCommand {
         description.append("\n > " + ardent.translateForArdent.getName(language) + ": *" + ardent.translateForArdent
                 .getDescription
                 (language) + "*");
-        description.append("\n > " + ardent.getDevHelp.getName(language) + ": *" + ardent.getDevHelp.getDescription(language) + "*");
+        description.append("\n > " + ardent.manage.getName(language) + ": *" + ardent.manage.getDescription(language)
+                + "*");
 
         ArrayList<Command> byUsage = UsageUtils.orderByUsageDesc();
         for (int i = 0; i < 3; i++) {

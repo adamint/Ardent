@@ -9,6 +9,7 @@ import tk.ardentbot.Bot.BotException;
 import tk.ardentbot.Commands.BotInfo.Status;
 import tk.ardentbot.Commands.GuildAdministration.Automessage;
 import tk.ardentbot.Commands.GuildAdministration.DefaultRole;
+import tk.ardentbot.Commands.Music.GuildMusicManager;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.Tuples.Triplet;
 
@@ -51,6 +52,8 @@ public class Join {
         botJoinEvents.add(Instant.now());
         Guild guild = event.getGuild();
         Status.commandsByGuild.put(guild.getId(), 0);
+        ardent.musicManagers.put(Long.parseLong(guild.getId()), new GuildMusicManager(ardent.playerManager));
+
         ardent.cleverbots.put(guild.getId(), ardent.cleverBot.createSession());
         if (ardent.announcement != null) {
             ardent.sentAnnouncement.put(guild.getId(), false);

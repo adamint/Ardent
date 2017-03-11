@@ -10,6 +10,7 @@ import tk.ardentbot.Backend.Commands.Subcommand;
 import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Backend.Translation.Translation;
 import tk.ardentbot.Backend.Translation.TranslationResponse;
+import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.Log;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
@@ -77,7 +78,7 @@ public class Changelog extends BotCommand {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
-                if (ardent.developers.contains(user.getId())) {
+                if (Ardent.developers.contains(user.getId())) {
                     if (args.length > 3) {
                         String input = message.getContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " +
                                 args[1] + " ", "");

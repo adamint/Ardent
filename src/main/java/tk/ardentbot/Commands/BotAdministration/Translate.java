@@ -8,6 +8,7 @@ import tk.ardentbot.Backend.Commands.BotCommand;
 import tk.ardentbot.Backend.Commands.Subcommand;
 import tk.ardentbot.Backend.Translation.LangFactory;
 import tk.ardentbot.Backend.Translation.Language;
+import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.Tuples.Pair;
@@ -58,7 +59,7 @@ public class Translate extends BotCommand {
     public static ArrayList<Pair<String, String>> getCommandDiscrepancies(Language language) throws SQLException {
         ArrayList<Pair<String, String>> discrepanciesInEnglish = new ArrayList<>();
         ArrayList<Triplet<String, String, String>> englishTranslations = new ArrayList<>();
-        DatabaseAction getTranslations = new DatabaseAction("SELECT * FROM Translations WHERE Language=?")
+        DatabaseAction getTranslations = new DatabaseAction("SELECT * FROM Commands WHERE Language=?")
                 .set("english");
         ResultSet translations = getTranslations.request();
         while (translations.next()) {
@@ -121,7 +122,7 @@ public class Translate extends BotCommand {
         subcommands.add(new Subcommand(this, "basic") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
-                if (ardent.translators.contains(user.getId())) {
+                if (Ardent.translators.contains(user.getId())) {
                     if (args.length >= 5) {
                         Language translateTo = LangFactory.getLanguage(args[2]);
                         if (translateTo != null) {
@@ -165,7 +166,7 @@ public class Translate extends BotCommand {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
-                if (ardent.translators.contains(user.getId())) {
+                if (Ardent.translators.contains(user.getId())) {
                     if (args.length >= 5) {
                         Language translateTo = LangFactory.getLanguage(args[2]);
                         if (translateTo != null) {
@@ -218,7 +219,7 @@ public class Translate extends BotCommand {
                 @Override
                 public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                    Language language) throws Exception {
-                    if (ardent.translators.contains(user.getId())) {
+                    if (Ardent.translators.contains(user.getId())) {
                         Language translateTo = LangFactory.getLanguage(args[1]);
                         if (translateTo != null) {
                             ArrayList<String> discrepanciesInTableTranslations = getTranslationDiscrepancies(translateTo);
@@ -238,7 +239,7 @@ public class Translate extends BotCommand {
             subcommands.add(new Subcommand(this, language.getIdentifier() + "cmds") {
                 @Override
                 public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
-                    if (ardent.translators.contains(user.getId())) {
+                    if (Ardent.translators.contains(user.getId())) {
                         Language translateTo = LangFactory.getLanguage(args[1].replace("cmds", ""));
                         if (translateTo != null) {
                             ArrayList<Pair<String, String>> discrepanciesInCommandTranslations = getCommandDiscrepancies(translateTo);

@@ -55,7 +55,7 @@ public abstract class BotCommand extends Command {
         sendEmbed(getHelp(language, guild, author, command), channel);
     }
 
-    protected EmbedBuilder getHelp(Language language, Guild guild, User author, Command command) throws Exception {
+    private EmbedBuilder getHelp(Language language, Guild guild, User author, Command command) throws Exception {
         EmbedBuilder embedBuilder = MessageUtils.getDefaultEmbed(guild, author, command);
         embedBuilder.setColor(Color.ORANGE);
         String name = getName(language);

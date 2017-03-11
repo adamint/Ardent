@@ -46,8 +46,9 @@ import tk.ardentbot.Events.Join;
 import tk.ardentbot.Events.Leave;
 import tk.ardentbot.Events.OnMessage;
 import tk.ardentbot.Updaters.BotlistUpdater;
+import tk.ardentbot.Updaters.GuildDaemon;
+import tk.ardentbot.Updaters.PermissionsDaemon;
 import tk.ardentbot.Updaters.PhraseUpdater;
-import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.SQL.MuteDaemon;
 import twitter4j.Twitter;
 import twitter4j.TwitterFactory;
@@ -57,8 +58,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -69,9 +68,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import static tk.ardentbot.Backend.Translation.LangFactory.languages;
-
 public class Instance {
-    public boolean testingBot = false;
+    public boolean testingBot;
     public ScheduledExecutorService executorService = Executors.newScheduledThreadPool(100);
     public BotMuteData botMuteData;
     public BotPrefixData botPrefixData;
@@ -82,8 +80,6 @@ public class Instance {
     public Map<Long, GuildMusicManager> musicManagers;
     public ChatterBot cleverBot;
     public ConcurrentHashMap<String, ChatterBotSession> cleverbots = new ConcurrentHashMap<>();
-    public ArrayList<String> developers = new ArrayList<>();
-    public ArrayList<String> translators = new ArrayList<>();
     public Gson gson = new Gson();
     public Connection conn;
     public CommandFactory factory;
@@ -94,6 +90,7 @@ public class Instance {
     public Command patreon;
     public Command translateForArdent;
     public Command getDevHelp;
+    public Command manage;
     public String url = "https://ardentbot.tk";
     public ConcurrentHashMap<String, Boolean> sentAnnouncement = new ConcurrentHashMap<>();
     public String announcement;
@@ -103,7 +100,8 @@ public class Instance {
     private int gameCounter = 0;
     private int matureLanguages = 0;
 
-    public Instance() throws Exception {
+    public Instance(boolean testingBot) throws Exception {
+        this.testingBot = testingBot;
         String token;
         if (testingBot) {
             token = IOUtils.toString(new FileReader(new File("C:\\Users\\AMR\\Desktop\\Ardent\\v2testtoken.key")));
@@ -216,7 +214,8 @@ public class Instance {
                 translateForArdent = new TranslateForArdent(new Command.CommandSettings("translateforardent", true,
                         true, Category.BOTINFO));
                 getDevHelp = new Bug(new Command.CommandSettings("getdevhelp", false, true, Category.BOTINFO));
-
+                manage = new Manage(new Command.CommandSettings("manage", false, true, Category
+                        .BOTADMINISTRATION));
                 // Register tk.ardentbot.Commands
                 factory.registerCommand(new AddEnglishBase(new Command.CommandSettings("addenglishbase", true, true,
                         Category
@@ -230,6 +229,7 @@ public class Instance {
                         .BOTADMINISTRATION)));
                 factory.registerCommand(new Eval(new Command.CommandSettings("eval", true, true, Category
                         .BOTADMINISTRATION)));
+                factory.registerCommand(manage);
 
                 factory.registerCommand(getDevHelp);
                 factory.registerCommand(new Support(new Command.CommandSettings("support", true, true, Category
@@ -270,6 +270,8 @@ public class Instance {
                         .GUILDADMINISTRATION)));
                 factory.registerCommand(new GuildLanguage(new Command.CommandSettings("language", false, true,
                         Category.GUILDADMINISTRATION)));
+                factory.registerCommand(new Iam(new Command.CommandSettings("iam", false, true,
+                        Category.GUILDADMINISTRATION)));
                 factory.registerCommand(new Setnickname(new Command.CommandSettings("setnickname", false, true,
                         Category.GUILDADMINISTRATION)));
                 factory.registerCommand(new Prune(new Command.CommandSettings("prune", false, true, Category
@@ -303,38 +305,7 @@ public class Instance {
                 // .GUILDINFO)));
 
                 cleverBot = new ChatterBotFactory().create(ChatterBotType.PANDORABOTS, "f5d922d97e345aa1");
-
-                executorService.scheduleAtFixedRate(() -> {
-                    try {
-                        developers.clear();
-                        translators.clear();
-
-                        DatabaseAction getStaff = new DatabaseAction("SELECT * FROM Staff");
-                        ResultSet staffSet = getStaff.request();
-                        while (staffSet.next()) {
-                            String id = staffSet.getString("UserID");
-                            switch (staffSet.getString("Role")) {
-                                case "Developer":
-                                    developers.add(id);
-                                    break;
-                                case "Translator":
-                                    translators.add(id);
-                                    break;
-                                default:
-                                    new BotException("Something went wrong in staff parsing for {0}".replace("{0}",
-                                            id));
-
-                            }
-                        }
-                        getStaff.close();
-                    }
-                    catch (SQLException e) {
-                        e.printStackTrace();
-                    }
-                }, 1, 60, TimeUnit.SECONDS);
-
-
-                botLogs = jda.getTextChannelById("272865411471638528");
+                botLogs = jda.getTextChannelById("270572632343183361");
 
                 musicManagers = new HashMap<>();
 
@@ -350,19 +321,6 @@ public class Instance {
                 jda.getGuilds().forEach((guild -> {
                     Status.commandsByGuild.put(guild.getId(), 0);
                     cleverbots.put(guild.getId(), cleverBot.createSession());
-                    try {
-                        DatabaseAction getGuild = new DatabaseAction("SELECT * FROM Guilds WHERE GuildID=?")
-                                .set(guild.getId());
-                        ResultSet isGuildIn = getGuild.request();
-                        if (!isGuildIn.next()) {
-                            new DatabaseAction("INSERT INTO Guilds VALUES (?,?,?)").set(guild.getId())
-                                    .set("english").set("/").update();
-                        }
-                        getGuild.close();
-                    }
-                    catch (SQLException e) {
-                        new BotException(e);
-                    }
                 }));
 
                 executorService.scheduleAtFixedRate(() -> {
@@ -372,13 +330,13 @@ public class Instance {
                             game = "Join our team! /translateforardent";
                             break;
                         case 1:
-                            game = "Serving " + Status.getUserAmount() + " users";
+                            game = "serving " + Status.getUserAmount() + " users";
                             break;
                         case 2:
-                            game = "Serving " + jda.getGuilds().size() + " guilds";
+                            game = "serving " + jda.getGuilds().size() + " guilds";
                             break;
                         case 3:
-                            game = "Music for " + Status.getVoiceConnections() + " servers!";
+                            game = "music for " + Status.getVoiceConnections() + " servers!";
                             break;
                         default:
                             game = "with many languages";
@@ -394,6 +352,12 @@ public class Instance {
                 // On hold for a bit
                 // PhraseUpdater phraseUpdater = new PhraseUpdater();
                 // TranslationUpdater translationUpdater = new TranslationUpdater();
+
+                PermissionsDaemon patronDaemon = new PermissionsDaemon();
+                executorService.scheduleAtFixedRate(patronDaemon, 1, 15, TimeUnit.SECONDS);
+
+                GuildDaemon guildDaemon = new GuildDaemon();
+                executorService.scheduleAtFixedRate(guildDaemon, 1, 5, TimeUnit.SECONDS);
 
                 MuteDaemon muteDaemon = new MuteDaemon();
                 executorService.scheduleAtFixedRate(muteDaemon, 1, 5, TimeUnit.SECONDS);
@@ -416,6 +380,5 @@ public class Instance {
                 new BotException(ex);
             }
         }, 5, TimeUnit.SECONDS);
-
     }
 }

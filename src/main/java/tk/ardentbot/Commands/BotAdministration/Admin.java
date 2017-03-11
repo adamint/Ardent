@@ -1,19 +1,19 @@
 package tk.ardentbot.Commands.BotAdministration;
 
-import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.Backend.Commands.BotCommand;
 import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Bot.BotException;
-import tk.ardentbot.Commands.Music.Music;
 import tk.ardentbot.Main.Ardent;
-import tk.ardentbot.Main.Instance;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.UsageUtils;
 
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
 
 import static tk.ardentbot.Commands.BotInfo.Status.getVoiceConnections;
 import static tk.ardentbot.Main.Ardent.ardent;
@@ -25,47 +25,15 @@ public class Admin extends BotCommand {
         super(commandSettings);
     }
 
-    public static void update(BotCommand command, Language language, MessageChannel channel) {
+    public static void update(BotCommand command, Language language, MessageChannel channel) throws Exception {
         channel.sendMessage("Updating...").queue();
-        ardent.executorService.schedule(() -> {
-            for (Guild g : ardent.jda.getGuilds()) {
-                if (g.getAudioManager().isConnected()) {
-                    TextChannel tch = g.getTextChannelById(Music.textChannels.get(g.getId()));
-                    if (tch.canTalk()) {
-                        try {
-                            tch.sendMessage(command.getTranslation("other", language, "restartingfiveminutes")
-                                    .getTranslation()).queue();
-                            tch.sendMessage(command.getTranslation("other", language, "restartmusic").getTranslation
-                                    ()).complete();
-                        }
-                        catch (Exception e) {
-                            new BotException(e);
-                        }
-                        break;
-                    }
-                }
+        for (Guild g : ardent.jda.getGuilds()) {
+            if (g.getAudioManager().isConnected()) {
+                g.getPublicChannel().sendMessage(command.getTranslation("music", language, "restartingfiveminutes")
+                        .getTranslation()).queue();
             }
-        }, 5, TimeUnit.SECONDS);
-
-        ardent.executorService.schedule(() -> {
-            for (Guild g : ardent.jda.getGuilds()) {
-                if (g.getAudioManager().isConnected()) {
-                    TextChannel tch = g.getTextChannelById(Music.textChannels.get(g.getId()));
-                    if (tch.canTalk()) {
-                        try {
-                            tch.sendMessage(command.getTranslation("other", language, "restartmusic").getTranslation
-                                    ()).queue();
-                        }
-                        catch (Exception e) {
-                            new BotException(e);
-                        }
-                        break;
-                    }
-                }
-            }
-            ardent.jda.getPresence().setGame(Game.of("- UPDATING! -", "https://www.ardentbot.tk"));
-            shutdown();
-        }, 5, TimeUnit.MINUTES);
+        }
+        shutdown();
     }
 
     private static void shutdown() {
@@ -86,7 +54,7 @@ public class Admin extends BotCommand {
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
             language) throws Exception {
-        if (ardent.developers.contains(user.getId())) {
+        if (Ardent.developers.contains(user.getId())) {
             if (args.length > 1) {
                 if (args[1].equalsIgnoreCase("update")) {
                     update(this, language, channel);
@@ -98,7 +66,12 @@ public class Admin extends BotCommand {
                         public void run() {
                             if (getVoiceConnections() <= 1 || (secondsWaitedForRestart >= (60 * 60 * 3))) {
                                 if (getVoiceConnections() <= 3) {
-                                    update(Admin.this, language, channel);
+                                    try {
+                                        update(Admin.this, language, channel);
+                                    }
+                                    catch (Exception e) {
+                                        new BotException(e);
+                                    }
                                 }
                             }
                             secondsWaitedForRestart += 5;
@@ -126,10 +99,9 @@ public class Admin extends BotCommand {
                         ardent.sentAnnouncement.put(g.getId(), false);
                     });
                 }
-                else if (args[1].equalsIgnoreCase("restart")) {
-                    Instance ardent = Ardent.ardent;
-                    ardent.jda.shutdown(false);
-                    Ardent.ardent = new Instance();
+                else if (args[1].equalsIgnoreCase("stop")) {
+                    ardent.jda.shutdown(true);
+                    System.exit(0);
                 }
             }
         }

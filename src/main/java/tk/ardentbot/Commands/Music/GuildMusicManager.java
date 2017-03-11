@@ -5,20 +5,20 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 
 public class GuildMusicManager {
     /**
+     * Track scheduler for the player.
+     */
+    public final TrackScheduler scheduler;
+    /**
      * Audio player for the guild.
      */
     final AudioPlayer player;
-    /**
-     * Track scheduler for the player.
-     */
-    final TrackScheduler scheduler;
 
     /**
      * Creates a player and a track scheduler.
      *
      * @param manager Audio player manager to use for creating the player.
      */
-    GuildMusicManager(AudioPlayerManager manager) {
+    public GuildMusicManager(AudioPlayerManager manager) {
         player = manager.createPlayer();
         scheduler = new TrackScheduler(player);
         player.addListener(scheduler);
