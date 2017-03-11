@@ -27,12 +27,15 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 
 import static tk.ardentbot.Main.Ardent.ardent;
 
 public class CommandFactory {
+    private HashMap<String, Long> commandUsages = new HashMap<>();
+
     private ArrayList<String> emojiCommandTags = new ArrayList<>();
 
     private ConcurrentArrayQueue<BaseCommand> baseCommands = new ConcurrentArrayQueue<>();
@@ -67,6 +70,15 @@ public class CommandFactory {
         return commandsReceived;
     }
 
+    public HashMap<String, Long> getCommandUsages() {
+        return commandUsages;
+    }
+
+    public void addCommandUsage(String identifier) {
+        long old = commandUsages.get(identifier);
+        commandUsages.replace(identifier, old, old + 1);
+    }
+
     /**
      * Registers a baseCommand to the factory, provides a simple check for duplicates
      *
@@ -88,6 +100,7 @@ public class CommandFactory {
         }
         botCommand.setupSubcommands();
         baseCommands.add(baseCommand);
+        commandUsages.put(baseCommand.commandIdentifier, (long) 0);
         System.out.println("Successfully registered " + baseCommand.toString());
     }
 

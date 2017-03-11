@@ -12,7 +12,6 @@ import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Core.Translation.Translation;
 import tk.ardentbot.Core.Translation.TranslationResponse;
-import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.Discord.MessageUtils;
 import tk.ardentbot.Utils.Tuples.Pair;
 
@@ -59,11 +58,7 @@ public class Status extends Command {
         double usedRAM = totalRAM - Runtime.getRuntime().freeMemory() / 1024 / 1024;
 
         StringBuilder devUsernames = new StringBuilder();
-        for (int i = 0; i < Ardent.developers.size(); i++) {
-            User current = jda.getUserById(Ardent.developers.get(i));
-            devUsernames.append(current.getName() + "#" + current.getDiscriminator());
-            if (i < (Ardent.developers.size() - 1)) devUsernames.append(", ");
-        }
+        devUsernames.append("Adam#9261, Akio Nakao#7507");
 
         Translation title = new Translation("status", "title");
         Translation botstatus = new Translation("status", "botstatus");
@@ -130,12 +125,4 @@ public class Status extends Command {
 
     @Override
     public void setupSubcommands() {}
-
-    public int countCurrentlyPlaying() {
-        final int[] playing = {0};
-        ardent.musicManagers.forEach((id, guildMusicManager) -> {
-            if (guildMusicManager.scheduler.manager.isTrackCurrentlyPlaying()) playing[0]++;
-        });
-        return playing[0];
-    }
 }

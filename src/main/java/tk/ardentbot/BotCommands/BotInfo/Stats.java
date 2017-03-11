@@ -12,31 +12,52 @@ import tk.ardentbot.Core.Events.Join;
 import tk.ardentbot.Core.Events.Leave;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Utils.Discord.MessageUtils;
-import tk.ardentbot.Utils.StringUtils;
+import tk.ardentbot.Utils.UsageUtils;
 
 import java.awt.*;
 import java.time.Instant;
+import java.util.Map;
 
 import static tk.ardentbot.Main.Ardent.ardent;
 
 public class Stats extends Command {
+    private static final char ACTIVE_BLOCK = '\u2588';
+    private static final char EMPTY_BLOCK = '\u200b';
+
     public Stats(CommandSettings commandSettings) {
         super(commandSettings);
     }
 
+    private static String bar(int percentage) {
+        if (percentage == 0) return null;
+        int activeBlocks = Math.round((percentage * 15) / 100);
+        int emptyBlocks = 15 - activeBlocks;
+
+        StringBuilder bar = new StringBuilder();
+        bar.append("`");
+        for (int i = 0; i < activeBlocks; i++) bar.append(ACTIVE_BLOCK);
+        for (int i = 0; i < emptyBlocks; i++) bar.append(' ');
+        bar.append(EMPTY_BLOCK + "`");
+        return bar.toString();
+    }
+
+
     private static String generateGuild(int join, int leave) {
         int total = join + leave;
-        double joinPercentage = 0;
-        if (total > 0) joinPercentage = join / total;
-        double leavePercentage = 0;
-        if (total > 0) leavePercentage = leave / total;
-        StringBuilder sb = new StringBuilder();
-        sb.append("Amount: " + total + "\n");
-        sb.append(StringUtils.bar(join / total, 15) + " " + ((int) joinPercentage * 100) + "% **Joined** (" + join +
-                ")\n");
-        sb.append(StringUtils.bar(leave / total, 15) + " " + ((int) leavePercentage * 100) + "% **Left** (" + leave +
-                ")");
-        return sb.toString();
+        StringBuilder layout = new StringBuilder();
+        layout.append("Amount: " + total + "\n");
+        if (total > 0) {
+            int joinPercentage = Math.round(join * 100 / total);
+            int leavePercentage = Math.round(leave * 100 / total);
+            if (joinPercentage > 0) {
+                layout.append(bar(joinPercentage) + " " + joinPercentage + "% **Joined** (" + join + ")\n");
+            }
+            if (leavePercentage > 0) {
+                layout.append(bar(leavePercentage) + " " + leavePercentage + "% **Left** (" + leave + ")\n");
+            }
+        }
+        else layout.append("No data for this period!");
+        return layout.toString();
     }
 
     @Override
@@ -47,6 +68,37 @@ public class Stats extends Command {
 
     @Override
     public void setupSubcommands() throws Exception {
+        subcommands.add(new Subcommand(this, "commands") {
+            @Override
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
+                               Language language) throws Exception {
+                StringBuilder commandBars = new StringBuilder();
+
+                Map<String, Long> commandsUsed = UsageUtils.sortByValue(ardent.factory.getCommandUsages());
+                final int[] counter = {0};
+                final int[] totalCommandsReceived = {0};
+                commandsUsed.forEach((key, value) -> {
+                    if (counter[0] < 7) totalCommandsReceived[0] += value;
+                    counter[0]++;
+                });
+                counter[0] = 0;
+                commandsUsed.forEach((key, value) -> {
+                    if (counter[0] < 7) {
+                        int percent = (int) (value * 100 / totalCommandsReceived[0]);
+                        String bar = bar(percent);
+                        if (bar != null) {
+                            commandBars.append(bar + " " + percent + "% **" + key + "**\n");
+                        }
+                    }
+                    counter[0]++;
+                });
+                EmbedBuilder builder = MessageUtils.getDefaultEmbed(guild, user, Stats.this);
+                builder.setAuthor("Command Statistics", ardent.url, ardent.bot.getAvatarUrl());
+                builder.setColor(Color.GREEN);
+                builder.setDescription("Command Usage\n" + commandBars.toString());
+                sendEmbed(builder, channel);
+            }
+        });
         subcommands.add(new Subcommand(this, "guilds") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,

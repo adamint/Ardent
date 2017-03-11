@@ -49,10 +49,12 @@ class AsyncCommandExecutor implements Runnable {
                         catch (Exception e) {
                             new BotException(e);
                         }
-                    }, 1, TimeUnit.SECONDS);
+                    }, 5, TimeUnit.SECONDS);
                 }
             }
+
             command.getBotCommand().onUsage(guild, channel, author, message, args, language);
+            ardent.factory.addCommandUsage(command.getCommandIdentifier());
         }
         catch (Exception e) {
             new BotException(e);

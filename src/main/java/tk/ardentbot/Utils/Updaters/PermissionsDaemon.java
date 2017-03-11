@@ -33,7 +33,6 @@ public class PermissionsDaemon implements Runnable {
                 else if (role.equalsIgnoreCase("Moderator")) moderators.add(id);
                 else if (role.equalsIgnoreCase("Translator")) translators.add(id);
             }
-
             retrieveStaff.close();
         }
         catch (SQLException e) {

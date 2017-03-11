@@ -356,8 +356,8 @@ public class Instance {
                 // PhraseUpdater phraseUpdater = new PhraseUpdater();
                 // TranslationUpdater translationUpdater = new TranslationUpdater();
 
-                PermissionsDaemon patronDaemon = new PermissionsDaemon();
-                executorService.scheduleAtFixedRate(patronDaemon, 1, 15, TimeUnit.SECONDS);
+                PermissionsDaemon permissionsDaemon = new PermissionsDaemon();
+                executorService.scheduleAtFixedRate(permissionsDaemon, 0, 60, TimeUnit.SECONDS);
 
                 GuildDaemon guildDaemon = new GuildDaemon();
                 executorService.scheduleAtFixedRate(guildDaemon, 1, 5, TimeUnit.SECONDS);

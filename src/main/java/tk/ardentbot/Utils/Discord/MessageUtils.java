@@ -7,12 +7,19 @@ import tk.ardentbot.Core.CommandExecution.BaseCommand;
 import tk.ardentbot.Core.Translation.Language;
 
 import java.awt.*;
+import java.util.Random;
 
 public class MessageUtils {
     public static EmbedBuilder getDefaultEmbed(Guild guild, User author, BaseCommand baseCommand) throws Exception {
+        final Random random = new Random();
+        final float hue = random.nextFloat();
+        final float saturation = (random.nextInt(2000) + 1000) / 10000f;
+        final float luminance = 2f;
+        final Color color = Color.getHSBColor(hue, saturation, luminance);
+
         Language language = GuildUtils.getLanguage(guild);
         EmbedBuilder builder = new EmbedBuilder();
-        builder.setColor(Color.ORANGE);
+        builder.setColor(color);
         builder.setFooter(baseCommand.getTranslation("other", language, "requestedby").getTranslation().replace
                 ("{0}", author.getName() + "#" + author.getDiscriminator()), author.getAvatarUrl());
         return builder;
