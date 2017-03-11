@@ -23,33 +23,33 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.hooks.AnnotatedEventManager;
 import org.apache.commons.io.IOUtils;
-import tk.ardentbot.Backend.BotData.BotLanguageData;
-import tk.ardentbot.Backend.BotData.BotMuteData;
-import tk.ardentbot.Backend.BotData.BotPrefixData;
-import tk.ardentbot.Backend.Commands.Category;
-import tk.ardentbot.Backend.Commands.Command;
-import tk.ardentbot.Backend.Commands.CommandFactory;
-import tk.ardentbot.Backend.Translation.LangFactory;
-import tk.ardentbot.Backend.Translation.Language;
-import tk.ardentbot.Bot.BotException;
-import tk.ardentbot.Commands.BotAdministration.*;
-import tk.ardentbot.Commands.BotInfo.*;
-import tk.ardentbot.Commands.Fun.*;
-import tk.ardentbot.Commands.GuildAdministration.*;
-import tk.ardentbot.Commands.GuildInfo.Botname;
-import tk.ardentbot.Commands.GuildInfo.GuildInfo;
-import tk.ardentbot.Commands.GuildInfo.Points;
-import tk.ardentbot.Commands.GuildInfo.Whois;
-import tk.ardentbot.Commands.Music.GuildMusicManager;
-import tk.ardentbot.Commands.Music.Music;
-import tk.ardentbot.Events.Join;
-import tk.ardentbot.Events.Leave;
-import tk.ardentbot.Events.OnMessage;
-import tk.ardentbot.Updaters.BotlistUpdater;
-import tk.ardentbot.Updaters.GuildDaemon;
-import tk.ardentbot.Updaters.PermissionsDaemon;
-import tk.ardentbot.Updaters.PhraseUpdater;
+import tk.ardentbot.BotCommands.BotAdministration.*;
+import tk.ardentbot.BotCommands.BotInfo.*;
+import tk.ardentbot.BotCommands.Fun.*;
+import tk.ardentbot.BotCommands.GuildAdministration.*;
+import tk.ardentbot.BotCommands.GuildInfo.Botname;
+import tk.ardentbot.BotCommands.GuildInfo.GuildInfo;
+import tk.ardentbot.BotCommands.GuildInfo.Points;
+import tk.ardentbot.BotCommands.GuildInfo.Whois;
+import tk.ardentbot.BotCommands.Music.GuildMusicManager;
+import tk.ardentbot.BotCommands.Music.Music;
+import tk.ardentbot.Core.BotData.BotLanguageData;
+import tk.ardentbot.Core.BotData.BotMuteData;
+import tk.ardentbot.Core.BotData.BotPrefixData;
+import tk.ardentbot.Core.CommandExecution.BaseCommand;
+import tk.ardentbot.Core.CommandExecution.Category;
+import tk.ardentbot.Core.CommandExecution.CommandFactory;
+import tk.ardentbot.Core.Events.Join;
+import tk.ardentbot.Core.Events.Leave;
+import tk.ardentbot.Core.Events.OnMessage;
+import tk.ardentbot.Core.Exceptions.BotException;
+import tk.ardentbot.Core.Translation.LangFactory;
+import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Utils.SQL.MuteDaemon;
+import tk.ardentbot.Utils.Updaters.BotlistUpdater;
+import tk.ardentbot.Utils.Updaters.GuildDaemon;
+import tk.ardentbot.Utils.Updaters.PermissionsDaemon;
+import tk.ardentbot.Utils.Updaters.PhraseUpdater;
 import twitter4j.Twitter;
 import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
@@ -67,7 +67,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
-import static tk.ardentbot.Backend.Translation.LangFactory.languages;
+import static tk.ardentbot.Core.Translation.LangFactory.languages;
 public class Instance {
     public boolean testingBot;
     public ScheduledExecutorService executorService = Executors.newScheduledThreadPool(100);
@@ -86,11 +86,11 @@ public class Instance {
     public JDA jda;
     public User bot;
     public Twitter twitter;
-    public Command help;
-    public Command patreon;
-    public Command translateForArdent;
-    public Command getDevHelp;
-    public Command manage;
+    public BaseCommand help;
+    public BaseCommand patreon;
+    public BaseCommand translateForArdent;
+    public BaseCommand getDevHelp;
+    public BaseCommand manage;
     public String url = "https://ardentbot.tk";
     public ConcurrentHashMap<String, Boolean> sentAnnouncement = new ConcurrentHashMap<>();
     public String announcement;
@@ -209,99 +209,102 @@ public class Instance {
 
                 factory = new CommandFactory();
 
-                help = new Help(new Command.CommandSettings("help", true, true, Category.BOTINFO));
-                patreon = new Patreon(new Command.CommandSettings("patreon", true, true, Category.GUILDINFO));
-                translateForArdent = new TranslateForArdent(new Command.CommandSettings("translateforardent", true,
+                help = new Help(new BaseCommand.CommandSettings("help", true, true, Category.BOTINFO));
+                patreon = new Patreon(new BaseCommand.CommandSettings("patreon", true, true, Category.GUILDINFO));
+                translateForArdent = new TranslateForArdent(new BaseCommand.CommandSettings("translateforardent", true,
                         true, Category.BOTINFO));
-                getDevHelp = new Bug(new Command.CommandSettings("getdevhelp", false, true, Category.BOTINFO));
-                manage = new Manage(new Command.CommandSettings("manage", false, true, Category
+                getDevHelp = new Bug(new BaseCommand.CommandSettings("getdevhelp", false, true, Category.BOTINFO));
+                manage = new Manage(new BaseCommand.CommandSettings("manage", false, true, Category
                         .BOTADMINISTRATION));
-                // Register tk.ardentbot.Commands
-                factory.registerCommand(new AddEnglishBase(new Command.CommandSettings("addenglishbase", true, true,
+                // Register tk.ardentbot.CommandExecution
+                factory.registerCommand(new AddEnglishBase(new BaseCommand.CommandSettings("addenglishbase", true, true,
                         Category
 
                         .BOTADMINISTRATION)));
-                factory.registerCommand(new Todo(new Command.CommandSettings("todo", true, true, Category
+                factory.registerCommand(new Todo(new BaseCommand.CommandSettings("todo", true, true, Category
                         .BOTADMINISTRATION)));
-                factory.registerCommand(new Tweet(new Command.CommandSettings("tweet", true, true, Category
+                factory.registerCommand(new Tweet(new BaseCommand.CommandSettings("tweet", true, true, Category
                         .BOTADMINISTRATION)));
-                factory.registerCommand(new Admin(new Command.CommandSettings("admin", true, true, Category
+                factory.registerCommand(new Admin(new BaseCommand.CommandSettings("admin", true, true, Category
                         .BOTADMINISTRATION)));
-                factory.registerCommand(new Eval(new Command.CommandSettings("eval", true, true, Category
+                factory.registerCommand(new Eval(new BaseCommand.CommandSettings("eval", true, true, Category
                         .BOTADMINISTRATION)));
                 factory.registerCommand(manage);
 
                 factory.registerCommand(getDevHelp);
-                factory.registerCommand(new Support(new Command.CommandSettings("support", true, true, Category
+                factory.registerCommand(new Support(new BaseCommand.CommandSettings("support", true, true, Category
                         .BOTINFO)));
-                factory.registerCommand(new Website(new Command.CommandSettings("website", true, true, Category
+                factory.registerCommand(new Website(new BaseCommand.CommandSettings("website", true, true, Category
                         .BOTINFO)));
-                factory.registerCommand(new Invite(new Command.CommandSettings("invite", true, true, Category
+                factory.registerCommand(new Invite(new BaseCommand.CommandSettings("invite", true, true, Category
                         .BOTINFO)));
                 factory.registerCommand(translateForArdent);
-                factory.registerCommand(new Changelog(new Command.CommandSettings("changelog", true, true, Category
+                factory.registerCommand(new Changelog(new BaseCommand.CommandSettings("changelog", true, true, Category
                         .BOTINFO)));
                 factory.registerCommand(patreon);
-                factory.registerCommand(new Joinmessage(new Command.CommandSettings("joinmessage", true, true,
+                factory.registerCommand(new Joinmessage(new BaseCommand.CommandSettings("joinmessage", true, true,
                         Category.BOTINFO)));
-                factory.registerCommand(new Status(new Command.CommandSettings("status", true, true, Category
+                factory.registerCommand(new Status(new BaseCommand.CommandSettings("status", true, true, Category
                         .BOTINFO)));
-                factory.registerCommand(new Request(new Command.CommandSettings("request", true, true, Category
+                factory.registerCommand(new Request(new BaseCommand.CommandSettings("request", true, true, Category
                         .BOTINFO)));
-                factory.registerCommand(new Ping(new Command.CommandSettings("ping", true, true, Category.BOTINFO)));
+                factory.registerCommand(new Ping(new BaseCommand.CommandSettings("ping", true, true, Category
+                        .BOTINFO)));
                 factory.registerCommand(help);
-                factory.registerCommand(new Stats(new Command.CommandSettings("stats", true, true, Category.BOTINFO)));
+                factory.registerCommand(new Stats(new BaseCommand.CommandSettings("stats", true, true, Category
+                        .BOTINFO)));
 
-                factory.registerCommand(new UD(new Command.CommandSettings("ud", true, true, Category.FUN)));
-                factory.registerCommand(new GIF(new Command.CommandSettings("gif", true, true, Category.FUN)));
-                factory.registerCommand(new FML(new Command.CommandSettings("fml", true, true, Category.FUN)));
-                factory.registerCommand(new Yoda(new Command.CommandSettings("yoda", true, true, Category.FUN)));
-                factory.registerCommand(new EightBall(new Command.CommandSettings("8ball", true, true, Category.FUN)));
-                factory.registerCommand(new Tags(new Command.CommandSettings("tag", false, true, Category.FUN)));
-                factory.registerCommand(new tk.ardentbot.Commands.Fun.Translate(new Command.CommandSettings("translate",
+                factory.registerCommand(new UD(new BaseCommand.CommandSettings("ud", true, true, Category.FUN)));
+                factory.registerCommand(new GIF(new BaseCommand.CommandSettings("gif", true, true, Category.FUN)));
+                factory.registerCommand(new FML(new BaseCommand.CommandSettings("fml", true, true, Category.FUN)));
+                factory.registerCommand(new Yoda(new BaseCommand.CommandSettings("yoda", true, true, Category.FUN)));
+                factory.registerCommand(new EightBall(new BaseCommand.CommandSettings("8ball", true, true, Category
+                        .FUN)));
+                factory.registerCommand(new Tags(new BaseCommand.CommandSettings("tag", false, true, Category.FUN)));
+                factory.registerCommand(new tk.ardentbot.BotCommands.Fun.Translate(new BaseCommand.CommandSettings("translate",
                         true, true, Category
                         .FUN)));
-                factory.registerCommand(new Roll(new Command.CommandSettings("roll", true, true, Category.FUN)));
-                // factory.registerCommand(new Coinflip(new Command.CommandSettings("coinflip", true, true, Category
+                factory.registerCommand(new Roll(new BaseCommand.CommandSettings("roll", true, true, Category.FUN)));
+                // factory.registerCommand(new Coinflip(new BaseCommand.CommandSettings("coinflip", true, true, Category
                 // .FUN)));
-                factory.registerCommand(new Music(new Command.CommandSettings("music", false, true, Category.FUN)));
+                factory.registerCommand(new Music(new BaseCommand.CommandSettings("music", false, true, Category.FUN)));
 
-                factory.registerCommand(new Prefix(new Command.CommandSettings("prefix", false, true, Category
+                factory.registerCommand(new Prefix(new BaseCommand.CommandSettings("prefix", false, true, Category
                         .GUILDADMINISTRATION)));
-                factory.registerCommand(new GuildLanguage(new Command.CommandSettings("language", false, true,
+                factory.registerCommand(new GuildLanguage(new BaseCommand.CommandSettings("language", false, true,
                         Category.GUILDADMINISTRATION)));
-                factory.registerCommand(new Iam(new Command.CommandSettings("iam", false, true,
+                factory.registerCommand(new Iam(new BaseCommand.CommandSettings("iam", false, true,
                         Category.GUILDADMINISTRATION)));
-                factory.registerCommand(new Setnickname(new Command.CommandSettings("setnickname", false, true,
+                factory.registerCommand(new Setnickname(new BaseCommand.CommandSettings("setnickname", false, true,
                         Category.GUILDADMINISTRATION)));
-                factory.registerCommand(new Prune(new Command.CommandSettings("prune", false, true, Category
+                factory.registerCommand(new Prune(new BaseCommand.CommandSettings("prune", false, true, Category
                         .GUILDADMINISTRATION)));
-                factory.registerCommand(new Kick(new Command.CommandSettings("kick", false, true, Category
+                factory.registerCommand(new Kick(new BaseCommand.CommandSettings("kick", false, true, Category
                         .GUILDADMINISTRATION)));
-                factory.registerCommand(new Ban(new Command.CommandSettings("ban", false, true, Category
+                factory.registerCommand(new Ban(new BaseCommand.CommandSettings("ban", false, true, Category
                         .GUILDADMINISTRATION)));
-                factory.registerCommand(new Clear(new Command.CommandSettings("clear", false, true, Category
+                factory.registerCommand(new Clear(new BaseCommand.CommandSettings("clear", false, true, Category
                         .GUILDADMINISTRATION)));
-                factory.registerCommand(new Roles(new Command.CommandSettings("roles", false, true, Category
+                factory.registerCommand(new Roles(new BaseCommand.CommandSettings("roles", false, true, Category
                         .GUILDADMINISTRATION)));
-                factory.registerCommand(new DefaultRole(new Command.CommandSettings("defaultrole", false, true,
+                factory.registerCommand(new DefaultRole(new BaseCommand.CommandSettings("defaultrole", false, true,
                         Category.GUILDADMINISTRATION)));
-                factory.registerCommand(new Unmute(new Command.CommandSettings("unmute", false, true, Category
+                factory.registerCommand(new Unmute(new BaseCommand.CommandSettings("unmute", false, true, Category
                         .GUILDADMINISTRATION)));
-                factory.registerCommand(new Mute(new Command.CommandSettings("mute", false, true, Category
+                factory.registerCommand(new Mute(new BaseCommand.CommandSettings("mute", false, true, Category
                         .GUILDADMINISTRATION)));
-                factory.registerCommand(new Automessage(new Command.CommandSettings("automessage", false, true,
+                factory.registerCommand(new Automessage(new BaseCommand.CommandSettings("automessage", false, true,
                         Category.GUILDADMINISTRATION)));
 
-                factory.registerCommand(new GuildInfo(new Command.CommandSettings("guildinfo", false, true, Category
+                factory.registerCommand(new GuildInfo(new BaseCommand.CommandSettings("guildinfo", false, true, Category
                         .GUILDINFO)));
-                factory.registerCommand(new Whois(new Command.CommandSettings("whois", true, true, Category
+                factory.registerCommand(new Whois(new BaseCommand.CommandSettings("whois", true, true, Category
                         .GUILDINFO)));
-                factory.registerCommand(new Points(new Command.CommandSettings("points", false, true, Category
+                factory.registerCommand(new Points(new BaseCommand.CommandSettings("points", false, true, Category
                         .GUILDINFO)));
-                factory.registerCommand(new Botname(new Command.CommandSettings("botname", false, true, Category
+                factory.registerCommand(new Botname(new BaseCommand.CommandSettings("botname", false, true, Category
                         .GUILDINFO)));
-                // factory.registerCommand(new Emojis(new Command.CommandSettings("emojis", true, true, Category
+                // factory.registerCommand(new Emojis(new BaseCommand.CommandSettings("emojis", true, true, Category
                 // .GUILDINFO)));
 
                 cleverBot = new ChatterBotFactory().create(ChatterBotType.PANDORABOTS, "f5d922d97e345aa1");
@@ -353,8 +356,8 @@ public class Instance {
                 // PhraseUpdater phraseUpdater = new PhraseUpdater();
                 // TranslationUpdater translationUpdater = new TranslationUpdater();
 
-                PermissionsDaemon patronDaemon = new PermissionsDaemon();
-                executorService.scheduleAtFixedRate(patronDaemon, 1, 15, TimeUnit.SECONDS);
+                PermissionsDaemon permissionsDaemon = new PermissionsDaemon();
+                executorService.scheduleAtFixedRate(permissionsDaemon, 0, 60, TimeUnit.SECONDS);
 
                 GuildDaemon guildDaemon = new GuildDaemon();
                 executorService.scheduleAtFixedRate(guildDaemon, 1, 5, TimeUnit.SECONDS);

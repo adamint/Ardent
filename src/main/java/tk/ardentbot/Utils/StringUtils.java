@@ -5,33 +5,11 @@ import tk.ardentbot.Utils.Tuples.Pair;
 import java.util.*;
 
 public class StringUtils {
-    private static final char ACTIVE_BLOCK = '\u2588';
-    private static final char EMPTY_BLOCK = '\u200b';
     public static Comparator<Pair<String, Double>> SIMILARITY = (o1, o2) -> {
         if (o1.getV() < o2.getV()) return 1;
         else if (Objects.equals(o1.getV(), o2.getV())) return 0;
         else return -1;
     };
-
-    /**
-     * Credit to @Mantaro bot for this
-     *
-     * @param percent
-     * @param total
-     * @return
-     */
-    public static String bar(int percent, int total) {
-        StringBuilder sb = new StringBuilder().append("`").append(EMPTY_BLOCK);
-        String active = "";
-        String inactive = "";
-        int activeBlocks = (int) (percent / 6.66666666);
-        for (int i = 0; i < activeBlocks; i++) active += ACTIVE_BLOCK;
-        int inactiveBlocks = total - activeBlocks;
-        for (int i = 0; i < inactiveBlocks; i++) active += EMPTY_BLOCK;
-        StringBuilder builder = new StringBuilder().append('`').append(EMPTY_BLOCK);
-        builder.append(active).append(inactive);
-        return builder.append(EMPTY_BLOCK).append('`').toString();
-    }
 
     public static void replaceAll(final StringBuilder builder, final String from, final String to) {
         int index;
