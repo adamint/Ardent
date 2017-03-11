@@ -1,6 +1,5 @@
 package tk.ardentbot.BotCommands.GuildAdministration;
 
-import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.CommandExecution.Subcommand;
@@ -71,7 +70,7 @@ public class GuildLanguage extends Command {
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
                 Member member = guild.getMember(user);
-                if (member.hasPermission(Permission.MANAGE_SERVER)) {
+                if (GuildUtils.hasManageServerPermission(member)) {
                     if (args.length == 3) {
                         Language changeTo = LangFactory.getLanguage(args[2]);
                         if (changeTo != null) {
@@ -79,6 +78,10 @@ public class GuildLanguage extends Command {
                                     .getIdentifier()).set(guild.getId()).update();
                             ardent.botLanguageData.set(guild, changeTo.getIdentifier());
                             sendRetrievedTranslation(channel, "language", changeTo, "changedlanguage");
+                            sendTranslatedMessage(getTranslation("other", language, "mentionedhelp").getTranslation()
+                                            .replace("{0}", GuildUtils.getPrefix(guild) + ardent.help.getName
+                                                    (language)),
+                                    channel);
                         }
                         else sendRetrievedTranslation(channel, "language", language, "invalidlanguage");
                     }

@@ -323,6 +323,7 @@ public class Instance {
 
                 jda.getGuilds().forEach((guild -> {
                     Status.commandsByGuild.put(guild.getId(), 0);
+                    sentAnnouncement.put(guild.getId(), false);
                     cleverbots.put(guild.getId(), cleverBot.createSession());
                 }));
 
