@@ -2,7 +2,6 @@ package tk.ardentbot.BotCommands.GuildAdministration;
 
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
-import net.dv8tion.jda.core.exceptions.PermissionException;
 import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.Exceptions.BotException;
 import tk.ardentbot.Core.Translation.Language;
@@ -50,7 +49,7 @@ public class Clear extends Command {
                     catch (NumberFormatException ex) {
                         sendRetrievedTranslation(channel, "prune", language, "notanumber");
                     }
-                    catch (PermissionException ex) {
+                    catch (Exception ex) {
                         sendRetrievedTranslation(channel, "other", language, "needproperpermissions");
                     }
                 }
@@ -82,6 +81,10 @@ public class Clear extends Command {
                         }
                         catch (NumberFormatException ex) {
                             sendRetrievedTranslation(channel, "prune", language, "notanumber");
+                        }
+
+                        catch (Exception ex) {
+                            sendRetrievedTranslation(channel, "other", language, "needproperpermissions");
                         }
                     }
                     else sendRetrievedTranslation(channel, "other", language, "mentionuser");

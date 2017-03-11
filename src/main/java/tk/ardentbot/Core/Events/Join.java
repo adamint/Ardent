@@ -55,10 +55,7 @@ public class Join {
         ardent.musicManagers.put(Long.parseLong(guild.getId()), new GuildMusicManager(ardent.playerManager));
 
         ardent.cleverbots.put(guild.getId(), ardent.cleverBot.createSession());
-        if (ardent.announcement != null) {
-            ardent.sentAnnouncement.put(guild.getId(), false);
-        }
-
+        ardent.sentAnnouncement.put(guild.getId(), false);
         TextChannel channel = guild.getPublicChannel();
         try {
             String prefix;
