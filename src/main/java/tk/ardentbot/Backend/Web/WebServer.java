@@ -148,10 +148,10 @@ public class WebServer {
                                     && !id.isEmpty() && !commandId.isEmpty() && !translationName.isEmpty() &&
                                     !translationSyntax.isEmpty() && !translationDescription.isEmpty())
                             {
-                                new DatabaseAction("INSERT INTO Subcommands VALUES (?,?,?,?,?,?,?").set(commandId)
+                                new DatabaseAction("INSERT INTO Subcommands VALUES (?,?,?,?,?,?,?)").set(commandId)
                                         .set(id).set(language.getIdentifier()).set(translationName).set
                                         (translationSyntax)
-                                        .set(translationDescription).update();
+                                        .set(translationDescription).set(true).update();
                                 return "Successfully added your translation. Go back and reload the page or use your " +
                                         "base URL to enter in another one!";
                             }

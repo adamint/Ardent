@@ -32,43 +32,29 @@ import java.util.concurrent.TimeUnit;
 import static tk.ardentbot.Main.Ardent.ardent;
 
 public class Music extends BotCommand {
-    public static Pair<Integer, Integer> getMusicStats() {
-        int playingGuilds = 0;
-        int queueLength = 0;
-        for (Guild guild : ardent.jda.getGuilds()) {
-            GuildMusicManager guildMusicManager = getGuildAudioPlayer(guild);
-            ArdentMusicManager manager = guildMusicManager.scheduler.manager;
-            if (manager.isTrackCurrentlyPlaying()) {
-                playingGuilds++;
-                queueLength++;
-                queueLength += manager.getQueue().size();
-            }
-        }
-        return new Pair<>(playingGuilds, queueLength);
-    }
 
     public static HashMap<String, String> textChannels = new HashMap<>();
-
-    public static Pair<Integer, Integer> getMusicStats() {
-        int playingGuilds = 0;
-        int queueLength = 0;
-        for (Guild guild : ardent.jda.getGuilds()) {
-            GuildMusicManager guildMusicManager = getGuildAudioPlayer(guild);
-            ArdentMusicManager manager = guildMusicManager.scheduler.manager;
-            if (manager.isTrackCurrentlyPlaying()) {
-                playingGuilds++;
-                queueLength++;
-                queueLength += manager.getQueue().size();
-            }
-        }
-        return new Pair<>(playingGuilds, queueLength);
-    }
 
     public Music(CommandSettings commandSettings) {
         super(commandSettings);
     }
 
-    private static synchronized GuildMusicManager getGuildAudioPlayer(Guild guild) {
+    public static Pair<Integer, Integer> getMusicStats() {
+        int playingGuilds = 0;
+        int queueLength = 0;
+        for (Guild guild : ardent.jda.getGuilds()) {
+            GuildMusicManager guildMusicManager = getGuildAudioPlayer(guild);
+            ArdentMusicManager manager = guildMusicManager.scheduler.manager;
+            if (manager.isTrackCurrentlyPlaying()) {
+                playingGuilds++;
+                queueLength++;
+                queueLength += manager.getQueue().size();
+            }
+        }
+        return new Pair<>(playingGuilds, queueLength);
+    }
+
+    public static synchronized GuildMusicManager getGuildAudioPlayer(Guild guild) {
         long guildId = Long.parseLong(guild.getId());
         GuildMusicManager musicManager = ardent.musicManagers.get(guildId);
 
@@ -646,7 +632,6 @@ public class Music extends BotCommand {
                     if (mentionedUsers.size() == 1) {
                         User deleteFrom = mentionedUsers.get(0);
                         getGuildAudioPlayer(guild).scheduler.manager.removeFrom(deleteFrom);
-
                         sendTranslatedMessage(getTranslation("music", language, "deletealltracksfrom").getTranslation()
                                 .replace("{0}", deleteFrom.getName()), channel);
                     }

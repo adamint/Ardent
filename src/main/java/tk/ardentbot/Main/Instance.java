@@ -71,7 +71,7 @@ import java.util.logging.Logger;
 
 import static tk.ardentbot.Backend.Translation.LangFactory.languages;
 public class Instance {
-    public boolean testingBot = false;
+    public boolean testingBot;
     public ScheduledExecutorService executorService = Executors.newScheduledThreadPool(100);
     public BotMuteData botMuteData;
     public BotPrefixData botPrefixData;
@@ -104,7 +104,8 @@ public class Instance {
     private int gameCounter = 0;
     private int matureLanguages = 0;
 
-    public Instance() throws Exception {
+    public Instance(boolean testingBot) throws Exception {
+        this.testingBot = testingBot;
         String token;
         if (testingBot) {
             token = IOUtils.toString(new FileReader(new File("C:\\Users\\AMR\\Desktop\\Ardent\\v2testtoken.key")));

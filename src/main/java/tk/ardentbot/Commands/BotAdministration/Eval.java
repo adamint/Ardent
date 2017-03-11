@@ -43,6 +43,7 @@ public class Eval extends BotCommand {
                 shortcuts.put("me", message.getAuthor());
                 shortcuts.put("bot", message.getJDA().getSelfUser());
                 shortcuts.put("conn", ardent.conn);
+                shortcuts.put("ardent", ardent);
 
                 final int timeout = 10;
 

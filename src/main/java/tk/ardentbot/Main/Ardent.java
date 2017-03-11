@@ -8,7 +8,7 @@ public class Ardent {
      */
     public static Instance ardent;
     public static void main(String[] args) throws Exception {
-        ardent = new Instance();
+        ardent = new Instance(false);
         WebServer.setup();
     }
 }
