@@ -2,6 +2,7 @@ package tk.ardentbot.BotCommands.Music;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
+import net.dv8tion.jda.core.entities.MessageChannel;
 
 public class GuildMusicManager {
     /**
@@ -18,9 +19,9 @@ public class GuildMusicManager {
      *
      * @param manager Audio player manager to use for creating the player.
      */
-    public GuildMusicManager(AudioPlayerManager manager) {
+    public GuildMusicManager(AudioPlayerManager manager, MessageChannel channel) {
         player = manager.createPlayer();
-        scheduler = new TrackScheduler(player);
+        scheduler = new TrackScheduler(player, channel);
         player.addListener(scheduler);
     }
 

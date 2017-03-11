@@ -52,7 +52,7 @@ public class Join {
         botJoinEvents.add(Instant.now());
         Guild guild = event.getGuild();
         Status.commandsByGuild.put(guild.getId(), 0);
-        ardent.musicManagers.put(Long.parseLong(guild.getId()), new GuildMusicManager(ardent.playerManager));
+        ardent.musicManagers.put(Long.parseLong(guild.getId()), new GuildMusicManager(ardent.playerManager, null));
 
         ardent.cleverbots.put(guild.getId(), ardent.cleverBot.createSession());
         ardent.sentAnnouncement.put(guild.getId(), false);
