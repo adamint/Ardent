@@ -29,7 +29,7 @@ public class ArdentMusicManager {
         return currentlyPlaying;
     }
 
-    public void queue(User user, ArdentTrack track) {
+    public void queue(ArdentTrack track) {
         if (!player.startTrack(track.getTrack(), true)) {
             queue.offer(track);
         }
@@ -48,8 +48,9 @@ public class ArdentMusicManager {
         }
     }
 
-    public void addToQueue(ArdentTrack track) {
-        this.queue.offer(track);
+    void addToQueue(ArdentTrack track) {
+        queue(track);
+        lastPlayedAt = Instant.now();
     }
 
     public void updateLastPlayed(Instant instant) {

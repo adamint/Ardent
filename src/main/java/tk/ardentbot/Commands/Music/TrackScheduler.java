@@ -8,7 +8,6 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 public class TrackScheduler extends AudioEventAdapter {
     private final AudioPlayer player;
     public ArdentMusicManager manager;
-    String ownerOfNowPlaying;
 
     TrackScheduler(AudioPlayer player) {
         this.player = player;

@@ -8,6 +8,8 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.PrivateChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.exceptions.PermissionException;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.util.ConcurrentArrayQueue;
 import tk.ardentbot.Backend.Models.CommandTranslation;
@@ -170,7 +172,7 @@ public class CommandFactory {
                     }
                 }
                 else {
-                    String prefix = GuildUtils.getPrefix(guild);
+                    String prefix = StringEscapeUtils.escapeJava(GuildUtils.getPrefix(guild));
                     if (args[0].startsWith(prefix)) {
                         args[0] = args[0].replaceFirst(prefix, "");
                         Emoji emoji = EmojiManager.getByUnicode(args[0]);
@@ -224,7 +226,15 @@ public class CommandFactory {
             }
         }
         catch (Exception ex) {
-            new BotException(ex);
+            if (ex instanceof PermissionException) {
+                event.getAuthor().openPrivateChannel().queue(privateChannel -> {
+                    privateChannel.sendMessage("I don't have permission to send a message in this channel, please " +
+                            "tell a server administrator").queue();
+                });
+            }
+            else {
+                new BotException(ex);
+            }
         }
     }
 

@@ -11,7 +11,9 @@ import tk.ardentbot.Backend.Commands.BotCommand;
 import tk.ardentbot.Backend.Translation.Language;
 import tk.ardentbot.Backend.Translation.Translation;
 import tk.ardentbot.Backend.Translation.TranslationResponse;
+import tk.ardentbot.Commands.Music.Music;
 import tk.ardentbot.Utils.Discord.MessageUtils;
+import tk.ardentbot.Utils.Tuples.Pair;
 
 import java.lang.management.ManagementFactory;
 import java.text.DecimalFormat;
@@ -92,6 +94,8 @@ public class Status extends BotCommand {
         DecimalFormat formatter = new DecimalFormat("#,###");
         String cmds = formatter.format(commandsReceived);
 
+        Pair<Integer, Integer> musicStats = Music.getMusicStats();
+
         HashMap<Integer, TranslationResponse> translations = getTranslations(language, translationQueries);
 
         EmbedBuilder embedBuilder = MessageUtils.getDefaultEmbed(guild, user, this);
@@ -109,14 +113,15 @@ public class Status extends BotCommand {
         embedBuilder.addField(translations.get(4).getTranslation(), cmds, true);
 
         embedBuilder.addField(translations.get(5).getTranslation(), String.valueOf(jda.getGuilds().size()), true);
-        embedBuilder.addField(translations.get(6).getTranslation(), String.valueOf(countCurrentlyPlaying()), true);
+        embedBuilder.addField(translations.get(6).getTranslation(), String.valueOf(musicStats.getK()), true);
 
+        embedBuilder.addField("Queue", String.valueOf(musicStats.getV()), true);
         embedBuilder.addField(translations.get(7).getTranslation(), cpuFormat.format(cpuUsage) + "%", true);
+
         embedBuilder.addField(translations.get(8).getTranslation(), usedRAM + " / " + totalRAM + " MB", true);
-
         embedBuilder.addField(translations.get(9).getTranslation(), devUsernames.toString(), true);
-        embedBuilder.addField(translations.get(10).getTranslation(), "https://ardentbot.tk", true);
 
+        embedBuilder.addField(translations.get(10).getTranslation(), "https://ardentbot.tk", true);
         embedBuilder.addField(translations.get(11).getTranslation(), "https://ardentbot.tk/guild", true);
 
         sendEmbed(embedBuilder, channel);
