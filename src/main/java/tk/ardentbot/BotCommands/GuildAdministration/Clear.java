@@ -3,14 +3,14 @@ package tk.ardentbot.BotCommands.GuildAdministration;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.PermissionException;
-import tk.ardentbot.Core.CommandExecution.Cmd;
+import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.Exceptions.BotException;
 import tk.ardentbot.Core.Translation.Language;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Clear extends Cmd {
+public class Clear extends Command {
     public Clear(CommandSettings commandSettings) {
         super(commandSettings);
     }

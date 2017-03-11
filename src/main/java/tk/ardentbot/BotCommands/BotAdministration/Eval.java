@@ -7,7 +7,7 @@ import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.requests.RestAction;
 import org.apache.commons.lang3.tuple.Triple;
-import tk.ardentbot.Core.CommandExecution.Cmd;
+import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.Discord.GuildUtils;
@@ -19,7 +19,7 @@ import java.util.Map;
 
 import static tk.ardentbot.Main.Ardent.ardent;
 
-public class Eval extends Cmd {
+public class Eval extends Command {
     public Eval(CommandSettings commandSettings) {
         super(commandSettings);
     }

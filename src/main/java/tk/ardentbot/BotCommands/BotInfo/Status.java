@@ -8,7 +8,7 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.BotCommands.Music.Music;
-import tk.ardentbot.Core.CommandExecution.Cmd;
+import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Core.Translation.Translation;
 import tk.ardentbot.Core.Translation.TranslationResponse;
@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static tk.ardentbot.Main.Ardent.ardent;
 
-public class Status extends Cmd {
+public class Status extends Command {
     public static ConcurrentHashMap<String, Integer> commandsByGuild = new ConcurrentHashMap<>();
 
     public Status(CommandSettings commandSettings) {

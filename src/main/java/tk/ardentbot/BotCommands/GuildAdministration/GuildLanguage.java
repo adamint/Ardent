@@ -2,8 +2,8 @@ package tk.ardentbot.BotCommands.GuildAdministration;
 
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
-import tk.ardentbot.Core.CommandExecution.Cmd;
-import tk.ardentbot.Core.CommandExecution.SubCmd;
+import tk.ardentbot.Core.CommandExecution.Command;
+import tk.ardentbot.Core.CommandExecution.Subcommand;
 import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Core.Translation.Translation;
@@ -18,8 +18,8 @@ import java.util.Map;
 
 import static tk.ardentbot.Main.Ardent.ardent;
 
-public class GuildLanguage extends Cmd {
-    public SubCmd set;
+public class GuildLanguage extends Command {
+    public Subcommand set;
 
     public GuildLanguage(CommandSettings commandSettings) {
         super(commandSettings);
@@ -33,7 +33,7 @@ public class GuildLanguage extends Cmd {
 
     @Override
     public void setupSubcommands() {
-        subCmds.add(new SubCmd(this, "view") {
+        subcommands.add(new Subcommand(this, "view") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
@@ -42,7 +42,7 @@ public class GuildLanguage extends Cmd {
             }
         });
 
-        subCmds.add(new SubCmd(this, "list") {
+        subcommands.add(new Subcommand(this, "list") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
@@ -66,7 +66,7 @@ public class GuildLanguage extends Cmd {
             }
         });
 
-        set = new SubCmd(this, "set") {
+        set = new Subcommand(this, "set") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
@@ -89,8 +89,8 @@ public class GuildLanguage extends Cmd {
                 else sendRetrievedTranslation(channel, "other", language, "needmanageserver");
             }
         };
-        subCmds.add(set);
-        subCmds.add(new SubCmd(this, "statistics") {
+        subcommands.add(set);
+        subcommands.add(new Subcommand(this, "statistics") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {

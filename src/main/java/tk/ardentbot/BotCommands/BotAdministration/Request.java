@@ -1,7 +1,7 @@
 package tk.ardentbot.BotCommands.BotAdministration;
 
 import net.dv8tion.jda.core.entities.*;
-import tk.ardentbot.Core.CommandExecution.Cmd;
+import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 
@@ -12,7 +12,7 @@ import java.util.TimerTask;
 
 import static tk.ardentbot.Main.Ardent.ardent;
 
-public class Request extends Cmd {
+public class Request extends Command {
     private static ArrayList<RequestUtil> usersUnableToRequest = new ArrayList<>();
 
     public Request(CommandSettings commandSettings) {

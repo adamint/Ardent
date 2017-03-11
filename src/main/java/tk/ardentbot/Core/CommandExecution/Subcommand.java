@@ -12,11 +12,11 @@ import java.util.Optional;
 
 import static tk.ardentbot.Core.Translation.LangFactory.english;
 
-public abstract class SubCmd {
+public abstract class Subcommand {
     private String identifier;
     private BaseCommand baseCommand;
 
-    public SubCmd(BaseCommand baseCommand, String identifier) {
+    public Subcommand(BaseCommand baseCommand, String identifier) {
         this.identifier = identifier;
         this.baseCommand = baseCommand;
     }

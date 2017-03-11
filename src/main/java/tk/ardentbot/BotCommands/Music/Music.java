@@ -10,8 +10,8 @@ import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.managers.AudioManager;
-import tk.ardentbot.Core.CommandExecution.Cmd;
-import tk.ardentbot.Core.CommandExecution.SubCmd;
+import tk.ardentbot.Core.CommandExecution.Command;
+import tk.ardentbot.Core.CommandExecution.Subcommand;
 import tk.ardentbot.Core.Exceptions.BotException;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Core.Translation.Translation;
@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 
 import static tk.ardentbot.Main.Ardent.ardent;
 
-public class Music extends Cmd {
+public class Music extends Command {
     public Music(CommandSettings commandSettings) {
         super(commandSettings);
     }
@@ -72,7 +72,7 @@ public class Music extends Cmd {
         musicManager.scheduler.manager.addToQueue(new ArdentTrack(user.getId(), textChannel, track));
     }
 
-    private static void loadAndPlay(User user, Cmd command, Language language, final TextChannel channel,
+    private static void loadAndPlay(User user, Command command, Language language, final TextChannel channel,
                                     String trackUrl, final VoiceChannel voiceChannel, boolean search) {
         Guild guild = channel.getGuild();
         GuildMusicManager musicManager = getGuildAudioPlayer(channel.getGuild());
@@ -150,7 +150,7 @@ public class Music extends Cmd {
         });
     }
 
-    private static VoiceChannel joinChannel(Guild guild, Member user, Language language, Cmd cmd, AudioManager
+    private static VoiceChannel joinChannel(Guild guild, Member user, Language language, Command command, AudioManager
             audioManager, MessageChannel channel) throws Exception {
         GuildVoiceState voiceState = user.getVoiceState();
         if (voiceState.inVoiceChannel()) {
@@ -158,16 +158,16 @@ public class Music extends Cmd {
             Member bot = guild.getMember(ardent.bot);
             if (bot.hasPermission(voiceChannel, Permission.VOICE_CONNECT)) {
                 audioManager.openAudioConnection(voiceChannel);
-                cmd.sendTranslatedMessage(cmd.getTranslation("music", language, "connectedto").getTranslation()
+                command.sendTranslatedMessage(command.getTranslation("music", language, "connectedto").getTranslation()
                         .replace("{0}", voiceChannel.getName()), channel);
             }
             else {
-                cmd.sendRetrievedTranslation(channel, "music", language, "nopermissiontojoin");
+                command.sendRetrievedTranslation(channel, "music", language, "nopermissiontojoin");
             }
             return voiceChannel;
         }
         else {
-            cmd.sendRetrievedTranslation(channel, "music", language, "notinvoicechannel");
+            command.sendRetrievedTranslation(channel, "music", language, "notinvoicechannel");
             return null;
         }
     }
@@ -251,7 +251,7 @@ public class Music extends Cmd {
 
     @Override
     public void setupSubcommands() throws Exception {
-        subCmds.add(new SubCmd(this, "volume") {
+        subcommands.add(new Subcommand(this, "volume") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
@@ -282,7 +282,7 @@ public class Music extends Cmd {
                 else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel");
             }
         });
-        subCmds.add(new SubCmd(this, "play") {
+        subcommands.add(new Subcommand(this, "play") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
@@ -323,7 +323,7 @@ public class Music extends Cmd {
             }
         });
 
-        subCmds.add(new SubCmd(this, "config") {
+        subcommands.add(new Subcommand(this, "config") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
@@ -340,7 +340,7 @@ public class Music extends Cmd {
             }
         });
 
-        subCmds.add(new SubCmd(this, "queue") {
+        subcommands.add(new Subcommand(this, "queue") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
@@ -372,7 +372,7 @@ public class Music extends Cmd {
             }
         });
 
-        subCmds.add(new SubCmd(this, "skip") {
+        subcommands.add(new Subcommand(this, "skip") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
@@ -396,7 +396,7 @@ public class Music extends Cmd {
             }
         });
 
-        subCmds.add(new SubCmd(this, "remove") {
+        subcommands.add(new Subcommand(this, "remove") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
@@ -444,7 +444,7 @@ public class Music extends Cmd {
             }
         });
 
-        subCmds.add(new SubCmd(this, "leave") {
+        subcommands.add(new Subcommand(this, "leave") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
@@ -463,7 +463,7 @@ public class Music extends Cmd {
             }
         });
 
-        subCmds.add(new SubCmd(this, "resume") {
+        subcommands.add(new Subcommand(this, "resume") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
@@ -486,7 +486,7 @@ public class Music extends Cmd {
             }
         });
 
-        subCmds.add(new SubCmd(this, "stop") {
+        subcommands.add(new Subcommand(this, "stop") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
@@ -506,7 +506,7 @@ public class Music extends Cmd {
         });
 
 
-        subCmds.add(new SubCmd(this, "clear") {
+        subcommands.add(new Subcommand(this, "clear") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
@@ -524,7 +524,7 @@ public class Music extends Cmd {
             }
         });
 
-        subCmds.add(new SubCmd(this, "playing") {
+        subcommands.add(new Subcommand(this, "playing") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
@@ -548,7 +548,7 @@ public class Music extends Cmd {
             }
         });
 
-        subCmds.add(new SubCmd(this, "shuffle") {
+        subcommands.add(new Subcommand(this, "shuffle") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
@@ -566,7 +566,7 @@ public class Music extends Cmd {
             }
         });
 
-        subCmds.add(new SubCmd(this, "pause") {
+        subcommands.add(new Subcommand(this, "pause") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
@@ -589,7 +589,7 @@ public class Music extends Cmd {
             }
         });
 
-        subCmds.add(new SubCmd(this, "loop") {
+        subcommands.add(new Subcommand(this, "loop") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
@@ -640,7 +640,7 @@ public class Music extends Cmd {
             }
         });
 
-        subCmds.add(new SubCmd(this, "removeallfrom") {
+        subcommands.add(new Subcommand(this, "removeallfrom") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
@@ -658,7 +658,7 @@ public class Music extends Cmd {
                 else sendRetrievedTranslation(channel, "other", language, "needmanageserver");
             }
         });
-        subCmds.add(new SubCmd(this, "restart") {
+        subcommands.add(new Subcommand(this, "restart") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
@@ -679,7 +679,7 @@ public class Music extends Cmd {
                 else sendRetrievedTranslation(channel, "music", language, "notplayingrn");
             }
         });
-        subCmds.add(new SubCmd(this, "resetplayer") {
+        subcommands.add(new Subcommand(this, "resetplayer") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {

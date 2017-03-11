@@ -4,7 +4,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.Core.CommandExecution.Cmd;
+import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.Exceptions.BotException;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Main.Ardent;
@@ -18,14 +18,14 @@ import java.util.TimerTask;
 import static tk.ardentbot.BotCommands.BotInfo.Status.getVoiceConnections;
 import static tk.ardentbot.Main.Ardent.ardent;
 
-public class Admin extends Cmd {
+public class Admin extends Command {
     private static int secondsWaitedForRestart = 0;
 
     public Admin(CommandSettings commandSettings) {
         super(commandSettings);
     }
 
-    public static void update(Cmd command, Language language, MessageChannel channel) throws Exception {
+    public static void update(Command command, Language language, MessageChannel channel) throws Exception {
         channel.sendMessage("Updating...").queue();
         for (Guild g : ardent.jda.getGuilds()) {
             if (g.getAudioManager().isConnected()) {

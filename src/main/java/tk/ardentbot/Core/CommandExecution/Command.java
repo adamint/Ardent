@@ -16,16 +16,16 @@ import java.util.List;
 
 import static tk.ardentbot.Main.Ardent.ardent;
 
-public abstract class Cmd extends BaseCommand {
+public abstract class Command extends BaseCommand {
     public int usages = 0;
-    public ArrayList<SubCmd> subCmds = new ArrayList<>();
+    public ArrayList<Subcommand> subcommands = new ArrayList<>();
 
     /**
-     * Instantiates a new Cmd
+     * Instantiates a new Command
      *
      * @param commandSettings settings to instantiate the command with
      */
-    public Cmd(CommandSettings commandSettings) {
+    public Command(CommandSettings commandSettings) {
         this.commandIdentifier = commandSettings.getCommandIdentifier();
         this.privateChannelUsage = commandSettings.isPrivateChannelUsage();
         this.guildUsage = commandSettings.isGuildUsage();
@@ -65,10 +65,11 @@ public abstract class Cmd extends BaseCommand {
         StringBuilder description = new StringBuilder();
         description.append("*" + getDescription(language) + "*");
 
-        if (subCmds.size() > 0) {
-            description.append("\n\n**" + getTranslation("other", language, "subCmds").getTranslation() + "**\n");
-            for (SubCmd subCmd : subCmds) {
-                description.append("- " + subCmd.getSyntax(language) + ": *" + subCmd.getDescription(language) + "*\n");
+        if (subcommands.size() > 0) {
+            description.append("\n\n**" + getTranslation("other", language, "subcommands").getTranslation() + "**\n");
+            for (Subcommand subcommand : subcommands) {
+                description.append("- " + subcommand.getSyntax(language) + ": *" + subcommand.getDescription
+                        (language) + "*\n");
             }
         }
         embedBuilder.setDescription(description.toString());
@@ -78,7 +79,7 @@ public abstract class Cmd extends BaseCommand {
     /**
      * Called when the CommandFactory identifies the queried
      * command. Will either call a subcommand from the list
-     * or Cmd#noArgs
+     * or Command#noArgs
      *
      * @param guild The guild of the sent command
      * @param channel Channel of the sent command
@@ -90,14 +91,14 @@ public abstract class Cmd extends BaseCommand {
      */
     void onUsage(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language)
             throws Exception {
-        if (args.length == 1 || subCmds.size() == 0) noArgs(guild, channel, user, message, args, language);
+        if (args.length == 1 || subcommands.size() == 0) noArgs(guild, channel, user, message, args, language);
         else {
             List<SubcommandTranslation> subcommandTranslations = language.getSubcommands(this);
             final boolean[] found = {false};
             subcommandTranslations.forEach(subcommandTranslation -> {
                 if (subcommandTranslation.getTranslation().equalsIgnoreCase(args[1])) {
                     found[0] = true;
-                    subCmds.forEach(subcommand -> {
+                    subcommands.forEach(subcommand -> {
                         if (subcommand.getIdentifier().equalsIgnoreCase(subcommandTranslation.getIdentifier())) {
                             try {
                                 subcommand.onCall(guild, channel, user, message, args, language);

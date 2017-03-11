@@ -2,8 +2,8 @@ package tk.ardentbot.BotCommands.GuildAdministration;
 
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
-import tk.ardentbot.Core.CommandExecution.Cmd;
-import tk.ardentbot.Core.CommandExecution.SubCmd;
+import tk.ardentbot.Core.CommandExecution.Command;
+import tk.ardentbot.Core.CommandExecution.Subcommand;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Core.Translation.Translation;
 import tk.ardentbot.Core.Translation.TranslationResponse;
@@ -21,7 +21,7 @@ import java.util.List;
 import static tk.ardentbot.Main.Ardent.ardent;
 import static tk.ardentbot.Utils.SQL.SQLUtils.cleanString;
 
-public class Automessage extends Cmd {
+public class Automessage extends Command {
     public Automessage(CommandSettings commandSettings) {
         super(commandSettings);
     }
@@ -91,7 +91,7 @@ public class Automessage extends Cmd {
 
     @Override
     public void setupSubcommands() throws Exception {
-        subCmds.add(new SubCmd(this, "view") {
+        subcommands.add(new Subcommand(this, "view") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
@@ -129,7 +129,7 @@ public class Automessage extends Cmd {
             }
         });
 
-        subCmds.add(new SubCmd(this, "arguments") {
+        subcommands.add(new Subcommand(this, "arguments") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
@@ -139,7 +139,7 @@ public class Automessage extends Cmd {
             }
         });
 
-        subCmds.add(new SubCmd(this, "set") {
+        subcommands.add(new Subcommand(this, "set") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
@@ -186,7 +186,7 @@ public class Automessage extends Cmd {
             }
         });
 
-        subCmds.add(new SubCmd(this, "remove") {
+        subcommands.add(new Subcommand(this, "remove") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {

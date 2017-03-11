@@ -4,7 +4,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.Core.CommandExecution.Cmd;
+import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Core.Translation.Translation;
 import tk.ardentbot.Core.Translation.TranslationResponse;
@@ -13,7 +13,7 @@ import tk.ardentbot.Utils.Discord.GuildUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class GuildInfo extends Cmd {
+public class GuildInfo extends Command {
     public GuildInfo(CommandSettings commandSettings) {
         super(commandSettings);
     }

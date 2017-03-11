@@ -4,7 +4,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.Core.CommandExecution.Cmd;
+import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Core.Translation.Translation;
 import tk.ardentbot.Core.Translation.TranslationResponse;
@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 import static tk.ardentbot.Main.Ardent.ardent;
 
-public class Roll extends Cmd {
+public class Roll extends Command {
     public Roll(CommandSettings commandSettings) {
         super(commandSettings);
     }

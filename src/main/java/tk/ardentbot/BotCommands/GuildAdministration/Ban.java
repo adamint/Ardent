@@ -2,14 +2,14 @@ package tk.ardentbot.BotCommands.GuildAdministration;
 
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
-import tk.ardentbot.Core.CommandExecution.Cmd;
+import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.Exceptions.BotException;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 
 import java.util.List;
 
-public class Ban extends Cmd {
+public class Ban extends Command {
     public Ban(CommandSettings commandSettings) {
         super(commandSettings);
     }

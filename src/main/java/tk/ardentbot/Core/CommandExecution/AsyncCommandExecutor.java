@@ -13,7 +13,7 @@ import static tk.ardentbot.Main.Ardent.ardent;
 
 class AsyncCommandExecutor implements Runnable {
 
-    private Cmd command;
+    private Command command;
     private Guild guild;
     private MessageChannel channel;
     private User author;
@@ -21,7 +21,7 @@ class AsyncCommandExecutor implements Runnable {
     private String[] args;
     private Language language;
 
-    AsyncCommandExecutor(Cmd command, Guild guild, MessageChannel channel, User author, Message message, String[]
+    AsyncCommandExecutor(Command command, Guild guild, MessageChannel channel, User author, Message message, String[]
             args, Language language) {
         this.command = command;
         this.guild = guild;

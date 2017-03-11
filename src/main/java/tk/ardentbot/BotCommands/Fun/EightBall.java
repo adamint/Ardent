@@ -6,14 +6,14 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.Core.CommandExecution.Cmd;
+import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Core.WebServer.Models.EightBallResponse;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 
 import static tk.ardentbot.Main.Ardent.ardent;
 
-public class EightBall extends Cmd {
+public class EightBall extends Command {
     public EightBall(CommandSettings commandSettings) {
         super(commandSettings);
     }

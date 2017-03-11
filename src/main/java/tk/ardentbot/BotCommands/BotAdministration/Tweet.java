@@ -4,7 +4,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.Core.CommandExecution.Cmd;
+import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.Discord.GuildUtils;
@@ -12,7 +12,7 @@ import twitter4j.Status;
 
 import static tk.ardentbot.Main.Ardent.ardent;
 
-public class Tweet extends Cmd {
+public class Tweet extends Command {
     public Tweet(CommandSettings commandSettings) {
         super(commandSettings);
     }

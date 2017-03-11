@@ -5,8 +5,8 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.Core.CommandExecution.Cmd;
-import tk.ardentbot.Core.CommandExecution.SubCmd;
+import tk.ardentbot.Core.CommandExecution.Command;
+import tk.ardentbot.Core.CommandExecution.Subcommand;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
@@ -18,7 +18,7 @@ import java.util.ArrayList;
 
 import static tk.ardentbot.Utils.SQL.SQLUtils.cleanString;
 
-public class Tags extends Cmd {
+public class Tags extends Command {
     public Tags(CommandSettings commandSettings) {
         super(commandSettings);
     }
@@ -42,7 +42,7 @@ public class Tags extends Cmd {
 
     @Override
     public void setupSubcommands() throws Exception {
-        subCmds.add(new SubCmd(this, "list") {
+        subcommands.add(new Subcommand(this, "list") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
@@ -56,7 +56,7 @@ public class Tags extends Cmd {
                 sendTranslatedMessage(sb.toString(), channel);
             }
         });
-        subCmds.add(new SubCmd(this, "g") {
+        subcommands.add(new Subcommand(this, "g") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
@@ -79,7 +79,7 @@ public class Tags extends Cmd {
                 sendTranslatedMessage(sb.toString(), channel);
             }
         });
-        subCmds.add(new SubCmd(this, "search") {
+        subcommands.add(new Subcommand(this, "search") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
@@ -97,7 +97,7 @@ public class Tags extends Cmd {
                 else sendRetrievedTranslation(channel, "tag", language, "mustincludesearchterms");
             }
         });
-        subCmds.add(new SubCmd(this, "add") {
+        subcommands.add(new Subcommand(this, "add") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
@@ -120,7 +120,7 @@ public class Tags extends Cmd {
                 else sendRetrievedTranslation(channel, "other", language, "needmessagemanage");
             }
         });
-        subCmds.add(new SubCmd(this, "remove") {
+        subcommands.add(new Subcommand(this, "remove") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {

@@ -5,8 +5,8 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.Core.CommandExecution.Cmd;
-import tk.ardentbot.Core.CommandExecution.SubCmd;
+import tk.ardentbot.Core.CommandExecution.Command;
+import tk.ardentbot.Core.CommandExecution.Subcommand;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.Discord.GuildUtils;
@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import static tk.ardentbot.Main.Ardent.ardent;
 import static tk.ardentbot.Utils.SQL.SQLUtils.cleanString;
 
-public class Todo extends Cmd {
+public class Todo extends Command {
     public Todo(CommandSettings commandSettings) {
         super(commandSettings);
     }
@@ -42,7 +42,7 @@ public class Todo extends Cmd {
 
     @Override
     public void setupSubcommands() {
-        subCmds.add(new SubCmd(this, "add") {
+        subcommands.add(new Subcommand(this, "add") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
                 if (Ardent.developers.contains(user.getId())) {
@@ -56,7 +56,7 @@ public class Todo extends Cmd {
             }
         });
 
-        subCmds.add(new SubCmd(this, "remove") {
+        subcommands.add(new Subcommand(this, "remove") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
                 if (Ardent.developers.contains(user.getId())) {

@@ -5,13 +5,13 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.Core.CommandExecution.Cmd;
-import tk.ardentbot.Core.CommandExecution.SubCmd;
+import tk.ardentbot.Core.CommandExecution.Command;
+import tk.ardentbot.Core.CommandExecution.Subcommand;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 
-public class Prefix extends Cmd {
+public class Prefix extends Command {
     public Prefix(CommandSettings commandSettings) {
         super(commandSettings);
     }
@@ -24,7 +24,7 @@ public class Prefix extends Cmd {
 
     @Override
     public void setupSubcommands() {
-        subCmds.add(new SubCmd(this, "view") {
+        subcommands.add(new Subcommand(this, "view") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
@@ -32,7 +32,7 @@ public class Prefix extends Cmd {
                         ("{0}", GuildUtils.getPrefix(guild)), channel);
             }
         });
-        subCmds.add(new SubCmd(this, "change") {
+        subcommands.add(new Subcommand(this, "change") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {

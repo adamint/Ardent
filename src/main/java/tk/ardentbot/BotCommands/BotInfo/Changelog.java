@@ -5,8 +5,8 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.Core.CommandExecution.Cmd;
-import tk.ardentbot.Core.CommandExecution.SubCmd;
+import tk.ardentbot.Core.CommandExecution.Command;
+import tk.ardentbot.Core.CommandExecution.Subcommand;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Core.Translation.Translation;
 import tk.ardentbot.Core.Translation.TranslationResponse;
@@ -25,7 +25,7 @@ import java.util.HashMap;
 
 import static tk.ardentbot.Main.Ardent.ardent;
 
-public class Changelog extends Cmd {
+public class Changelog extends Command {
     public Changelog(CommandSettings commandSettings) {
         super(commandSettings);
     }
@@ -74,7 +74,7 @@ public class Changelog extends Cmd {
 
     @Override
     public void setupSubcommands() throws Exception {
-        subCmds.add(new SubCmd(this, "add") {
+        subcommands.add(new Subcommand(this, "add") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
@@ -100,7 +100,7 @@ public class Changelog extends Cmd {
                 else sendRetrievedTranslation(channel, "other", language, "needdeveloperpermission");
             }
         });
-        subCmds.add(new SubCmd(this, "view") {
+        subcommands.add(new Subcommand(this, "view") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {

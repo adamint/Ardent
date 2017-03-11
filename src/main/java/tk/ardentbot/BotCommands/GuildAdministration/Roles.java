@@ -3,14 +3,14 @@ package tk.ardentbot.BotCommands.GuildAdministration;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.PermissionException;
-import tk.ardentbot.Core.CommandExecution.Cmd;
-import tk.ardentbot.Core.CommandExecution.SubCmd;
+import tk.ardentbot.Core.CommandExecution.Command;
+import tk.ardentbot.Core.CommandExecution.Subcommand;
 import tk.ardentbot.Core.Exceptions.BotException;
 import tk.ardentbot.Core.Translation.Language;
 
 import java.util.List;
 
-public class Roles extends Cmd {
+public class Roles extends Command {
     public Roles(CommandSettings commandSettings) {
         super(commandSettings);
     }
@@ -22,7 +22,7 @@ public class Roles extends Cmd {
 
     @Override
     public void setupSubcommands() throws Exception {
-        subCmds.add(new SubCmd(this, "add") {
+        subcommands.add(new Subcommand(this, "add") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
                 if (args.length > 2) {
@@ -69,7 +69,7 @@ public class Roles extends Cmd {
             }
         });
 
-        subCmds.add(new SubCmd(this, "remove") {
+        subcommands.add(new Subcommand(this, "remove") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
                 if (args.length > 2) {

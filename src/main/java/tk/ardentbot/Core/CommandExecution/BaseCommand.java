@@ -22,11 +22,11 @@ import static tk.ardentbot.Core.Translation.LangFactory.english;
 import static tk.ardentbot.Main.Ardent.ardent;
 
 /**
- * Abstracted from Cmd for possible future
+ * Abstracted from Command for possible future
  * implementations (WebCommand)
  */
 public abstract class BaseCommand {
-    Cmd botCommand;
+    Command botCommand;
     String commandIdentifier;
     boolean privateChannelUsage = true;
     boolean guildUsage = true;
@@ -351,7 +351,7 @@ public abstract class BaseCommand {
         return category;
     }
 
-    public Cmd getBotCommand() {
+    public Command getBotCommand() {
         return botCommand;
     }
 

@@ -2,7 +2,7 @@ package tk.ardentbot.BotCommands.GuildAdministration;
 
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
-import tk.ardentbot.Core.CommandExecution.Cmd;
+import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 
@@ -10,7 +10,7 @@ import java.util.List;
 
 import static tk.ardentbot.Main.Ardent.ardent;
 
-public class Unmute extends Cmd {
+public class Unmute extends Command {
     public Unmute(CommandSettings commandSettings) {
         super(commandSettings);
     }

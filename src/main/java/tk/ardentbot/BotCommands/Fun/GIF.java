@@ -6,7 +6,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.Core.CommandExecution.Cmd;
+import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.Translation.Language;
 
 import java.util.ArrayList;
@@ -15,7 +15,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 
-public class GIF extends Cmd {
+public class GIF extends Command {
     public static Giphy giphy = new Giphy("dc6zaTOxFJmzC");
     public static ArrayList<String> categories = new ArrayList<>();
     static Timer timer = new Timer();

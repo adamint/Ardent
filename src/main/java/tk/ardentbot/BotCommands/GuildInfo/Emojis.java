@@ -7,8 +7,8 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.Core.CommandExecution.Cmd;
-import tk.ardentbot.Core.CommandExecution.SubCmd;
+import tk.ardentbot.Core.CommandExecution.Command;
+import tk.ardentbot.Core.CommandExecution.Subcommand;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Core.Translation.Translation;
 import tk.ardentbot.Core.Translation.TranslationResponse;
@@ -19,7 +19,7 @@ import java.util.HashMap;
 
 import static tk.ardentbot.Main.Ardent.ardent;
 
-public class Emojis extends Cmd {
+public class Emojis extends Command {
     public Emojis(CommandSettings commandSettings) {
         super(commandSettings);
     }
@@ -32,7 +32,7 @@ public class Emojis extends Cmd {
 
     @Override
     public void setupSubcommands() throws Exception {
-        subCmds.add(new SubCmd(this, "info") {
+        subcommands.add(new Subcommand(this, "info") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {

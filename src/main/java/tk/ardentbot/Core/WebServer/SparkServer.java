@@ -138,7 +138,7 @@ public class SparkServer {
                             }
                             else return "Invalid arguments. Make sure you entered in all the fields.";
                         }
-                        else if (type.equalsIgnoreCase("subCmds")) {
+                        else if (type.equalsIgnoreCase("subcommands")) {
                             String id = rq.queryParams("identifier");
                             String commandId = rq.queryParams("commandidentifier");
                             String translationName = rq.queryParams("translationname");
@@ -180,7 +180,7 @@ public class SparkServer {
      * @return translation form
      */
     private static String translate(Request rq, Response rs) {
-        String incorrectArgs = "Incorrect args specified: /api/translate/yourid/(phrases OR commands OR subCmds)" +
+        String incorrectArgs = "Incorrect args specified: /api/translate/yourid/(phrases OR commands OR subcommands)" +
                 "/languagecode";
         String[] splats = rq.splat();
         if (splats.length == 3) {
@@ -270,7 +270,7 @@ public class SparkServer {
                                 return "No untranslated commands for this language! Try phrases or subcommand " +
                                         "translations.";
                         }
-                        else if (splats[1].equalsIgnoreCase("subCmds")) {
+                        else if (splats[1].equalsIgnoreCase("subcommands")) {
                             ArrayList<Quintet<String, String, String, String, String>> discrepancies =
                                     getSubCommandDiscrepancies(language);
                             if (discrepancies.size() > 0) {
@@ -282,33 +282,33 @@ public class SparkServer {
                                         "<body>\n" +
                                         "\n" +
                                         "<h2>Translate Subcommands for " + LangFactory.getName(language) + " (" +
-                                        discrepancies.size() + " subCmds left to translate)</h2><br>\n" +
+                                        discrepancies.size() + " subcommands left to translate)</h2><br>\n" +
                                         "\n" +
-                                        "SubCmd English Name<br>\n" +
-                                        "<textarea rows=\"4\" cols=\"100\" name=\"originalname\" form=\"subCmds\"" +
+                                        "Subcommand English Name<br>\n" +
+                                        "<textarea rows=\"4\" cols=\"100\" name=\"originalname\" form=\"subcommands\"" +
                                         " disabled>" + discrepancy.getB() + "</textarea>\n" +
-                                        "<br>Translated SubCmd Name (make sure it's lowercase) <br>\n" +
+                                        "<br>Translated Subcommand Name (make sure it's lowercase) <br>\n" +
                                         "<textarea rows=\"4\" cols=\"100\" name=\"translationname\" " +
-                                        "form=\"subCmds\"></textarea>\n" +
+                                        "form=\"subcommands\"></textarea>\n" +
                                         "<br>English Syntax<br>\n" +
                                         "<textarea rows=\"4\" cols=\"100\" name=\"originalsyntax\" " +
-                                        "form=\"subCmds\" disabled>" + discrepancy.getD() + "</textarea>\n" +
+                                        "form=\"subcommands\" disabled>" + discrepancy.getD() + "</textarea>\n" +
                                         "<br>Translated Syntax<br>\n" +
                                         "<textarea rows=\"4\" cols=\"100\" name=\"translationsyntax\" " +
-                                        "form=\"subCmds\"></textarea>\n" +
+                                        "form=\"subcommands\"></textarea>\n" +
                                         "<br>English Description<br><textarea rows=\"4\" cols=\"100\" " +
-                                        "name=\"originaldescription\" form=\"subCmds\" disabled>" + discrepancy
+                                        "name=\"originaldescription\" form=\"subcommands\" disabled>" + discrepancy
                                         .getE() + "</textarea>\n" +
                                         "<br>Translated Description<br>\n" +
                                         "<textarea rows=\"4\" cols=\"100\" name=\"translationdescription\" " +
-                                        "form=\"subCmds\"></textarea>\n" +
+                                        "form=\"subcommands\"></textarea>\n" +
                                         "\n" +
-                                        "<form action=\"/api/translate/submit\" id=\"subCmds\">\n" +
+                                        "<form action=\"/api/translate/submit\" id=\"subcommands\">\n" +
                                         "  <br>\n" +
                                         "<input type=\"hidden\" name=\"identifier\" value=\"" + id + "\"><input " +
                                         "type=\"hidden\" name=\"commandidentifier\" value=\"" + cmdId + "\"><input " +
                                         "type=\"hidden\" name=\"language\" value=\"" + LangFactory.getName(language)
-                                        + "\"><input type=\"hidden\" name=\"type\" value=\"subCmds\"><input " +
+                                        + "\"><input type=\"hidden\" name=\"type\" value=\"subcommands\"><input " +
                                         "type=\"submit\" value=\"Add Translation\">\n" +
                                         "</form>\n" +
                                         "<br>\n" +

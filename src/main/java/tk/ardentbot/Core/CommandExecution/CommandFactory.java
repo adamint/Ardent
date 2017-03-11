@@ -74,7 +74,7 @@ public class CommandFactory {
      * @throws Exception
      */
     public void registerCommand(BaseCommand baseCommand) throws Exception {
-        Cmd botCommand = baseCommand.botCommand;
+        Command botCommand = baseCommand.botCommand;
         for (BaseCommand cmd : baseCommands) {
             if (StringUtils.stripAccents(cmd.getCommandIdentifier()).equalsIgnoreCase(StringUtils.stripAccents
                     (botCommand.getCommandIdentifier())))
@@ -106,11 +106,12 @@ public class CommandFactory {
             Guild guild = event.getGuild();
             Language language = GuildUtils.getLanguage(guild);
             if (message.getRawContent().startsWith(ardent.bot.getAsMention())) {
-                Cmd cmd = ardent.help.botCommand;
+                Command command = ardent.help.botCommand;
                 if (message.getRawContent().replace(ardent.bot.getAsMention(), "").length() == 0) {
-                    cmd.sendTranslatedMessage(cmd.getTranslation("other", language, "mentionedhelp").getTranslation()
+                    command.sendTranslatedMessage(command.getTranslation("other", language, "mentionedhelp")
+                            .getTranslation()
                             .replace("{0}", GuildUtils.getPrefix(guild) +
-                                    cmd.getName(language)), channel);
+                                    command.getName(language)), channel);
                 }
                 else {
                     if (guild != null) {
@@ -120,17 +121,17 @@ public class CommandFactory {
                                         "WHERE" +
                                         " GuildID=?").set("english").set(guild.getId());
                                 updateLanguage.update();
-                                cmd.sendRetrievedTranslation(channel, "language", LangFactory.getLanguage("english"),
+                                command.sendRetrievedTranslation(channel, "language", LangFactory.getLanguage("english"),
                                         "changedlanguage");
                             }
-                            else cmd.sendRetrievedTranslation(channel, "other", language, "needmanageserver");
+                            else command.sendRetrievedTranslation(channel, "other", language, "needmanageserver");
                         }
                         // On hold until I can find a suitable pandorabot or other chatbot api
                         /* else {
                             String query = message.getContent().replace(GuildUtils.getPrefix(guild) + args[0] + " ",
                             "");
                             ChatterBotSession session = getBotSession(guild);
-                            cmd.sendTranslatedMessage(session.think(query), channel);
+                            command.sendTranslatedMessage(session.think(query), channel);
                         }*/
                     }
                 }

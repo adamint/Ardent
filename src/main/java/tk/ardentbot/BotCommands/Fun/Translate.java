@@ -5,15 +5,15 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.Core.CommandExecution.Cmd;
-import tk.ardentbot.Core.CommandExecution.SubCmd;
+import tk.ardentbot.Core.CommandExecution.Command;
+import tk.ardentbot.Core.CommandExecution.Subcommand;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class Translate extends Cmd {
+public class Translate extends Command {
     public static YTranslateApiImpl translateApi;
     ArrayList<String> languages = new ArrayList<>(
             Arrays.asList(
@@ -47,7 +47,7 @@ public class Translate extends Cmd {
     @Override
     public void setupSubcommands() {
         languages.forEach(language -> {
-            subCmds.add(new SubCmd(this, language) {
+            subcommands.add(new Subcommand(this, language) {
                 @Override
                 public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
                     if (args.length == 2) {

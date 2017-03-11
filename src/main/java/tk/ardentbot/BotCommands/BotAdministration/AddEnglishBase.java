@@ -4,8 +4,8 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.Core.CommandExecution.Cmd;
-import tk.ardentbot.Core.CommandExecution.SubCmd;
+import tk.ardentbot.Core.CommandExecution.Command;
+import tk.ardentbot.Core.CommandExecution.Subcommand;
 import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 
@@ -14,7 +14,7 @@ import java.sql.Statement;
 import static tk.ardentbot.Main.Ardent.ardent;
 import static tk.ardentbot.Utils.SQL.SQLUtils.cleanString;
 
-public class AddEnglishBase extends Cmd {
+public class AddEnglishBase extends Command {
     public AddEnglishBase(CommandSettings settings) {
         super(settings);
     }
@@ -27,7 +27,7 @@ public class AddEnglishBase extends Cmd {
 
     @Override
     public void setupSubcommands() {
-        subCmds.add(new SubCmd(this, "basic") {
+        subcommands.add(new Subcommand(this, "basic") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, tk
                     .ardentbot.Core.Translation.Language language) throws Exception {
@@ -49,7 +49,7 @@ public class AddEnglishBase extends Cmd {
             }
         });
 
-        subCmds.add(new SubCmd(this, "commands") {
+        subcommands.add(new Subcommand(this, "commands") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, tk
                     .ardentbot.Core.Translation.Language language) throws Exception {
@@ -71,7 +71,7 @@ public class AddEnglishBase extends Cmd {
             }
         });
 
-        subCmds.add(new SubCmd(this, "subCmds") {
+        subcommands.add(new Subcommand(this, "subcommands") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, tk
                     .ardentbot.Core.Translation.Language language) throws Exception {

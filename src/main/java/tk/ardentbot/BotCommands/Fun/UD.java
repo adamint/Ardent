@@ -8,7 +8,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.Core.CommandExecution.Cmd;
+import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.Models.UDList;
 import tk.ardentbot.Core.Models.UrbanDictionary;
 import tk.ardentbot.Core.Translation.Language;
@@ -23,7 +23,7 @@ import java.util.HashMap;
 
 import static tk.ardentbot.Main.Ardent.ardent;
 
-public class UD extends Cmd {
+public class UD extends Command {
     public UD(CommandSettings commandSettings) {
         super(commandSettings);
     }

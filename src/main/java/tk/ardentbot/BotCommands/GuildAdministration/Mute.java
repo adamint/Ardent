@@ -2,8 +2,8 @@ package tk.ardentbot.BotCommands.GuildAdministration;
 
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
-import tk.ardentbot.Core.CommandExecution.Cmd;
-import tk.ardentbot.Core.CommandExecution.SubCmd;
+import tk.ardentbot.Core.CommandExecution.Command;
+import tk.ardentbot.Core.CommandExecution.Subcommand;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Utils.StringUtils;
 
@@ -13,7 +13,7 @@ import java.util.Date;
 
 import static tk.ardentbot.Main.Ardent.ardent;
 
-public class Mute extends Cmd {
+public class Mute extends Command {
     public Mute(CommandSettings commandSettings) {
         super(commandSettings);
     }
@@ -26,7 +26,7 @@ public class Mute extends Cmd {
 
     @Override
     public void setupSubcommands() throws Exception {
-        subCmds.add(new SubCmd(this, "list") {
+        subcommands.add(new Subcommand(this, "list") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
@@ -50,7 +50,7 @@ public class Mute extends Cmd {
                 statement.close();
             }
         });
-        subCmds.add(new SubCmd(this, "add") {
+        subcommands.add(new Subcommand(this, "add") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {

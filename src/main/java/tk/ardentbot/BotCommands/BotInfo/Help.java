@@ -7,8 +7,8 @@ import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.Core.CommandExecution.BaseCommand;
 import tk.ardentbot.Core.CommandExecution.Category;
-import tk.ardentbot.Core.CommandExecution.Cmd;
-import tk.ardentbot.Core.CommandExecution.SubCmd;
+import tk.ardentbot.Core.CommandExecution.Command;
+import tk.ardentbot.Core.CommandExecution.Subcommand;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Core.Translation.Translation;
 import tk.ardentbot.Core.Translation.TranslationResponse;
@@ -21,8 +21,8 @@ import java.util.HashMap;
 
 import static tk.ardentbot.Main.Ardent.ardent;
 
-public class Help extends Cmd {
-    private SubCmd all;
+public class Help extends Command {
+    private Subcommand all;
 
     public Help(CommandSettings commandSettings) {
         super(commandSettings);
@@ -56,7 +56,7 @@ public class Help extends Cmd {
 
         ArrayList<BaseCommand> byUsage = UsageUtils.orderByUsageDesc();
         for (int i = 0; i < 3; i++) {
-            Cmd botCommand = byUsage.get(i).getBotCommand();
+            Command botCommand = byUsage.get(i).getBotCommand();
             description.append("\n > " + botCommand.getName(language) + ": *" + botCommand.getDescription(language) +
                     "*");
         }
@@ -77,7 +77,7 @@ public class Help extends Cmd {
 
     @Override
     public void setupSubcommands() {
-        all = new SubCmd(this, "all") {
+        all = new Subcommand(this, "all") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
@@ -100,10 +100,10 @@ public class Help extends Cmd {
             }
         };
 
-        subCmds.add(all);
+        subcommands.add(all);
 
         for (Category category : Category.values()) {
-            subCmds.add(new SubCmd(this, Category.getName(category)) {
+            subcommands.add(new Subcommand(this, Category.getName(category)) {
                 @Override
                 public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                    Language language) throws Exception {

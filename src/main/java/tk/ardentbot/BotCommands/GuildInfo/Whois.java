@@ -2,7 +2,7 @@ package tk.ardentbot.BotCommands.GuildInfo;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.*;
-import tk.ardentbot.Core.CommandExecution.Cmd;
+import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Core.Translation.Translation;
 import tk.ardentbot.Core.Translation.TranslationResponse;
@@ -16,7 +16,7 @@ import java.util.List;
 
 import static tk.ardentbot.Main.Ardent.ardent;
 
-public class Whois extends Cmd {
+public class Whois extends Command {
     public Whois(CommandSettings commandSettings) {
         super(commandSettings);
     }

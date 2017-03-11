@@ -18,7 +18,7 @@ import static tk.ardentbot.Main.Ardent.ardent;
 
 /**
  * Holds a language, with automatically updating phrases,
- * commands, and subCmds
+ * commands, and subcommands
  */
 public class Language {
     private String name;

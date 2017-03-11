@@ -4,11 +4,11 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.Core.CommandExecution.Cmd;
+import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.Events.Join;
 import tk.ardentbot.Core.Translation.Language;
 
-public class Joinmessage extends Cmd {
+public class Joinmessage extends Command {
     public Joinmessage(CommandSettings commandSettings) {
         super(commandSettings);
     }

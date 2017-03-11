@@ -4,8 +4,8 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.Core.CommandExecution.Cmd;
-import tk.ardentbot.Core.CommandExecution.SubCmd;
+import tk.ardentbot.Core.CommandExecution.Command;
+import tk.ardentbot.Core.CommandExecution.Subcommand;
 import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Main.Ardent;
@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import static tk.ardentbot.Main.Ardent.ardent;
 import static tk.ardentbot.Utils.SQL.SQLUtils.cleanString;
 
-public class Translate extends Cmd {
+public class Translate extends Command {
     public String help;
 
     public Translate(CommandSettings commandSettings) {
@@ -59,7 +59,7 @@ public class Translate extends Cmd {
     public static ArrayList<Pair<String, String>> getCommandDiscrepancies(Language language) throws SQLException {
         ArrayList<Pair<String, String>> discrepanciesInEnglish = new ArrayList<>();
         ArrayList<Triplet<String, String, String>> englishTranslations = new ArrayList<>();
-        DatabaseAction getTranslations = new DatabaseAction("SELECT * FROM CommandExecution WHERE Language=?")
+        DatabaseAction getTranslations = new DatabaseAction("SELECT * FROM Commands WHERE Language=?")
                 .set("english");
         ResultSet translations = getTranslations.request();
         while (translations.next()) {
@@ -68,7 +68,7 @@ public class Translate extends Cmd {
         }
         getTranslations.close();
         for (Triplet<String, String, String> translation : englishTranslations) {
-            DatabaseAction getLang = new DatabaseAction("SELECT * FROM CommandExecution WHERE Identifier=? AND " +
+            DatabaseAction getLang = new DatabaseAction("SELECT * FROM Commands WHERE Identifier=? AND " +
                     "Language=?")
                     .set(translation.getA()).set(language.getIdentifier());
             ResultSet exists = getLang.request();
@@ -115,14 +115,15 @@ public class Translate extends Cmd {
     public void setupSubcommands() {
         StringBuilder sb = new StringBuilder();
         sb.append("**Translation**\nUse /translate (language) to view simple translations for that language.\nUse " +
-                "/translate (language)cmds to view available command translations\nUse /translate (language)subCmds " +
+                "/translate (language)cmds to view available command translations\nUse /translate (language)" +
+                "subcommands " +
                 "to view available subcommand translations\n" +
-                "Translation adding syntax varies by subcategory (basic, commands, subCmds) so the syntax will be on each page\n" +
+                "Translation adding syntax varies by subcategory (basic, commands, subcommands) so the syntax will be on each page\n" +
                 "Example: /translate basic french 1 this is the translation for 1 in /translate french \nAvailable languages: ");
         for (Language language : LangFactory.languages) sb.append("**" + language.getIdentifier() + "** ");
         help = sb.toString();
 
-        subCmds.add(new SubCmd(this, "basic") {
+        subcommands.add(new Subcommand(this, "basic") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
                 if (Ardent.translators.contains(user.getId())) {
@@ -165,7 +166,7 @@ public class Translate extends Cmd {
             }
         });
 
-        subCmds.add(new SubCmd(this, "cmds") {
+        subcommands.add(new Subcommand(this, "cmds") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
@@ -182,14 +183,15 @@ public class Translate extends Cmd {
                                     String[] parts = unformattedTranslation.split("//");
                                     if (parts.length == 2) {
 
-                                        ResultSet set = new DatabaseAction("SELECT * FROM CommandExecution WHERE Language = ? AND Translation = ? AND Description = ?")
+                                        ResultSet set = new DatabaseAction("SELECT * FROM Commands WHERE Language = ?" +
+                                                " AND Translation = ? AND Description = ?")
                                                 .set("english").set(translationOf.getK())
                                                 .set(translationOf.getV()).request();
 
                                         if (set.next()) {
                                             String commandID = set.getString("Identifier");
 
-                                            new DatabaseAction("INSERT INTO CommandExecution VALUES(?, ?, ?, ?)")
+                                            new DatabaseAction("INSERT INTO Commands VALUES(?, ?, ?, ?)")
                                                     .set(commandID).set(translateTo.getIdentifier())
                                                     .set(parts[0]).set(parts[1]).update();
                                             
@@ -218,7 +220,7 @@ public class Translate extends Cmd {
         });
 
         for (Language language : LangFactory.languages) {
-            subCmds.add(new SubCmd(this, language.getIdentifier()) {
+            subcommands.add(new Subcommand(this, language.getIdentifier()) {
                 @Override
                 public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                    Language language) throws Exception {
@@ -239,7 +241,7 @@ public class Translate extends Cmd {
                     else sendTranslatedMessage("You must be a **translator** to use this command!", channel);
                 }
             });
-            subCmds.add(new SubCmd(this, language.getIdentifier() + "cmds") {
+            subcommands.add(new Subcommand(this, language.getIdentifier() + "cmds") {
                 @Override
                 public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
                     if (Ardent.translators.contains(user.getId())) {
