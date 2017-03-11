@@ -2,8 +2,8 @@ package tk.ardentbot.Utils;
 
 import net.dv8tion.jda.core.entities.Guild;
 import org.eclipse.jetty.util.ConcurrentArrayQueue;
-import tk.ardentbot.Backend.Commands.Command;
-import tk.ardentbot.Commands.BotInfo.Status;
+import tk.ardentbot.BotCommands.BotInfo.Status;
+import tk.ardentbot.Core.CommandExecution.BaseCommand;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -12,16 +12,16 @@ import java.util.stream.Collectors;
 import static tk.ardentbot.Main.Ardent.ardent;
 
 public class UsageUtils {
-    private static Comparator<Command> SORT_BY_USAGE = (o1, o2) -> {
+    private static Comparator<BaseCommand> SORT_BY_USAGE = (o1, o2) -> {
         if (o1.getBotCommand().usages < o2.getBotCommand().usages) return 1;
         else if (Objects.equals(o1.getBotCommand().usages, o2.getBotCommand().usages)) return 0;
         else return -1;
     };
 
-    public static ArrayList<Command> orderByUsageDesc() {
-        ConcurrentArrayQueue<Command> unsorted = ardent.factory.getCommands();
-        ArrayList<Command> commands = new ArrayList<>();
-        for (Command c : unsorted) {
+    public static ArrayList<BaseCommand> orderByUsageDesc() {
+        ConcurrentArrayQueue<BaseCommand> unsorted = ardent.factory.getBaseCommands();
+        ArrayList<BaseCommand> baseCommands = new ArrayList<>();
+        for (BaseCommand c : unsorted) {
             if (!c.getCommandIdentifier().equalsIgnoreCase("patreon") && !c.getCommandIdentifier().equalsIgnoreCase
                     ("translateforardent") && !c.getCommandIdentifier().equalsIgnoreCase("tweet") && !c
                     .getCommandIdentifier().equalsIgnoreCase("eval") && !c.getCommandIdentifier().equalsIgnoreCase
@@ -29,11 +29,11 @@ public class UsageUtils {
                     .getCommandIdentifier().equalsIgnoreCase("manage") && !c.getCommandIdentifier().equalsIgnoreCase
                     ("admin"))
             {
-                commands.add(c);
+                baseCommands.add(c);
             }
         }
-        Collections.sort(commands, SORT_BY_USAGE);
-        return commands;
+        Collections.sort(baseCommands, SORT_BY_USAGE);
+        return baseCommands;
     }
 
     public static boolean isGuildFirstInCommands(Guild guild) {

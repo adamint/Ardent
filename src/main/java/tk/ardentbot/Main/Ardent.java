@@ -1,6 +1,6 @@
 package tk.ardentbot.Main;
 
-import tk.ardentbot.Backend.Web.WebServer;
+import tk.ardentbot.Core.WebServer.SparkServer;
 
 import java.util.ArrayList;
 
@@ -17,6 +17,6 @@ public class Ardent {
 
     public static void main(String[] args) throws Exception {
         ardent = new Instance(true);
-        WebServer.setup();
+        SparkServer.setup();
     }
 }
