@@ -82,22 +82,6 @@ public class Music extends Command {
                                     String trackUrl, final VoiceChannel voiceChannel, boolean search) {
         Guild guild = channel.getGuild();
         GuildMusicManager musicManager = getGuildAudioPlayer(channel.getGuild(), channel);
-        if (trackUrl.contains("watch?v=") && !search) {
-            String[] parsed = trackUrl.split("watch\\?v=");
-            if (parsed.length == 2) {
-                trackUrl = parsed[1];
-            }
-            else {
-                try {
-                    command.sendRetrievedTranslation(channel, "music", language, "nosongfound");
-                }
-                catch (Exception e) {
-                    new BotException(e);
-                }
-            }
-        }
-
-        String finalTrackUrl = trackUrl;
         ardent.playerManager.loadItemOrdered(musicManager, trackUrl, new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack track) {
@@ -114,25 +98,40 @@ public class Music extends Command {
 
             @Override
             public void playlistLoaded(AudioPlaylist playlist) {
-                AudioTrack firstTrack = playlist.getSelectedTrack();
-                if (firstTrack == null) {
-                    firstTrack = playlist.getTracks().get(0);
+                List<AudioTrack> tracks = playlist.getTracks();
+                if (playlist.isSearchResult()) {
+                    AudioTrack firstTrack = playlist.getSelectedTrack();
+                    if (firstTrack == null) {
+                        firstTrack = playlist.getTracks().get(0);
+                    }
+                    try {
+                        command.sendTranslatedMessage(command.getTranslation("music", language, "addingsong")
+                                .getTranslation().replace("{0}", firstTrack.getInfo().title) + " " + getDuration
+                                (firstTrack), channel);
+                    }
+                    catch (Exception e) {
+                        new BotException(e);
+                    }
                 }
-                try {
-                    command.sendTranslatedMessage(command.getTranslation("music", language, "addingsong")
-                            .getTranslation().replace("{0}", firstTrack.getInfo().title) + " " + getDuration
-                            (firstTrack), channel);
+                else {
+                    try {
+                        command.sendTranslatedMessage(command.getTranslation("music", language, "playlist")
+                                .getTranslation().replace("{0}", String.valueOf(tracks.size())), channel);
+                    }
+                    catch (Exception e) {
+                        new BotException(e);
+                    }
                 }
-                catch (Exception e) {
-                    new BotException(e);
+                for (AudioTrack track : tracks) {
+                    play(user, guild, voiceChannel, musicManager, track, channel);
                 }
-                play(user, guild, voiceChannel, musicManager, firstTrack, channel);
             }
 
             @Override
             public void noMatches() {
+                System.out.println("no match");
                 if (!search) {
-                    loadAndPlay(user, command, language, channel, "ytsearch: " + finalTrackUrl, voiceChannel, true);
+                    loadAndPlay(user, command, language, channel, "ytsearch: " + trackUrl, voiceChannel, true);
                 }
                 else {
                     try {
@@ -294,7 +293,8 @@ public class Music extends Command {
                                Language language) throws Exception {
                 if (args.length > 2) {
                     AudioManager audioManager = guild.getAudioManager();
-                    String url = message.getRawContent().replace(args[0] + " " + args[1] + " ", "");
+                    String url = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " +
+                            args[1] + " ", "");
                     boolean shouldDeleteMessage = shouldDeleteMessages(guild);
                     boolean implement = false;
                     if (!audioManager.isConnected()) {
