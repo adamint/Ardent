@@ -82,22 +82,6 @@ public class Music extends Command {
                                     String trackUrl, final VoiceChannel voiceChannel, boolean search) {
         Guild guild = channel.getGuild();
         GuildMusicManager musicManager = getGuildAudioPlayer(channel.getGuild(), channel);
-        if (trackUrl.contains("watch?v=") && !search) {
-            String[] parsed = trackUrl.split("watch\\?v=");
-            if (parsed.length == 2) {
-                trackUrl = parsed[1];
-            }
-            else {
-                try {
-                    command.sendRetrievedTranslation(channel, "music", language, "nosongfound");
-                }
-                catch (Exception e) {
-                    new BotException(e);
-                }
-            }
-        }
-
-        String finalTrackUrl = trackUrl;
         ardent.playerManager.loadItemOrdered(musicManager, trackUrl, new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack track) {
@@ -114,25 +98,41 @@ public class Music extends Command {
 
             @Override
             public void playlistLoaded(AudioPlaylist playlist) {
-                AudioTrack firstTrack = playlist.getSelectedTrack();
-                if (firstTrack == null) {
-                    firstTrack = playlist.getTracks().get(0);
+                List<AudioTrack> tracks = playlist.getTracks();
+                if (playlist.isSearchResult()) {
+                    AudioTrack firstTrack = playlist.getSelectedTrack();
+                    if (firstTrack == null) {
+                        firstTrack = playlist.getTracks().get(0);
+                    }
+                    try {
+                        command.sendTranslatedMessage(command.getTranslation("music", language, "addingsong")
+                                .getTranslation().replace("{0}", firstTrack.getInfo().title) + " " + getDuration
+                                (firstTrack), channel);
+                    }
+                    catch (Exception e) {
+                        new BotException(e);
+                    }
+                    play(user, guild, voiceChannel, musicManager, firstTrack, channel);
                 }
-                try {
-                    command.sendTranslatedMessage(command.getTranslation("music", language, "addingsong")
-                            .getTranslation().replace("{0}", firstTrack.getInfo().title) + " " + getDuration
-                            (firstTrack), channel);
+                else {
+                    try {
+                        command.sendTranslatedMessage(command.getTranslation("music", language, "playlist")
+                                .getTranslation().replace("{0}", String.valueOf(tracks.size())), channel);
+                    }
+                    catch (Exception e) {
+                        new BotException(e);
+                    }
+                    for (AudioTrack track : tracks) {
+                        play(user, guild, voiceChannel, musicManager, track, channel);
+                    }
                 }
-                catch (Exception e) {
-                    new BotException(e);
-                }
-                play(user, guild, voiceChannel, musicManager, firstTrack, channel);
             }
 
             @Override
             public void noMatches() {
+                System.out.println("no match");
                 if (!search) {
-                    loadAndPlay(user, command, language, channel, "ytsearch: " + finalTrackUrl, voiceChannel, true);
+                    loadAndPlay(user, command, language, channel, "ytsearch: " + trackUrl, voiceChannel, true);
                 }
                 else {
                     try {
@@ -222,6 +222,17 @@ public class Music extends Command {
                 .format("%02d", (seconds % 60)) + "]";
     }
 
+    private static String getDuration(ArrayList<AudioTrack> tracks) {
+        long length = 0;
+        for (AudioTrack t : tracks) length += t.getDuration();
+        int seconds = (int) (length / 1000);
+        int minutes = seconds / 60;
+        int hours = minutes / 60;
+        return "[" + String.format("%02d", (hours % 60)) + ":" + String.format("%02d", (minutes % 60)) + ":" + String
+                .format("%02d", (seconds % 60)) + "]";
+    }
+
+
     private static String getCurrentTime(AudioTrack track) {
         long current = track.getPosition();
         int seconds = (int) (current / 1000);
@@ -294,7 +305,8 @@ public class Music extends Command {
                                Language language) throws Exception {
                 if (args.length > 2) {
                     AudioManager audioManager = guild.getAudioManager();
-                    String url = message.getRawContent().replace(args[0] + " " + args[1] + " ", "");
+                    String url = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " +
+                            args[1] + " ", "");
                     boolean shouldDeleteMessage = shouldDeleteMessages(guild);
                     boolean implement = false;
                     if (!audioManager.isConnected()) {
@@ -354,6 +366,8 @@ public class Music extends Command {
                 translations.add(new Translation("music", "songsinqueue"));
                 translations.add(new Translation("music", "queuedby"));
                 translations.add(new Translation("music", "nosongsinqueue"));
+                translations.add(new Translation("music", "totalqueuetime"));
+
                 HashMap<Integer, TranslationResponse> response = getTranslations(language, translations);
                 StringBuilder sb = new StringBuilder();
                 String queuedBy = response.get(1).getTranslation();
@@ -361,9 +375,11 @@ public class Music extends Command {
                 BlockingQueue<ArdentTrack> queue = getGuildAudioPlayer(guild, channel).scheduler.manager.getQueue();
                 Iterator<ArdentTrack> iterator = queue.iterator();
                 int current = 1;
+                ArrayList<AudioTrack> trackList = new ArrayList<>();
                 while (iterator.hasNext()) {
                     ArdentTrack ardentTrack = iterator.next();
                     AudioTrack track = ardentTrack.getTrack();
+                    trackList.add(track);
                     sb.append("#" + current + ": " + track.getInfo().title + ": " + track.getInfo().author + " " +
                             getDuration(track) + "\n     *" + queuedBy + " " + ardent.jda.getUserById(ardentTrack
                             .getAuthor())
@@ -373,6 +389,9 @@ public class Music extends Command {
                 }
                 if (current == 1) {
                     sb.append(response.get(2).getTranslation());
+                }
+                else {
+                    sb.append("*" + response.get(3).getTranslation() + "*:" + getDuration(trackList));
                 }
                 sendTranslatedMessage(sb.toString(), channel);
             }
