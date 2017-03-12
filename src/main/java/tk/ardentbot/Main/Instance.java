@@ -227,7 +227,8 @@ public class Instance {
                         .BOTADMINISTRATION)));
                 factory.registerCommand(manage);
 
-                factory.registerCommand(getDevHelp);
+                factory.registerCommand(new About(new BaseCommand.CommandSettings("about", true, true, Category
+                        .BOTINFO)));
                 factory.registerCommand(new Support(new BaseCommand.CommandSettings("support", true, true, Category
                         .BOTINFO)));
                 factory.registerCommand(new Website(new BaseCommand.CommandSettings("website", true, true, Category
@@ -249,6 +250,7 @@ public class Instance {
                 factory.registerCommand(help);
                 factory.registerCommand(new Stats(new BaseCommand.CommandSettings("stats", true, true, Category
                         .BOTINFO)));
+                factory.registerCommand(getDevHelp);
 
                 factory.registerCommand(new UD(new BaseCommand.CommandSettings("ud", true, true, Category.FUN)));
                 factory.registerCommand(new GIF(new BaseCommand.CommandSettings("gif", true, true, Category.FUN)));

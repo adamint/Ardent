@@ -16,7 +16,7 @@ public class Ardent {
     public static ArrayList<String> translators = new ArrayList<>();
 
     public static void main(String[] args) throws Exception {
-        ardent = new Instance(false);
+        ardent = new Instance(true);
         SparkServer.setup();
     }
 }

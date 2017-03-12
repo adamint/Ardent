@@ -3,6 +3,7 @@ package tk.ardentbot.BotCommands.GuildAdministration;
 import net.dv8tion.jda.core.entities.*;
 import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.CommandExecution.Subcommand;
+import tk.ardentbot.Core.Exceptions.BotException;
 import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Core.Translation.Translation;
@@ -14,6 +15,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static tk.ardentbot.Main.Ardent.ardent;
 
@@ -78,10 +80,17 @@ public class GuildLanguage extends Command {
                                     .getIdentifier()).set(guild.getId()).update();
                             ardent.botLanguageData.set(guild, changeTo.getIdentifier());
                             sendRetrievedTranslation(channel, "language", changeTo, "changedlanguage");
-                            sendTranslatedMessage(getTranslation("other", language, "mentionedhelp").getTranslation()
-                                            .replace("{0}", GuildUtils.getPrefix(guild) + ardent.help.getName
-                                                    (language)),
-                                    channel);
+                            ardent.executorService.schedule(() -> {
+                                try {
+                                    sendTranslatedMessage(getTranslation("other", language, "mentionedhelp")
+                                            .getTranslation().replace("{0}", GuildUtils.getPrefix(guild) +
+                                                    ardent.help.getName(language)), channel);
+                                }
+                                catch (Exception e) {
+                                    new BotException(e);
+                                }
+
+                            }, 5, TimeUnit.SECONDS);
                         }
                         else sendRetrievedTranslation(channel, "language", language, "invalidlanguage");
                     }

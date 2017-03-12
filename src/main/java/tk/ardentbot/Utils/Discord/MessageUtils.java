@@ -7,6 +7,7 @@ import tk.ardentbot.Core.CommandExecution.BaseCommand;
 import tk.ardentbot.Core.Translation.Language;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Random;
 
 public class MessageUtils {
@@ -25,4 +26,12 @@ public class MessageUtils {
         return builder;
     }
 
+    public static String listWithCommas(ArrayList<String> strings) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < strings.size(); i++) {
+            sb.append(strings.get(i));
+            if (i < (strings.size() - 1)) sb.append(", ");
+        }
+        return sb.toString();
+    }
 }

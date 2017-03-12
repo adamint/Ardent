@@ -130,7 +130,6 @@ public class Music extends Command {
 
             @Override
             public void noMatches() {
-                System.out.println("no match");
                 if (!search) {
                     loadAndPlay(user, command, language, channel, "ytsearch: " + trackUrl, voiceChannel, true);
                 }
@@ -391,7 +390,7 @@ public class Music extends Command {
                     sb.append(response.get(2).getTranslation());
                 }
                 else {
-                    sb.append("*" + response.get(3).getTranslation() + "*:" + getDuration(trackList));
+                    sb.append("\n*" + response.get(3).getTranslation() + "*: " + getDuration(trackList));
                 }
                 sendTranslatedMessage(sb.toString(), channel);
             }
