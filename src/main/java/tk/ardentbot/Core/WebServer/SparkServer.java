@@ -88,7 +88,7 @@ public class SparkServer {
                 String type = rq.queryParams("type");
                 String language = rq.queryParams("language");
                 if (type != null && language != null) {
-                    rs.redirect("https://ardentbot.tk:666/api/translate/172503861477507068/" + type + "/" + language);
+                    rs.redirect("https://ardentbot.tk:666/api/translate/169904324980244480/" + type + "/" + language);
                 }
             }
             return null;
@@ -131,7 +131,7 @@ public class SparkServer {
                                     && !id.isEmpty() && !translationName.isEmpty() &&
                                     !translationDescription.isEmpty())
                             {
-                                new DatabaseAction("INSERT INTO CommandExecution VALUES (?,?,?,?)").set(id).set(language
+                                new DatabaseAction("INSERT INTO Commands VALUES (?,?,?,?)").set(id).set(language
                                         .getIdentifier()).set(translationName).set(translationDescription).update();
                                 return "Successfully added your translation. Go back and reload the page or use your " +
                                         "base URL to enter in another one!";
@@ -238,7 +238,7 @@ public class SparkServer {
                                         "<html>\n" +
                                         "<body>\n" +
                                         "\n" +
-                                        "<h2>Translate tk.ardentbot.CommandExecution for " + LangFactory.getName
+                                        "<h2>Translate Commands for " + LangFactory.getName
                                         (language) +
                                         " (" + discrepancies.size() + " commands left to translate)</h2><br>\n" +
                                         "\n" +

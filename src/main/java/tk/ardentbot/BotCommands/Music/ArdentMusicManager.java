@@ -64,10 +64,6 @@ public class ArdentMusicManager {
         lastPlayedAt = Instant.now();
     }
 
-    public void updateLastPlayed(Instant instant) {
-        this.lastPlayedAt = instant;
-    }
-
     public Instant getLastPlayedAt() {
         return lastPlayedAt;
     }

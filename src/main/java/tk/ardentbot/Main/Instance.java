@@ -11,7 +11,6 @@ import com.sedmelluq.discord.lavaplayer.player.AudioConfiguration;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
-import com.sedmelluq.discord.lavaplayer.source.http.HttpAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.soundcloud.SoundCloudAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import net.dv8tion.jda.core.AccountType;
@@ -46,10 +45,7 @@ import tk.ardentbot.Core.Exceptions.BotException;
 import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Utils.SQL.MuteDaemon;
-import tk.ardentbot.Utils.Updaters.BotlistUpdater;
-import tk.ardentbot.Utils.Updaters.GuildDaemon;
-import tk.ardentbot.Utils.Updaters.PermissionsDaemon;
-import tk.ardentbot.Utils.Updaters.PhraseUpdater;
+import tk.ardentbot.Utils.Updaters.*;
 import twitter4j.Twitter;
 import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
@@ -231,7 +227,8 @@ public class Instance {
                         .BOTADMINISTRATION)));
                 factory.registerCommand(manage);
 
-                factory.registerCommand(getDevHelp);
+                factory.registerCommand(new About(new BaseCommand.CommandSettings("about", true, true, Category
+                        .BOTINFO)));
                 factory.registerCommand(new Support(new BaseCommand.CommandSettings("support", true, true, Category
                         .BOTINFO)));
                 factory.registerCommand(new Website(new BaseCommand.CommandSettings("website", true, true, Category
@@ -253,6 +250,7 @@ public class Instance {
                 factory.registerCommand(help);
                 factory.registerCommand(new Stats(new BaseCommand.CommandSettings("stats", true, true, Category
                         .BOTINFO)));
+                factory.registerCommand(getDevHelp);
 
                 factory.registerCommand(new UD(new BaseCommand.CommandSettings("ud", true, true, Category.FUN)));
                 factory.registerCommand(new GIF(new BaseCommand.CommandSettings("gif", true, true, Category.FUN)));
@@ -316,7 +314,6 @@ public class Instance {
                 playerManager.getConfiguration().setResamplingQuality(AudioConfiguration.ResamplingQuality.LOW);
                 playerManager.registerSourceManager(new YoutubeAudioSourceManager());
                 playerManager.registerSourceManager(new SoundCloudAudioSourceManager());
-                playerManager.registerSourceManager(new HttpAudioSourceManager());
 
                 AudioSourceManagers.registerRemoteSources(playerManager);
                 AudioSourceManagers.registerLocalSource(playerManager);
@@ -356,6 +353,9 @@ public class Instance {
                 // On hold for a bit
                 // PhraseUpdater phraseUpdater = new PhraseUpdater();
                 // TranslationUpdater translationUpdater = new TranslationUpdater();
+
+                WebsiteDaemon websiteDaemon = new WebsiteDaemon();
+                executorService.scheduleAtFixedRate(websiteDaemon, 5, 15, TimeUnit.SECONDS);
 
                 PermissionsDaemon permissionsDaemon = new PermissionsDaemon();
                 executorService.scheduleAtFixedRate(permissionsDaemon, 0, 60, TimeUnit.SECONDS);
