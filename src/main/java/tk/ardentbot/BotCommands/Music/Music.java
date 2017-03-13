@@ -390,6 +390,7 @@ public class Music extends Command {
                     sb.append(response.get(2).getTranslation());
                 }
                 else {
+                    if (trackList.size() > 0)
                     sb.append("\n*" + response.get(3).getTranslation() + "*: " + getDuration(trackList));
                 }
                 sendTranslatedMessage(sb.toString(), channel);

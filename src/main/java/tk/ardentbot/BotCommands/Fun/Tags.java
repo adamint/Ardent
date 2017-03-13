@@ -102,7 +102,8 @@ public class Tags extends Command {
                                Language language) throws Exception {
                 if (GuildUtils.hasManageServerPermission(guild.getMember(user))) {
                     if (args.length > 3) {
-                        String name = args[2];
+                        String name = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " +
+                                args[1] + " ", "").split(" ")[0];
                         String result = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " +
                                 args[1] + " " + args[2] + " ", "");
                         if (!getTagsForGuild(guild).contains(name)) {
