@@ -22,17 +22,17 @@ public class EightBall extends Command {
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
             language) throws Exception {
         if (args.length == 1) {
-            sendRetrievedTranslation(channel, "8ball", language, "addargs");
+            sendRetrievedTranslation(channel, "8ball", language, "addargs", user);
         }
         else {
             String query = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " ", "");
             try {
                 String json = Unirest.get("https://8ball.delegator.com/magic/JSON/" + query).asString().getBody();
                 EightBallResponse eightBallResponse = ardent.gson.fromJson(json, EightBallResponse.class);
-                sendTranslatedMessage(eightBallResponse.getMagic().getAnswer(), channel);
+                sendTranslatedMessage(eightBallResponse.getMagic().getAnswer(), channel, user);
             }
             catch (UnirestException e) {
-                sendRetrievedTranslation(channel, "other", language, "somethingwentwrong");
+                sendRetrievedTranslation(channel, "other", language, "somethingwentwrong", user);
                 e.printStackTrace();
             }
 

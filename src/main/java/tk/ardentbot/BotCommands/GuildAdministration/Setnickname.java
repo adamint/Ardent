@@ -23,11 +23,11 @@ public class Setnickname extends Command {
             language) throws Exception {
         if (args.length == 1) {
             sendTranslatedMessage(getTranslation("setnickname", language, "help").getTranslation().replace("{0}",
-                    GuildUtils.getPrefix(guild) + args[0]), channel);
+                    GuildUtils.getPrefix(guild) + args[0]), channel, user);
         }
         else if (args.length == 2) {
             sendTranslatedMessage(getTranslation("setnickname", language, "invalidarguments").getTranslation()
-                    .replace("{0}", GuildUtils.getPrefix(guild) + args[0]), channel);
+                    .replace("{0}", GuildUtils.getPrefix(guild) + args[0]), channel, user);
         }
         else {
             List<User> mentionedUsers = message.getMentionedUsers();
@@ -38,7 +38,7 @@ public class Setnickname extends Command {
                             (GuildUtils.getPrefix(guild) + args[0], "");
                     while (newNickname.startsWith(" ")) newNickname = newNickname.substring(1);
                     if (newNickname.length() > 32 && newNickname.length() < 2) {
-                        sendRetrievedTranslation(channel, "setnickname", language, "between2and32");
+                        sendRetrievedTranslation(channel, "setnickname", language, "between2and32", user);
                     }
                     else {
                         String finalNewNickname = newNickname;
@@ -47,7 +47,7 @@ public class Setnickname extends Command {
                                 try {
                                     sendTranslatedMessage(getTranslation("setnickname", language, "success")
                                             .getTranslation().replace("{0}", mentioned.getName()).replace("{1}",
-                                                    finalNewNickname), channel);
+                                                    finalNewNickname), channel, user);
                                 }
                                 catch (Exception e) {
                                     new BotException(e);
@@ -55,15 +55,15 @@ public class Setnickname extends Command {
                             });
                         }
                         catch (PermissionException e) {
-                            sendRetrievedTranslation(channel, "setnickname", language, "failure");
+                            sendRetrievedTranslation(channel, "setnickname", language, "failure", user);
                         }
                     }
                 }
                 else {
-                    sendRetrievedTranslation(channel, "other", language, "needmanageserver");
+                    sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
                 }
             }
-            else sendRetrievedTranslation(channel, "setnickname", language, "wrongmentionedusers");
+            else sendRetrievedTranslation(channel, "setnickname", language, "wrongmentionedusers", user);
         }
     }
 

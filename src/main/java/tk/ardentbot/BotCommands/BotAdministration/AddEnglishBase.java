@@ -41,11 +41,11 @@ public class AddEnglishBase extends Command {
                         statement.executeUpdate("INSERT INTO Translations VALUES ('" + commandID + "', '" + cleanString(translation) + "', '" +
                                 id + "', '" + lang + "', '1')");
                         statement.close();
-                        sendTranslatedMessage("Inserted new translation successfully.", channel);
+                        sendTranslatedMessage("Inserted new translation successfully.", channel, user);
                     }
-                    else sendTranslatedMessage("/shrug Incorrect arguments", channel);
+                    else sendTranslatedMessage("/shrug Incorrect arguments", channel, user);
                 }
-                else sendTranslatedMessage("You need to be a developer to run this command", channel);
+                else sendTranslatedMessage("You need to be a developer to run this command", channel, user);
             }
         });
 
@@ -63,11 +63,11 @@ public class AddEnglishBase extends Command {
                         statement.executeUpdate("INSERT INTO Commands VALUES ('" + commandID + "', '" + lang + "', '" +
                                 cleanString(translation) + "', '" + cleanString(description) + "')");
                         statement.close();
-                        sendTranslatedMessage("Inserted new command successfully.", channel);
+                        sendTranslatedMessage("Inserted new command successfully.", channel, user);
                     }
-                    else sendTranslatedMessage("/shrug Incorrect arguments", channel);
+                    else sendTranslatedMessage("/shrug Incorrect arguments", channel, user);
                 }
-                else sendTranslatedMessage("You need to be a developer to run this command", channel);
+                else sendTranslatedMessage("You need to be a developer to run this command", channel, user);
             }
         });
 
@@ -89,13 +89,13 @@ public class AddEnglishBase extends Command {
                                     identifier + "', '" +
                                     lang + "', '" + cleanString(translation) + "', '" + cleanString(syntaxDescription[0]) + "', '" +
                                     cleanString(syntaxDescription[1]) + "', '" + needsDb + "')").executeUpdate();
-                            sendTranslatedMessage("Inserted new subcommand successfully.", channel);
+                            sendTranslatedMessage("Inserted new subcommand successfully.", channel, user);
                         }
-                        else sendTranslatedMessage("You didn't have the correct syntax :thinking:", channel);
+                        else sendTranslatedMessage("You didn't have the correct syntax :thinking:", channel, user);
                     }
-                    else sendTranslatedMessage("/shrug Incorrect arguments", channel);
+                    else sendTranslatedMessage("/shrug Incorrect arguments", channel, user);
                 }
-                else sendTranslatedMessage("You need to be a developer to run this command", channel);
+                else sendTranslatedMessage("You need to be a developer to run this command", channel, user);
             }
         });
     }

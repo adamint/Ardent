@@ -29,12 +29,15 @@ public class UD extends Command {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
+            language) throws Exception {
         if (args.length == 1) {
-            sendTranslatedMessage(getTranslation("ud", language, "help").getTranslation().replace("{0}", GuildUtils.getPrefix(guild) + args[0]), channel);
+            sendTranslatedMessage(getTranslation("ud", language, "help").getTranslation().replace("{0}", GuildUtils
+                    .getPrefix(guild) + args[0]), channel, user);
         }
         else {
-            GetRequest getRequest = Unirest.get("http://api.urbandictionary.com/v0/define?term=" + message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " ", "").replaceAll(" ", "%20"));
+            GetRequest getRequest = Unirest.get("http://api.urbandictionary.com/v0/define?term=" + message
+                    .getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " ", "").replaceAll(" ", "%20"));
             String json = "";
             try {
                 json = getRequest.asJson().getBody().toString();
@@ -44,7 +47,7 @@ public class UD extends Command {
             }
             UrbanDictionary definition = ardent.gson.fromJson(json, UrbanDictionary.class);
             if (definition.getList().size() == 0) {
-                sendRetrievedTranslation(channel, "ud", language, "notranslations");
+                sendRetrievedTranslation(channel, "ud", language, "notranslations", user);
             }
             else {
                 EmbedBuilder builder = MessageUtils.getDefaultEmbed(guild, message.getAuthor(), this);
@@ -95,7 +98,7 @@ public class UD extends Command {
                 builder.addField(link, list.getPermalink(), true);
 
 
-                sendEmbed(builder, channel);
+                sendEmbed(builder, channel, user);
             }
         }
     }

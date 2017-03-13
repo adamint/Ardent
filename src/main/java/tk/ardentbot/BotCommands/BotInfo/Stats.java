@@ -96,7 +96,7 @@ public class Stats extends Command {
                 builder.setAuthor("Command Statistics", ardent.url, ardent.bot.getAvatarUrl());
                 builder.setColor(Color.GREEN);
                 builder.setDescription("Command Usage\n" + commandBars.toString());
-                sendEmbed(builder, channel);
+                sendEmbed(builder, channel, user);
             }
         });
         subcommands.add(new Subcommand(this, "guilds") {
@@ -133,7 +133,7 @@ public class Stats extends Command {
                 builder.addField("Daily", generateGuild(jPD, lPD), false);
                 builder.addField("This Session", generateGuild(jPS, lPS), false);
                 builder.addField("Guilds", String.valueOf(ardent.jda.getGuilds().size()), false);
-                sendEmbed(builder, channel);
+                sendEmbed(builder, channel, user);
             }
         });
     }

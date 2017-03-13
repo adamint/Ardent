@@ -44,7 +44,7 @@ public class TrackScheduler extends AudioEventAdapter {
         try {
             Guild guild = manager.getChannel().getGuild();
             ardent.help.sendRetrievedTranslation(manager.getChannel(), "music", GuildUtils.getLanguage(guild),
-                    "notabletoplaytrack");
+                    "notabletoplaytrack", null);
             new BotException("Exception playing " + track.getInfo().uri + " in " + manager.getChannel().getName() + "" +
                     " (" + guild.getId() + ")");
             if (exception instanceof FriendlyException) {

@@ -120,7 +120,7 @@ public class Status extends Command {
         embedBuilder.addField(translations.get(10).getTranslation(), "https://ardentbot.tk", true);
         embedBuilder.addField(translations.get(11).getTranslation(), "https://ardentbot.tk/guild", true);
 
-        sendEmbed(embedBuilder, channel);
+        sendEmbed(embedBuilder, channel, user);
     }
 
     @Override

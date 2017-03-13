@@ -25,7 +25,7 @@ public class Bug extends Command {
             for (Invite invite : invites) {
                 if (invite.getInviter().equals(ardent.bot)) {
                     try {
-                        sendRetrievedTranslation(channel, "bug", language, "disabled");
+                        sendRetrievedTranslation(channel, "bug", language, "disabled", user);
                     }
                     catch (Exception e) {
                         new BotException(e);
@@ -40,7 +40,7 @@ public class Bug extends Command {
                             ardent.jda.getTextChannelById("267404524484820994").sendMessage("**Request for help by "
                                     + user.getName() + "**\n" + invite.getCode()).queue(successMsg -> {
                                 try {
-                                    sendRetrievedTranslation(channel, "bug", language, "success");
+                                    sendRetrievedTranslation(channel, "bug", language, "success", user);
                                 }
                                 catch (Exception e) {
                                     new BotException(e);
@@ -50,7 +50,7 @@ public class Bug extends Command {
             }
             catch (PermissionException ex) {
                 try {
-                    sendRetrievedTranslation(channel, "bug", language, "nopermission");
+                    sendRetrievedTranslation(channel, "bug", language, "nopermission", user);
                 }
                 catch (Exception e) {
                     new BotException(e);

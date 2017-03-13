@@ -14,7 +14,8 @@ public class Invite extends Command {
 
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
-        sendTranslatedMessage(getTranslation("invite", language, "invite").getTranslation().replace("{0}", "https://ardentbot.tk/invite"), channel);
+        sendTranslatedMessage(getTranslation("invite", language, "invite").getTranslation().replace("{0}",
+                "https://ardentbot.tk/invite"), channel, user);
     }
 
     @Override

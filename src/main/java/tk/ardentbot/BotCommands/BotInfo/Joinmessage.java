@@ -15,7 +15,7 @@ public class Joinmessage extends Command {
 
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
-        sendTranslatedMessage(Join.welcomeText, channel);
+        sendTranslatedMessage(Join.welcomeText, channel, user);
     }
 
     @Override

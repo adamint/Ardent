@@ -37,7 +37,7 @@ public class Todo extends Command {
             description.append("\n" + (i + 1) + ": " + todos.get(i));
         }
         embedBuilder.setDescription(description.toString());
-        sendEmbed(embedBuilder, channel);
+        sendEmbed(embedBuilder, channel, user);
     }
 
     @Override
@@ -50,9 +50,9 @@ public class Todo extends Command {
                     Statement statement = ardent.conn.createStatement();
                     statement.executeUpdate("INSERT INTO Todo VALUES ('" + cleanString(todo) + "')");
                     statement.close();
-                    sendTranslatedMessage("Added todo successfully", channel);
+                    sendTranslatedMessage("Added todo successfully", channel, user);
                 }
-                else sendRetrievedTranslation(channel, "other", language, "needdeveloperpermission");
+                else sendRetrievedTranslation(channel, "other", language, "needdeveloperpermission", user);
             }
         });
 
@@ -68,17 +68,17 @@ public class Todo extends Command {
                                 Statement statement = ardent.conn.createStatement();
                                 statement.executeUpdate("DELETE FROM Todo WHERE Text='" + cleanString(todos.get(place)) + "'");
                                 statement.close();
-                                sendTranslatedMessage("Removed todo successfully", channel);
+                                sendTranslatedMessage("Removed todo successfully", channel, user);
                             }
-                            else sendTranslatedMessage("Incorrect place specified.", channel);
+                            else sendTranslatedMessage("Incorrect place specified.", channel, user);
                         }
                         catch (NumberFormatException ex) {
-                            sendTranslatedMessage("That wasn't a number lol", channel);
+                            sendTranslatedMessage("That wasn't a number lol", channel, user);
                         }
                     }
-                    else sendTranslatedMessage("Invalid arguments.", channel);
+                    else sendTranslatedMessage("Invalid arguments.", channel, user);
                 }
-                else sendRetrievedTranslation(channel, "other", language, "needdeveloperpermission");
+                else sendRetrievedTranslation(channel, "other", language, "needdeveloperpermission", user);
             }
         });
     }

@@ -72,7 +72,7 @@ public class Help extends Command {
         description.append("\n\n" + getTranslation("help", language, "ifyouneedhelp").getTranslation().replace("{0}",
                 "https://ardentbot.tk/guild"));
         embedBuilder.setDescription(description.toString());
-        sendEmbed(embedBuilder, channel);
+        sendEmbed(embedBuilder, channel, user);
     }
 
     @Override
@@ -96,7 +96,7 @@ public class Help extends Command {
                 description.append(getTranslation("help", language, "ifyouneedhelp").getTranslation().replace("{0}",
                         "https://ardentbot.tk/guild"));
                 helpEmbed.setDescription(description.toString());
-                sendEmbed(helpEmbed, channel);
+                sendEmbed(helpEmbed, channel, user);
             }
         };
 
@@ -118,7 +118,7 @@ public class Help extends Command {
                                 (language) + "\n");
                     }
                     embedBuilder.setDescription(description.toString());
-                    sendEmbed(embedBuilder, channel);
+                    sendEmbed(embedBuilder, channel, user);
                 }
             });
         }

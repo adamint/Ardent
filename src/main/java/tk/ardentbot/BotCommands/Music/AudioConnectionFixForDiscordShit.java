@@ -36,7 +36,7 @@ public class AudioConnectionFixForDiscordShit implements Runnable {
                             if (channel == null) channel = guild.getPublicChannel();
                             try {
                                 ardent.help.sendRetrievedTranslation(channel, "music", GuildUtils.getLanguage(guild),
-                                        "autoresetplayer");
+                                        "autoresetplayer", null);
                             }
                             catch (Exception e) {
                                 new BotException(e);

@@ -70,7 +70,7 @@ public class Whois extends Command {
         builder.addField(responses.get(6).getTranslation(), String.valueOf(daysInGuild), true);
         builder.addField(responses.get(7).getTranslation(), roles.toString(), true);
 
-        sendEmbed(builder, channel);
+        sendEmbed(builder, channel, user);
     }
 
     @Override

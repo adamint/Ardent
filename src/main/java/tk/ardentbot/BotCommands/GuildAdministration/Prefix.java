@@ -29,7 +29,7 @@ public class Prefix extends Command {
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
                 sendTranslatedMessage(getTranslation("prefix", language, "viewprefix").getTranslation().replace
-                        ("{0}", GuildUtils.getPrefix(guild)), channel);
+                        ("{0}", GuildUtils.getPrefix(guild)), channel, user);
             }
         });
         subcommands.add(new Subcommand(this, "change") {
@@ -43,15 +43,15 @@ public class Prefix extends Command {
                         new DatabaseAction("UPDATE Guilds SET Prefix=? WHERE GuildID=?").set(newPrefix).set(guild
                                 .getId()).update();
                         sendTranslatedMessage(getTranslation("prefix", language, "successfullyupdated")
-                                .getTranslation().replace("{0}", newPrefix), channel);
+                                .getTranslation().replace("{0}", newPrefix), channel, user);
                         GuildUtils.updatePrefix(newPrefix, guild);
                     }
                     else {
-                        sendRetrievedTranslation(channel, "other", language, "needmanageserver");
+                        sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
                     }
                 }
                 else {
-                    sendRetrievedTranslation(channel, "prefix", language, "mustincludeargument");
+                    sendRetrievedTranslation(channel, "prefix", language, "mustincludeargument", user);
                 }
             }
         });

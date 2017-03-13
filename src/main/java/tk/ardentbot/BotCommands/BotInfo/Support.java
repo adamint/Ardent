@@ -14,7 +14,8 @@ public class Support extends Command {
 
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
-        sendTranslatedMessage(getTranslation("support", language, "support").getTranslation().replace("{0}", "https://ardentbot.tk/guild"), channel);
+        sendTranslatedMessage(getTranslation("support", language, "support").getTranslation().replace("{0}",
+                "https://ardentbot.tk/guild"), channel, user);
     }
 
     @Override

@@ -10,11 +10,11 @@ import static tk.ardentbot.Main.Ardent.ardent;
 public class BotException {
     public BotException(Exception ex) {
         ardent.help.sendTranslatedMessage("```" + ExceptionUtils.getStackTrace(ex) + "```", ardent.jda
-                .getTextChannelById("270572632343183361"));
+                .getTextChannelById("270572632343183361"), null);
         ex.printStackTrace();
      }
 
     public BotException(String s) {
-        ardent.help.sendTranslatedMessage("```" + s + "```", ardent.jda.getTextChannelById("270572632343183361"));
+        ardent.help.sendTranslatedMessage("```" + s + "```", ardent.jda.getTextChannelById("270572632343183361"), null);
     }
 }

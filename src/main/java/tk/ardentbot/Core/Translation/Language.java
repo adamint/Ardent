@@ -73,7 +73,7 @@ public class Language {
             catch (SQLException e) {
                 e.printStackTrace();
             }
-        }, 1, 30, TimeUnit.SECONDS);
+        }, 1, 120, TimeUnit.SECONDS);
 
 
     }

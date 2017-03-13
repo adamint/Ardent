@@ -3,10 +3,7 @@ package tk.ardentbot.Core.CommandExecution;
 import com.google.code.chatterbotapi.ChatterBotSession;
 import com.vdurmont.emoji.Emoji;
 import com.vdurmont.emoji.EmojiManager;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageChannel;
-import net.dv8tion.jda.core.entities.PrivateChannel;
+import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -113,6 +110,7 @@ public class CommandFactory {
      */
     public void pass(MessageReceivedEvent event) throws Exception {
         try {
+            User user = event.getAuthor();
             Message message = event.getMessage();
             MessageChannel channel = event.getChannel();
             String[] args = message.getContent().split(" ");
@@ -124,7 +122,7 @@ public class CommandFactory {
                     command.sendTranslatedMessage(command.getTranslation("other", language, "mentionedhelp")
                             .getTranslation()
                             .replace("{0}", GuildUtils.getPrefix(guild) +
-                                    command.getName(language)), channel);
+                                    command.getName(language)), channel, user);
                 }
                 else {
                     if (guild != null) {
@@ -135,9 +133,9 @@ public class CommandFactory {
                                         " GuildID=?").set("english").set(guild.getId());
                                 updateLanguage.update();
                                 command.sendRetrievedTranslation(channel, "language", LangFactory.getLanguage("english"),
-                                        "changedlanguage");
+                                        "changedlanguage", user);
                             }
-                            else command.sendRetrievedTranslation(channel, "other", language, "needmanageserver");
+                            else command.sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
                         }
                         // On hold until I can find a suitable pandorabot or other chatbot api
                         /* else {
@@ -169,11 +167,11 @@ public class CommandFactory {
                                             if (baseCommand.isPrivateChannelUsage()) {
                                                 baseCommand.botCommand.usages++;
                                                 ardent.executorService.execute(new AsyncCommandExecutor(baseCommand.botCommand, guild,
-                                                        channel, event.getAuthor(), message, args, language));
+                                                        channel, event.getAuthor(), message, args, language, user));
                                             }
                                             else {
                                                 baseCommand.sendRetrievedTranslation(channel, "other", language,
-                                                        "notavailableinprivatechannel");
+                                                        "notavailableinprivatechannel", user);
                                             }
                                             commandsReceived++;
                                         }
@@ -218,11 +216,11 @@ public class CommandFactory {
 
                                         if (!beforeCmdFirst && afterCmdFirst) {
                                             command.botCommand.sendRetrievedTranslation(channel, "other",
-                                                    language, "firstincommands");
+                                                    language, "firstincommands", user);
                                         }
 
                                         ardent.executorService.execute(new AsyncCommandExecutor(command.botCommand, guild, channel,
-                                                event.getAuthor(), message, args, language));
+                                                event.getAuthor(), message, args, language, user));
                                         commandsReceived++;
 
                                         new DatabaseAction("INSERT INTO CommandsReceived " +

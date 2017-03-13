@@ -21,7 +21,7 @@ public class Tweet extends Command {
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
         if (Ardent.developers.contains(user.getId())) {
             if (args.length == 1) {
-                sendTranslatedMessage("Bro, you gotta include an actual tweet with that", channel);
+                sendTranslatedMessage("Bro, you gotta include an actual tweet with that", channel, user);
             }
             else {
                 String content = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0], "");
@@ -37,7 +37,7 @@ public class Tweet extends Command {
                 ardent.jda.getTextChannelById("272411413031419904").sendMessage(sb.toString()).queue();
             }
         }
-        else sendRetrievedTranslation(channel, "other", language, "needdeveloperpermission");
+        else sendRetrievedTranslation(channel, "other", language, "needdeveloperpermission", user);
     }
 
     @Override

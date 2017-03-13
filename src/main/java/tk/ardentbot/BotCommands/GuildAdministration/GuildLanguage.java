@@ -39,7 +39,7 @@ public class GuildLanguage extends Command {
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
                 sendTranslatedMessage(getTranslation("language", language, "currentlanguage").getTranslation()
-                        .replace("{0}", "**" + LangFactory.getName(language) + "**"), channel);
+                        .replace("{0}", "**" + LangFactory.getName(language) + "**"), channel, user);
             }
         });
 
@@ -59,11 +59,11 @@ public class GuildLanguage extends Command {
                     String reply = getTranslation("language", language, "checklanguages").getTranslation().replace
                             ("{0}", languages.toString()).replace("{2}", set.getName(language)).replace("{1}",
                             GuildUtils.getPrefix(guild) + args[0]);
-                    sendTranslatedMessage(reply, channel);
+                    sendTranslatedMessage(reply, channel, user);
                 }
                 else
                     sendTranslatedMessage(getTranslation("other", language, "checksyntax").getTranslation().replace
-                            ("{0}", GuildUtils.getPrefix(guild) + args[0]), channel);
+                            ("{0}", GuildUtils.getPrefix(guild) + args[0]), channel, user);
             }
         });
 
@@ -79,26 +79,26 @@ public class GuildLanguage extends Command {
                             new DatabaseAction("UPDATE Guilds SET Language=? WHERE GuildID=?").set(changeTo
                                     .getIdentifier()).set(guild.getId()).update();
                             ardent.botLanguageData.set(guild, changeTo.getIdentifier());
-                            sendRetrievedTranslation(channel, "language", changeTo, "changedlanguage");
+                            sendRetrievedTranslation(channel, "language", changeTo, "changedlanguage", user);
                             ardent.executorService.schedule(() -> {
                                 try {
-                                    sendTranslatedMessage(getTranslation("other", language, "mentionedhelp")
+                                    sendTranslatedMessage(getTranslation("other", changeTo, "mentionedhelp")
                                             .getTranslation().replace("{0}", GuildUtils.getPrefix(guild) +
-                                                    ardent.help.getName(language)), channel);
+                                                    ardent.help.getName(changeTo)), channel, user);
                                 }
                                 catch (Exception e) {
                                     new BotException(e);
                                 }
 
-                            }, 5, TimeUnit.SECONDS);
+                            }, 2, TimeUnit.SECONDS);
                         }
-                        else sendRetrievedTranslation(channel, "language", language, "invalidlanguage");
+                        else sendRetrievedTranslation(channel, "language", language, "invalidlanguage", user);
                     }
                     else
                         sendTranslatedMessage(getTranslation("other", language, "checksyntax").getTranslation()
-                                .replace("{0}", GuildUtils.getPrefix(guild) + args[0]), channel);
+                                .replace("{0}", GuildUtils.getPrefix(guild) + args[0]), channel, user);
                 }
-                else sendRetrievedTranslation(channel, "other", language, "needmanageserver");
+                else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
             }
         };
         subcommands.add(set);
@@ -118,7 +118,7 @@ public class GuildLanguage extends Command {
                 usages.forEach((key, value) -> {
                     sb.append(" > **" + key + "**: " + format.format((value / guilds)) + "%\n");
                 });
-                sendTranslatedMessage(sb.toString(), channel);
+                sendTranslatedMessage(sb.toString(), channel, user);
             }
         });
     }

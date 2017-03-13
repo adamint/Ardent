@@ -16,14 +16,16 @@ public class Unmute extends Command {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
+            language) throws Exception {
         if (args.length == 1) {
-            sendTranslatedMessage(getTranslation("unmute", language, "help").getTranslation().replace("{0}", GuildUtils.getPrefix(guild) + args[0]), channel);
+            sendTranslatedMessage(getTranslation("unmute", language, "help").getTranslation().replace("{0}",
+                    GuildUtils.getPrefix(guild) + args[0]), channel, user);
         }
         else {
             List<User> mentionedUsers = message.getMentionedUsers();
             if (mentionedUsers.size() == 0) {
-                sendRetrievedTranslation(channel, "other", language, "mentionuser");
+                sendRetrievedTranslation(channel, "other", language, "mentionuser", user);
             }
             else {
                 if (guild.getMember(user).hasPermission(Permission.MANAGE_SERVER)) {
@@ -32,17 +34,19 @@ public class Unmute extends Command {
 
                     if (ardent.botMuteData.isMuted(m)) {
                         ardent.botMuteData.unmute(m);
-                        sendRetrievedTranslation(channel, "unmute", language, "unmuteduser");
-                    }else{
-                        sendRetrievedTranslation(channel, "unmute", language, "notmuted");
+                        sendRetrievedTranslation(channel, "unmute", language, "unmuteduser", user);
                     }
-                    
+                    else {
+                        sendRetrievedTranslation(channel, "unmute", language, "notmuted", user);
+                    }
+
                 }
-                else sendRetrievedTranslation(channel, "other", language, "needmanageserver");
+                else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
             }
         }
     }
 
     @Override
-    public void setupSubcommands() {}
+    public void setupSubcommands() {
+    }
 }

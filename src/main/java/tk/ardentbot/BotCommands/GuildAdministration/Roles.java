@@ -46,7 +46,7 @@ public class Roles extends Command {
                                         guild.getController().addRolesToMember(mentionedMember, r).queue(aVoid -> {
                                             try {
                                                 String reply = getTranslation("roles", language, "addedrole").getTranslation().replace("{0}", r.getName()).replace("{1}", mentioned.getName());
-                                                sendTranslatedMessage(reply, channel);
+                                                sendTranslatedMessage(reply, channel, user);
                                             }
                                             catch (Exception e) {
                                                 new BotException(e);
@@ -54,18 +54,19 @@ public class Roles extends Command {
                                         });
                                     }
                                     catch (PermissionException ex) {
-                                        sendRetrievedTranslation(channel, "other", language, "needproperpermissions");
+                                        sendRetrievedTranslation(channel, "other", language, "needproperpermissions",
+                                                user);
                                     }
                                 }
-                                else sendRetrievedTranslation(channel, "roles", language, "norolesfound");
+                                else sendRetrievedTranslation(channel, "roles", language, "norolesfound", user);
                             }
-                            else sendRetrievedTranslation(channel, "roles", language, "cannotmodify");
+                            else sendRetrievedTranslation(channel, "roles", language, "cannotmodify", user);
                         }
-                        else sendRetrievedTranslation(channel, "other", language, "mentionuser");
+                        else sendRetrievedTranslation(channel, "other", language, "mentionuser", user);
                     }
-                    else sendRetrievedTranslation(channel, "other", language, "needmanageroles");
+                    else sendRetrievedTranslation(channel, "other", language, "needmanageroles", user);
                 }
-                else sendRetrievedTranslation(channel, "roles", language, "mentionuserandrole");
+                else sendRetrievedTranslation(channel, "roles", language, "mentionuserandrole", user);
             }
         });
 
@@ -93,7 +94,7 @@ public class Roles extends Command {
                                         guild.getController().removeRolesFromMember(mentionedMember, r).queue(aVoid -> {
                                             try {
                                                 String reply = getTranslation("roles", language, "removedrole").getTranslation().replace("{0}", r.getName()).replace("{1}", mentioned.getName());
-                                                sendTranslatedMessage(reply, channel);
+                                                sendTranslatedMessage(reply, channel, user);
                                             }
                                             catch (Exception e) {
                                                 new BotException(e);
@@ -101,18 +102,18 @@ public class Roles extends Command {
                                         });
                                     }
                                     catch (PermissionException ex) {
-                                        sendRetrievedTranslation(channel, "other", language, "needproperpermissions");
+                                        sendRetrievedTranslation(channel, "other", language, "needproperpermissions", user);
                                     }
                                 }
-                                else sendRetrievedTranslation(channel, "roles", language, "norolesfound");
+                                else sendRetrievedTranslation(channel, "roles", language, "norolesfound", user);
                             }
-                            else sendRetrievedTranslation(channel, "roles", language, "cannotmodify");
+                            else sendRetrievedTranslation(channel, "roles", language, "cannotmodify", user);
                         }
-                        else sendRetrievedTranslation(channel, "other", language, "mentionuser");
+                        else sendRetrievedTranslation(channel, "other", language, "mentionuser", user);
                     }
-                    else sendRetrievedTranslation(channel, "other", language, "needmanageroles");
+                    else sendRetrievedTranslation(channel, "other", language, "needmanageroles", user);
                 }
-                else sendRetrievedTranslation(channel, "roles", language, "mentionuserandrole");
+                else sendRetrievedTranslation(channel, "roles", language, "mentionuserandrole", user);
             }
         });
     }

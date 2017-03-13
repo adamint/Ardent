@@ -80,7 +80,7 @@ public class Admin extends Command {
                 }
                 else if (args[1].equalsIgnoreCase("getloc")) {
                     sendTranslatedMessage(this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath
-                            (), channel);
+                            (), channel, user);
                 }
                 else if (args[1].equalsIgnoreCase("usage")) {
                     Map<Guild, Integer> guildsByUsage = UsageUtils.sortedGuildsByCommandUsage(10);
@@ -88,7 +88,7 @@ public class Admin extends Command {
                     guildsByUsage.forEach((key, value) -> {
                         sb.append(key.getName() + " (" + key.getId() + ") : " + value + "\n");
                     });
-                    sendTranslatedMessage(sb.toString(), channel);
+                    sendTranslatedMessage(sb.toString(), channel, user);
                 }
                 else if (args[1].equalsIgnoreCase("announce")) {
                     String msg = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " +
@@ -105,7 +105,7 @@ public class Admin extends Command {
                 }
             }
         }
-        else sendRetrievedTranslation(channel, "other", language, "needdeveloperpermission");
+        else sendRetrievedTranslation(channel, "other", language, "needdeveloperpermission", user);
     }
 
     @Override

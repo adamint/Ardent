@@ -45,7 +45,7 @@ public class Mute extends Command {
                     sb = new StringBuilder();
                     sb.append(getTranslation("mute", language, "nomutes").getTranslation());
                 }
-                sendTranslatedMessage(sb.toString(), channel);
+                sendTranslatedMessage(sb.toString(), channel, user);
                 set.close();
                 statement.close();
             }
@@ -61,7 +61,7 @@ public class Mute extends Command {
                         Member mentioned = message.getGuild().getMember(message.getMentionedUsers().get(0));
 
                         if (ardent.botMuteData.isMuted(mentioned)) {
-                            sendRetrievedTranslation(channel, "mute", language, "alreadymuted");
+                            sendRetrievedTranslation(channel, "mute", language, "alreadymuted", user);
                         }
                         else {
                             if (ardent.botMuteData.wasMute(mentioned)) {
@@ -77,14 +77,14 @@ public class Mute extends Command {
                                     String reply = getTranslation("mute", language, "nowmuteduntil").getTranslation()
                                             .replace("{0}", mentioned.getUser().getName())
                                             .replace("{1}", String.valueOf(new Date(now)));
-                                    sendTranslatedMessage(reply, channel);
+                                    sendTranslatedMessage(reply, channel, user);
                                 }
                                 catch (NumberFormatException ex) {
-                                    sendRetrievedTranslation(channel, "tag", language, "invalidarguments");
+                                    sendRetrievedTranslation(channel, "tag", language, "invalidarguments", user);
                                 }
                             }
                             else {
-                                sendRetrievedTranslation(channel, "tag", language, "invalidarguments");
+                                sendRetrievedTranslation(channel, "tag", language, "invalidarguments", user);
                             }
 
                         }

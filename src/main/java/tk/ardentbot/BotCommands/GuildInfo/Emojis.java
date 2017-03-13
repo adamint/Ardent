@@ -53,11 +53,11 @@ public class Emojis extends Command {
                         description.append("\n\n" + emoji.getDescription());
 
                         builder.setDescription(description.toString());
-                        sendEmbed(builder, channel);
+                        sendEmbed(builder, channel, user);
                     }
-                    else sendRetrievedTranslation(channel, "emojis", language, "includeemoji");
+                    else sendRetrievedTranslation(channel, "emojis", language, "includeemoji", user);
                 }
-                else sendRetrievedTranslation(channel, "emojis", language, "includeemoji");
+                else sendRetrievedTranslation(channel, "emojis", language, "includeemoji", user);
             }
         });
     }

@@ -39,7 +39,7 @@ public class About extends Command {
                 .append("**Translators**: *" + translators + "*\n")
                 .append("**Patrons**: *" + patrons + "*");
         builder.setDescription(description);
-        sendEmbed(builder, channel);
+        sendEmbed(builder, channel, user);
     }
 
     @Override

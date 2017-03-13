@@ -7,6 +7,7 @@ import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.Core.Exceptions.BotException;
 import tk.ardentbot.Core.Models.SubcommandTranslation;
+import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Utils.Discord.MessageUtils;
 
@@ -52,7 +53,7 @@ public abstract class Command extends BaseCommand {
     public void sendHelp(Language language, MessageChannel channel, Guild guild, User author, BaseCommand
             baseCommand) throws
             Exception {
-        sendEmbed(getHelp(language, guild, author, baseCommand), channel);
+        sendEmbed(getHelp(language, guild, author, baseCommand), channel, author);
     }
 
     private EmbedBuilder getHelp(Language language, Guild guild, User author, BaseCommand baseCommand) throws
@@ -89,7 +90,8 @@ public abstract class Command extends BaseCommand {
      * @param language The current language of the guild
      * @throws Exception
      */
-    void onUsage(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language)
+    void onUsage(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language,
+                 Language oldLang)
             throws Exception {
         if (args.length == 1 || subcommands.size() == 0) noArgs(guild, channel, user, message, args, language);
         else {
@@ -101,7 +103,12 @@ public abstract class Command extends BaseCommand {
                     subcommands.forEach(subcommand -> {
                         if (subcommand.getIdentifier().equalsIgnoreCase(subcommandTranslation.getIdentifier())) {
                             try {
-                                subcommand.onCall(guild, channel, user, message, args, language);
+                                if (oldLang == null) {
+                                    subcommand.onCall(guild, channel, user, message, args, language);
+                                }
+                                else {
+                                    subcommand.onCall(guild, channel, user, message, args, oldLang);
+                                }
                             }
                             catch (Exception e) {
                                 new BotException(e);
@@ -110,9 +117,10 @@ public abstract class Command extends BaseCommand {
                     });
                 }
             });
-            if (!found[0]) {
-                sendRetrievedTranslation(channel, "other", language, "subcommandnotfound");
+            if (!found[0] && language == LangFactory.english) {
+                sendRetrievedTranslation(channel, "other", language, "subcommandnotfound", user);
             }
+            else if (!found[0]) onUsage(guild, channel, user, message, args, LangFactory.english, language);
         }
     }
 }

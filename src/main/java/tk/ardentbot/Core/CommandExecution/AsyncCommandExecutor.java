@@ -20,9 +20,10 @@ class AsyncCommandExecutor implements Runnable {
     private Message message;
     private String[] args;
     private Language language;
+    private User user;
 
     AsyncCommandExecutor(Command command, Guild guild, MessageChannel channel, User author, Message message, String[]
-            args, Language language) {
+            args, Language language, User user) {
         this.command = command;
         this.guild = guild;
         this.channel = channel;
@@ -30,6 +31,7 @@ class AsyncCommandExecutor implements Runnable {
         this.message = message;
         this.args = args;
         this.language = language;
+        this.user = user;
     }
 
     /**
@@ -44,7 +46,7 @@ class AsyncCommandExecutor implements Runnable {
                     ardent.sentAnnouncement.replace(guild.getId(), true);
                     ardent.executorService.schedule(() -> {
                         try {
-                            command.sendTranslatedMessage(ardent.announcement, channel);
+                            command.sendTranslatedMessage(ardent.announcement, channel, user);
                         }
                         catch (Exception e) {
                             new BotException(e);
@@ -53,7 +55,7 @@ class AsyncCommandExecutor implements Runnable {
                 }
             }
 
-            command.getBotCommand().onUsage(guild, channel, author, message, args, language);
+            command.getBotCommand().onUsage(guild, channel, author, message, args, language, null);
             ardent.factory.addCommandUsage(command.getCommandIdentifier());
         }
         catch (Exception e) {

@@ -25,7 +25,7 @@ public class Request extends Command {
         String prefix = GuildUtils.getPrefix(guild);
         if (args.length == 1) {
             sendTranslatedMessage(getTranslation("request", language, "requesthelp").getTranslation().replace("{0}",
-                    prefix + args[0]), channel);
+                    prefix + args[0]), channel, user);
         }
         else {
             if (canRequest(user)) {
@@ -34,9 +34,9 @@ public class Request extends Command {
                 ideasChannel.sendMessage("**Request** by " + user.getName() + "#" + user.getDiscriminator() + " (" +
                         user.getId() + "): " + request).queue();
                 usersUnableToRequest.add(new RequestUtil(Instant.now(), user));
-                sendRetrievedTranslation(channel, "request", language, "successfullyrequested");
+                sendRetrievedTranslation(channel, "request", language, "successfullyrequested", user);
             }
-            else sendTranslatedMessage(getRequestTime(user, language), channel);
+            else sendTranslatedMessage(getRequestTime(user, language), channel, user);
         }
     }
 
