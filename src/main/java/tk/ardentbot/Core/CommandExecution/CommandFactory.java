@@ -10,7 +10,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.util.ConcurrentArrayQueue;
 import tk.ardentbot.BotCommands.BotInfo.Status;
-import tk.ardentbot.Core.Exceptions.BotException;
+import tk.ardentbot.Core.LoggingUtils.BotException;
 import tk.ardentbot.Core.Models.CommandTranslation;
 import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;

@@ -1,4 +1,4 @@
-package tk.ardentbot.Core.Exceptions;
+package tk.ardentbot.Core.LoggingUtils;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 

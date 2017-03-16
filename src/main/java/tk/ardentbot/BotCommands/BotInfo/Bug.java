@@ -4,7 +4,7 @@ import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.entities.Invite;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import tk.ardentbot.Core.CommandExecution.Command;
-import tk.ardentbot.Core.Exceptions.BotException;
+import tk.ardentbot.Core.LoggingUtils.BotException;
 import tk.ardentbot.Core.Translation.Language;
 
 import java.util.concurrent.TimeUnit;

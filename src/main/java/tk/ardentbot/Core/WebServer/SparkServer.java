@@ -3,7 +3,7 @@ package tk.ardentbot.Core.WebServer;
 import spark.Request;
 import spark.Response;
 import tk.ardentbot.Core.CommandExecution.CommandFactory;
-import tk.ardentbot.Core.Exceptions.BotException;
+import tk.ardentbot.Core.LoggingUtils.BotException;
 import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Core.WebServer.Models.Command;
@@ -36,7 +36,7 @@ public class SparkServer {
         }
         else {
             port(666);
-            secure("/root/keystore.jks", "mortimer5", null, null);
+            secure("/root/Ardent/web/node_modules/app.js/sslpublic.jks", "ardent", null, null);
         }
         get("/api/commands", (rq, rs) -> {
             CommandFactory factory = ardent.factory;

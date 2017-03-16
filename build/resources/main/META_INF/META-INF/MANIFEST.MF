@@ -4,7 +4,7 @@ Class-Path: jackson-xc-1.9.2.jar jetty-security-9.3.6.v20151106.jar st
  .v20151106.jar jersey-core-1.19.1.jar httpcore-nio-4.4.4.jar junit-4.
  8.1.jar annotations-3.0.1.jar base64-2.3.9.jar jetty-servlet-9.3.6.v2
  0151106.jar httpasyncclient-4.1.1.jar guava-19.0.jar mysql-connector-
- java-6.0.5.jar json-20160810.jar spark-template-handlebars-2.5.5.jar 
+ java-5.1.39.jar json-20160810.jar spark-template-handlebars-2.5.5.jar
  commons-collections4-4.1.jar websocket-server-9.3.6.v20151106.jar jav
  ax.servlet-api-3.1.0.jar javaslang-match-2.0.3.jar commons-lang3-3.5.
  jar chatter-bot-api-2.0.0.jar httpclient-4.5.2.jar log4j-api-2.5.jar 
@@ -14,8 +14,7 @@ Class-Path: jackson-xc-1.9.2.jar jetty-security-9.3.6.v20151106.jar st
  avaslang-2.0.3.jar jackson-jaxrs-1.9.2.jar handlebars-guava-cache-4.0
  .6.jar activation-1.1.jar spark-core-2.5.5.jar jcip-annotations-1.0.j
  ar jetty-webapp-9.3.6.v20151106.jar jackson-annotations-2.8.0.jar log
- back-core-1.1.2.jar okio-1.11.0.jar giphy4j-1.0.1.jar JDA-3.0.BETA2_1
- 46.jar log4j-core-2.5.jar logback-classic-1.1.2.jar websocket-servlet
+ back-core-1.1.2.jar okio-1.11.0.jar giphy4j-1.0.1.jar JDA-3.0.0_155.jar log4j-core-2.5.jar logback-classic-1.1.2.jar websocket-servlet
  -9.3.6.v20151106.jar yandex-translate-api-1.2.4.jar websocket-common-
  9.3.6.v20151106.jar jersey-json-1.19.1.jar jackson-databind-2.8.6.jar
   httpcore-4.4.4.jar mockito-all-1.10.19.jar nv-websocket-client-1.30.

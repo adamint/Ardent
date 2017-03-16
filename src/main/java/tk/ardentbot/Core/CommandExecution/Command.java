@@ -5,7 +5,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.Core.Exceptions.BotException;
+import tk.ardentbot.Core.LoggingUtils.BotException;
 import tk.ardentbot.Core.Models.SubcommandTranslation;
 import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;

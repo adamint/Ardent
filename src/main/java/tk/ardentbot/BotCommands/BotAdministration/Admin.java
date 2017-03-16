@@ -1,11 +1,10 @@
 package tk.ardentbot.BotCommands.BotAdministration;
 
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageChannel;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.*;
+import tk.ardentbot.BotCommands.Music.GuildMusicManager;
+import tk.ardentbot.BotCommands.Music.Music;
 import tk.ardentbot.Core.CommandExecution.Command;
-import tk.ardentbot.Core.Exceptions.BotException;
+import tk.ardentbot.Core.LoggingUtils.BotException;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.Discord.GuildUtils;
@@ -14,6 +13,7 @@ import tk.ardentbot.Utils.UsageUtils;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 import static tk.ardentbot.BotCommands.BotInfo.Status.getVoiceConnections;
 import static tk.ardentbot.Main.Ardent.ardent;
@@ -29,11 +29,31 @@ public class Admin extends Command {
         channel.sendMessage("Updating...").queue();
         for (Guild g : ardent.jda.getGuilds()) {
             if (g.getAudioManager().isConnected()) {
-                g.getPublicChannel().sendMessage(command.getTranslation("music", language, "restartingfiveminutes")
-                        .getTranslation()).queue();
+                GuildMusicManager manager = Music.getGuildAudioPlayer(g, null);
+                TextChannel ch = manager.scheduler.manager.getChannel();
+                if (ch == null) {
+                    g.getPublicChannel().sendMessage(command.getTranslation("music", language, "restartingfiveminutes")
+                            .getTranslation()).queue();
+                }
+                else {
+                    ch.sendMessage(command.getTranslation("music", language, "restartingfiveminutes")
+                            .getTranslation()).queue();
+                }
             }
         }
-        shutdown();
+        ardent.executorService.schedule(() -> {
+            ardent.jda.getGuilds().stream().filter(g -> g.getAudioManager().isConnected()).forEach(g -> {
+                GuildMusicManager manager = Music.getGuildAudioPlayer(g, null);
+                TextChannel ch = manager.scheduler.manager.getChannel();
+                if (ch == null) {
+                    g.getPublicChannel().sendMessage("Updating, I'll be online in a minute!").queue();
+                }
+                else {
+                    ch.sendMessage("Updating, I'll be online in a minute!").queue();
+                }
+            });
+            shutdown();
+        }, 4, TimeUnit.MINUTES);
     }
 
     private static void shutdown() {

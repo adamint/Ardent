@@ -8,7 +8,8 @@ import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.hooks.SubscribeEvent;
 import tk.ardentbot.BotCommands.GuildAdministration.Automessage;
-import tk.ardentbot.Core.Exceptions.BotException;
+import tk.ardentbot.Core.LoggingUtils.BotException;
+import tk.ardentbot.Core.LoggingUtils.EventLogger;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.Tuples.Triplet;
 
@@ -29,6 +30,7 @@ public class Leave {
 
         Guild guild = event.getGuild();
         String id = guild.getId();
+        EventLogger.leave(guild);
         ardent.cleverbots.remove(id);
         ardent.botPrefixData.remove(guild);
         try {

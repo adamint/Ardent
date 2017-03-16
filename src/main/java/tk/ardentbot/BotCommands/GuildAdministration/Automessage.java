@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import static tk.ardentbot.Main.Ardent.ardent;
-import static tk.ardentbot.Utils.SQL.SQLUtils.cleanString;
 
 public class Automessage extends Command {
     public Automessage(CommandSettings commandSettings) {
@@ -65,22 +64,19 @@ public class Automessage extends Command {
         else if (num == 1) columnName = "Welcome";
         else if (num == 2) columnName = "Goodbye";
         else return;
-        Statement statement = ardent.conn.createStatement();
-        statement.executeUpdate("UPDATE Automessages SET " + columnName + "='000' WHERE GuildID='" + guild.getId() +
-                "'");
-        statement.close();
+        new DatabaseAction("UPDATE Automessages SET " + columnName + "=? WHERE GuildID=?").set("000").set(guild.getId
+                ()).update();
     }
 
+    @SuppressWarnings("Duplicates")
     public static void set(Guild guild, String text, int num) throws SQLException {
         String columnName;
         if (num == 0) columnName = "ChannelID";
         else if (num == 1) columnName = "Welcome";
         else if (num == 2) columnName = "Goodbye";
         else return;
-        Statement statement = ardent.conn.createStatement();
-        statement.executeUpdate("UPDATE Automessages SET " + columnName + "='" + cleanString(text) + "' WHERE " +
-                "GuildID='" + guild.getId() + "'");
-        statement.close();
+        new DatabaseAction("UPDATE Automessages SET " + columnName + " =? WHERE GuildID=?").set(text).set(guild.getId
+                ()).update();
     }
 
     @Override

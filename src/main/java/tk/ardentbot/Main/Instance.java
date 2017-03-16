@@ -41,7 +41,7 @@ import tk.ardentbot.Core.CommandExecution.CommandFactory;
 import tk.ardentbot.Core.Events.Join;
 import tk.ardentbot.Core.Events.Leave;
 import tk.ardentbot.Core.Events.OnMessage;
-import tk.ardentbot.Core.Exceptions.BotException;
+import tk.ardentbot.Core.LoggingUtils.BotException;
 import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Utils.SQL.MuteDaemon;
@@ -63,6 +63,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static tk.ardentbot.Core.Translation.LangFactory.languages;
+
 public class Instance {
     public boolean testingBot;
     public ScheduledExecutorService executorService = Executors.newScheduledThreadPool(100);
@@ -215,7 +216,7 @@ public class Instance {
                 factory.registerCommand(new AddEnglishBase(new BaseCommand.CommandSettings("addenglishbase", true, true,
                         Category
 
-                        .BOTADMINISTRATION)));
+                                .BOTADMINISTRATION)));
                 factory.registerCommand(new Todo(new BaseCommand.CommandSettings("todo", true, true, Category
                         .BOTADMINISTRATION)));
                 factory.registerCommand(new Tweet(new BaseCommand.CommandSettings("tweet", true, true, Category
@@ -251,16 +252,20 @@ public class Instance {
                         .BOTINFO)));
                 factory.registerCommand(getDevHelp);
 
+                factory.registerCommand(new Music(new BaseCommand.CommandSettings("music", false, true, Category.FUN)));
                 factory.registerCommand(new UD(new BaseCommand.CommandSettings("ud", true, true, Category.FUN)));
                 factory.registerCommand(new GIF(new BaseCommand.CommandSettings("gif", true, true, Category.FUN)));
                 factory.registerCommand(new FML(new BaseCommand.CommandSettings("fml", true, true, Category.FUN)));
+                factory.registerCommand(new Fortune(new BaseCommand.CommandSettings("fortune", true, true, Category
+                        .FUN)));
                 factory.registerCommand(new Yoda(new BaseCommand.CommandSettings("yoda", true, true, Category.FUN)));
                 factory.registerCommand(new EightBall(new BaseCommand.CommandSettings("8ball", true, true, Category
                         .FUN)));
                 factory.registerCommand(new Tags(new BaseCommand.CommandSettings("tag", false, true, Category.FUN)));
-                factory.registerCommand(new tk.ardentbot.BotCommands.Fun.Translate(new BaseCommand.CommandSettings("translate",
-                        true, true, Category
-                        .FUN)));
+                factory.registerCommand(new tk.ardentbot.BotCommands.Fun.Translate(new BaseCommand.CommandSettings
+                        ("translate",
+                                true, true, Category
+                                .FUN)));
                 factory.registerCommand(new Roll(new BaseCommand.CommandSettings("roll", true, true, Category.FUN)));
                 // factory.registerCommand(new Coinflip(new BaseCommand.CommandSettings("coinflip", true, true, Category
                 // .FUN)));

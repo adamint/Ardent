@@ -1,7 +1,7 @@
 package tk.ardentbot.Utils.Updaters;
 
 import net.dv8tion.jda.core.entities.Guild;
-import tk.ardentbot.Core.Exceptions.BotException;
+import tk.ardentbot.Core.LoggingUtils.BotException;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 
 import java.sql.ResultSet;
