@@ -32,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 
 import static tk.ardentbot.Main.Ardent.ardent;
 
+@SuppressWarnings("Duplicates")
 public class Music extends Command {
     public Music(CommandSettings commandSettings) {
         super(commandSettings);
@@ -78,6 +79,34 @@ public class Music extends Command {
         musicManager.scheduler.manager.addToQueue(new ArdentTrack(user.getId(), textChannel, track));
     }
 
+    private static boolean shouldContinue(User user, Language language, Guild guild, TextChannel channel, int
+            numberOfTracks) throws Exception {
+        if (guild.getMembers().size() < 150) {
+            int trackAmount = getGuildAudioPlayer(guild, channel).scheduler.manager.getQueue().size();
+            if (trackAmount + numberOfTracks >= 100) {
+                ardent.help.sendRetrievedTranslation(channel, "music", language, "cannotqueuemorethan20", user);
+                return false;
+            }
+            else return true;
+        }
+        else return true;
+    }
+
+    private static boolean shouldContinue(User user, Language language, Guild guild, TextChannel channel, AudioTrack
+            track) throws Exception {
+        if (guild.getMembers().size() < 150) {
+            long minutesDuration = track.getDuration() / 1000 / 60;
+            if (minutesDuration > 15) {
+                ardent.help.sendRetrievedTranslation(channel, "music", language, "cannotplaylongerthan15", user);
+                return false;
+            }
+            else {
+                return shouldContinue(user, language, guild, channel, 1);
+            }
+        }
+        else return true;
+    }
+
     private static void loadAndPlay(User user, Command command, Language language, final TextChannel channel,
                                     String trackUrl, final VoiceChannel voiceChannel, boolean search) {
         Guild guild = channel.getGuild();
@@ -85,6 +114,16 @@ public class Music extends Command {
         ardent.playerManager.loadItemOrdered(musicManager, trackUrl, new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack track) {
+                if (!UserUtils.hasTierTwoPermissions(user)) {
+                    try {
+                        if (!shouldContinue(user, language, guild, channel, track)) {
+                            return;
+                        }
+                    }
+                    catch (Exception e) {
+                        new BotException(e);
+                    }
+                }
                 try {
                     command.sendTranslatedMessage(command.getTranslation("music", language, "addingsong")
                                     .getTranslation().replace("{0}", track.getInfo().title) + " " + getDuration(track),
@@ -104,6 +143,16 @@ public class Music extends Command {
                     if (firstTrack == null) {
                         firstTrack = playlist.getTracks().get(0);
                     }
+                    if (!UserUtils.hasTierTwoPermissions(user)) {
+                        try {
+                            if (!shouldContinue(user, language, guild, channel, firstTrack)) {
+                                return;
+                            }
+                        }
+                        catch (Exception e) {
+                            new BotException(e);
+                        }
+                    }
                     try {
                         command.sendTranslatedMessage(command.getTranslation("music", language, "addingsong")
                                 .getTranslation().replace("{0}", firstTrack.getInfo().title) + " " + getDuration
@@ -115,6 +164,16 @@ public class Music extends Command {
                     play(user, guild, voiceChannel, musicManager, firstTrack, channel);
                 }
                 else {
+                    if (!UserUtils.hasTierTwoPermissions(user)) {
+                        try {
+                            if (!shouldContinue(user, language, guild, channel, 1)) {
+                                return;
+                            }
+                        }
+                        catch (Exception e) {
+                            new BotException(e);
+                        }
+                    }
                     try {
                         command.sendTranslatedMessage(command.getTranslation("music", language, "playlist")
                                 .getTranslation().replace("{0}", String.valueOf(tracks.size())), channel, user);
@@ -279,7 +338,7 @@ public class Music extends Command {
                                 ().replace("{0}", String.valueOf(player.getVolume())), channel, user);
                     }
                     else {
-                        if (UserUtils.isPatron(user)) {
+                        if (UserUtils.hasTierOnePermissions(user)) {
                             try {
                                 int volume = Integer.parseInt(args[2]);
                                 player.setVolume(volume);

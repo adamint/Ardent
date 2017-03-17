@@ -10,9 +10,23 @@ import java.util.ArrayList;
 import static tk.ardentbot.Main.Ardent.*;
 
 public class UserUtils {
-    public static boolean isPatron(User user) {
+    public static boolean hasTierOnePermissions(User user) {
         String id = user.getId();
-        return developers.contains(id) || moderators.contains(id) || translators.contains(id) || patrons.contains(id);
+        return developers.contains(id) || moderators.contains(id) || translators.contains(id) || tierOnepatrons
+                .contains(id)
+                || tierTwopatrons.contains(id) || tierThreepatrons.contains(id);
+    }
+
+    public static boolean hasTierTwoPermissions(User user) {
+        String id = user.getId();
+        return developers.contains(id) || moderators.contains(id) || translators.contains(id)
+                || tierTwopatrons.contains(id) || tierThreepatrons.contains(id);
+    }
+
+    public static boolean hasTierThreePermissions(User user) {
+        String id = user.getId();
+        return developers.contains(id) || moderators.contains(id) || translators.contains(id) || tierThreepatrons
+                .contains(id);
     }
 
     public static boolean hasManageServerOrStaff(Member member) {

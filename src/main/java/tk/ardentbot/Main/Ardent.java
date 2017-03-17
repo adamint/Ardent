@@ -10,7 +10,10 @@ public class Ardent {
      */
     public static Instance ardent;
 
-    public static ArrayList<String> patrons = new ArrayList<>();
+    public static ArrayList<String> tierOnepatrons = new ArrayList<>();
+    public static ArrayList<String> tierTwopatrons = new ArrayList<>();
+    public static ArrayList<String> tierThreepatrons = new ArrayList<>();
+
     public static ArrayList<String> developers = new ArrayList<>();
     public static ArrayList<String> moderators = new ArrayList<>();
     public static ArrayList<String> translators = new ArrayList<>();

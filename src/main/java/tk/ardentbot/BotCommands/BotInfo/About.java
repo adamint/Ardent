@@ -11,6 +11,8 @@ import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.Discord.MessageUtils;
 import tk.ardentbot.Utils.Discord.UserUtils;
 
+import java.util.ArrayList;
+
 import static tk.ardentbot.Main.Ardent.ardent;
 
 public class About extends Command {
@@ -32,7 +34,12 @@ public class About extends Command {
         String devs = MessageUtils.listWithCommas(UserUtils.getNamesById(Ardent.developers));
         String moderators = MessageUtils.listWithCommas(UserUtils.getNamesById(Ardent.moderators));
         String translators = MessageUtils.listWithCommas(UserUtils.getNamesById(Ardent.translators));
-        String patrons = MessageUtils.listWithCommas(UserUtils.getNamesById(Ardent.patrons));
+        ArrayList<String> patronsList = new ArrayList<>();
+        patronsList.addAll(Ardent.tierOnepatrons);
+        patronsList.addAll(Ardent.tierTwopatrons);
+        patronsList.addAll(Ardent.tierThreepatrons);
+
+        String patrons = MessageUtils.listWithCommas(UserUtils.getNamesById(patronsList));
 
         description.append("**Developers**: *" + devs + "*\n")
                 .append("**Moderators**: *" + moderators + "*\n")
