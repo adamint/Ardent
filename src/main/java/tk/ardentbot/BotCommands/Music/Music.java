@@ -118,7 +118,8 @@ public class Music extends Command {
         if (guild.getMembers().size() < 150) {
             long minutesDuration = track.getDuration() / 1000 / 60;
             if (minutesDuration > 15 && getHours(track) > 0) {
-                GuildUtils.getShard(guild).help.sendRetrievedTranslation(channel, "music", language, "cannotplaylongerthan15", user);
+                GuildUtils.getShard(guild).help.sendRetrievedTranslation(channel, "music", language,
+                        "cannotplaylongerthan15", user);
                 return false;
             }
             else {
@@ -474,9 +475,8 @@ public class Music extends Command {
                     AudioTrack track = ardentTrack.getTrack();
                     trackList.add(track);
                     sb.append("#" + current + ": " + track.getInfo().title + ": " + track.getInfo().author + " " +
-                            getDuration(track) + "\n     *" + queuedBy + " " + GuildUtils.getShard(guild).jda.getUserById(ardentTrack
-                            .getAuthor())
-                            .getName()
+                            getDuration(track) + "\n     *" + queuedBy + " " + GuildUtils.getShard(guild).jda
+                            .getUserById(ardentTrack.getAuthor()).getName()
                             + "*\n");
                     current++;
                 }

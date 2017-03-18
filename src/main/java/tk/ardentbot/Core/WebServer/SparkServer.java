@@ -10,6 +10,7 @@ import tk.ardentbot.Core.WebServer.Models.Command;
 import tk.ardentbot.Core.WebServer.Models.Status;
 import tk.ardentbot.Core.WebServer.Models.User;
 import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Utils.Discord.InternalStats;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.Tuples.Pair;
 import tk.ardentbot.Utils.Tuples.Quintet;
@@ -75,11 +76,10 @@ public class SparkServer {
             staff.add(translators);
             return shard0.gson.toJson(staff);
         });
-        get("/api/status", (rq, rs) -> shard0.gson.toJson(new Status(shard0.factory.getMessagesReceived(), shard0
-                .factory
-                .getCommandsReceived(), ManagementFactory.getRuntimeMXBean().getUptime() / 1000,
-                shard0.factory.getLoadedCommandsAmount(), shard0.jda.getGuilds().size(), shard0.jda.getUsers().size()
-        )));
+        InternalStats internalStats = InternalStats.collect();
+        get("/api/status", (rq, rs) -> shard0.gson.toJson(new Status(internalStats.getMessagesReceived(),
+                internalStats.getCommandsReceived(), ManagementFactory.getRuntimeMXBean().getUptime() / 1000,
+                internalStats.getLoadedCommands(), internalStats.getGuilds(), internalStats.getUsers())));
         get("/api/languages", (rq, rs) -> shard0.gson.toJson(LangFactory.languages));
         get("/api/translate/*/*/*", SparkServer::translate);
         get("/api/translate/submit", (rq, rs) -> {

@@ -29,9 +29,9 @@ public class GuildUtils {
 
     public static Shard getShard(Guild guild) {
         long bitwise = Long.parseLong(guild.getId()) >> 22;
-        long modulus = bitwise % 22;
+        long modulus = bitwise % Ardent.shardCount;
         int numbered = (int) modulus;
-        System.out.println(guild.getId() + " | " + bitwise + " | " + modulus + " | " + numbered);
+        System.out.println(guild.getId() + " | " + bitwise + " | " + numbered);
         return getShard(numbered);
     }
 

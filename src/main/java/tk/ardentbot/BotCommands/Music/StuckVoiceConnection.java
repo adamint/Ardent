@@ -12,14 +12,14 @@ import java.util.HashMap;
 
 import static tk.ardentbot.Main.ShardManager.getShards;
 
-public class AudioConnectionFixForDiscordShit implements Runnable {
+public class StuckVoiceConnection implements Runnable {
     private static HashMap<String, String> voiceChannelsAtZeroDuration = new HashMap<>();
 
     @Override
     public void run() {
         for (Shard shard : getShards()) {
             for (Guild guild : shard.jda.getGuilds()) {
-                GuildMusicManager guildMusicManager = Music.getGuildAudioPlayer(guild, null);
+                GuildMusicManager guildMusicManager = Music.getGuildAudioPlayer(guild, null, shard);
                 AudioPlayer player = guildMusicManager.player;
                 if (!player.isPaused()) {
                     AudioTrack playingTrack = player.getPlayingTrack();
@@ -38,7 +38,6 @@ public class AudioConnectionFixForDiscordShit implements Runnable {
                                 if (channel == null) channel = guild.getPublicChannel();
                                 try {
                                     shard.help.sendRetrievedTranslation(channel, "music", GuildUtils.getLanguage(guild),
-
                                             "autoresetplayer", null);
                                 }
                                 catch (Exception e) {
@@ -47,7 +46,9 @@ public class AudioConnectionFixForDiscordShit implements Runnable {
                             }
                         }
                     }
-                    else voiceChannelsAtZeroDuration.remove(guild.getId());
+                    else {
+                        voiceChannelsAtZeroDuration.remove(guild.getId());
+                    }
                 }
             }
         }

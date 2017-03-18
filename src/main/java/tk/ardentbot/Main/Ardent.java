@@ -16,7 +16,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class Ardent {
-    public static final boolean testingBot = true;
+    public static final boolean testingBot = false;
     /**
      * Sharded
      */
@@ -32,7 +32,7 @@ public class Ardent {
     public static ScheduledExecutorService globalExecutorService = Executors.newScheduledThreadPool(100);
     public static Shard shard0;
     public static Shard botLogsShard;
-    public static int shardCount = 3;
+    public static int shardCount = 2;
 
     public static ConcurrentHashMap<String, ChatterBotSession> cleverbots = new ConcurrentHashMap<>();
 

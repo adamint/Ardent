@@ -27,9 +27,9 @@ import tk.ardentbot.BotCommands.GuildAdministration.*;
 import tk.ardentbot.BotCommands.GuildInfo.Botname;
 import tk.ardentbot.BotCommands.GuildInfo.GuildInfo;
 import tk.ardentbot.BotCommands.GuildInfo.Whois;
-import tk.ardentbot.BotCommands.Music.AudioConnectionFixForDiscordShit;
 import tk.ardentbot.BotCommands.Music.GuildMusicManager;
 import tk.ardentbot.BotCommands.Music.Music;
+import tk.ardentbot.BotCommands.Music.StuckVoiceConnection;
 import tk.ardentbot.Core.BotData.BotLanguageData;
 import tk.ardentbot.Core.BotData.BotMuteData;
 import tk.ardentbot.Core.BotData.BotPrefixData;
@@ -42,6 +42,7 @@ import tk.ardentbot.Core.Events.OnMessage;
 import tk.ardentbot.Core.LoggingUtils.BotException;
 import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;
+import tk.ardentbot.Utils.Discord.InternalStats;
 import tk.ardentbot.Utils.SQL.MuteDaemon;
 import tk.ardentbot.Utils.Updaters.GuildDaemon;
 import tk.ardentbot.Utils.Updaters.PermissionsDaemon;
@@ -90,7 +91,7 @@ public class Shard {
 
     public Shard(boolean testingBot, int shardNumber, int totalShardCount) throws Exception {
         this.testingBot = testingBot;
-        this.id = shardNumber + 1;
+        this.id = shardNumber;
         String token;
         if (testingBot) {
             token = IOUtils.toString(new FileReader(new File("C:\\Users\\AMR\\Desktop\\Ardent\\v2testtoken.key")));
@@ -313,23 +314,20 @@ public class Shard {
                     String game = null;
                     switch (gameCounter) {
                         case 0:
-                            game = "Join our team! /translateforardent";
+                            game = "Shard [" + shardNumber + "] - " + jda.getGuilds().size() + " guilds";
                             break;
                         case 1:
-                            game = "serving " + Status.getUserAmount() + " users";
+                            game = "Serving " + InternalStats.collect().getGuilds() + " guilds";
                             break;
                         case 2:
-                            game = "serving " + jda.getGuilds().size() + " guilds";
-                            break;
-                        case 3:
-                            game = "music for " + Status.getVoiceConnections() + " servers!";
+                            game = "Music for " + Status.getVoiceConnections() + " servers (on this shard)";
                             break;
                         default:
                             game = "with many languages";
                     }
                     jda.getPresence().setGame(Game.of(game, url));
 
-                    if (gameCounter == 3) gameCounter = 0;
+                    if (gameCounter == 2) gameCounter = 0;
                     else gameCounter++;
 
                 }, 10, 25, TimeUnit.SECONDS);
@@ -338,8 +336,8 @@ public class Shard {
                 // PhraseUpdater phraseUpdater = new PhraseUpdater();
                 // TranslationUpdater translationUpdater = new TranslationUpdater();
 
-                AudioConnectionFixForDiscordShit playerStuckDaemon = new AudioConnectionFixForDiscordShit();
-                executorService.scheduleAtFixedRate(playerStuckDaemon, 12, 12, TimeUnit.SECONDS);
+                StuckVoiceConnection playerStuckDaemon = new StuckVoiceConnection();
+                executorService.scheduleAtFixedRate(playerStuckDaemon, 10, 10, TimeUnit.SECONDS);
 
                 WebsiteDaemon websiteDaemon = new WebsiteDaemon();
                 executorService.scheduleAtFixedRate(websiteDaemon, 5, 15, TimeUnit.SECONDS);

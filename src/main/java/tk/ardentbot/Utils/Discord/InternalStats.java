@@ -10,12 +10,14 @@ public class InternalStats {
     private long commandsReceived;
     private long loadedCommands;
     private long guilds;
+    private long users;
 
-    public InternalStats(long messagesReceived, long commandsReceived, long loadedCommands, long guilds) {
+    public InternalStats(long messagesReceived, long commandsReceived, long loadedCommands, long guilds, long users) {
         this.messagesReceived = messagesReceived;
         this.commandsReceived = commandsReceived;
         this.loadedCommands = loadedCommands;
         this.guilds = guilds;
+        this.users = users;
     }
 
     public static InternalStats collect() {
@@ -23,15 +25,16 @@ public class InternalStats {
         long commandsReceived = 0;
         long loadedCommands = 0;
         long guilds = 0;
-
+        long users = 0;
         for (Shard shard : getShards()) {
             CommandFactory factory = shard.factory;
             messagesReceived += factory.getMessagesReceived();
             commandsReceived += factory.getCommandsReceived();
             if (loadedCommands == 0) loadedCommands = factory.getLoadedCommandsAmount();
             guilds += shard.jda.getGuilds().size();
+            users += shard.jda.getUsers().size();
         }
-        return new InternalStats(messagesReceived, commandsReceived, loadedCommands, guilds);
+        return new InternalStats(messagesReceived, commandsReceived, loadedCommands, guilds, users);
     }
 
     public long getMessagesReceived() {
@@ -48,5 +51,9 @@ public class InternalStats {
 
     public long getGuilds() {
         return guilds;
+    }
+
+    public long getUsers() {
+        return users;
     }
 }

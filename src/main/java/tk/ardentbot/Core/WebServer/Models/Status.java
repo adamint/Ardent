@@ -11,7 +11,8 @@ public class Status {
     public int guilds;
     public int users;
 
-    public Status(long receivedMessages, long receivedCommands, long uptime, int loaded_commands, int guilds, int users) {
+    public Status(long receivedMessages, long receivedCommands, long uptime, long loaded_commands, long guilds, long
+            users) {
         this.receivedMessages = receivedMessages;
         this.receivedCommands = receivedCommands;
         this.uptime = uptime;
