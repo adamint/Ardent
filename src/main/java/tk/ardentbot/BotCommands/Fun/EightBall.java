@@ -11,8 +11,6 @@ import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Core.WebServer.Models.EightBallResponse;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 
-import static tk.ardentbot.Main.Ardent.ardent;
-
 public class EightBall extends Command {
     public EightBall(CommandSettings commandSettings) {
         super(commandSettings);
@@ -28,7 +26,8 @@ public class EightBall extends Command {
             String query = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " ", "");
             try {
                 String json = Unirest.get("https://8ball.delegator.com/magic/JSON/" + query).asString().getBody();
-                EightBallResponse eightBallResponse = ardent.gson.fromJson(json, EightBallResponse.class);
+                EightBallResponse eightBallResponse = GuildUtils.getShard(guild).gson.fromJson(json,
+                        EightBallResponse.class);
                 sendTranslatedMessage(eightBallResponse.getMagic().getAnswer(), channel, user);
             }
             catch (UnirestException e) {

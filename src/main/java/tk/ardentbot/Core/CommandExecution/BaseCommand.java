@@ -12,6 +12,7 @@ import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Core.Translation.Translation;
 import tk.ardentbot.Core.Translation.TranslationResponse;
+import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 
 import java.sql.ResultSet;
@@ -20,7 +21,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static tk.ardentbot.Core.Translation.LangFactory.english;
-import static tk.ardentbot.Main.Ardent.ardent;
 
 /**
  * Abstracted from Command for possible future
@@ -32,6 +32,7 @@ public abstract class BaseCommand {
     boolean privateChannelUsage = true;
     boolean guildUsage = true;
     Category category;
+    private Shard shard;
 
     /**
      * Handles messages longer than 2000 characters
@@ -353,7 +354,7 @@ public abstract class BaseCommand {
     }
 
     public ArrayList<BaseCommand> getCommandsInCategory(Category category) {
-        return ardent.factory.getBaseCommands().stream().filter(command -> command.getCategory() == category)
+        return shard.factory.getBaseCommands().stream().filter(command -> command.getCategory() == category)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
@@ -371,6 +372,14 @@ public abstract class BaseCommand {
             else return false;
         }
         else return false;
+    }
+
+    public Shard getShard() {
+        return this.shard;
+    }
+
+    public void setShard(Shard shard) {
+        this.shard = shard;
     }
 
     /**

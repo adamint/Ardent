@@ -4,11 +4,10 @@ import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.Translation.Language;
+import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 
 import java.util.List;
-
-import static tk.ardentbot.Main.Ardent.ardent;
 
 public class Unmute extends Command {
     public Unmute(CommandSettings commandSettings) {
@@ -18,6 +17,7 @@ public class Unmute extends Command {
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
             language) throws Exception {
+        Shard shard = GuildUtils.getShard(guild);
         if (args.length == 1) {
             sendTranslatedMessage(getTranslation("unmute", language, "help").getTranslation().replace("{0}",
                     GuildUtils.getPrefix(guild) + args[0]), channel, user);
@@ -32,8 +32,8 @@ public class Unmute extends Command {
                     User mentioned = mentionedUsers.get(0);
                     Member m = guild.getMember(mentioned);
 
-                    if (ardent.botMuteData.isMuted(m)) {
-                        ardent.botMuteData.unmute(m);
+                    if (shard.botMuteData.isMuted(m)) {
+                        shard.botMuteData.unmute(m);
                         sendRetrievedTranslation(channel, "unmute", language, "unmuteduser", user);
                     }
                     else {

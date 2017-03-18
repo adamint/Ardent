@@ -2,7 +2,6 @@ package tk.ardentbot.BotCommands.BotInfo;
 
 import com.sun.management.OperatingSystemMXBean;
 import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
@@ -12,6 +11,9 @@ import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Core.Translation.Translation;
 import tk.ardentbot.Core.Translation.TranslationResponse;
+import tk.ardentbot.Main.Shard;
+import tk.ardentbot.Utils.Discord.GuildUtils;
+import tk.ardentbot.Utils.Discord.InternalStats;
 import tk.ardentbot.Utils.Discord.MessageUtils;
 import tk.ardentbot.Utils.Tuples.Pair;
 
@@ -21,7 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static tk.ardentbot.Main.Ardent.ardent;
+import static tk.ardentbot.Main.ShardManager.getShards;
 
 public class Status extends Command {
     public static ConcurrentHashMap<String, Integer> commandsByGuild = new ConcurrentHashMap<>();
@@ -32,20 +34,26 @@ public class Status extends Command {
 
     public static int getVoiceConnections() {
         int counter = 0;
-        for (Guild guild : ardent.jda.getGuilds()) {
-            if (guild.getAudioManager().isConnected()) counter++;
+        for (Shard shard : getShards()) {
+            for (Guild guild : shard.jda.getGuilds()) {
+                if (guild.getAudioManager().isConnected()) counter++;
+            }
         }
         return counter;
     }
 
     public static int getUserAmount() {
-        return ardent.jda.getUsers().size();
+        int amount = 0;
+        for (Shard shard : getShards()) {
+            amount += shard.jda.getUsers().size();
+        }
+        return amount;
     }
 
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
             language) throws Exception {
-        JDA jda = ardent.jda;
+        Shard shard = GuildUtils.getShard(guild);
         OperatingSystemMXBean operatingSystemMXBean = (OperatingSystemMXBean) ManagementFactory
                 .getOperatingSystemMXBean();
         double cpuUsage = operatingSystemMXBean.getSystemCpuLoad() + 0.01;
@@ -86,9 +94,10 @@ public class Status extends Command {
         translationQueries.add(site);
         translationQueries.add(botHelp);
 
-        int commandsReceived = (int) ardent.factory.getCommandsReceived();
+        InternalStats internalStats = InternalStats.collect();
+
         DecimalFormat formatter = new DecimalFormat("#,###");
-        String cmds = formatter.format(commandsReceived);
+        String cmds = formatter.format(internalStats.getCommandsReceived());
 
         Pair<Integer, Integer> musicStats = Music.getMusicStats();
 
@@ -96,19 +105,19 @@ public class Status extends Command {
 
         EmbedBuilder embedBuilder = MessageUtils.getDefaultEmbed(guild, user, this);
 
-        embedBuilder.setAuthor(translations.get(0).getTranslation(), "https://ardentbot.tk", ardent.bot
+        embedBuilder.setAuthor(translations.get(0).getTranslation(), "https://ardentbot.tk", shard.bot
                 .getAvatarUrl());
         embedBuilder.setThumbnail("https://a.dryicons.com/images/icon_sets/polygon_icons/png/256x256/computer.png");
 
         embedBuilder.addField(translations.get(1).getTranslation(), ":thumbsup:", true);
-        embedBuilder.addField(translations.get(2).getTranslation(), String.valueOf(ardent.factory
+        embedBuilder.addField(translations.get(2).getTranslation(), String.valueOf(shard.factory
                 .getLoadedCommandsAmount()), true);
 
-        embedBuilder.addField(translations.get(3).getTranslation(), String.valueOf(ardent.factory
-                .getMessagesReceived()), true);
+        embedBuilder.addField(translations.get(3).getTranslation(), String.valueOf(internalStats.getMessagesReceived
+                ()), true);
         embedBuilder.addField(translations.get(4).getTranslation(), cmds, true);
 
-        embedBuilder.addField(translations.get(5).getTranslation(), String.valueOf(jda.getGuilds().size()), true);
+        embedBuilder.addField(translations.get(5).getTranslation(), String.valueOf(internalStats.getGuilds()), true);
         embedBuilder.addField(translations.get(6).getTranslation(), String.valueOf(musicStats.getK()), true);
 
         embedBuilder.addField("Queue", String.valueOf(musicStats.getV()), true);

@@ -14,6 +14,8 @@ import tk.ardentbot.Core.LoggingUtils.BotException;
 import tk.ardentbot.Core.Models.CommandTranslation;
 import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;
+import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.UsageUtils;
@@ -28,9 +30,9 @@ import java.util.HashMap;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 
-import static tk.ardentbot.Main.Ardent.ardent;
-
 public class CommandFactory {
+    private Shard shard;
+
     private HashMap<String, Long> commandUsages = new HashMap<>();
 
     private ArrayList<String> emojiCommandTags = new ArrayList<>();
@@ -43,12 +45,13 @@ public class CommandFactory {
      * Schedules emoji command updates with 150 second intervals,
      * as emoji parsing doesn't otherwise work with the existing system
      */
-    public CommandFactory() {
-        ardent.executorService.scheduleAtFixedRate(new EmojiCommandUpdater(), 1, 150, TimeUnit.SECONDS);
+    public CommandFactory(Shard shard) {
+        this.shard = shard;
+        shard.executorService.scheduleAtFixedRate(new EmojiCommandUpdater(), 1, 150, TimeUnit.SECONDS);
     }
 
     public static ChatterBotSession getBotSession(Guild guild) {
-        return ardent.cleverbots.get(guild.getId());
+        return Ardent.cleverbots.get(guild.getId());
     }
 
     public ConcurrentArrayQueue<BaseCommand> getBaseCommands() {
@@ -71,6 +74,10 @@ public class CommandFactory {
         return commandUsages;
     }
 
+    public Shard getShard() {
+        return shard;
+    }
+
     public void addCommandUsage(String identifier) {
         long old = commandUsages.get(identifier);
         commandUsages.replace(identifier, old, old + 1);
@@ -83,6 +90,7 @@ public class CommandFactory {
      * @throws Exception
      */
     public void registerCommand(BaseCommand baseCommand) throws Exception {
+        baseCommand.setShard(shard);
         Command botCommand = baseCommand.botCommand;
         for (BaseCommand cmd : baseCommands) {
             if (StringUtils.stripAccents(cmd.getCommandIdentifier()).equalsIgnoreCase(StringUtils.stripAccents
@@ -116,9 +124,9 @@ public class CommandFactory {
             String[] args = message.getContent().split(" ");
             Guild guild = event.getGuild();
             Language language = GuildUtils.getLanguage(guild);
-            if (message.getRawContent().startsWith(ardent.bot.getAsMention())) {
-                Command command = ardent.help.botCommand;
-                if (message.getRawContent().replace(ardent.bot.getAsMention(), "").length() == 0) {
+            if (message.getRawContent().startsWith(shard.bot.getAsMention())) {
+                Command command = shard.help.botCommand;
+                if (message.getRawContent().replace(shard.bot.getAsMention(), "").length() == 0) {
                     command.sendTranslatedMessage(command.getTranslation("other", language, "mentionedhelp")
                             .getTranslation()
                             .replace("{0}", GuildUtils.getPrefix(guild) +
@@ -126,7 +134,7 @@ public class CommandFactory {
                 }
                 else {
                     if (guild != null) {
-                        if (message.getRawContent().equalsIgnoreCase(ardent.bot.getAsMention() + " english")) {
+                        if (message.getRawContent().equalsIgnoreCase(shard.bot.getAsMention() + " english")) {
                             if (GuildUtils.hasManageServerPermission(guild.getMember(event.getAuthor()))) {
                                 DatabaseAction updateLanguage = new DatabaseAction("UPDATE Guilds SET Language=? " +
                                         "WHERE" +
@@ -166,7 +174,8 @@ public class CommandFactory {
                                         try {
                                             if (baseCommand.isPrivateChannelUsage()) {
                                                 baseCommand.botCommand.usages++;
-                                                ardent.executorService.execute(new AsyncCommandExecutor(baseCommand.botCommand, guild,
+                                                shard.executorService.execute(new AsyncCommandExecutor(baseCommand
+                                                        .botCommand, guild,
                                                         channel, event.getAuthor(), message, args, language, user));
                                             }
                                             else {
@@ -219,7 +228,7 @@ public class CommandFactory {
                                                     language, "firstincommands", user);
                                         }
 
-                                        ardent.executorService.execute(new AsyncCommandExecutor(command.botCommand, guild, channel,
+                                        shard.executorService.execute(new AsyncCommandExecutor(command.botCommand, guild, channel,
                                                 event.getAuthor(), message, args, language, user));
                                         commandsReceived++;
 
@@ -262,7 +271,7 @@ public class CommandFactory {
         @Override
         public void run() {
             try {
-                Statement statement = ardent.conn.createStatement();
+                Statement statement = Ardent.conn.createStatement();
                 ResultSet emojis = statement.executeQuery("SELECT * FROM Commands WHERE Language='emoji'");
                 while (emojis.next()) {
                     emojiCommandTags.add(emojis.getString("Translation").replace("\\:", ""));

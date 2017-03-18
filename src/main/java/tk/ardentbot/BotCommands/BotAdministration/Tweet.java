@@ -10,7 +10,7 @@ import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import twitter4j.Status;
 
-import static tk.ardentbot.Main.Ardent.ardent;
+import static tk.ardentbot.Main.Ardent.botLogsShard;
 
 public class Tweet extends Command {
     public Tweet(CommandSettings commandSettings) {
@@ -30,11 +30,11 @@ public class Tweet extends Command {
                     mentionEveryone = true;
                     content = content.replace("{{mentionall}}", "");
                 }
-                Status status = ardent.twitter.tweets().updateStatus(content);
+                Status status = getShard().twitter.tweets().updateStatus(content);
                 StringBuilder sb = new StringBuilder();
                 sb.append("**New Tweet** by Ardent\n" + content + "\n\nIf you liked this, follow us on twitter & like the post - https://twitter.com/ardentbot/status/" + status.getId());
                 if (mentionEveryone) sb.append("\n@everyone");
-                ardent.jda.getTextChannelById("272411413031419904").sendMessage(sb.toString()).queue();
+                botLogsShard.jda.getTextChannelById("272411413031419904").sendMessage(sb.toString()).queue();
             }
         }
         else sendRetrievedTranslation(channel, "other", language, "needdeveloperpermission", user);

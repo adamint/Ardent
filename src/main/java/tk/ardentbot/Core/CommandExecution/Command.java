@@ -9,13 +9,13 @@ import tk.ardentbot.Core.LoggingUtils.BotException;
 import tk.ardentbot.Core.Models.SubcommandTranslation;
 import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;
+import tk.ardentbot.Main.Shard;
+import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.Discord.MessageUtils;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-
-import static tk.ardentbot.Main.Ardent.ardent;
 
 public abstract class Command extends BaseCommand {
     public int usages = 0;
@@ -58,11 +58,12 @@ public abstract class Command extends BaseCommand {
 
     private EmbedBuilder getHelp(Language language, Guild guild, User author, BaseCommand baseCommand) throws
             Exception {
+        Shard shard = GuildUtils.getShard(guild);
         EmbedBuilder embedBuilder = MessageUtils.getDefaultEmbed(guild, author, baseCommand);
         embedBuilder.setColor(Color.ORANGE);
         String name = getName(language);
         name = name.substring(0, 1).toUpperCase() + name.substring(1);
-        embedBuilder.setAuthor(name, ardent.url, ardent.bot.getAvatarUrl());
+        embedBuilder.setAuthor(name, shard.url, shard.bot.getAvatarUrl());
         StringBuilder description = new StringBuilder();
         description.append("*" + getDescription(language) + "*");
 

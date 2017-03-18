@@ -3,39 +3,40 @@ package tk.ardentbot.Utils.SQL;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import tk.ardentbot.Core.LoggingUtils.BotException;
+import tk.ardentbot.Main.Shard;
+import tk.ardentbot.Main.ShardManager;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 
 import java.util.HashMap;
-
-import static tk.ardentbot.Main.Ardent.ardent;
 
 
 public class MuteDaemon implements Runnable {
     @Override
     public void run() {
-        HashMap<String, HashMap<String, Long>> mutes = ardent.botMuteData.getMutes();
-        for(String guildID : mutes.keySet()){
+        for (Shard shard : ShardManager.getShards()) {
+            HashMap<String, HashMap<String, Long>> mutes = shard.botMuteData.getMutes();
+            for (String guildID : mutes.keySet()) {
 
-            Guild guild = ardent.jda.getGuildById(guildID);
+                Guild guild = shard.jda.getGuildById(guildID);
 
-            for(String userID : mutes.get(guildID).keySet()){
+                for (String userID : mutes.get(guildID).keySet()) {
 
-                Member member = guild.getMember(ardent.jda.getUserById(userID));
+                    Member member = guild.getMember(shard.jda.getUserById(userID));
 
-                if (!ardent.botMuteData.isMuted(member) && ardent.botMuteData.wasMute(member)) {
-                    ardent.botMuteData.unmute(member);
-                    member.getUser().openPrivateChannel().queue(privateChannel -> {
-                        try {
-                            privateChannel.sendMessage(ardent.help.getTranslation("mute", GuildUtils.getLanguage
-                                    (guild), "nowabletospeak").getTranslation().replace("{0}", guild.getName()))
-                                    .queue();
-                        }
-                        catch (Exception e) {
-                            new BotException(e);
-                        }
-                    });
+                    if (!shard.botMuteData.isMuted(member) && shard.botMuteData.wasMute(member)) {
+                        shard.botMuteData.unmute(member);
+                        member.getUser().openPrivateChannel().queue(privateChannel -> {
+                            try {
+                                privateChannel.sendMessage(shard.help.getTranslation("mute", GuildUtils.getLanguage
+                                        (guild), "nowabletospeak").getTranslation().replace("{0}", guild.getName()))
+                                        .queue();
+                            }
+                            catch (Exception e) {
+                                new BotException(e);
+                            }
+                        });
+                    }
                 }
-
             }
         }
     }

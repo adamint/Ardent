@@ -10,7 +10,9 @@ import tk.ardentbot.BotCommands.GuildAdministration.Automessage;
 import tk.ardentbot.BotCommands.GuildAdministration.DefaultRole;
 import tk.ardentbot.BotCommands.Music.GuildMusicManager;
 import tk.ardentbot.Core.LoggingUtils.BotException;
-import tk.ardentbot.Core.LoggingUtils.EventLogger;
+import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Main.Shard;
+import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.Tuples.Triplet;
 
@@ -20,8 +22,6 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
-
-import static tk.ardentbot.Main.Ardent.ardent;
 
 public class Join {
     public static ArrayList<Instant> botJoinEvents = new ArrayList<>();
@@ -52,12 +52,12 @@ public class Join {
     public void onJoin(GuildJoinEvent event) {
         botJoinEvents.add(Instant.now());
         Guild guild = event.getGuild();
-        EventLogger.join(guild);
+        Shard shard = GuildUtils.getShard(guild);
         Status.commandsByGuild.put(guild.getId(), 0);
-        ardent.musicManagers.put(Long.parseLong(guild.getId()), new GuildMusicManager(ardent.playerManager, null));
+        shard.musicManagers.put(Long.parseLong(guild.getId()), new GuildMusicManager(shard.playerManager, null));
 
-        ardent.cleverbots.put(guild.getId(), ardent.cleverBot.createSession());
-        ardent.sentAnnouncement.put(guild.getId(), false);
+        Ardent.cleverbots.put(guild.getId(), shard.cleverBot.createSession());
+        Ardent.sentAnnouncement.put(guild.getId(), false);
         TextChannel channel = guild.getPublicChannel();
         try {
             String prefix;
@@ -77,8 +77,8 @@ public class Join {
                 language = isGuildIn.getString("Language");
             }
 
-            ardent.botPrefixData.set(guild, prefix);
-            ardent.botLanguageData.set(guild, language);
+            shard.botPrefixData.set(guild, prefix);
+            shard.botLanguageData.set(guild, language);
 
             getGuild.close();
 
@@ -86,7 +86,7 @@ public class Join {
                     .set(Timestamp.from(Instant.now())).update();
 
             Status.commandsByGuild.put(guild.getId(), 0);
-            ardent.executorService.schedule(() -> {
+            shard.executorService.schedule(() -> {
                 channel.sendMessage(welcomeText).queue();
                 guild.getOwner().getUser().openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage
                         ("Hey! Thanks for adding Ardent. If you have **any** " +

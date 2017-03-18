@@ -2,7 +2,6 @@ package tk.ardentbot.Main;
 
 import com.google.code.chatterbotapi.ChatterBot;
 import com.google.code.chatterbotapi.ChatterBotFactory;
-import com.google.code.chatterbotapi.ChatterBotSession;
 import com.google.code.chatterbotapi.ChatterBotType;
 import com.google.gson.Gson;
 import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
@@ -27,7 +26,6 @@ import tk.ardentbot.BotCommands.Fun.*;
 import tk.ardentbot.BotCommands.GuildAdministration.*;
 import tk.ardentbot.BotCommands.GuildInfo.Botname;
 import tk.ardentbot.BotCommands.GuildInfo.GuildInfo;
-import tk.ardentbot.BotCommands.GuildInfo.Points;
 import tk.ardentbot.BotCommands.GuildInfo.Whois;
 import tk.ardentbot.BotCommands.Music.AudioConnectionFixForDiscordShit;
 import tk.ardentbot.BotCommands.Music.GuildMusicManager;
@@ -45,26 +43,26 @@ import tk.ardentbot.Core.LoggingUtils.BotException;
 import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Utils.SQL.MuteDaemon;
-import tk.ardentbot.Utils.Updaters.*;
+import tk.ardentbot.Utils.Updaters.GuildDaemon;
+import tk.ardentbot.Utils.Updaters.PermissionsDaemon;
+import tk.ardentbot.Utils.Updaters.PhraseUpdater;
+import tk.ardentbot.Utils.Updaters.WebsiteDaemon;
 import twitter4j.Twitter;
 import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
 
 import java.io.File;
 import java.io.FileReader;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static tk.ardentbot.Core.Translation.LangFactory.languages;
 
-public class Instance {
+public class Shard {
     public boolean testingBot;
     public ScheduledExecutorService executorService = Executors.newScheduledThreadPool(100);
     public BotMuteData botMuteData;
@@ -75,9 +73,6 @@ public class Instance {
     public AudioPlayerManager playerManager;
     public Map<Long, GuildMusicManager> musicManagers;
     public ChatterBot cleverBot;
-    public ConcurrentHashMap<String, ChatterBotSession> cleverbots = new ConcurrentHashMap<>();
-    public Gson gson = new Gson();
-    public Connection conn;
     public CommandFactory factory;
     public JDA jda;
     public User bot;
@@ -88,24 +83,20 @@ public class Instance {
     public BaseCommand getDevHelp;
     public BaseCommand manage;
     public String url = "https://ardentbot.tk";
-    public ConcurrentHashMap<String, Boolean> sentAnnouncement = new ConcurrentHashMap<>();
-    public String announcement;
-    public BotlistUpdater botlistUpdater;
-    public String botsDiscordPwToken;
-    public String discordBotsOrgToken;
+    public Gson gson = new Gson();
     private int gameCounter = 0;
     private int matureLanguages = 0;
+    private int id;
 
-    public Instance(boolean testingBot) throws Exception {
+    public Shard(boolean testingBot, int shardNumber, int totalShardCount) throws Exception {
         this.testingBot = testingBot;
+        this.id = shardNumber + 1;
         String token;
         if (testingBot) {
             token = IOUtils.toString(new FileReader(new File("C:\\Users\\AMR\\Desktop\\Ardent\\v2testtoken.key")));
         }
         else {
             token = IOUtils.toString(new FileReader(new File("/root/Ardent/v2bottoken.key")));
-            botsDiscordPwToken = IOUtils.toString(new FileReader(new File("/root/Ardent/botsdiscordpw.key")));
-            discordBotsOrgToken = IOUtils.toString(new FileReader(new File("/root/Ardent/discordbotsorg.key")));
         }
 
         jda = new JDABuilder(AccountType.BOT)
@@ -118,9 +109,11 @@ public class Instance {
                 .setBulkDeleteSplittingEnabled(true)
                 .setEnableShutdownHook(true)
                 .setAudioSendFactory(new NativeAudioSendFactory())
+                .useSharding(shardNumber, totalShardCount)
                 .buildBlocking();
 
         bot = jda.getUserById(jda.getSelfUser().getId());
+        if (jda.getGuildById("260841592070340609") != null) Ardent.botLogsShard = this;
 
         Class.forName("com.mysql.jdbc.Driver");
 
@@ -140,17 +133,6 @@ public class Instance {
                             ("/root/Ardent/twitteroauthsecret.key"))));
             TwitterFactory tf = new TwitterFactory(cb.build());
             twitter = tf.getInstance();
-
-            conn = DriverManager.getConnection(IOUtils.toString(new FileReader(new File("/root/Ardent/v2url.key"))),
-                    IOUtils.toString(new FileReader(new File("/root/Ardent/v2user.key"))), IOUtils.toString(new
-                            FileReader(new File("/root/Ardent/v2password.key"))));
-        }
-        else {
-            conn = DriverManager.getConnection(IOUtils.toString(new FileReader(new File("C:\\Users\\AMR\\Desktop" +
-                            "\\Ardent\\dburl.key"))),
-                    IOUtils.toString(new FileReader(new File("C:\\Users\\AMR\\Desktop\\Ardent\\dbuser.key"))),
-                    IOUtils.toString(new
-                            FileReader(new File("C:\\Users\\AMR\\Desktop\\Ardent\\dbpassword.key"))));
         }
 
         executorService.schedule(() -> {
@@ -197,13 +179,10 @@ public class Instance {
                 // Adding the handler for languages
                 botLanguageData = new BotLanguageData();
 
-                // Instantiate the bot list updater
-                botlistUpdater = new BotlistUpdater();
-
                 languages.stream().filter(lang -> lang.getLanguageStatus() == Language.Status.MATURE).forEach(lang ->
                         matureLanguages++);
 
-                factory = new CommandFactory();
+                factory = new CommandFactory(this);
 
                 help = new Help(new BaseCommand.CommandSettings("help", true, true, Category.BOTINFO));
                 patreon = new Patreon(new BaseCommand.CommandSettings("patreon", true, true, Category.GUILDINFO));
@@ -252,7 +231,8 @@ public class Instance {
                         .BOTINFO)));
                 factory.registerCommand(getDevHelp);
 
-                factory.registerCommand(new Music(new BaseCommand.CommandSettings("music", false, true, Category.FUN)));
+                factory.registerCommand(new Music(new BaseCommand.CommandSettings("music", false, true, Category.FUN)
+                        , this));
                 factory.registerCommand(new UD(new BaseCommand.CommandSettings("ud", true, true, Category.FUN)));
                 factory.registerCommand(new GIF(new BaseCommand.CommandSettings("gif", true, true, Category.FUN)));
                 factory.registerCommand(new FML(new BaseCommand.CommandSettings("fml", true, true, Category.FUN)));
@@ -269,7 +249,6 @@ public class Instance {
                 factory.registerCommand(new Roll(new BaseCommand.CommandSettings("roll", true, true, Category.FUN)));
                 // factory.registerCommand(new Coinflip(new BaseCommand.CommandSettings("coinflip", true, true, Category
                 // .FUN)));
-                factory.registerCommand(new Music(new BaseCommand.CommandSettings("music", false, true, Category.FUN)));
 
                 factory.registerCommand(new Prefix(new BaseCommand.CommandSettings("prefix", false, true, Category
                         .GUILDADMINISTRATION)));
@@ -302,12 +281,14 @@ public class Instance {
                         .GUILDINFO)));
                 factory.registerCommand(new Whois(new BaseCommand.CommandSettings("whois", true, true, Category
                         .GUILDINFO)));
-                factory.registerCommand(new Points(new BaseCommand.CommandSettings("points", false, true, Category
-                        .GUILDINFO)));
                 factory.registerCommand(new Botname(new BaseCommand.CommandSettings("botname", false, true, Category
                         .GUILDINFO)));
-                // factory.registerCommand(new Emojis(new BaseCommand.CommandSettings("emojis", true, true, Category
-                // .GUILDINFO)));
+                /*
+                factory.registerCommand(new Points(new BaseCommand.CommandSettings("points", false, true, Category
+                        .GUILDINFO)));
+                factory.registerCommand(new Emojis(new BaseCommand.CommandSettings("emojis", true, true, Category
+                .GUILDINFO)));
+                */
 
                 cleverBot = new ChatterBotFactory().create(ChatterBotType.PANDORABOTS, "f5d922d97e345aa1");
                 botLogs = jda.getTextChannelById("270572632343183361");
@@ -324,8 +305,8 @@ public class Instance {
 
                 jda.getGuilds().forEach((guild -> {
                     Status.commandsByGuild.put(guild.getId(), 0);
-                    sentAnnouncement.put(guild.getId(), false);
-                    cleverbots.put(guild.getId(), cleverBot.createSession());
+                    Ardent.sentAnnouncement.put(guild.getId(), false);
+                    Ardent.cleverbots.put(guild.getId(), cleverBot.createSession());
                 }));
 
                 executorService.scheduleAtFixedRate(() -> {
@@ -351,7 +332,6 @@ public class Instance {
                     if (gameCounter == 3) gameCounter = 0;
                     else gameCounter++;
 
-                    botlistUpdater.run();
                 }, 10, 25, TimeUnit.SECONDS);
 
                 // On hold for a bit
@@ -379,5 +359,9 @@ public class Instance {
                 new BotException(ex);
             }
         }, 5, TimeUnit.SECONDS);
+    }
+
+    public int getId() {
+        return id;
     }
 }

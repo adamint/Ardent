@@ -9,7 +9,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import static tk.ardentbot.Main.Ardent.ardent;
+import static tk.ardentbot.Main.Ardent.shard0;
 
 public class UsageUtils {
     private static Comparator<BaseCommand> SORT_BY_USAGE = (o1, o2) -> {
@@ -19,7 +19,7 @@ public class UsageUtils {
     };
 
     public static ArrayList<BaseCommand> orderByUsageDesc() {
-        ConcurrentArrayQueue<BaseCommand> unsorted = ardent.factory.getBaseCommands();
+        ConcurrentArrayQueue<BaseCommand> unsorted = shard0.factory.getBaseCommands();
         ArrayList<BaseCommand> baseCommands = new ArrayList<>();
         for (BaseCommand c : unsorted) {
             if (!c.getCommandIdentifier().equalsIgnoreCase("patreon") && !c.getCommandIdentifier().equalsIgnoreCase
@@ -64,7 +64,7 @@ public class UsageUtils {
         final int[] counter = {0};
         allValues.forEach((key, value) -> {
             if (counter[0] < amount) {
-                finalValues.put(ardent.jda.getGuildById(key), value);
+                finalValues.put(shard0.jda.getGuildById(key), value);
                 counter[0]++;
             }
         });

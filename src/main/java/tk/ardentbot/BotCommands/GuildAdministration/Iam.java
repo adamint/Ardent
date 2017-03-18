@@ -7,6 +7,7 @@ import tk.ardentbot.Core.CommandExecution.Subcommand;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Core.Translation.Translation;
 import tk.ardentbot.Core.Translation.TranslationResponse;
+import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.Discord.MessageUtils;
 import tk.ardentbot.Utils.Discord.UserUtils;
@@ -18,8 +19,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import static tk.ardentbot.Main.Ardent.ardent;
 
 public class Iam extends Command {
     public Iam(CommandSettings commandSettings) {
@@ -38,6 +37,7 @@ public class Iam extends Command {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
+                Shard shard = GuildUtils.getShard(guild);
                 ArrayList<Translation> translations = new ArrayList<>();
                 translations.add(new Translation("iam", "autoroleslist"));
                 translations.add(new Translation("iam", "givesyou"));
@@ -49,7 +49,7 @@ public class Iam extends Command {
                 String givesYouRole = responses.get(1).getTranslation();
 
                 EmbedBuilder builder = MessageUtils.getDefaultEmbed(guild, user, Iam.this);
-                builder.setAuthor(title, ardent.url, ardent.bot.getAvatarUrl());
+                builder.setAuthor(title, shard.url, shard.bot.getAvatarUrl());
                 StringBuilder msg = new StringBuilder();
                 msg.append("**" + title + "**");
 

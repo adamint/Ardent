@@ -21,9 +21,10 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Random;
 
-import static spark.Spark.*;
+import static spark.Spark.get;
+import static spark.Spark.port;
 import static tk.ardentbot.BotCommands.BotAdministration.Translate.*;
-import static tk.ardentbot.Main.Ardent.ardent;
+import static tk.ardentbot.Main.Ardent.shard0;
 import static tk.ardentbot.Utils.SQL.SQLUtils.cleanString;
 
 public class SparkServer {
@@ -31,15 +32,14 @@ public class SparkServer {
      * Sets up the web server and the endpoints
      */
     public static void setup() {
-        if (ardent.testingBot) {
+        if (Ardent.testingBot) {
             return;
         }
         else {
             port(666);
-            secure("/root/Ardent/web/node_modules/app.js/sslpublic.jks", "ardent", null, null);
         }
         get("/api/commands", (rq, rs) -> {
-            CommandFactory factory = ardent.factory;
+            CommandFactory factory = shard0.factory;
             ArrayList<Command> commands = new ArrayList<>();
             factory.getBaseCommands().forEach(command -> {
                 try {
@@ -50,13 +50,13 @@ public class SparkServer {
                     new BotException(e);
                 }
             });
-            return ardent.gson.toJson(commands);
+            return shard0.gson.toJson(commands);
         });
 
         get("/api/staff", (rq, rs) -> {
             ArrayList<User> developers = new ArrayList<>();
             for (String id : Ardent.developers) {
-                net.dv8tion.jda.core.entities.User user = ardent.jda.getUserById(id);
+                net.dv8tion.jda.core.entities.User user = shard0.jda.getUserById(id);
                 String avatarUrl = user.getAvatarUrl();
                 if (avatarUrl == null) avatarUrl = getDefaultImage();
 
@@ -64,7 +64,7 @@ public class SparkServer {
             }
             ArrayList<User> translators = new ArrayList<>();
             for (String id : Ardent.translators) {
-                net.dv8tion.jda.core.entities.User user = ardent.jda.getUserById(id);
+                net.dv8tion.jda.core.entities.User user = shard0.jda.getUserById(id);
                 String avatarUrl = user.getAvatarUrl();
                 if (avatarUrl == null) avatarUrl = getDefaultImage();
 
@@ -73,14 +73,14 @@ public class SparkServer {
             ArrayList<ArrayList<User>> staff = new ArrayList<>();
             staff.add(developers);
             staff.add(translators);
-            return ardent.gson.toJson(staff);
+            return shard0.gson.toJson(staff);
         });
-        get("/api/status", (rq, rs) -> ardent.gson.toJson(new Status(ardent.factory.getMessagesReceived(), ardent
+        get("/api/status", (rq, rs) -> shard0.gson.toJson(new Status(shard0.factory.getMessagesReceived(), shard0
                 .factory
                 .getCommandsReceived(), ManagementFactory.getRuntimeMXBean().getUptime() / 1000,
-                ardent.factory.getLoadedCommandsAmount(), ardent.jda.getGuilds().size(), ardent.jda.getUsers().size()
+                shard0.factory.getLoadedCommandsAmount(), shard0.jda.getGuilds().size(), shard0.jda.getUsers().size()
         )));
-        get("/api/languages", (rq, rs) -> ardent.gson.toJson(LangFactory.languages));
+        get("/api/languages", (rq, rs) -> shard0.gson.toJson(LangFactory.languages));
         get("/api/translate/*/*/*", SparkServer::translate);
         get("/api/translate/submit", (rq, rs) -> {
             String response = submit(rq);
@@ -187,7 +187,7 @@ public class SparkServer {
             if (Ardent.translators.contains(String.valueOf(Long.valueOf(splats[0])))) {
                 Language language = LangFactory.getLanguage(splats[2]);
                 if (language != null) {
-                    try (Statement statement = ardent.conn.createStatement()) {
+                    try (Statement statement = Ardent.conn.createStatement()) {
                         if (splats[1].equalsIgnoreCase("phrases")) {
                             ArrayList<String> discrepancies = getTranslationDiscrepancies(language);
                             if (discrepancies.size() > 0) {

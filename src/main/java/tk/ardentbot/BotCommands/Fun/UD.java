@@ -14,14 +14,13 @@ import tk.ardentbot.Core.Models.UrbanDictionary;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Core.Translation.Translation;
 import tk.ardentbot.Core.Translation.TranslationResponse;
+import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.Discord.MessageUtils;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import static tk.ardentbot.Main.Ardent.ardent;
 
 public class UD extends Command {
     public UD(CommandSettings commandSettings) {
@@ -31,6 +30,7 @@ public class UD extends Command {
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
             language) throws Exception {
+        Shard shard = GuildUtils.getShard(guild);
         if (args.length == 1) {
             sendTranslatedMessage(getTranslation("ud", language, "help").getTranslation().replace("{0}", GuildUtils
                     .getPrefix(guild) + args[0]), channel, user);
@@ -45,7 +45,7 @@ public class UD extends Command {
             catch (UnirestException e) {
                 e.printStackTrace();
             }
-            UrbanDictionary definition = ardent.gson.fromJson(json, UrbanDictionary.class);
+            UrbanDictionary definition = shard.gson.fromJson(json, UrbanDictionary.class);
             if (definition.getList().size() == 0) {
                 sendRetrievedTranslation(channel, "ud", language, "notranslations", user);
             }
@@ -79,7 +79,7 @@ public class UD extends Command {
                 String thumbsDown = translations.get(5).getTranslation();
                 String urbanDictionary = translations.get(6).getTranslation();
 
-                builder.setAuthor(urbanDictionary, ardent.bot.getAvatarUrl(), ardent.bot.getAvatarUrl());
+                builder.setAuthor(urbanDictionary, shard.bot.getAvatarUrl(), shard.bot.getAvatarUrl());
                 builder.setThumbnail("https://i.gyazo.com/6a40e32928743e68e9006396ee7c2a14.jpg");
                 builder.setColor(Color.decode("#00B7BE"));
 

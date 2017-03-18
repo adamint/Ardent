@@ -19,8 +19,6 @@ import tk.ardentbot.Utils.UsageUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static tk.ardentbot.Main.Ardent.ardent;
-
 public class Help extends Command {
     private Subcommand all;
 
@@ -33,7 +31,7 @@ public class Help extends Command {
             language) throws Exception {
         EmbedBuilder embedBuilder = MessageUtils.getDefaultEmbed(guild, user, this);
         embedBuilder.setAuthor(getTranslation("help", language, "bothelp").getTranslation(), "https://ardentbot" +
-                ".tk/guild", ardent.bot.getAvatarUrl());
+                ".tk/guild", getShard().bot.getAvatarUrl());
         embedBuilder.setThumbnail("https://a.dryicons.com/images/icon_sets/polygon_icons/png/256x256/computer.png");
 
         ArrayList<Translation> translations = new ArrayList<>();
@@ -46,12 +44,13 @@ public class Help extends Command {
 
         StringBuilder description = new StringBuilder();
         description.append("**" + responses.get(0).getTranslation() + "**");
-        description.append("\n > " + ardent.patreon.getName(language) + ": *" + ardent.patreon.getDescription
+        description.append("\n > " + getShard().patreon.getName(language) + ": *" + getShard().patreon.getDescription
                 (language) + "*");
-        description.append("\n > " + ardent.translateForArdent.getName(language) + ": *" + ardent.translateForArdent
+        description.append("\n > " + getShard().translateForArdent.getName(language) + ": *" + getShard()
+                .translateForArdent
                 .getDescription
                 (language) + "*");
-        description.append("\n > " + ardent.manage.getName(language) + ": *" + ardent.manage.getDescription(language)
+        description.append("\n > " + getShard().manage.getName(language) + ": *" + getShard().manage.getDescription(language)
                 + "*");
 
         ArrayList<BaseCommand> byUsage = UsageUtils.orderByUsageDesc();
@@ -83,7 +82,7 @@ public class Help extends Command {
                                Language language) throws Exception {
                 EmbedBuilder helpEmbed = MessageUtils.getDefaultEmbed(guild, user, Help.this);
                 helpEmbed.setAuthor(getTranslation("help", language, "bothelp").getTranslation(), "https://ardentbot" +
-                        ".tk/guild", ardent.bot.getAvatarUrl());
+                        ".tk/guild", getShard().bot.getAvatarUrl());
                 helpEmbed.setThumbnail("https://a.dryicons.com/images/icon_sets/polygon_icons/png/256x256/computer" +
                         ".png");
                 StringBuilder description = new StringBuilder();
@@ -109,7 +108,7 @@ public class Help extends Command {
                                    Language language) throws Exception {
                     EmbedBuilder embedBuilder = MessageUtils.getDefaultEmbed(guild, user, Help.this);
                     embedBuilder.setAuthor(getTranslation("help", language, "commandsincategory").getTranslation()
-                            .replace("{0}", category.name().toLowerCase()), "https://ardentbot.tk/guild", ardent.
+                            .replace("{0}", category.name().toLowerCase()), "https://ardentbot.tk/guild", getShard().
                             bot.getAvatarUrl());
                     ArrayList<BaseCommand> commandsInCategory = Help.this.getCommandsInCategory(category);
                     StringBuilder description = new StringBuilder();

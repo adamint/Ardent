@@ -9,8 +9,6 @@ import tk.ardentbot.Core.Translation.Language;
 
 import java.util.concurrent.TimeUnit;
 
-import static tk.ardentbot.Main.Ardent.ardent;
-
 public class Bug extends Command {
     public Bug(CommandSettings commandSettings) {
         super(commandSettings);
@@ -23,7 +21,7 @@ public class Bug extends Command {
         final boolean[] delete = {false};
         tch.getInvites().queue(invites -> {
             for (Invite invite : invites) {
-                if (invite.getInviter().equals(ardent.bot)) {
+                if (invite.getInviter().equals(getShard().bot)) {
                     try {
                         sendRetrievedTranslation(channel, "bug", language, "disabled", user);
                     }
@@ -37,7 +35,7 @@ public class Bug extends Command {
             try {
                 tch.createInvite().setUnique(true).setTemporary(true).setMaxAge((long) 1, TimeUnit.DAYS).queue
                         (invite -> {
-                            ardent.jda.getTextChannelById("267404524484820994").sendMessage("**Request for help by "
+                            getShard().jda.getTextChannelById("267404524484820994").sendMessage("**Request for help by "
                                     + user.getName() + "**\n" + invite.getCode()).queue(successMsg -> {
                                 try {
                                     sendRetrievedTranslation(channel, "bug", language, "success", user);

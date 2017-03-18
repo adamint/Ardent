@@ -6,10 +6,11 @@ import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.Core.LoggingUtils.BotException;
 import tk.ardentbot.Core.Translation.Language;
+import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Main.Shard;
+import tk.ardentbot.Utils.Discord.GuildUtils;
 
 import java.util.concurrent.TimeUnit;
-
-import static tk.ardentbot.Main.Ardent.ardent;
 
 class AsyncCommandExecutor implements Runnable {
 
@@ -41,12 +42,13 @@ class AsyncCommandExecutor implements Runnable {
     @Override
     public void run() {
         try {
-            if (ardent.announcement != null) {
-                if (!ardent.sentAnnouncement.get(guild.getId())) {
-                    ardent.sentAnnouncement.replace(guild.getId(), true);
-                    ardent.executorService.schedule(() -> {
+            Shard shard = GuildUtils.getShard(guild);
+            if (Ardent.announcement != null) {
+                if (!Ardent.sentAnnouncement.get(guild.getId())) {
+                    Ardent.sentAnnouncement.replace(guild.getId(), true);
+                    shard.executorService.schedule(() -> {
                         try {
-                            command.sendTranslatedMessage(ardent.announcement, channel, user);
+                            command.sendTranslatedMessage(Ardent.announcement, channel, user);
                         }
                         catch (Exception e) {
                             new BotException(e);
@@ -56,7 +58,7 @@ class AsyncCommandExecutor implements Runnable {
             }
 
             command.getBotCommand().onUsage(guild, channel, author, message, args, language, null);
-            ardent.factory.addCommandUsage(command.getCommandIdentifier());
+            shard.factory.addCommandUsage(command.getCommandIdentifier());
         }
         catch (Exception e) {
             new BotException(e);

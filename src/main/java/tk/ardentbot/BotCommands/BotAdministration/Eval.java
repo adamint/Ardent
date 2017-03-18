@@ -10,14 +10,13 @@ import org.apache.commons.lang3.tuple.Triple;
 import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Main.ShardManager;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.Engine;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import static tk.ardentbot.Main.Ardent.ardent;
 
 public class Eval extends Command {
     public Eval(CommandSettings commandSettings) {
@@ -43,8 +42,9 @@ public class Eval extends Command {
                 shortcuts.put("msg", message);
                 shortcuts.put("me", message.getAuthor());
                 shortcuts.put("bot", message.getJDA().getSelfUser());
-                shortcuts.put("conn", ardent.conn);
-                shortcuts.put("ardent", ardent);
+                shortcuts.put("conn", Ardent.conn);
+                shortcuts.put("shard", getShard());
+                shortcuts.put("shards", ShardManager.getShards());
 
                 final int timeout = 10;
 

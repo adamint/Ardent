@@ -12,12 +12,12 @@ import tk.ardentbot.Core.CommandExecution.Subcommand;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Core.Translation.Translation;
 import tk.ardentbot.Core.Translation.TranslationResponse;
+import tk.ardentbot.Main.Shard;
+import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.Discord.MessageUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import static tk.ardentbot.Main.Ardent.ardent;
 
 public class Emojis extends Command {
     public Emojis(CommandSettings commandSettings) {
@@ -37,6 +37,7 @@ public class Emojis extends Command {
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
                 if (args.length > 2) {
+                    Shard shard = GuildUtils.getShard(guild);
                     ArrayList<Translation> queries = new ArrayList<>();
                     queries.add(new Translation("emojis", "lookuptitle"));
                     queries.add(new Translation("emojis", "thefoundemoji"));
@@ -46,7 +47,7 @@ public class Emojis extends Command {
                     Emoji emoji = EmojiManager.getForAlias(args[2]);
                     if (emoji != null) {
                         EmbedBuilder builder = MessageUtils.getDefaultEmbed(guild, user, Emojis.this);
-                        builder.setTitle(responses.get(0).getTranslation(), ardent.url);
+                        builder.setTitle(responses.get(0).getTranslation(), shard.url);
 
                         StringBuilder description = new StringBuilder();
                         description.append(responses.get(1).getTranslation().replace("{0}", args[2]));

@@ -7,6 +7,7 @@ import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.LoggingUtils.BotException;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.UsageUtils;
 
@@ -16,7 +17,7 @@ import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import static tk.ardentbot.BotCommands.BotInfo.Status.getVoiceConnections;
-import static tk.ardentbot.Main.Ardent.ardent;
+import static tk.ardentbot.Main.ShardManager.getShards;
 
 public class Admin extends Command {
     private static int secondsWaitedForRestart = 0;
@@ -27,33 +28,37 @@ public class Admin extends Command {
 
     public static void update(Command command, Language language, MessageChannel channel) throws Exception {
         channel.sendMessage("Updating...").queue();
-        for (Guild g : ardent.jda.getGuilds()) {
-            if (g.getAudioManager().isConnected()) {
-                GuildMusicManager manager = Music.getGuildAudioPlayer(g, null);
-                TextChannel ch = manager.scheduler.manager.getChannel();
-                if (ch == null) {
-                    g.getPublicChannel().sendMessage(command.getTranslation("music", language, "restartingfiveminutes")
-                            .getTranslation()).queue();
-                }
-                else {
-                    ch.sendMessage(command.getTranslation("music", language, "restartingfiveminutes")
-                            .getTranslation()).queue();
+        for (Shard shard : getShards()) {
+            for (Guild g : shard.jda.getGuilds()) {
+                if (g.getAudioManager().isConnected()) {
+                    GuildMusicManager manager = Music.getGuildAudioPlayer(g, null);
+                    TextChannel ch = manager.scheduler.manager.getChannel();
+                    if (ch == null) {
+                        g.getPublicChannel().sendMessage(command.getTranslation("music", language,
+                                "restartingfiveminutes")
+
+                                .getTranslation()).queue();
+                    }
+                    else {
+                        ch.sendMessage(command.getTranslation("music", language, "restartingfiveminutes")
+                                .getTranslation()).queue();
+                    }
                 }
             }
+            shard.executorService.schedule(() -> {
+                shard.jda.getGuilds().stream().filter(g -> g.getAudioManager().isConnected()).forEach(g -> {
+                    GuildMusicManager manager = Music.getGuildAudioPlayer(g, null);
+                    TextChannel ch = manager.scheduler.manager.getChannel();
+                    if (ch == null) {
+                        g.getPublicChannel().sendMessage("Updating, I'll be online in a minute!").queue();
+                    }
+                    else {
+                        ch.sendMessage("Updating, I'll be online in a minute!").queue();
+                    }
+                });
+                shutdown();
+            }, 4, TimeUnit.MINUTES);
         }
-        ardent.executorService.schedule(() -> {
-            ardent.jda.getGuilds().stream().filter(g -> g.getAudioManager().isConnected()).forEach(g -> {
-                GuildMusicManager manager = Music.getGuildAudioPlayer(g, null);
-                TextChannel ch = manager.scheduler.manager.getChannel();
-                if (ch == null) {
-                    g.getPublicChannel().sendMessage("Updating, I'll be online in a minute!").queue();
-                }
-                else {
-                    ch.sendMessage("Updating, I'll be online in a minute!").queue();
-                }
-            });
-            shutdown();
-        }, 4, TimeUnit.MINUTES);
     }
 
     private static void shutdown() {
@@ -113,14 +118,18 @@ public class Admin extends Command {
                 else if (args[1].equalsIgnoreCase("announce")) {
                     String msg = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " +
                             args[1] + " ", "");
-                    if (ardent.announcement != null) ardent.sentAnnouncement.clear();
-                    ardent.announcement = "** == Important Announcement ==**\n" + msg;
-                    ardent.jda.getGuilds().forEach(g -> {
-                        ardent.sentAnnouncement.put(g.getId(), false);
-                    });
+                    if (Ardent.announcement != null) Ardent.sentAnnouncement.clear();
+                    Ardent.announcement = "** == Important Announcement ==**\n" + msg;
+                    for (Shard shard : getShards()) {
+                        shard.jda.getGuilds().forEach(g -> {
+                            Ardent.sentAnnouncement.put(g.getId(), false);
+                        });
+                    }
                 }
                 else if (args[1].equalsIgnoreCase("stop")) {
-                    ardent.jda.shutdown(true);
+                    for (Shard shard : getShards()) {
+                        shard.jda.shutdown(true);
+                    }
                     System.exit(0);
                 }
             }

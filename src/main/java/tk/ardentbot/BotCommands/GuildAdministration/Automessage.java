@@ -7,6 +7,7 @@ import tk.ardentbot.Core.CommandExecution.Subcommand;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Core.Translation.Translation;
 import tk.ardentbot.Core.Translation.TranslationResponse;
+import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.Tuples.Triplet;
@@ -17,8 +18,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import static tk.ardentbot.Main.Ardent.ardent;
 
 public class Automessage extends Command {
     public Automessage(CommandSettings commandSettings) {
@@ -39,7 +38,7 @@ public class Automessage extends Command {
     public static Triplet<String, String, String> getMessagesAndChannel(Guild guild) throws SQLException {
         Triplet<String, String, String> triplet;
         check(guild);
-        Statement statement = ardent.conn.createStatement();
+        Statement statement = Ardent.conn.createStatement();
         ResultSet set = statement.executeQuery("SELECT * FROM Automessages WHERE GuildID='" + guild.getId() + "'");
         if (set.next()) {
             String channel = set.getString("ChannelID");

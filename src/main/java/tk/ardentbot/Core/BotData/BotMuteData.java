@@ -2,13 +2,12 @@ package tk.ardentbot.Core.BotData;
 
 import net.dv8tion.jda.core.entities.Member;
 import tk.ardentbot.Core.LoggingUtils.BotException;
+import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.HashMap;
-
-import static tk.ardentbot.Main.Ardent.ardent;
 
 public class BotMuteData {
 
@@ -49,7 +48,7 @@ public class BotMuteData {
 
     private void sql_add(Member m, long d, Member s) {
         try {
-            PreparedStatement statement = ardent.conn.prepareStatement("INSERT INTO Mutes VALUES (?, ?, ?, ?)");
+            PreparedStatement statement = Ardent.conn.prepareStatement("INSERT INTO Mutes VALUES (?, ?, ?, ?)");
 
             statement.setString(1, m.getGuild().getId());
             statement.setString(2, s.getUser().getId());
@@ -67,7 +66,7 @@ public class BotMuteData {
 
     private void sql_del(Member m) {
         try {
-            PreparedStatement statement = ardent.conn.prepareStatement("DELETE FROM Mutes WHERE GuildID = ? AND " +
+            PreparedStatement statement = Ardent.conn.prepareStatement("DELETE FROM Mutes WHERE GuildID = ? AND " +
                     "UserID = ?");
 
             statement.setString(1, m.getGuild().getId());

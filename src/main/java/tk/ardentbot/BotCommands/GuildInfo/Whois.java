@@ -6,6 +6,8 @@ import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Core.Translation.Translation;
 import tk.ardentbot.Core.Translation.TranslationResponse;
+import tk.ardentbot.Main.Shard;
+import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.Discord.MessageUtils;
 
 import java.time.Instant;
@@ -14,8 +16,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static tk.ardentbot.Main.Ardent.ardent;
-
 public class Whois extends Command {
     public Whois(CommandSettings commandSettings) {
         super(commandSettings);
@@ -23,6 +23,7 @@ public class Whois extends Command {
 
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
+        Shard shard = GuildUtils.getShard(guild);
         Member member;
         List<User> mentionedUsers = message.getMentionedUsers();
         if (mentionedUsers.size() > 0) {
@@ -58,7 +59,7 @@ public class Whois extends Command {
 
         EmbedBuilder builder = MessageUtils.getDefaultEmbed(guild, message.getAuthor(), this);
         builder.setAuthor(responses.get(0).getTranslation().replace("{0}", member.getUser().getName()),
-                "https://ardentbot.tk/guild", ardent.bot.getAvatarUrl());
+                "https://ardentbot.tk/guild", shard.bot.getAvatarUrl());
         builder.setThumbnail(member.getUser().getAvatarUrl());
 
         builder.addField(responses.get(1).getTranslation(), member.getUser().getName(), true);

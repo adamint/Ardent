@@ -20,7 +20,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-import static tk.ardentbot.Main.Ardent.ardent;
 import static tk.ardentbot.Utils.SQL.SQLUtils.cleanString;
 
 public class Translate extends Command {
@@ -82,7 +81,7 @@ public class Translate extends Command {
 
     public static ArrayList<Quintet<String, String, String, String, String>> getSubCommandDiscrepancies(Language
                                                                                                                 language) throws SQLException {
-        Statement statement = ardent.conn.createStatement();
+        Statement statement = Ardent.conn.createStatement();
         ArrayList<Quintet<String, String, String, String, String>> discrepanciesInEnglish = new ArrayList<>();
         ArrayList<Quintet<String, String, String, String, String>> englishTranslations = new ArrayList<>();
         ResultSet translations = statement.executeQuery("SELECT * FROM Subcommands WHERE Language='english'");
@@ -137,13 +136,14 @@ public class Translate extends Command {
                                     String translationOf = discrepanciesInTableTranslations.get((place - 1));
                                     String translation = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " +
                                             args[1] + " " + args[2] + " " + args[3] + " ", "");
-                                    ResultSet set = ardent.conn.prepareStatement("SELECT * FROM Translations WHERE " +
+                                    ResultSet set = Ardent.conn.prepareStatement("SELECT * FROM Translations WHERE " +
                                             "Language='english' AND " +
                                             "Translation='" + cleanString(translationOf) + "'").executeQuery();
                                     if (set.next()) {
                                         String commandID = set.getString("CommandIdentifier");
                                         String id = set.getString("ID");
-                                        ardent.conn.prepareStatement("INSERT INTO Translations VALUES ('" + commandID + "', '" + cleanString(translation) + "'," +
+                                        Ardent.conn.prepareStatement("INSERT INTO Translations VALUES ('" + commandID
+                                                + "', '" + cleanString(translation) + "'," +
                                                 "'" + id + "', '" + translateTo.getIdentifier() + "', '0')").executeUpdate();
                                         sendTranslatedMessage("Good job and thanks! Please do /translate " + translateTo.getIdentifier() + " again " +
                                                 "because the place values have shifted!", channel, user);

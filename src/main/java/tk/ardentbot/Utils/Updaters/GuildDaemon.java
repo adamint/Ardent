@@ -2,24 +2,26 @@ package tk.ardentbot.Utils.Updaters;
 
 import net.dv8tion.jda.core.entities.Guild;
 import tk.ardentbot.Core.LoggingUtils.BotException;
+import tk.ardentbot.Main.Shard;
+import tk.ardentbot.Main.ShardManager;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import static tk.ardentbot.Main.Ardent.ardent;
-
 public class GuildDaemon implements Runnable {
     @Override
     public void run() {
         try {
-            ArrayList<String> guildIds = getAllGuildIds();
-            for (Guild guild : ardent.jda.getGuilds()) {
-                if (!guildIds.contains(guild.getId())) {
-                    new DatabaseAction("INSERT INTO Guilds VALUES (?,?,?)").set(guild.getId())
-                            .set("english").set("/").update();
-                    ardent.botLanguageData.set(guild, "english");
+            for (Shard shard : ShardManager.getShards()) {
+                ArrayList<String> guildIds = getAllGuildIds();
+                for (Guild guild : shard.jda.getGuilds()) {
+                    if (!guildIds.contains(guild.getId())) {
+                        new DatabaseAction("INSERT INTO Guilds VALUES (?,?,?)").set(guild.getId())
+                                .set("english").set("/").update();
+                        shard.botLanguageData.set(guild, "english");
+                    }
                 }
             }
         }

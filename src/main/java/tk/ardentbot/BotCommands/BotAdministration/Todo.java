@@ -17,7 +17,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-import static tk.ardentbot.Main.Ardent.ardent;
 import static tk.ardentbot.Utils.SQL.SQLUtils.cleanString;
 
 public class Todo extends Command {
@@ -30,7 +29,7 @@ public class Todo extends Command {
         ArrayList<String> todos = getTodos();
         EmbedBuilder embedBuilder = MessageUtils.getDefaultEmbed(guild, user, this);
         String upcoming = getTranslation("todo", language, "upcoming").getTranslation();
-        embedBuilder.setAuthor(upcoming, "https://ardentbot.tk", ardent.bot.getAvatarUrl());
+        embedBuilder.setAuthor(upcoming, "https://ardentbot.tk", getShard().bot.getAvatarUrl());
         StringBuilder description = new StringBuilder();
         description.append("**" + upcoming + "**");
         for (int i = 0; i < todos.size(); i++) {
@@ -47,7 +46,7 @@ public class Todo extends Command {
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
                 if (Ardent.developers.contains(user.getId())) {
                     String todo = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " + args[1] + " ", "");
-                    Statement statement = ardent.conn.createStatement();
+                    Statement statement = Ardent.conn.createStatement();
                     statement.executeUpdate("INSERT INTO Todo VALUES ('" + cleanString(todo) + "')");
                     statement.close();
                     sendTranslatedMessage("Added todo successfully", channel, user);
@@ -65,7 +64,7 @@ public class Todo extends Command {
                             ArrayList<String> todos = getTodos();
                             int place = Integer.parseInt(args[2]) - 1;
                             if (place > -1 && place < todos.size()) {
-                                Statement statement = ardent.conn.createStatement();
+                                Statement statement = Ardent.conn.createStatement();
                                 statement.executeUpdate("DELETE FROM Todo WHERE Text='" + cleanString(todos.get(place)) + "'");
                                 statement.close();
                                 sendTranslatedMessage("Removed todo successfully", channel, user);
@@ -85,7 +84,7 @@ public class Todo extends Command {
 
     public ArrayList<String> getTodos() throws SQLException {
         ArrayList<String> todos = new ArrayList<>();
-        Statement statement = ardent.conn.createStatement();
+        Statement statement = Ardent.conn.createStatement();
         ResultSet set = statement.executeQuery("SELECT * FROM Todo");
         while (set.next()) {
             todos.add(set.getString("Text"));
