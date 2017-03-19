@@ -8,13 +8,12 @@ import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Core.Translation.Translation;
 import tk.ardentbot.Core.Translation.TranslationResponse;
+import tk.ardentbot.Utils.Discord.GuildUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
-
-import static tk.ardentbot.Main.Ardent.ardent;
 
 public class Roll extends Command {
     public Roll(CommandSettings commandSettings) {
@@ -31,7 +30,7 @@ public class Roll extends Command {
         String after = responses.get(1).getTranslation();
 
         channel.sendMessage(before).queue(message1 -> {
-            ardent.executorService.schedule(() -> {
+            GuildUtils.getShard(guild).executorService.schedule(() -> {
                 int roll = new Random().nextInt(6) + 1;
                 message1.editMessage(after.replace("{0}", String.valueOf(roll))).queue();
             }, 2, TimeUnit.SECONDS);

@@ -11,6 +11,14 @@ public class StringUtils {
         else return -1;
     };
 
+    public static String concantenate(int start, String[] array) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = start; i < array.length; i++) {
+            sb.append(array[i]);
+        }
+        return sb.toString();
+    }
+
     public static void replaceAll(final StringBuilder builder, final String from, final String to) {
         int index;
         while ((index = builder.indexOf(from)) != -1) {

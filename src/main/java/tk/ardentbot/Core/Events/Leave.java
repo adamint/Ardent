@@ -8,15 +8,16 @@ import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.hooks.SubscribeEvent;
 import tk.ardentbot.BotCommands.GuildAdministration.Automessage;
-import tk.ardentbot.Core.Exceptions.BotException;
+import tk.ardentbot.Core.LoggingUtils.BotException;
+import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Main.Shard;
+import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.Tuples.Triplet;
 
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
-
-import static tk.ardentbot.Main.Ardent.ardent;
 
 @SuppressWarnings("Duplicates")
 public class Leave {
@@ -26,11 +27,11 @@ public class Leave {
     @SubscribeEvent
     public void onLeave(GuildLeaveEvent event) {
         botLeaveEvents.add(Instant.now());
-
         Guild guild = event.getGuild();
+        Shard shard = GuildUtils.getShard(guild);
         String id = guild.getId();
-        ardent.cleverbots.remove(id);
-        ardent.botPrefixData.remove(guild);
+        Ardent.cleverbots.remove(id);
+        shard.botPrefixData.remove(guild);
         try {
             new DatabaseAction("DELETE FROM JoinEvents WHERE GuildID=?").set(id).update();
         }
@@ -42,7 +43,6 @@ public class Leave {
     @SubscribeEvent
     public void onUserLeave(GuildMemberLeaveEvent event) throws SQLException {
         userLeaveEvents.add(Instant.now());
-
         Guild guild = event.getGuild();
         Member left = event.getMember();
         Triplet<String, String, String> automessageSettings = Automessage.getMessagesAndChannel(guild);

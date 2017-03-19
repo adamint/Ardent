@@ -23,8 +23,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static tk.ardentbot.Main.Ardent.ardent;
-
 public class Changelog extends Command {
     public Changelog(CommandSettings commandSettings) {
         super(commandSettings);
@@ -56,7 +54,7 @@ public class Changelog extends Command {
 
         ArrayList<Log> logs = getLogs();
         EmbedBuilder builder = new EmbedBuilder();
-        builder.setTitle(responses.get(0).getTranslation(), ardent.url);
+        builder.setTitle(responses.get(0).getTranslation(), getShard().url);
 
         StringBuilder description = new StringBuilder();
         description.append(responses.get(1).getTranslation() + "\n");
@@ -69,7 +67,7 @@ public class Changelog extends Command {
                 args[0]));
         builder.setDescription(description.toString());
 
-        sendEmbed(builder, channel);
+        sendEmbed(builder, channel, user);
     }
 
     @Override
@@ -91,13 +89,13 @@ public class Changelog extends Command {
                         }
                         else
                             sendTranslatedMessage("Idiot, delineate the seperation of title & information by @next@",
-                                    channel);
+                                    channel, user);
                     }
                     else
                         sendTranslatedMessage("Idiot, delineate the seperation of title & information by @next@",
-                                channel);
+                                channel, user);
                 }
-                else sendRetrievedTranslation(channel, "other", language, "needdeveloperpermission");
+                else sendRetrievedTranslation(channel, "other", language, "needdeveloperpermission", user);
             }
         });
         subcommands.add(new Subcommand(this, "view") {
@@ -116,7 +114,7 @@ public class Changelog extends Command {
                             HashMap<Integer, TranslationResponse> responses = getTranslations(language, translations);
 
                             EmbedBuilder builder = new EmbedBuilder();
-                            builder.setTitle(responses.get(0).getTranslation(), ardent.url);
+                            builder.setTitle(responses.get(0).getTranslation(), getShard().url);
 
                             StringBuilder description = new StringBuilder();
                             description.append("**" + log.getTitle() + "**\n\n");
@@ -128,16 +126,16 @@ public class Changelog extends Command {
                                     .getPrefix(guild) + args[0]));
                             builder.setDescription(description.toString());
 
-                            sendEmbed(builder, channel);
+                            sendEmbed(builder, channel, user);
 
                         }
-                        else sendRetrievedTranslation(channel, "changelog", language, "includenumber");
+                        else sendRetrievedTranslation(channel, "changelog", language, "includenumber", user);
                     }
                     catch (NumberFormatException ex) {
-                        sendRetrievedTranslation(channel, "changelog", language, "includenumber");
+                        sendRetrievedTranslation(channel, "changelog", language, "includenumber", user);
                     }
                 }
-                else sendRetrievedTranslation(channel, "changelog", language, "includenumber");
+                else sendRetrievedTranslation(channel, "changelog", language, "includenumber", user);
             }
         });
     }

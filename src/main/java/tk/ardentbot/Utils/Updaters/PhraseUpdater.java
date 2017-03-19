@@ -5,7 +5,7 @@ import com.crowdin.Crwdn;
 import com.crowdin.client.CrowdinApiClient;
 import com.crowdin.parameters.CrowdinApiParametersBuilder;
 import org.apache.commons.io.IOUtils;
-import tk.ardentbot.Core.Exceptions.BotException;
+import tk.ardentbot.Core.LoggingUtils.BotException;
 import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Core.Translation.Phrase;

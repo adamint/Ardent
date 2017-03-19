@@ -7,11 +7,12 @@ public class Status {
     public long receivedMessages;
     public long receivedCommands;
     public long uptime;
-    public int loaded_commands;
-    public int guilds;
-    public int users;
+    public long loaded_commands;
+    public long guilds;
+    public long users;
 
-    public Status(long receivedMessages, long receivedCommands, long uptime, int loaded_commands, int guilds, int users) {
+    public Status(long receivedMessages, long receivedCommands, long uptime, long loaded_commands, long guilds, long
+            users) {
         this.receivedMessages = receivedMessages;
         this.receivedCommands = receivedCommands;
         this.uptime = uptime;

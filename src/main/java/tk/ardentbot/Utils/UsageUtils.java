@@ -5,11 +5,15 @@ import org.eclipse.jetty.util.ConcurrentArrayQueue;
 import tk.ardentbot.BotCommands.BotInfo.Status;
 import tk.ardentbot.Core.CommandExecution.BaseCommand;
 
+import javax.management.Attribute;
+import javax.management.AttributeList;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+import java.lang.management.ManagementFactory;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import static tk.ardentbot.Main.Ardent.ardent;
+import static tk.ardentbot.Main.Ardent.shard0;
 
 public class UsageUtils {
     private static Comparator<BaseCommand> SORT_BY_USAGE = (o1, o2) -> {
@@ -19,7 +23,7 @@ public class UsageUtils {
     };
 
     public static ArrayList<BaseCommand> orderByUsageDesc() {
-        ConcurrentArrayQueue<BaseCommand> unsorted = ardent.factory.getBaseCommands();
+        ConcurrentArrayQueue<BaseCommand> unsorted = shard0.factory.getBaseCommands();
         ArrayList<BaseCommand> baseCommands = new ArrayList<>();
         for (BaseCommand c : unsorted) {
             if (!c.getCommandIdentifier().equalsIgnoreCase("patreon") && !c.getCommandIdentifier().equalsIgnoreCase
@@ -37,13 +41,14 @@ public class UsageUtils {
     }
 
     public static boolean isGuildFirstInCommands(Guild guild) {
-        ConcurrentHashMap<String, Integer> commandsByGuild = Status.commandsByGuild;
+        /*ConcurrentHashMap<String, Integer> commandsByGuild = Status.commandsByGuild;
         final boolean[] first = {true};
         int guildCommands = commandsByGuild.get(guild.getId());
         commandsByGuild.forEach((key, value) -> {
             if (guildCommands < value) first[0] = false;
         });
-        return first[0];
+        return first[0];*/
+        return false;
     }
 
     public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {
@@ -64,11 +69,27 @@ public class UsageUtils {
         final int[] counter = {0};
         allValues.forEach((key, value) -> {
             if (counter[0] < amount) {
-                finalValues.put(ardent.jda.getGuildById(key), value);
+                finalValues.put(shard0.jda.getGuildById(key), value);
                 counter[0]++;
             }
         });
         return finalValues;
     }
 
+    // Credit http://stackoverflow.com/questions/18489273/how-to-get-percentage-of-cpu-usage-of-os-from-java
+    public static double getProcessCpuLoad() throws Exception {
+        MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+        ObjectName name = ObjectName.getInstance("java.lang:type=OperatingSystem");
+        AttributeList list = mbs.getAttributes(name, new String[]{"ProcessCpuLoad"});
+
+        if (list.isEmpty()) return Double.NaN;
+
+        Attribute att = (Attribute) list.get(0);
+        Double value = (Double) att.getValue();
+
+        // usually takes a couple of seconds before we get real values
+        if (value == -1.0) return Double.NaN;
+        // returns a percentage value with 1 decimal point precision
+        return ((int) (value * 1000) / 10.0);
+    }
 }

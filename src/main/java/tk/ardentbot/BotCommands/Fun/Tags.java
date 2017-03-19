@@ -52,7 +52,7 @@ public class Tags extends Command {
                 if (tags.size() == 0) {
                     sb.append("\n > " + getTranslation("tag", language, "notags").getTranslation() + "!");
                 }
-                sendTranslatedMessage(sb.toString(), channel);
+                sendTranslatedMessage(sb.toString(), channel, user);
             }
         });
         subcommands.add(new Subcommand(this, "g") {
@@ -75,7 +75,7 @@ public class Tags extends Command {
                         sb.append("\n > " + getTranslation("tag", language, "notags").getTranslation() + "!");
                 }
                 findTag.close();
-                sendTranslatedMessage(sb.toString(), channel);
+                sendTranslatedMessage(sb.toString(), channel, user);
             }
         });
         subcommands.add(new Subcommand(this, "search") {
@@ -91,9 +91,9 @@ public class Tags extends Command {
                     for (String s : similars) sb.append("\n > " + s);
                     if (similars.size() == 0)
                         sb.append("\n > " + getTranslation("tag", language, "notags").getTranslation() + "!");
-                    sendTranslatedMessage(sb.toString(), channel);
+                    sendTranslatedMessage(sb.toString(), channel, user);
                 }
-                else sendRetrievedTranslation(channel, "tag", language, "mustincludesearchterms");
+                else sendRetrievedTranslation(channel, "tag", language, "mustincludesearchterms", user);
             }
         });
         subcommands.add(new Subcommand(this, "add") {
@@ -102,7 +102,8 @@ public class Tags extends Command {
                                Language language) throws Exception {
                 if (GuildUtils.hasManageServerPermission(guild.getMember(user))) {
                     if (args.length > 3) {
-                        String name = args[2];
+                        String name = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " +
+                                args[1] + " ", "").split(" ")[0];
                         String result = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " +
                                 args[1] + " " + args[2] + " ", "");
                         if (!getTagsForGuild(guild).contains(name)) {
@@ -110,13 +111,13 @@ public class Tags extends Command {
                                     (result).set(user.getId()).update();
                             String reply = getTranslation("tag", language, "successfullyadded").getTranslation()
                                     .replace("{0}", GuildUtils.getPrefix(guild) + args[0]).replace("{1}", name);
-                            sendTranslatedMessage(reply, channel);
+                            sendTranslatedMessage(reply, channel, user);
                         }
-                        else sendRetrievedTranslation(channel, "tag", language, "alreadyexists");
+                        else sendRetrievedTranslation(channel, "tag", language, "alreadyexists", user);
                     }
-                    else sendRetrievedTranslation(channel, "tag", language, "invalidarguments");
+                    else sendRetrievedTranslation(channel, "tag", language, "invalidarguments", user);
                 }
-                else sendRetrievedTranslation(channel, "other", language, "needmessagemanage");
+                else sendRetrievedTranslation(channel, "other", language, "needmessagemanage", user);
             }
         });
         subcommands.add(new Subcommand(this, "remove") {
@@ -131,13 +132,13 @@ public class Tags extends Command {
                                     .set(name).update();
                             String reply = getTranslation("tag", language, "successfullyremoved").getTranslation()
                                     .replace("{1}", name);
-                            sendTranslatedMessage(reply, channel);
+                            sendTranslatedMessage(reply, channel, user);
                         }
-                        else sendRetrievedTranslation(channel, "tag", language, "atagwiththatnamenotfound");
+                        else sendRetrievedTranslation(channel, "tag", language, "atagwiththatnamenotfound", user);
                     }
-                    else sendRetrievedTranslation(channel, "tag", language, "invalidarguments");
+                    else sendRetrievedTranslation(channel, "tag", language, "invalidarguments", user);
                 }
-                else sendRetrievedTranslation(channel, "other", language, "needmessagemanage");
+                else sendRetrievedTranslation(channel, "other", language, "needmessagemanage", user);
             }
         });
     }

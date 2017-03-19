@@ -3,14 +3,16 @@ package tk.ardentbot.Core.CommandExecution;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.PermissionException;
-import tk.ardentbot.Core.Exceptions.BotException;
+import tk.ardentbot.Core.LoggingUtils.BotException;
 import tk.ardentbot.Core.Models.CommandTranslation;
 import tk.ardentbot.Core.Models.PhraseTranslation;
 import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Core.Translation.Translation;
 import tk.ardentbot.Core.Translation.TranslationResponse;
+import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 
 import java.sql.ResultSet;
@@ -19,7 +21,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static tk.ardentbot.Core.Translation.LangFactory.english;
-import static tk.ardentbot.Main.Ardent.ardent;
 
 /**
  * Abstracted from Command for possible future
@@ -31,6 +32,7 @@ public abstract class BaseCommand {
     boolean privateChannelUsage = true;
     boolean guildUsage = true;
     Category category;
+    private Shard shard;
 
     /**
      * Handles messages longer than 2000 characters
@@ -38,7 +40,7 @@ public abstract class BaseCommand {
      * @param translatedString already translated string to send
      * @param channel          channel to send to
      */
-    public void sendTranslatedMessage(String translatedString, MessageChannel channel) {
+    public void sendTranslatedMessage(String translatedString, MessageChannel channel, User user) {
         try {
             if (translatedString.length() <= 2000) {
                 channel.sendMessage(translatedString).queue();
@@ -56,8 +58,7 @@ public abstract class BaseCommand {
         }
         catch (PermissionException ex) {
             if (channel instanceof TextChannel) {
-                TextChannel ch = (TextChannel) channel;
-                sendFailed(ch, false);
+                sendFailed(user, false);
             }
         }
     }
@@ -72,35 +73,32 @@ public abstract class BaseCommand {
      * @throws Exception
      */
     public void sendRetrievedTranslation(MessageChannel channel, String translationCategory, Language language,
-                                         String translationId) throws Exception {
+                                         String translationId, User user) throws Exception {
         TranslationResponse response = getTranslation(translationCategory, language, translationId);
         if (response.isTranslationAvailable()) {
-            sendTranslatedMessage(response.getTranslation(), channel);
+            sendTranslatedMessage(response.getTranslation(), channel, user);
         }
         else new BotException("There wasn't a translation for " + translationId + " in " + translationCategory);
     }
 
-    public void sendEmbed(EmbedBuilder embedBuilder, MessageChannel channel) {
+    public void sendEmbed(EmbedBuilder embedBuilder, MessageChannel channel, User user) {
         try {
             channel.sendMessage(embedBuilder.build()).queue();
         }
         catch (PermissionException ex) {
-            if (channel instanceof TextChannel) {
-                TextChannel ch = (TextChannel) channel;
-                sendFailed(ch, false);
-            }
+            sendFailed(user, true);
         }
     }
 
     /**
      * Tell a user that the bot failed to respond to their command
      *
-     * @param textChannel channel the command was sent in
-     * @param embed       whether the bot attempted to send an embed or not
+     * @param user  user who sent the command
+     * @param embed whether the bot attempted to send an embed or not
      */
-    private void sendFailed(TextChannel textChannel, boolean embed) {
-        textChannel.getHistory().retrievePast(1).queue(messages -> {
-            messages.get(0).getAuthor().openPrivateChannel().queue(privateChannel -> {
+    private void sendFailed(User user, boolean embed) {
+        if (user != null) {
+            user.openPrivateChannel().queue(privateChannel -> {
                 try {
                     if (!embed) {
                         privateChannel.sendMessage(getTranslation("other", LangFactory.english,
@@ -115,7 +113,7 @@ public abstract class BaseCommand {
                     new BotException(e);
                 }
             });
-        });
+        }
     }
 
     /**
@@ -356,7 +354,7 @@ public abstract class BaseCommand {
     }
 
     public ArrayList<BaseCommand> getCommandsInCategory(Category category) {
-        return ardent.factory.getBaseCommands().stream().filter(command -> command.getCategory() == category)
+        return shard.factory.getBaseCommands().stream().filter(command -> command.getCategory() == category)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
@@ -374,6 +372,14 @@ public abstract class BaseCommand {
             else return false;
         }
         else return false;
+    }
+
+    public Shard getShard() {
+        return this.shard;
+    }
+
+    public void setShard(Shard shard) {
+        this.shard = shard;
     }
 
     /**

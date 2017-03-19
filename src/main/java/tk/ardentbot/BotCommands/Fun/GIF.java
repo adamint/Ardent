@@ -45,7 +45,7 @@ public class GIF extends Command {
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
         User author = message.getAuthor();
         if (cooldown.contains(author))
-            sendRetrievedTranslation(channel, "other", language, "waitafewseconds");
+            sendRetrievedTranslation(channel, "other", language, "waitafewseconds", user);
         else {
             try {
                 channel.sendMessage(giphy.searchRandom(randomMemeCategory()).getData().getImageUrl()).queue();

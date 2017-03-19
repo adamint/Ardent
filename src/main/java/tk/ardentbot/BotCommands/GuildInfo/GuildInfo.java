@@ -32,7 +32,7 @@ public class GuildInfo extends Command {
         sb.append(" **>** *" + responses.get(1).getTranslation() + ": " + language.getIdentifier() + "*\n");
         sb.append(" **>** *" + responses.get(2).getTranslation() + ": " + GuildUtils.getPrefix(guild) + "*\n");
         sb.append(" **>** *" + responses.get(3).getTranslation() + ": " + guild.getMembers().size() + "*\n");
-        sendTranslatedMessage(sb.toString(), channel);
+        sendTranslatedMessage(sb.toString(), channel, user);
     }
 
     @Override

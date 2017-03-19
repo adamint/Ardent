@@ -2,7 +2,7 @@ package tk.ardentbot.BotCommands.GuildAdministration;
 
 import net.dv8tion.jda.core.entities.*;
 import tk.ardentbot.Core.CommandExecution.Command;
-import tk.ardentbot.Core.Exceptions.BotException;
+import tk.ardentbot.Core.LoggingUtils.BotException;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 
@@ -15,9 +15,10 @@ public class Clear extends Command {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
+            language) throws Exception {
         if (args.length == 1) {
-            sendRetrievedTranslation(channel, "clear", language, "help");
+            sendRetrievedTranslation(channel, "clear", language, "help", user);
         }
         else {
             if (GuildUtils.hasManageServerPermission(guild.getMember(user))) {
@@ -29,11 +30,13 @@ public class Clear extends Command {
                             textChannel.getHistory().retrievePast(num).queue(messages -> {
                                 textChannel.deleteMessages(messages).queue(aVoid -> {
                                     try {
-                                        sendTranslatedMessage(getTranslation("clear", language, "deletemessages").getTranslation().replace("{0}", num + ""), channel);
+                                        sendTranslatedMessage(getTranslation("clear", language, "deletemessages")
+                                                .getTranslation().replace("{0}", num + ""), channel, user);
                                     }
                                     catch (Exception e) {
                                         try {
-                                            sendTranslatedMessage(getTranslation("clear", language, "2weeksorexists").getTranslation(), channel);
+                                            sendTranslatedMessage(getTranslation("clear", language, "2weeksorexists")
+                                                    .getTranslation(), channel, user);
                                             new BotException(e);
                                         }
                                         catch (Exception e1) {
@@ -44,13 +47,13 @@ public class Clear extends Command {
                             });
 
                         }
-                        else sendRetrievedTranslation(channel, "clear", language, "incorrectnumber");
+                        else sendRetrievedTranslation(channel, "clear", language, "incorrectnumber", user);
                     }
                     catch (NumberFormatException ex) {
-                        sendRetrievedTranslation(channel, "prune", language, "notanumber");
+                        sendRetrievedTranslation(channel, "prune", language, "notanumber", user);
                     }
                     catch (Exception ex) {
-                        sendRetrievedTranslation(channel, "other", language, "needproperpermissions");
+                        sendRetrievedTranslation(channel, "other", language, "needproperpermissions", user);
                     }
                 }
                 else {
@@ -64,12 +67,15 @@ public class Clear extends Command {
                                 ArrayList<Message> messagesToDelete = new ArrayList<>();
                                 textChannel.getHistory().retrievePast(100).queue(messages -> {
                                     for (Message m : messages) {
-                                        if (m.getAuthor().getId().equals(mentioned.getId()) && messagesToDelete.size() < num)
+                                        if (m.getAuthor().getId().equals(mentioned.getId()) && messagesToDelete.size
+                                                () < num)
                                             messagesToDelete.add(m);
                                     }
                                     textChannel.deleteMessages(messagesToDelete).queue(aVoid -> {
                                         try {
-                                            sendTranslatedMessage(getTranslation("clear", language, "deleteduser").getTranslation().replace("{0}", messagesToDelete.size() + "").replace("{1}", 100 + ""), channel);
+                                            sendTranslatedMessage(getTranslation("clear", language, "deleteduser")
+                                                    .getTranslation().replace("{0}", messagesToDelete.size() + "")
+                                                    .replace("{1}", 100 + ""), channel, user);
                                         }
                                         catch (Exception e) {
                                             new BotException(e);
@@ -77,23 +83,24 @@ public class Clear extends Command {
                                     });
                                 });
                             }
-                            else sendRetrievedTranslation(channel, "clear", language, "incorrectnumber");
+                            else sendRetrievedTranslation(channel, "clear", language, "incorrectnumber", user);
                         }
                         catch (NumberFormatException ex) {
-                            sendRetrievedTranslation(channel, "prune", language, "notanumber");
+                            sendRetrievedTranslation(channel, "prune", language, "notanumber", user);
                         }
 
                         catch (Exception ex) {
-                            sendRetrievedTranslation(channel, "other", language, "needproperpermissions");
+                            sendRetrievedTranslation(channel, "other", language, "needproperpermissions", user);
                         }
                     }
-                    else sendRetrievedTranslation(channel, "other", language, "mentionuser");
+                    else sendRetrievedTranslation(channel, "other", language, "mentionuser", user);
                 }
             }
-            else sendRetrievedTranslation(channel, "other", language, "needmessagemanage");
+            else sendRetrievedTranslation(channel, "other", language, "needmessagemanage", user);
         }
     }
 
     @Override
-    public void setupSubcommands() {}
+    public void setupSubcommands() {
+    }
 }

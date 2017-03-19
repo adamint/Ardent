@@ -6,6 +6,7 @@ import net.dv8tion.jda.core.entities.Member;
 import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.UsageUtils;
 
@@ -14,18 +15,35 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import static tk.ardentbot.Main.Ardent.ardent;
+import static tk.ardentbot.Main.ShardManager.getShards;
 
 public class GuildUtils {
+    public static Shard getShard(int id) {
+        for (Shard shard : getShards()) {
+            if (shard.getId() == id) {
+                return shard;
+            }
+        }
+        return null;
+    }
+
+    public static Shard getShard(Guild guild) {
+        long bitwise = Long.parseLong(guild.getId()) >> 22;
+        long modulus = bitwise % Ardent.shardCount;
+        int numbered = (int) modulus;
+        System.out.println(guild.getId() + " | " + bitwise + " | " + numbered);
+        return getShard(numbered);
+    }
+
     public static void updatePrefix(String prefix, Guild guild) {
-        ardent.botPrefixData.set(guild, prefix);
+        getShard(guild).botPrefixData.set(guild, prefix);
     }
 
     private static ArrayList<String> getGuildIds() {
         ArrayList<String> guildIds = new ArrayList<>();
-        ardent.jda.getGuilds().forEach(guild -> {
-            guildIds.add(guild.getId());
-        });
+        for (Shard shard : getShards()) {
+            shard.jda.getGuilds().forEach(guild -> guildIds.add(guild.getId()));
+        }
         return guildIds;
     }
 

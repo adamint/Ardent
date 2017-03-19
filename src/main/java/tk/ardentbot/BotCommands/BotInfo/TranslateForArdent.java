@@ -15,7 +15,7 @@ public class TranslateForArdent extends Command {
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
         sendTranslatedMessage("Ardent is looking for translators! You must be **fluent** in both English and your native languages. Message Adam#9261 if you want " +
-                "to join our translation efforts or join our server @ https://discord.gg/rfGSxNA", channel);
+                "to join our translation efforts or join our server @ https://discord.gg/rfGSxNA", channel, user);
     }
 
     @Override

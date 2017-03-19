@@ -18,8 +18,6 @@ import java.awt.*;
 import java.time.Instant;
 import java.util.Map;
 
-import static tk.ardentbot.Main.Ardent.ardent;
-
 public class Stats extends Command {
     private static final char ACTIVE_BLOCK = '\u2588';
     private static final char EMPTY_BLOCK = '\u200b';
@@ -74,7 +72,7 @@ public class Stats extends Command {
                                Language language) throws Exception {
                 StringBuilder commandBars = new StringBuilder();
 
-                Map<String, Long> commandsUsed = UsageUtils.sortByValue(ardent.factory.getCommandUsages());
+                Map<String, Long> commandsUsed = UsageUtils.sortByValue(getShard().factory.getCommandUsages());
                 final int[] counter = {0};
                 final int[] totalCommandsReceived = {0};
                 commandsUsed.forEach((key, value) -> {
@@ -93,10 +91,10 @@ public class Stats extends Command {
                     counter[0]++;
                 });
                 EmbedBuilder builder = MessageUtils.getDefaultEmbed(guild, user, Stats.this);
-                builder.setAuthor("Command Statistics", ardent.url, ardent.bot.getAvatarUrl());
+                builder.setAuthor("Command Statistics", getShard().url, getShard().bot.getAvatarUrl());
                 builder.setColor(Color.GREEN);
                 builder.setDescription("Command Usage\n" + commandBars.toString());
-                sendEmbed(builder, channel);
+                sendEmbed(builder, channel, user);
             }
         });
         subcommands.add(new Subcommand(this, "guilds") {
@@ -105,7 +103,7 @@ public class Stats extends Command {
                                Language language) throws Exception {
 
                 EmbedBuilder builder = MessageUtils.getDefaultEmbed(guild, user, Stats.this);
-                builder.setAuthor("Guild Statistics", ardent.url, ardent.bot.getAvatarUrl());
+                builder.setAuthor("Guild Statistics", getShard().url, getShard().bot.getAvatarUrl());
                 builder.setColor(Color.GREEN);
 
                 int lPH = 0;
@@ -132,8 +130,8 @@ public class Stats extends Command {
                 builder.addField("Hourly", generateGuild(jPH, lPH), false);
                 builder.addField("Daily", generateGuild(jPD, lPD), false);
                 builder.addField("This Session", generateGuild(jPS, lPS), false);
-                builder.addField("Guilds", String.valueOf(ardent.jda.getGuilds().size()), false);
-                sendEmbed(builder, channel);
+                builder.addField("Guilds", String.valueOf(getShard().jda.getGuilds().size()), false);
+                sendEmbed(builder, channel, user);
             }
         });
     }

@@ -20,7 +20,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-import static tk.ardentbot.Main.Ardent.ardent;
 import static tk.ardentbot.Utils.SQL.SQLUtils.cleanString;
 
 public class Translate extends Command {
@@ -82,7 +81,7 @@ public class Translate extends Command {
 
     public static ArrayList<Quintet<String, String, String, String, String>> getSubCommandDiscrepancies(Language
                                                                                                                 language) throws SQLException {
-        Statement statement = ardent.conn.createStatement();
+        Statement statement = Ardent.conn.createStatement();
         ArrayList<Quintet<String, String, String, String, String>> discrepanciesInEnglish = new ArrayList<>();
         ArrayList<Quintet<String, String, String, String, String>> englishTranslations = new ArrayList<>();
         ResultSet translations = statement.executeQuery("SELECT * FROM Subcommands WHERE Language='english'");
@@ -108,7 +107,7 @@ public class Translate extends Command {
 
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
-        sendTranslatedMessage(help, channel);
+        sendTranslatedMessage(help, channel, user);
     }
 
     @Override
@@ -137,32 +136,35 @@ public class Translate extends Command {
                                     String translationOf = discrepanciesInTableTranslations.get((place - 1));
                                     String translation = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " +
                                             args[1] + " " + args[2] + " " + args[3] + " ", "");
-                                    ResultSet set = ardent.conn.prepareStatement("SELECT * FROM Translations WHERE " +
+                                    ResultSet set = Ardent.conn.prepareStatement("SELECT * FROM Translations WHERE " +
                                             "Language='english' AND " +
                                             "Translation='" + cleanString(translationOf) + "'").executeQuery();
                                     if (set.next()) {
                                         String commandID = set.getString("CommandIdentifier");
                                         String id = set.getString("ID");
-                                        ardent.conn.prepareStatement("INSERT INTO Translations VALUES ('" + commandID + "', '" + cleanString(translation) + "'," +
+                                        Ardent.conn.prepareStatement("INSERT INTO Translations VALUES ('" + commandID
+                                                + "', '" + cleanString(translation) + "'," +
                                                 "'" + id + "', '" + translateTo.getIdentifier() + "', '0')").executeUpdate();
                                         sendTranslatedMessage("Good job and thanks! Please do /translate " + translateTo.getIdentifier() + " again " +
-                                                "because the place values have shifted!", channel);
+                                                "because the place values have shifted!", channel, user);
                                     }
-                                    else sendTranslatedMessage("Something went wrong... Uh oh!", channel);
+                                    else sendTranslatedMessage("Something went wrong... Uh oh!", channel, user);
                                 }
                                 else
-                                    sendTranslatedMessage("Incorrect place value specified. Please review the translation table", channel);
+                                    sendTranslatedMessage("Incorrect place value specified. Please review the " +
+                                            "translation table", channel, user);
                             }
                             catch (NumberFormatException ex) {
-                                sendTranslatedMessage("You need to specify a place. Use /translate " + translateTo.getIdentifier() + " for the syntax", channel);
+                                sendTranslatedMessage("You need to specify a place. Use /translate " + translateTo.getIdentifier() + " for the syntax", channel, user);
                             }
                         }
-                        else sendTranslatedMessage("Incorrect language specified", channel);
+                        else sendTranslatedMessage("Incorrect language specified", channel, user);
                     }
                     else
-                        sendTranslatedMessage("There aren't enough arguments. Make sure that you're entering in this correctly", channel);
+                        sendTranslatedMessage("There aren't enough arguments. Make sure that you're entering in this " +
+                                "correctly", channel, user);
                 }
-                else sendTranslatedMessage("You must be a **translator** to use this command!", channel);
+                else sendTranslatedMessage("You must be a **translator** to use this command!", channel, user);
             }
         });
 
@@ -195,27 +197,30 @@ public class Translate extends Command {
                                                     .set(commandID).set(translateTo.getIdentifier())
                                                     .set(parts[0]).set(parts[1]).update();
                                             
-                                            sendTranslatedMessage("Good job and thanks! Please do /translate " + translateTo.getIdentifier() + "cmds again " +
-                                                    "because the place values have shifted!", channel);
+                                            sendTranslatedMessage("Good job and thanks! Please do /translate " +
+                                                    translateTo.getIdentifier() + "cmds again " +
+                                                    "because the place values have shifted!", channel, user);
                                         }
-                                        else sendTranslatedMessage("Something went wrong... Uh oh!", channel);
+                                        else sendTranslatedMessage("Something went wrong... Uh oh!", channel, user);
                                     }
                                     else
-                                        sendTranslatedMessage("You didn't use the correct syntax. Please do /translate " + translateTo.getIdentifier() + "cmds to get the syntax", channel);
+                                        sendTranslatedMessage("You didn't use the correct syntax. Please do /translate " + translateTo.getIdentifier() + "cmds to get the syntax", channel, user);
                                 }
                                 else
-                                    sendTranslatedMessage("Incorrect place value specified. Please review the translation table", channel);
+                                    sendTranslatedMessage("Incorrect place value specified. Please review the " +
+                                            "translation table", channel, user);
                             }
                             catch (NumberFormatException ex) {
-                                sendTranslatedMessage("You need to specify a place. Use /translate " + translateTo.getIdentifier() + " for the syntax", channel);
+                                sendTranslatedMessage("You need to specify a place. Use /translate " + translateTo
+                                        .getIdentifier() + " for the syntax", channel, user);
                             }
                         }
-                        else sendTranslatedMessage("Incorrect language specified", channel);
+                        else sendTranslatedMessage("Incorrect language specified", channel, user);
                     }
                     else
-                        sendTranslatedMessage("There aren't enough arguments. Make sure that you're entering in this correctly", channel);
+                        sendTranslatedMessage("There aren't enough arguments. Make sure that you're entering in this correctly", channel, user);
                 }
-                else sendTranslatedMessage("You must be a **translator** to use this command!", channel);
+                else sendTranslatedMessage("You must be a **translator** to use this command!", channel, user);
             }
         });
 
@@ -233,12 +238,13 @@ public class Translate extends Command {
                             for (int i = 0; i < discrepanciesInTableTranslations.size(); i++) {
                                 list.append("\n" + (i + 1) + ": " + discrepanciesInTableTranslations.get(i));
                             }
-                            list.append("\n\nTranslate these by doing /translate basic " + translateTo.getIdentifier() + " (place) translation goes here");
-                            sendTranslatedMessage(list.toString(), channel);
+                            list.append("\n\nTranslate these by doing /translate basic " + translateTo.getIdentifier
+                                    () + " (place) translation goes here");
+                            sendTranslatedMessage(list.toString(), channel, user);
                         }
-                        else sendTranslatedMessage("Incorrect language specified", channel);
+                        else sendTranslatedMessage("Incorrect language specified", channel, user);
                     }
-                    else sendTranslatedMessage("You must be a **translator** to use this command!", channel);
+                    else sendTranslatedMessage("You must be a **translator** to use this command!", channel, user);
                 }
             });
             subcommands.add(new Subcommand(this, language.getIdentifier() + "cmds") {
@@ -254,12 +260,14 @@ public class Translate extends Command {
                                 Pair<String, String> current = discrepanciesInCommandTranslations.get(i);
                                 list.append("\n" + (i + 1) + ": **Name: **" + current.getK() + " **|** **Description:** " + current.getV());
                             }
-                            list.append("\n\nTranslate these by doing /translate cmds " + translateTo.getIdentifier() + " (place) name//description goes here\n**There should be no spaces before or after the | seperator for the name and description!**");
-                            sendTranslatedMessage(list.toString(), channel);
+                            list.append("\n\nTranslate these by doing /translate cmds " + translateTo.getIdentifier()
+                                    + " (place) name//description goes here\n**There should be no spaces before or " +
+                                    "after the | seperator for the name and description!**");
+                            sendTranslatedMessage(list.toString(), channel, user);
                         }
-                        else sendTranslatedMessage("Incorrect language specified", channel);
+                        else sendTranslatedMessage("Incorrect language specified", channel, user);
                     }
-                    else sendTranslatedMessage("You must be a **translator** to use this command!", channel);
+                    else sendTranslatedMessage("You must be a **translator** to use this command!", channel, user);
                 }
             });
 

@@ -3,23 +3,20 @@ package tk.ardentbot.Core.CommandExecution;
 import com.google.code.chatterbotapi.ChatterBotSession;
 import com.vdurmont.emoji.Emoji;
 import com.vdurmont.emoji.EmojiManager;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageChannel;
-import net.dv8tion.jda.core.entities.PrivateChannel;
+import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.util.ConcurrentArrayQueue;
-import tk.ardentbot.BotCommands.BotInfo.Status;
-import tk.ardentbot.Core.Exceptions.BotException;
+import tk.ardentbot.Core.LoggingUtils.BotException;
 import tk.ardentbot.Core.Models.CommandTranslation;
 import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;
+import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
-import tk.ardentbot.Utils.UsageUtils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -31,9 +28,9 @@ import java.util.HashMap;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 
-import static tk.ardentbot.Main.Ardent.ardent;
-
 public class CommandFactory {
+    private Shard shard;
+
     private HashMap<String, Long> commandUsages = new HashMap<>();
 
     private ArrayList<String> emojiCommandTags = new ArrayList<>();
@@ -46,12 +43,13 @@ public class CommandFactory {
      * Schedules emoji command updates with 150 second intervals,
      * as emoji parsing doesn't otherwise work with the existing system
      */
-    public CommandFactory() {
-        ardent.executorService.scheduleAtFixedRate(new EmojiCommandUpdater(), 1, 150, TimeUnit.SECONDS);
+    public CommandFactory(Shard shard) {
+        this.shard = shard;
+        shard.executorService.scheduleAtFixedRate(new EmojiCommandUpdater(), 1, 300, TimeUnit.SECONDS);
     }
 
     public static ChatterBotSession getBotSession(Guild guild) {
-        return ardent.cleverbots.get(guild.getId());
+        return Ardent.cleverbots.get(guild.getId());
     }
 
     public ConcurrentArrayQueue<BaseCommand> getBaseCommands() {
@@ -74,6 +72,10 @@ public class CommandFactory {
         return commandUsages;
     }
 
+    public Shard getShard() {
+        return shard;
+    }
+
     public void addCommandUsage(String identifier) {
         long old = commandUsages.get(identifier);
         commandUsages.replace(identifier, old, old + 1);
@@ -86,6 +88,7 @@ public class CommandFactory {
      * @throws Exception
      */
     public void registerCommand(BaseCommand baseCommand) throws Exception {
+        baseCommand.setShard(shard);
         Command botCommand = baseCommand.botCommand;
         for (BaseCommand cmd : baseCommands) {
             if (StringUtils.stripAccents(cmd.getCommandIdentifier()).equalsIgnoreCase(StringUtils.stripAccents
@@ -113,31 +116,32 @@ public class CommandFactory {
      */
     public void pass(MessageReceivedEvent event) throws Exception {
         try {
+            User user = event.getAuthor();
             Message message = event.getMessage();
             MessageChannel channel = event.getChannel();
             String[] args = message.getContent().split(" ");
             Guild guild = event.getGuild();
             Language language = GuildUtils.getLanguage(guild);
-            if (message.getRawContent().startsWith(ardent.bot.getAsMention())) {
-                Command command = ardent.help.botCommand;
-                if (message.getRawContent().replace(ardent.bot.getAsMention(), "").length() == 0) {
+            if (message.getRawContent().startsWith("<@!" + shard.bot.getId() + ">")) {
+                Command command = shard.help.botCommand;
+                if (message.getRawContent().replace("<@!" + shard.bot.getId() + ">", "").length() == 0) {
                     command.sendTranslatedMessage(command.getTranslation("other", language, "mentionedhelp")
                             .getTranslation()
                             .replace("{0}", GuildUtils.getPrefix(guild) +
-                                    command.getName(language)), channel);
+                                    command.getName(language)), channel, user);
                 }
                 else {
                     if (guild != null) {
-                        if (message.getRawContent().equalsIgnoreCase(ardent.bot.getAsMention() + " english")) {
+                        if (message.getRawContent().equalsIgnoreCase(shard.bot.getAsMention() + " english")) {
                             if (GuildUtils.hasManageServerPermission(guild.getMember(event.getAuthor()))) {
                                 DatabaseAction updateLanguage = new DatabaseAction("UPDATE Guilds SET Language=? " +
                                         "WHERE" +
                                         " GuildID=?").set("english").set(guild.getId());
                                 updateLanguage.update();
                                 command.sendRetrievedTranslation(channel, "language", LangFactory.getLanguage("english"),
-                                        "changedlanguage");
+                                        "changedlanguage", user);
                             }
-                            else command.sendRetrievedTranslation(channel, "other", language, "needmanageserver");
+                            else command.sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
                         }
                         // On hold until I can find a suitable pandorabot or other chatbot api
                         /* else {
@@ -168,12 +172,13 @@ public class CommandFactory {
                                         try {
                                             if (baseCommand.isPrivateChannelUsage()) {
                                                 baseCommand.botCommand.usages++;
-                                                ardent.executorService.execute(new AsyncCommandExecutor(baseCommand.botCommand, guild,
-                                                        channel, event.getAuthor(), message, args, language));
+                                                shard.executorService.execute(new AsyncCommandExecutor(baseCommand
+                                                        .botCommand, guild,
+                                                        channel, event.getAuthor(), message, args, language, user));
                                             }
                                             else {
                                                 baseCommand.sendRetrievedTranslation(channel, "other", language,
-                                                        "notavailableinprivatechannel");
+                                                        "notavailableinprivatechannel", user);
                                             }
                                             commandsReceived++;
                                         }
@@ -210,7 +215,7 @@ public class CommandFactory {
                                         (identifier)).forEach(command -> {
                                     try {
                                         command.botCommand.usages++;
-                                        boolean beforeCmdFirst = UsageUtils.isGuildFirstInCommands(guild);
+                                       /* boolean beforeCmdFirst = UsageUtils.isGuildFirstInCommands(guild);
                                         int oldCommandAmount = Status.commandsByGuild.get(guild.getId());
                                         Status.commandsByGuild.replace(guild.getId(), oldCommandAmount,
                                                 oldCommandAmount + 1);
@@ -218,11 +223,11 @@ public class CommandFactory {
 
                                         if (!beforeCmdFirst && afterCmdFirst) {
                                             command.botCommand.sendRetrievedTranslation(channel, "other",
-                                                    language, "firstincommands");
-                                        }
+                                                    language, "firstincommands", user);
+                                        }*/
 
-                                        ardent.executorService.execute(new AsyncCommandExecutor(command.botCommand, guild, channel,
-                                                event.getAuthor(), message, args, language));
+                                        shard.executorService.execute(new AsyncCommandExecutor(command.botCommand, guild, channel,
+                                                event.getAuthor(), message, args, language, user));
                                         commandsReceived++;
 
                                         new DatabaseAction("INSERT INTO CommandsReceived " +
@@ -264,7 +269,7 @@ public class CommandFactory {
         @Override
         public void run() {
             try {
-                Statement statement = ardent.conn.createStatement();
+                Statement statement = Ardent.conn.createStatement();
                 ResultSet emojis = statement.executeQuery("SELECT * FROM Commands WHERE Language='emoji'");
                 while (emojis.next()) {
                     emojiCommandTags.add(emojis.getString("Translation").replace("\\:", ""));

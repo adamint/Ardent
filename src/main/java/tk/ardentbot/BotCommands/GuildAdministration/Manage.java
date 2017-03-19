@@ -16,7 +16,7 @@ public class Manage extends Command {
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
             language) throws Exception {
         sendTranslatedMessage(getTranslation("manage", language, "manage").getTranslation().replace("{0}",
-                "https://ardentbot.tk/portal?id=" + guild.getId()), channel);
+                "https://ardentbot.tk/portal?id=" + guild.getId()), channel, user);
     }
 
     @Override
