@@ -34,13 +34,14 @@ public class Setnickname extends Command {
             if (mentionedUsers.size() == 1) {
                 if (guild.getMember(user).hasPermission(Permission.MANAGE_SERVER)) {
                     User mentioned = mentionedUsers.get(0);
-                    String newNickname = message.getRawContent().replace("<@" + mentioned.getId() + ">", "").replace
-                            (GuildUtils.getPrefix(guild) + args[0], "");
+                    String newNickname = tk.ardentbot.Utils.StringUtils.concantenate(2, message.getRawContent().split
+                            (" "));
                     while (newNickname.startsWith(" ")) newNickname = newNickname.substring(1);
                     if (newNickname.length() > 32 && newNickname.length() < 2) {
                         sendRetrievedTranslation(channel, "setnickname", language, "between2and32", user);
                     }
                     else {
+                        if (newNickname.equalsIgnoreCase("reset")) newNickname = "";
                         String finalNewNickname = newNickname;
                         try {
                             guild.getController().setNickname(guild.getMember(mentioned), newNickname).queue(aVoid -> {

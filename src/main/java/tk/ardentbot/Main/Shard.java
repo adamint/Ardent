@@ -292,7 +292,6 @@ public class Shard {
                 */
 
                 cleverBot = new ChatterBotFactory().create(ChatterBotType.PANDORABOTS, "f5d922d97e345aa1");
-                botLogs = jda.getTextChannelById("270572632343183361");
 
                 musicManagers = new HashMap<>();
 

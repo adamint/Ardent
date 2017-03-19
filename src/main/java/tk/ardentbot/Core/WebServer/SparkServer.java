@@ -76,10 +76,12 @@ public class SparkServer {
             staff.add(translators);
             return shard0.gson.toJson(staff);
         });
-        InternalStats internalStats = InternalStats.collect();
-        get("/api/status", (rq, rs) -> shard0.gson.toJson(new Status(internalStats.getMessagesReceived(),
-                internalStats.getCommandsReceived(), ManagementFactory.getRuntimeMXBean().getUptime() / 1000,
-                internalStats.getLoadedCommands(), internalStats.getGuilds(), internalStats.getUsers())));
+        get("/api/status", (rq, rs) -> {
+            InternalStats internalStats = InternalStats.collect();
+            return shard0.gson.toJson(new Status(internalStats.getMessagesReceived(),
+                    internalStats.getCommandsReceived(), ManagementFactory.getRuntimeMXBean().getUptime() / 1000,
+                    internalStats.getLoadedCommands(), internalStats.getGuilds(), internalStats.getUsers()));
+        });
         get("/api/languages", (rq, rs) -> shard0.gson.toJson(LangFactory.languages));
         get("/api/translate/*/*/*", SparkServer::translate);
         get("/api/translate/submit", (rq, rs) -> {
@@ -88,7 +90,7 @@ public class SparkServer {
                 String type = rq.queryParams("type");
                 String language = rq.queryParams("language");
                 if (type != null && language != null) {
-                    rs.redirect("https://ardentbot.tk:666/api/translate/169904324980244480/" + type + "/" + language);
+                    rs.redirect("http://ardentbot.tk:666/api/translate/169904324980244480/" + type + "/" + language);
                 }
             }
             return null;

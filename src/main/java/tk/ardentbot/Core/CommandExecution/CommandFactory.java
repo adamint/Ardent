@@ -9,7 +9,6 @@ import net.dv8tion.jda.core.exceptions.PermissionException;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.util.ConcurrentArrayQueue;
-import tk.ardentbot.BotCommands.BotInfo.Status;
 import tk.ardentbot.Core.LoggingUtils.BotException;
 import tk.ardentbot.Core.Models.CommandTranslation;
 import tk.ardentbot.Core.Translation.LangFactory;
@@ -18,7 +17,6 @@ import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
-import tk.ardentbot.Utils.UsageUtils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -47,7 +45,7 @@ public class CommandFactory {
      */
     public CommandFactory(Shard shard) {
         this.shard = shard;
-        shard.executorService.scheduleAtFixedRate(new EmojiCommandUpdater(), 1, 150, TimeUnit.SECONDS);
+        shard.executorService.scheduleAtFixedRate(new EmojiCommandUpdater(), 1, 300, TimeUnit.SECONDS);
     }
 
     public static ChatterBotSession getBotSession(Guild guild) {
@@ -124,9 +122,9 @@ public class CommandFactory {
             String[] args = message.getContent().split(" ");
             Guild guild = event.getGuild();
             Language language = GuildUtils.getLanguage(guild);
-            if (message.getRawContent().startsWith(shard.bot.getAsMention())) {
+            if (message.getRawContent().startsWith("<@!" + shard.bot.getId() + ">")) {
                 Command command = shard.help.botCommand;
-                if (message.getRawContent().replace(shard.bot.getAsMention(), "").length() == 0) {
+                if (message.getRawContent().replace("<@!" + shard.bot.getId() + ">", "").length() == 0) {
                     command.sendTranslatedMessage(command.getTranslation("other", language, "mentionedhelp")
                             .getTranslation()
                             .replace("{0}", GuildUtils.getPrefix(guild) +
@@ -217,7 +215,7 @@ public class CommandFactory {
                                         (identifier)).forEach(command -> {
                                     try {
                                         command.botCommand.usages++;
-                                        boolean beforeCmdFirst = UsageUtils.isGuildFirstInCommands(guild);
+                                       /* boolean beforeCmdFirst = UsageUtils.isGuildFirstInCommands(guild);
                                         int oldCommandAmount = Status.commandsByGuild.get(guild.getId());
                                         Status.commandsByGuild.replace(guild.getId(), oldCommandAmount,
                                                 oldCommandAmount + 1);
@@ -226,7 +224,7 @@ public class CommandFactory {
                                         if (!beforeCmdFirst && afterCmdFirst) {
                                             command.botCommand.sendRetrievedTranslation(channel, "other",
                                                     language, "firstincommands", user);
-                                        }
+                                        }*/
 
                                         shard.executorService.execute(new AsyncCommandExecutor(command.botCommand, guild, channel,
                                                 event.getAuthor(), message, args, language, user));

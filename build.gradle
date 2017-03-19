@@ -18,7 +18,7 @@ repositories {
 
 dependencies {
     compile 'com.sedmelluq:jda-nas:1.0.3'
-    compile 'net.dv8tion:JDA:3.0.0_155'
+    compile 'net.dv8tion:JDA:3.0.0_156'
     compile group: 'org.codehaus.groovy', name: 'groovy-jsr223', version: '2.4.9'
     compile 'com.sedmelluq:lavaplayer:1.2.30'
     compile group: 'net.objecthunter', name: 'exp4j', version: '0.4.8'

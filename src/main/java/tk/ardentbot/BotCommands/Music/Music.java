@@ -6,6 +6,11 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
+import com.wrapper.spotify.methods.RecommendationsRequest;
+import com.wrapper.spotify.methods.TrackRequest;
+import com.wrapper.spotify.methods.TrackSearchRequest;
+import com.wrapper.spotify.models.Page;
+import com.wrapper.spotify.models.Track;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.PermissionException;
@@ -31,6 +36,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
+
+import static tk.ardentbot.Main.Ardent.spotifyApi;
 
 @SuppressWarnings("Duplicates")
 public class Music extends Command {
@@ -75,6 +82,7 @@ public class Music extends Command {
 
     public static synchronized GuildMusicManager getGuildAudioPlayer(Guild guild, MessageChannel channel) {
         long guildId = Long.parseLong(guild.getId());
+        System.out.println(GuildUtils.getShard(guild));
         GuildMusicManager musicManager = GuildUtils.getShard(guild).musicManagers.get(guildId);
 
         if (musicManager == null) {
@@ -131,8 +139,22 @@ public class Music extends Command {
 
     private static void loadAndPlay(User user, Command command, Language language, final TextChannel channel,
                                     String trackUrl, final VoiceChannel voiceChannel, boolean search) {
+        if (trackUrl.contains("spotify.com")) {
+            String[] parsed = trackUrl.split("/track/");
+            if (parsed.length == 2) {
+                final TrackRequest request = spotifyApi.getTrack(parsed[1]).build();
+                try {
+                    trackUrl = request.get().getName();
+                }
+                catch (Exception e) {
+                    new BotException(e);
+                }
+            }
+        }
+
         Guild guild = channel.getGuild();
         GuildMusicManager musicManager = getGuildAudioPlayer(channel.getGuild(), channel);
+        String finalTrackUrl = trackUrl;
         GuildUtils.getShard(guild).playerManager.loadItemOrdered(musicManager, trackUrl, new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack track) {
@@ -212,7 +234,7 @@ public class Music extends Command {
             @Override
             public void noMatches() {
                 if (!search) {
-                    loadAndPlay(user, command, language, channel, "ytsearch: " + trackUrl, voiceChannel, true);
+                    loadAndPlay(user, command, language, channel, "ytsearch: " + finalTrackUrl, voiceChannel, true);
                 }
                 else {
                     try {
@@ -429,6 +451,70 @@ public class Music extends Command {
                                 });
                             }
                         }
+                    }
+                }
+                else sendRetrievedTranslation(channel, "tag", language, "invalidarguments", user);
+            }
+        });
+
+        subcommands.add(new Subcommand(this, "recommend") {
+            @Override
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
+                               Language language) throws Exception {
+                if (args.length > 2) {
+                    AudioManager audioManager = guild.getAudioManager();
+                    if (audioManager.isConnected()) {
+                        VoiceChannel connected = audioManager.getConnectedChannel();
+                        try {
+                            int amount = Integer.parseInt(args[2]);
+                            if (amount <= 0 || amount > 10) {
+                                sendRetrievedTranslation(channel, "music", language, "only10recommended", user);
+                                return;
+                            }
+                            GuildMusicManager manager = getGuildAudioPlayer(guild, channel);
+                            ArdentTrack ardentTrack = manager.scheduler.manager.getCurrentlyPlaying();
+                            if (ardentTrack == null) {
+                                sendRetrievedTranslation(channel, "music", language, "notplayingrn", user);
+                                return;
+                            }
+                            String[] nameArgs = ardentTrack.getTrack().getInfo().title.split(" ");
+                            StringBuilder name = new StringBuilder();
+                            for (String arg : nameArgs) {
+                                if (!arg.contains(".") && !arg.contains("(") && !arg.contains("[") && !arg.contains
+                                        ("~") && !arg.contains("+") && !arg.contains(")") && !arg.contains("]"))
+                                {
+                                    name.append(arg);
+                                }
+                                name.append(" ");
+                            }
+                            TrackSearchRequest trackSearchRequest = spotifyApi.searchTracks(name.toString()).build();
+                            try {
+                                Page<Track> tracks = trackSearchRequest.get();
+                                String id = tracks.getItems().get(0).getId();
+                                ArrayList<String> ids = new ArrayList<>();
+                                ids.add(id);
+                                RecommendationsRequest recommendationsRequest = spotifyApi.getRecommendations()
+                                        .tracks(ids)
+                                        .build();
+
+                                List<Track> recommendations = recommendationsRequest.get();
+                                System.out.println(recommendations.toString());
+                                for (int i = 0; i < amount; i++) {
+                                    loadAndPlay(user, Music.this, language, (TextChannel) channel, recommendations
+                                            .get(i).getName(), connected, false);
+                                }
+                            }
+                            catch (Exception e) {
+                                new BotException(e);
+                                channel.sendMessage("There were no recommendations available.").queue();
+                            }
+                        }
+                        catch (NumberFormatException e) {
+                            sendRetrievedTranslation(channel, "prune", language, "notanumber", user);
+                        }
+                    }
+                    else {
+                        sendRetrievedTranslation(channel, "music", language, "notinvoicechannel", user);
                     }
                 }
                 else sendRetrievedTranslation(channel, "tag", language, "invalidarguments", user);
@@ -655,7 +741,8 @@ public class Music extends Command {
 
                     sb.append(info.title + ": " + info.author + " " + getCurrentTime
                             (track) +
-                            "\n     *" + queuedBy + " " + UserUtils.getUserById(user.getId()).getName() + "*");
+                            "\n     *" + queuedBy + " " + UserUtils.getUserById(nowPlaying.getAuthor()).getName() +
+                            "*");
                     sendTranslatedMessage(sb.toString(), channel, user);
                 }
                 else sendRetrievedTranslation(channel, "music", language, "notplayingrn", user);

@@ -1,6 +1,5 @@
 package tk.ardentbot.BotCommands.BotInfo;
 
-import com.sun.management.OperatingSystemMXBean;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
@@ -16,8 +15,8 @@ import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.Discord.InternalStats;
 import tk.ardentbot.Utils.Discord.MessageUtils;
 import tk.ardentbot.Utils.Tuples.Pair;
+import tk.ardentbot.Utils.UsageUtils;
 
-import java.lang.management.ManagementFactory;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,14 +53,6 @@ public class Status extends Command {
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
             language) throws Exception {
         Shard shard = GuildUtils.getShard(guild);
-        OperatingSystemMXBean operatingSystemMXBean = (OperatingSystemMXBean) ManagementFactory
-                .getOperatingSystemMXBean();
-        double cpuUsage = operatingSystemMXBean.getSystemCpuLoad() + 0.01;
-        if (cpuUsage < 0) cpuUsage = 0.01;
-        DecimalFormat cpuFormat = new DecimalFormat("#0.00");
-
-        System.gc();
-
         double totalRAM = Runtime.getRuntime().totalMemory() / 1024 / 1024;
         double usedRAM = totalRAM - Runtime.getRuntime().freeMemory() / 1024 / 1024;
 
@@ -121,7 +112,7 @@ public class Status extends Command {
         embedBuilder.addField(translations.get(6).getTranslation(), String.valueOf(musicStats.getK()), true);
 
         embedBuilder.addField("Queue", String.valueOf(musicStats.getV()), true);
-        embedBuilder.addField(translations.get(7).getTranslation(), cpuFormat.format(cpuUsage) + "%", true);
+        embedBuilder.addField(translations.get(7).getTranslation(), UsageUtils.getProcessCpuLoad() + "%", true);
 
         embedBuilder.addField(translations.get(8).getTranslation(), usedRAM + " / " + totalRAM + " MB", true);
         embedBuilder.addField(translations.get(9).getTranslation(), devUsernames.toString(), true);
