@@ -31,7 +31,6 @@ public class GuildUtils {
         long bitwise = Long.parseLong(guild.getId()) >> 22;
         long modulus = bitwise % Ardent.shardCount;
         int numbered = (int) modulus;
-        System.out.println(guild.getId() + " | " + bitwise + " | " + numbered);
         return getShard(numbered);
     }
 
@@ -70,6 +69,7 @@ public class GuildUtils {
         HashMap<String, Integer> languageUses = new HashMap<>();
 
         // TODO: 3/4/2017 fix this 
+        // TODO: 3/19/2017 still waiting 
 
         return UsageUtils.sortByValue(languageUses);
     }

@@ -9,6 +9,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -89,5 +90,13 @@ public class ArdentMusicManager {
 
     public BlockingQueue<ArdentTrack> getQueue() {
         return queue;
+    }
+
+    public List<ArdentTrack> getQueueAsList() {
+        ArrayList<ArdentTrack> tracks = new ArrayList<>();
+        for (ArdentTrack ardentTrack : queue) {
+            tracks.add(ardentTrack);
+        }
+        return tracks;
     }
 }

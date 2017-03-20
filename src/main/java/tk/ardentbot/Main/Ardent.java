@@ -4,6 +4,7 @@ import com.google.code.chatterbotapi.ChatterBotSession;
 import com.wrapper.spotify.Api;
 import org.apache.commons.io.IOUtils;
 import tk.ardentbot.Core.WebServer.SparkServer;
+import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.Updaters.BotlistUpdater;
 import tk.ardentbot.Utils.Updaters.SpotifyTokenRefresh;
 
@@ -12,6 +13,7 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -19,7 +21,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class Ardent {
-    public static final boolean testingBot = false;
+    public static final boolean testingBot = true;
     public static Api spotifyApi;
     /**
      * Sharded
@@ -42,6 +44,9 @@ public class Ardent {
 
     public static String announcement;
     public static ConcurrentHashMap<String, Boolean> sentAnnouncement = new ConcurrentHashMap<>();
+
+    public static String mashapeKey;
+
 
     public static void main(String[] args) throws Exception {
         if (!testingBot) {
@@ -71,6 +76,15 @@ public class Ardent {
                     IOUtils.toString(new
                             FileReader(new File("C:\\Users\\AMR\\Desktop\\Ardent\\dbpassword.key"))));
         }
+
+        DatabaseAction getKeys = new DatabaseAction("SELECT * FROM APIKeys");
+        ResultSet keys = getKeys.request();
+        while (keys.next()) {
+            String id = keys.getString("Identifier");
+            String value = keys.getString("Value");
+            if (id.equalsIgnoreCase("mashape")) mashapeKey = value;
+        }
+        getKeys.close();
 
         ShardManager.register(shardCount);
         SparkServer.setup();

@@ -289,7 +289,9 @@ public class Music extends Command {
                         GuildMusicManager manager = getGuildAudioPlayer(guild, null, shard);
                         GuildVoiceState voiceState = guild.getSelfMember().getVoiceState();
                         if (voiceState.inVoiceChannel()) {
-                            TextChannel channel = guild.getPublicChannel();
+                            TextChannel channel = manager.scheduler.manager.getChannel();
+                            if (channel == null) channel = guild.getPublicChannel();
+
                             if (channel.canTalk()) {
                                 VoiceChannel voiceChannel = voiceState.getChannel();
                                 Language language = GuildUtils.getLanguage(guild);
@@ -482,7 +484,8 @@ public class Music extends Command {
                                     ().title).split(" ");
                             StringBuilder name = new StringBuilder();
                             for (String arg : nameArgs) {
-                                if (!arg.contains(".") && !arg.contains("+") && !arg.contains(":"))
+                                if (!arg.contains(".") && !arg.contains("+") && !arg.contains(":") && !arg.contains
+                                        ("//"))
                                 {
                                     name.append(arg);
                                 }
@@ -504,8 +507,7 @@ public class Music extends Command {
                                 }
                             }
                             catch (Exception e) {
-                                new BotException(e);
-                                channel.sendMessage("There were no recommendations available.").queue();
+                                channel.sendMessage("There were no recommendations available, sorry!").queue();
                             }
                         }
                         catch (NumberFormatException e) {

@@ -244,9 +244,9 @@ public class Shard {
                         .FUN)));
                 factory.registerCommand(new Tags(new BaseCommand.CommandSettings("tag", false, true, Category.FUN)));
                 factory.registerCommand(new tk.ardentbot.BotCommands.Fun.Translate(new BaseCommand.CommandSettings
-                        ("translate",
-                                true, true, Category
-                                .FUN)));
+                        ("translate", true, true, Category.FUN)));
+                factory.registerCommand(new Define(new BaseCommand.CommandSettings("define", true, true, Category
+                        .FUN)));
                 factory.registerCommand(new Roll(new BaseCommand.CommandSettings("roll", true, true, Category.FUN)));
                 // factory.registerCommand(new Coinflip(new BaseCommand.CommandSettings("coinflip", true, true, Category
                 // .FUN)));
