@@ -48,6 +48,7 @@ public class UserUtils {
             User user = shard.jda.getUserById(id);
             if (user != null) return user;
         }
+
         return null;
     }
 }

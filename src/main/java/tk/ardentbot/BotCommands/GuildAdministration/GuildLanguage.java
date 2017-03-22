@@ -70,6 +70,7 @@ public class GuildLanguage extends Command {
                     if (args.length == 3) {
                         Language changeTo = LangFactory.getLanguage(args[2]);
                         if (changeTo != null) {
+                            shard.botLanguageData.set(guild, changeTo.getIdentifier());
                             new DatabaseAction("UPDATE Guilds SET Language=? WHERE GuildID=?").set(changeTo
                                     .getIdentifier()).set(guild.getId()).update();
                             shard.botLanguageData.set(guild, changeTo.getIdentifier());

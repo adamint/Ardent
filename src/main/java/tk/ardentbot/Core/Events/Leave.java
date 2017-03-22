@@ -32,6 +32,7 @@ public class Leave {
         String id = guild.getId();
         Ardent.cleverbots.remove(id);
         shard.botPrefixData.remove(guild);
+        shard.botLanguageData.remove(guild);
         try {
             new DatabaseAction("DELETE FROM JoinEvents WHERE GuildID=?").set(id).update();
         }
@@ -52,7 +53,8 @@ public class Leave {
             TextChannel channel = guild.getTextChannelById(channelId);
             if (channel != null) {
                 try {
-                    leave = leave.replace("{user}", left.getUser().getName()).replace("{servername}", guild.getName()).replace("{amtusers}", String.valueOf(guild.getMembers().size()));
+                    leave = leave.replace("{user}", left.getUser().getName()).replace("{servername}", guild.getName()
+                    ).replace("{amtusers}", String.valueOf(guild.getMembers().size()));
                     channel.sendMessage(leave).queue();
                 }
                 catch (PermissionException ex) {

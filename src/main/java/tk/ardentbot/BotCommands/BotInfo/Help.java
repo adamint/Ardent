@@ -53,7 +53,7 @@ public class Help extends Command {
             description.append("**" + WordUtils.capitalize(category.name().toLowerCase()) + "**\n");
             ArrayList<BaseCommand> commandsInCategory = getCommandsInCategory(category);
             for (BaseCommand baseCommand : commandsInCategory) {
-                description.append("`" + baseCommand.getName(language) + "` ");
+                description.append("`" + baseCommand.getName(language) + "`  ");
             }
             description.append("\n");
         }

@@ -132,6 +132,10 @@ public class Admin extends Command {
                     }
                     System.exit(0);
                 }
+                else if (args[1].equalsIgnoreCase("setgameurl")) {
+                    Ardent.gameUrl = args[2];
+                    sendTranslatedMessage("Updated the game URL", channel, user);
+                }
             }
         }
         else sendRetrievedTranslation(channel, "other", language, "needdeveloperpermission", user);

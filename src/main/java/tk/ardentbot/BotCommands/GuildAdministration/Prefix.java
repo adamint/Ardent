@@ -40,11 +40,14 @@ public class Prefix extends Command {
                     if (guild.getMember(user).hasPermission(Permission.MANAGE_SERVER)) {
                         String newPrefix = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " +
                                 "" + args[1] + " ", "");
+                        if (newPrefix.length() == message.getRawContent().length()) {
+                            newPrefix = message.getRawContent().replace("/" + args[0] + " " + args[1] + " ", "");
+                        }
+                        GuildUtils.updatePrefix(newPrefix, guild);
                         new DatabaseAction("UPDATE Guilds SET Prefix=? WHERE GuildID=?").set(newPrefix).set(guild
                                 .getId()).update();
                         sendTranslatedMessage(getTranslation("prefix", language, "successfullyupdated")
                                 .getTranslation().replace("{0}", newPrefix), channel, user);
-                        GuildUtils.updatePrefix(newPrefix, guild);
                     }
                     else {
                         sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);

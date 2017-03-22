@@ -147,6 +147,7 @@ public class CommandFactory {
                         updateLanguage.update();
                         command.sendRetrievedTranslation(channel, "language", LangFactory.getLanguage("english"),
                                 "changedlanguage", user);
+                        getShard().botLanguageData.set(guild, toChange.getIdentifier());
                     }
                     else command.sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
                 }
@@ -158,7 +159,10 @@ public class CommandFactory {
                 }
             }
             else {
-                Queue<CommandTranslation> commandNames = language.getCommandTranslations();
+                Queue<CommandTranslation> commandNames;
+                if (originalLanguage != null) commandNames = originalLanguage.getCommandTranslations();
+                else commandNames = language.getCommandTranslations();
+
                 if (event.getAuthor().isBot()) return;
                 if (channel instanceof PrivateChannel) {
                     if (args[0].startsWith("/")) {
@@ -196,6 +200,7 @@ public class CommandFactory {
                     }
                 }
                 else {
+                    final boolean[] ranCommand = {false};
                     String pre = StringEscapeUtils.escapeJava(prefix);
                     if (args[0].startsWith(pre)) {
                         args[0] = args[0].replaceFirst(pre, "");
@@ -210,13 +215,11 @@ public class CommandFactory {
                                 });
                             });
                         }
-
-                        final boolean[] ranCommand = {false};
-
                         commandNames.forEach(commandTranslation -> {
-                            String translation = commandTranslation.getTranslation().replace(" ", "").replace(":", "");
+                            String translation = StringUtils.stripAccents(commandTranslation.getTranslation().replace
+                                    (" ", "").replace(":", ""));
                             String identifier = commandTranslation.getIdentifier();
-                            if (translation.equalsIgnoreCase(args[0])) {
+                            if (translation.equalsIgnoreCase(StringUtils.stripAccents(args[0]))) {
                                 baseCommands.stream().filter(command -> command.getCommandIdentifier().equalsIgnoreCase
                                         (identifier)).forEach(command -> {
                                     try {
@@ -255,13 +258,13 @@ public class CommandFactory {
                                 });
                             }
                         });
-                        if (!ranCommand[0]) {
-                            if (language != LangFactory.english) {
-                                pass(event, LangFactory.english, language, prefix);
-                            }
-                            else if (!prefix.equalsIgnoreCase("/")) {
-                                pass(event, language, originalLanguage, "/");
-                            }
+                    }
+                    if (!ranCommand[0]) {
+                        if (language != LangFactory.english) {
+                            pass(event, LangFactory.english, null, prefix);
+                        }
+                        else if (!prefix.equalsIgnoreCase("/")) {
+                            pass(event, null, language, "/");
                         }
                     }
                 }

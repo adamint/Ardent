@@ -29,7 +29,6 @@ import tk.ardentbot.BotCommands.GuildInfo.GuildInfo;
 import tk.ardentbot.BotCommands.GuildInfo.Whois;
 import tk.ardentbot.BotCommands.Music.GuildMusicManager;
 import tk.ardentbot.BotCommands.Music.Music;
-import tk.ardentbot.BotCommands.Music.StuckVoiceConnection;
 import tk.ardentbot.Core.BotData.BotLanguageData;
 import tk.ardentbot.Core.BotData.BotMuteData;
 import tk.ardentbot.Core.BotData.BotPrefixData;
@@ -43,6 +42,7 @@ import tk.ardentbot.Core.LoggingUtils.BotException;
 import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Utils.Discord.InternalStats;
+import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.SQL.MuteDaemon;
 import tk.ardentbot.Utils.Updaters.GuildDaemon;
 import tk.ardentbot.Utils.Updaters.PermissionsDaemon;
@@ -54,6 +54,7 @@ import twitter4j.conf.ConfigurationBuilder;
 
 import java.io.File;
 import java.io.FileReader;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -145,22 +146,6 @@ public class Shard {
                 jda.addEventListener(new Join());
                 jda.addEventListener(new Leave());
 
-                // Add languages
-                languages = new ArrayList<>();
-                languages.add(LangFactory.english);
-                languages.add(LangFactory.french);
-                languages.add(LangFactory.turkish);
-                languages.add(LangFactory.croatian);
-                languages.add(LangFactory.romanian);
-                languages.add(LangFactory.portugese);
-                languages.add(LangFactory.german);
-                languages.add(LangFactory.cyrillicserbian);
-                languages.add(LangFactory.dutch);
-                languages.add(LangFactory.emoji);
-                languages.add(LangFactory.arabic);
-                languages.add(LangFactory.hindi);
-                languages.add(LangFactory.spanish);
-
                 crowdinLanguages.add(LangFactory.croatian);
                 crowdinLanguages.add(LangFactory.french);
                 crowdinLanguages.add(LangFactory.turkish);
@@ -190,13 +175,10 @@ public class Shard {
                 translateForArdent = new TranslateForArdent(new BaseCommand.CommandSettings("translateforardent", true,
                         true, Category.BOTINFO));
                 getDevHelp = new Bug(new BaseCommand.CommandSettings("getdevhelp", false, true, Category.BOTINFO));
-                manage = new Manage(new BaseCommand.CommandSettings("manage", false, true, Category
-                        .BOTADMINISTRATION));
-                // Register tk.ardentbot.CommandExecution
-                factory.registerCommand(new AddEnglishBase(new BaseCommand.CommandSettings("addenglishbase", true, true,
-                        Category
 
-                                .BOTADMINISTRATION)));
+                manage = new Manage(new BaseCommand.CommandSettings("manage", false, true, Category.BOTADMINISTRATION));
+                factory.registerCommand(new AddEnglishBase(new BaseCommand.CommandSettings("addenglishbase", true, true,
+                        Category.BOTADMINISTRATION)));
                 factory.registerCommand(new Todo(new BaseCommand.CommandSettings("todo", true, true, Category
                         .BOTADMINISTRATION)));
                 factory.registerCommand(new Tweet(new BaseCommand.CommandSettings("tweet", true, true, Category
@@ -206,6 +188,10 @@ public class Shard {
                 factory.registerCommand(new Eval(new BaseCommand.CommandSettings("eval", true, true, Category
                         .BOTADMINISTRATION)));
                 factory.registerCommand(manage);
+                factory.registerCommand(new Botname(new BaseCommand.CommandSettings("botname", false, true, Category
+                        .BOTADMINISTRATION)));
+                factory.registerCommand(new Request(new BaseCommand.CommandSettings("request", true, true, Category
+                        .BOTADMINISTRATION)));
 
                 factory.registerCommand(new About(new BaseCommand.CommandSettings("about", true, true, Category
                         .BOTINFO)));
@@ -222,8 +208,6 @@ public class Shard {
                 factory.registerCommand(new Joinmessage(new BaseCommand.CommandSettings("joinmessage", true, true,
                         Category.BOTINFO)));
                 factory.registerCommand(new Status(new BaseCommand.CommandSettings("status", true, true, Category
-                        .BOTINFO)));
-                factory.registerCommand(new Request(new BaseCommand.CommandSettings("request", true, true, Category
                         .BOTINFO)));
                 factory.registerCommand(new Ping(new BaseCommand.CommandSettings("ping", true, true, Category
                         .BOTINFO)));
@@ -282,8 +266,6 @@ public class Shard {
                         .GUILDINFO)));
                 factory.registerCommand(new Whois(new BaseCommand.CommandSettings("whois", true, true, Category
                         .GUILDINFO)));
-                factory.registerCommand(new Botname(new BaseCommand.CommandSettings("botname", false, true, Category
-                        .GUILDINFO)));
                 /*
                 factory.registerCommand(new Points(new BaseCommand.CommandSettings("points", false, true, Category
                         .GUILDINFO)));
@@ -309,6 +291,17 @@ public class Shard {
                     Ardent.cleverbots.put(guild.getId(), cleverBot.createSession());
                 }));
 
+                DatabaseAction putGuildData = new DatabaseAction("SELECT * FROM Guilds");
+                ResultSet guildDataSet = putGuildData.request();
+                while (guildDataSet.next()) {
+                    String guildId = guildDataSet.getString("GuildID");
+                    String lang = guildDataSet.getString("Language");
+                    String prefix = guildDataSet.getString("Prefix");
+                    botLanguageData.set(guildId, lang);
+                    botPrefixData.set(guildId, prefix);
+                }
+                putGuildData.close();
+
                 executorService.scheduleAtFixedRate(() -> {
                     String game = null;
                     switch (gameCounter) {
@@ -321,10 +314,8 @@ public class Shard {
                         case 2:
                             game = "Music for " + Status.getVoiceConnections() + " servers (on this shard)";
                             break;
-                        default:
-                            game = "with many languages";
                     }
-                    jda.getPresence().setGame(Game.of(game, url));
+                    jda.getPresence().setGame(Game.of(game, Ardent.gameUrl));
 
                     if (gameCounter == 2) gameCounter = 0;
                     else gameCounter++;
@@ -334,9 +325,6 @@ public class Shard {
                 // On hold for a bit
                 // PhraseUpdater phraseUpdater = new PhraseUpdater();
                 // TranslationUpdater translationUpdater = new TranslationUpdater();
-
-                StuckVoiceConnection playerStuckDaemon = new StuckVoiceConnection();
-                executorService.scheduleAtFixedRate(playerStuckDaemon, 10, 10, TimeUnit.SECONDS);
 
                 WebsiteDaemon websiteDaemon = new WebsiteDaemon();
                 executorService.scheduleAtFixedRate(websiteDaemon, 5, 15, TimeUnit.SECONDS);
