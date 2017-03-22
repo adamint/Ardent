@@ -12,7 +12,7 @@ import tk.ardentbot.Core.Events.Join;
 import tk.ardentbot.Core.Events.Leave;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Utils.Discord.MessageUtils;
-import tk.ardentbot.Utils.UsageUtils;
+import tk.ardentbot.Utils.Discord.UsageUtils;
 
 import java.awt.*;
 import java.time.Instant;

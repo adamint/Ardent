@@ -8,7 +8,6 @@ import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
-import tk.ardentbot.Utils.UsageUtils;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -28,6 +27,7 @@ public class GuildUtils {
     }
 
     public static Shard getShard(Guild guild) {
+        if (guild == null) return null;
         long bitwise = Long.parseLong(guild.getId()) >> 22;
         long modulus = bitwise % Ardent.shardCount;
         int numbered = (int) modulus;

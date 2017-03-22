@@ -9,7 +9,7 @@ import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Utils.Discord.GuildUtils;
-import tk.ardentbot.Utils.UsageUtils;
+import tk.ardentbot.Utils.Discord.UsageUtils;
 
 import java.util.Map;
 import java.util.Timer;

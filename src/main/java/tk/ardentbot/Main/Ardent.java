@@ -21,7 +21,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class Ardent {
-    public static final boolean testingBot = true;
+    public static final boolean testingBot = false;
     public static Api spotifyApi;
     /**
      * Sharded

@@ -41,7 +41,7 @@ public class Define extends Command {
 
             if (isMidnight) requests = 0;
             else {
-                if (requests < 2500) {
+                if (requests < 2000) {
                     Shard shard = getShard();
                     String query = message.getContent().replace(GuildUtils.getPrefix(guild) + args[0] + " ", "");
                     try {

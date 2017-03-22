@@ -1,4 +1,4 @@
-package tk.ardentbot.Utils;
+package tk.ardentbot.Utils.Discord;
 
 import net.dv8tion.jda.core.entities.Guild;
 import org.eclipse.jetty.util.ConcurrentArrayQueue;
@@ -11,6 +11,7 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static tk.ardentbot.Main.Ardent.shard0;
@@ -41,14 +42,13 @@ public class UsageUtils {
     }
 
     public static boolean isGuildFirstInCommands(Guild guild) {
-        /*ConcurrentHashMap<String, Integer> commandsByGuild = Status.commandsByGuild;
+        ConcurrentHashMap<String, Integer> commandsByGuild = Status.commandsByGuild;
         final boolean[] first = {true};
         int guildCommands = commandsByGuild.get(guild.getId());
         commandsByGuild.forEach((key, value) -> {
             if (guildCommands < value) first[0] = false;
         });
-        return first[0];*/
-        return false;
+        return first[0];
     }
 
     public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {

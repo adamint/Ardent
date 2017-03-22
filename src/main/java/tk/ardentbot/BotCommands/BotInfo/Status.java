@@ -14,8 +14,8 @@ import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.Discord.InternalStats;
 import tk.ardentbot.Utils.Discord.MessageUtils;
+import tk.ardentbot.Utils.Discord.UsageUtils;
 import tk.ardentbot.Utils.Tuples.Pair;
-import tk.ardentbot.Utils.UsageUtils;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;

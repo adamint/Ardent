@@ -13,10 +13,13 @@ public class Patreon extends Command {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
-        sendTranslatedMessage(getTranslation("patreon", language, "link").getTranslation(), channel, user);
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
+            language) throws Exception {
+        sendTranslatedMessage(getTranslation("patreon", language, "link").getTranslation() + "\n" + getTranslation
+                ("patreon", language, "atleast2").getTranslation(), channel, user);
     }
 
     @Override
-    public void setupSubcommands() {}
+    public void setupSubcommands() {
+    }
 }
