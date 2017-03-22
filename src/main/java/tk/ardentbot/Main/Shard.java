@@ -248,8 +248,8 @@ public class Shard {
                 factory.registerCommand(new Define(new BaseCommand.CommandSettings("define", true, true, Category
                         .FUN)));
                 factory.registerCommand(new Roll(new BaseCommand.CommandSettings("roll", true, true, Category.FUN)));
-                // factory.registerCommand(new Coinflip(new BaseCommand.CommandSettings("coinflip", true, true, Category
-                // .FUN)));
+                factory.registerCommand(new Coinflip(new BaseCommand.CommandSettings("coinflip", true, true, Category
+                        .FUN)));
 
                 factory.registerCommand(new Prefix(new BaseCommand.CommandSettings("prefix", false, true, Category
                         .GUILDADMINISTRATION)));
