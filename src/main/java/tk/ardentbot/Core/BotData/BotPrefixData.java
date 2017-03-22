@@ -23,6 +23,10 @@ public class BotPrefixData {
         return guildPrefixes.get(guild.getId());
     }
 
+    public void set(String guildId, String language) {
+        guildPrefixes.putIfAbsent(guildId, language);
+    }
+
     public void set(Guild guild, String prefix) {
         guildPrefixes.put(guild.getId(), prefix);
     }

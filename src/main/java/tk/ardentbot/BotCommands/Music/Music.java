@@ -26,6 +26,7 @@ import tk.ardentbot.Main.ShardManager;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.Discord.UserUtils;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
+import tk.ardentbot.Utils.StringUtils;
 import tk.ardentbot.Utils.Tuples.Pair;
 
 import java.sql.ResultSet;
@@ -288,7 +289,9 @@ public class Music extends Command {
                         GuildMusicManager manager = getGuildAudioPlayer(guild, null, shard);
                         GuildVoiceState voiceState = guild.getSelfMember().getVoiceState();
                         if (voiceState.inVoiceChannel()) {
-                            TextChannel channel = guild.getPublicChannel();
+                            TextChannel channel = manager.scheduler.manager.getChannel();
+                            if (channel == null) channel = guild.getPublicChannel();
+
                             if (channel.canTalk()) {
                                 VoiceChannel voiceChannel = voiceState.getChannel();
                                 Language language = GuildUtils.getLanguage(guild);
@@ -477,11 +480,12 @@ public class Music extends Command {
                                 sendRetrievedTranslation(channel, "music", language, "notplayingrn", user);
                                 return;
                             }
-                            String[] nameArgs = ardentTrack.getTrack().getInfo().title.split(" ");
+                            String[] nameArgs = StringUtils.removeBracketsParentheses(ardentTrack.getTrack().getInfo
+                                    ().title).split(" ");
                             StringBuilder name = new StringBuilder();
                             for (String arg : nameArgs) {
-                                if (!arg.contains(".") && !arg.contains("(") && !arg.contains("[") && !arg.contains
-                                        ("~") && !arg.contains("+") && !arg.contains(")") && !arg.contains("]"))
+                                if (!arg.contains(".") && !arg.contains("+") && !arg.contains(":") && !arg.contains
+                                        ("//"))
                                 {
                                     name.append(arg);
                                 }
@@ -496,17 +500,14 @@ public class Music extends Command {
                                 RecommendationsRequest recommendationsRequest = spotifyApi.getRecommendations()
                                         .tracks(ids)
                                         .build();
-
                                 List<Track> recommendations = recommendationsRequest.get();
-                                System.out.println(recommendations.toString());
                                 for (int i = 0; i < amount; i++) {
                                     loadAndPlay(user, Music.this, language, (TextChannel) channel, recommendations
                                             .get(i).getName(), connected, false);
                                 }
                             }
                             catch (Exception e) {
-                                new BotException(e);
-                                channel.sendMessage("There were no recommendations available.").queue();
+                                channel.sendMessage("There were no recommendations available, sorry!").queue();
                             }
                         }
                         catch (NumberFormatException e) {

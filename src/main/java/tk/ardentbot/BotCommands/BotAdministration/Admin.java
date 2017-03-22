@@ -9,7 +9,7 @@ import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Utils.Discord.GuildUtils;
-import tk.ardentbot.Utils.UsageUtils;
+import tk.ardentbot.Utils.Discord.UsageUtils;
 
 import java.util.Map;
 import java.util.Timer;
@@ -131,6 +131,10 @@ public class Admin extends Command {
                         shard.jda.shutdown(true);
                     }
                     System.exit(0);
+                }
+                else if (args[1].equalsIgnoreCase("setgameurl")) {
+                    Ardent.gameUrl = args[2];
+                    sendTranslatedMessage("Updated the game URL", channel, user);
                 }
             }
         }

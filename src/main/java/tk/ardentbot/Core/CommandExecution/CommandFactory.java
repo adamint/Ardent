@@ -9,6 +9,7 @@ import net.dv8tion.jda.core.exceptions.PermissionException;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.util.ConcurrentArrayQueue;
+import tk.ardentbot.BotCommands.BotInfo.Status;
 import tk.ardentbot.Core.LoggingUtils.BotException;
 import tk.ardentbot.Core.Models.CommandTranslation;
 import tk.ardentbot.Core.Translation.LangFactory;
@@ -16,6 +17,7 @@ import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Utils.Discord.GuildUtils;
+import tk.ardentbot.Utils.Discord.UsageUtils;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 
 import java.sql.ResultSet;
@@ -114,47 +116,53 @@ public class CommandFactory {
      * @param event the MessageReceivedEvent to be handled
      * @throws Exception this will create a BotException
      */
-    public void pass(MessageReceivedEvent event) throws Exception {
+    public void pass(MessageReceivedEvent event, Language language, Language originalLanguage, String prefix) throws
+            Exception {
         try {
             User user = event.getAuthor();
             Message message = event.getMessage();
             MessageChannel channel = event.getChannel();
             String[] args = message.getContent().split(" ");
             Guild guild = event.getGuild();
-            Language language = GuildUtils.getLanguage(guild);
-            if (message.getRawContent().startsWith("<@!" + shard.bot.getId() + ">")) {
+            String rawContent = message.getRawContent();
+            String mentionedContent = null;
+            if (rawContent.startsWith("<@!" + shard.bot.getId() + ">")) {
+                mentionedContent = rawContent.replace("<@!" + shard.bot.getId() + ">", "");
+            }
+            else if (rawContent.startsWith("<@" + shard.bot.getId() + ">")) {
+                mentionedContent = rawContent.replace("<@" + shard.bot.getId() + ">", "");
+            }
+            if (mentionedContent != null) {
+                mentionedContent = mentionedContent.replace(" ", "");
+                Language toChange = null;
                 Command command = shard.help.botCommand;
-                if (message.getRawContent().replace("<@!" + shard.bot.getId() + ">", "").length() == 0) {
+                for (Language l : LangFactory.languages) {
+                    if (l.getIdentifier().equalsIgnoreCase(mentionedContent)) toChange = l;
+                }
+                if (toChange != null) {
+                    if (GuildUtils.hasManageServerPermission(guild.getMember(event.getAuthor()))) {
+                        DatabaseAction updateLanguage = new DatabaseAction("UPDATE Guilds SET Language=? " +
+                                "WHERE" +
+                                " GuildID=?").set(toChange.getIdentifier()).set(guild.getId());
+                        updateLanguage.update();
+                        command.sendRetrievedTranslation(channel, "language", LangFactory.getLanguage("english"),
+                                "changedlanguage", user);
+                        getShard().botLanguageData.set(guild, toChange.getIdentifier());
+                    }
+                    else command.sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
+                }
+                else {
                     command.sendTranslatedMessage(command.getTranslation("other", language, "mentionedhelp")
                             .getTranslation()
                             .replace("{0}", GuildUtils.getPrefix(guild) +
                                     command.getName(language)), channel, user);
                 }
-                else {
-                    if (guild != null) {
-                        if (message.getRawContent().equalsIgnoreCase(shard.bot.getAsMention() + " english")) {
-                            if (GuildUtils.hasManageServerPermission(guild.getMember(event.getAuthor()))) {
-                                DatabaseAction updateLanguage = new DatabaseAction("UPDATE Guilds SET Language=? " +
-                                        "WHERE" +
-                                        " GuildID=?").set("english").set(guild.getId());
-                                updateLanguage.update();
-                                command.sendRetrievedTranslation(channel, "language", LangFactory.getLanguage("english"),
-                                        "changedlanguage", user);
-                            }
-                            else command.sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
-                        }
-                        // On hold until I can find a suitable pandorabot or other chatbot api
-                        /* else {
-                            String query = message.getContent().replace(GuildUtils.getPrefix(guild) + args[0] + " ",
-                            "");
-                            ChatterBotSession session = getBotSession(guild);
-                            command.sendTranslatedMessage(session.think(query), channel);
-                        }*/
-                    }
-                }
             }
             else {
-                Queue<CommandTranslation> commandNames = language.getCommandTranslations();
+                Queue<CommandTranslation> commandNames;
+                if (originalLanguage != null) commandNames = originalLanguage.getCommandTranslations();
+                else commandNames = language.getCommandTranslations();
+
                 if (event.getAuthor().isBot()) return;
                 if (channel instanceof PrivateChannel) {
                     if (args[0].startsWith("/")) {
@@ -192,9 +200,10 @@ public class CommandFactory {
                     }
                 }
                 else {
-                    String prefix = StringEscapeUtils.escapeJava(GuildUtils.getPrefix(guild));
-                    if (args[0].startsWith(prefix)) {
-                        args[0] = args[0].replaceFirst(prefix, "");
+                    final boolean[] ranCommand = {false};
+                    String pre = StringEscapeUtils.escapeJava(prefix);
+                    if (args[0].startsWith(pre)) {
+                        args[0] = args[0].replaceFirst(pre, "");
                         Emoji emoji = EmojiManager.getByUnicode(args[0]);
                         if (emoji != null) {
                             emoji.getAliases().forEach(alias -> {
@@ -206,16 +215,16 @@ public class CommandFactory {
                                 });
                             });
                         }
-
                         commandNames.forEach(commandTranslation -> {
-                            String translation = commandTranslation.getTranslation().replace(" ", "").replace(":", "");
+                            String translation = StringUtils.stripAccents(commandTranslation.getTranslation().replace
+                                    (" ", "").replace(":", ""));
                             String identifier = commandTranslation.getIdentifier();
-                            if (translation.equalsIgnoreCase(args[0])) {
+                            if (translation.equalsIgnoreCase(StringUtils.stripAccents(args[0]))) {
                                 baseCommands.stream().filter(command -> command.getCommandIdentifier().equalsIgnoreCase
                                         (identifier)).forEach(command -> {
                                     try {
                                         command.botCommand.usages++;
-                                       /* boolean beforeCmdFirst = UsageUtils.isGuildFirstInCommands(guild);
+                                        boolean beforeCmdFirst = UsageUtils.isGuildFirstInCommands(guild);
                                         int oldCommandAmount = Status.commandsByGuild.get(guild.getId());
                                         Status.commandsByGuild.replace(guild.getId(), oldCommandAmount,
                                                 oldCommandAmount + 1);
@@ -224,16 +233,24 @@ public class CommandFactory {
                                         if (!beforeCmdFirst && afterCmdFirst) {
                                             command.botCommand.sendRetrievedTranslation(channel, "other",
                                                     language, "firstincommands", user);
-                                        }*/
-
-                                        shard.executorService.execute(new AsyncCommandExecutor(command.botCommand, guild, channel,
-                                                event.getAuthor(), message, args, language, user));
+                                        }
+                                        if (originalLanguage != null) {
+                                            shard.executorService.execute(new AsyncCommandExecutor(command.botCommand,
+                                                    guild, channel,
+                                                    event.getAuthor(), message, args, originalLanguage, user));
+                                        }
+                                        else {
+                                            shard.executorService.execute(new AsyncCommandExecutor(command.botCommand,
+                                                    guild, channel,
+                                                    event.getAuthor(), message, args, language, user));
+                                        }
                                         commandsReceived++;
 
                                         new DatabaseAction("INSERT INTO CommandsReceived " +
                                                 "VALUES (?,?,?,?)").set(guild.getId()).set(event.getAuthor().getId())
                                                 .set(command.getCommandIdentifier()).set(Timestamp.from(Instant.now()
                                         )).update();
+                                        ranCommand[0] = true;
                                     }
                                     catch (Exception e) {
                                         new BotException(e);
@@ -241,6 +258,14 @@ public class CommandFactory {
                                 });
                             }
                         });
+                    }
+                    if (!ranCommand[0]) {
+                        if (language != LangFactory.english) {
+                            pass(event, LangFactory.english, null, prefix);
+                        }
+                        else if (!prefix.equalsIgnoreCase("/")) {
+                            pass(event, null, language, "/");
+                        }
                     }
                 }
             }

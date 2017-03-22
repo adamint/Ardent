@@ -5,6 +5,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
+import org.apache.commons.lang.WordUtils;
 import tk.ardentbot.Core.CommandExecution.BaseCommand;
 import tk.ardentbot.Core.CommandExecution.Category;
 import tk.ardentbot.Core.CommandExecution.Command;
@@ -14,7 +15,6 @@ import tk.ardentbot.Core.Translation.Translation;
 import tk.ardentbot.Core.Translation.TranslationResponse;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.Discord.MessageUtils;
-import tk.ardentbot.Utils.UsageUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,24 +47,23 @@ public class Help extends Command {
         description.append("\n > " + getShard().patreon.getName(language) + ": *" + getShard().patreon.getDescription
                 (language) + "*");
         description.append("\n > " + getShard().translateForArdent.getName(language) + ": *" + getShard()
-                .translateForArdent
-                .getDescription
-                (language) + "*");
-        description.append("\n > " + getShard().manage.getName(language) + ": *" + getShard().manage.getDescription(language)
-                + "*");
+                .translateForArdent.getDescription(language) + "*\n\n");
 
-        ArrayList<BaseCommand> byUsage = UsageUtils.orderByUsageDesc();
-        for (int i = 0; i < 3; i++) {
-            Command botCommand = byUsage.get(i).getBotCommand();
-            description.append("\n > " + botCommand.getName(language) + ": *" + botCommand.getDescription(language) +
-                    "*");
+        for (Category category : Category.values()) {
+            description.append("**" + WordUtils.capitalize(category.name().toLowerCase()) + "**\n");
+            ArrayList<BaseCommand> commandsInCategory = getCommandsInCategory(category);
+            for (BaseCommand baseCommand : commandsInCategory) {
+                description.append("`" + baseCommand.getName(language) + "`  ");
+            }
+            description.append("\n");
         }
-        description.append("\n\n**" + responses.get(1).getTranslation() + "**");
+
+        description.append("\n**" + responses.get(1).getTranslation() + "**");
         for (Category category : Category.values()) {
             description.append("\n > *" + Category.getName(category) + "*");
         }
 
-        description.append("\n\n" + responses.get(2).getTranslation().replace("{0}", GuildUtils.getPrefix(guild) +
+        description.append("\n" + responses.get(2).getTranslation().replace("{0}", GuildUtils.getPrefix(guild) +
                 args[0]));
         description.append("\n" + responses.get(3).getTranslation().replace("{0}", GuildUtils.getPrefix(guild) +
                 args[0]).replace("{1}", all.getName(language)));

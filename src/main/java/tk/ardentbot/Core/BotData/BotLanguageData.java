@@ -23,8 +23,11 @@ public class BotLanguageData {
         getLanguages.close();
     }
 
+    public void set(String guildId, String language) {
+        guildLanguages.put(guildId, language);
+    }
     public void set(Guild guild, String language) {
-        guildLanguages.putIfAbsent(guild.getId(), language);
+        guildLanguages.put(guild.getId(), language);
     }
 
     public Language getLanguage(Guild guild) {
@@ -37,10 +40,13 @@ public class BotLanguageData {
             }
             catch (NullPointerException e) {
                 botLogsShard.botLogs.sendMessage(guild.getId() + " - failed to retrieve their language, returned " +
-                        "english")
-                        .queue();
+                        "english").queue();
             }
             return LangFactory.english;
         }
+    }
+
+    public void remove(Guild guild) {
+        guildLanguages.remove(guild.getId());
     }
 }

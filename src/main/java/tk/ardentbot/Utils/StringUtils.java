@@ -11,6 +11,30 @@ public class StringUtils {
         else return -1;
     };
 
+    public static String removeBracketsParentheses(String input) {
+        int leftBracketPlace = 666666;
+        int rightBracketPlace = 666666;
+        int leftParenthesesPlace = 666666;
+        int rightParenthesesPlace = 666666;
+        char[] inputCharacterArray = input.toCharArray();
+        for (int i = 0; i < inputCharacterArray.length; i++) {
+            char current = inputCharacterArray[i];
+            if (current == '[') leftBracketPlace = i;
+            else if (current == ']') rightBracketPlace = i;
+            else if (current == '(') leftParenthesesPlace = i;
+            else if (current == ')') rightParenthesesPlace = i;
+        }
+        if (leftBracketPlace != 666666 && rightBracketPlace != 666666) {
+            String substring = input.substring(0, leftBracketPlace) + input.substring(rightBracketPlace + 1);
+            return removeBracketsParentheses(substring);
+        }
+        if (leftParenthesesPlace != 666666 && rightParenthesesPlace != 666666) {
+            String substring = input.substring(0, leftParenthesesPlace) + input.substring(rightParenthesesPlace + 1);
+            return removeBracketsParentheses(substring);
+        }
+        return input;
+    }
+
     public static String concantenate(int start, String[] array) {
         StringBuilder sb = new StringBuilder();
         for (int i = start; i < array.length; i++) {
