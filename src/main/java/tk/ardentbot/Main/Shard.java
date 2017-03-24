@@ -83,7 +83,7 @@ public class Shard {
     public BaseCommand patreon;
     public BaseCommand translateForArdent;
     public BaseCommand getDevHelp;
-    public BaseCommand manage;
+    public BaseCommand request;
     public String url = "https://ardentbot.tk";
     public Gson gson = new Gson();
     private int gameCounter = 0;
@@ -175,8 +175,9 @@ public class Shard {
                 translateForArdent = new TranslateForArdent(new BaseCommand.CommandSettings("translateforardent", true,
                         true, Category.BOTINFO));
                 getDevHelp = new Bug(new BaseCommand.CommandSettings("getdevhelp", false, true, Category.BOTINFO));
+                request = new Request(new BaseCommand.CommandSettings("request", true, true, Category
+                        .BOTADMINISTRATION));
 
-                manage = new Manage(new BaseCommand.CommandSettings("manage", false, true, Category.BOTADMINISTRATION));
                 factory.registerCommand(new AddEnglishBase(new BaseCommand.CommandSettings("addenglishbase", true, true,
                         Category.BOTADMINISTRATION)));
                 factory.registerCommand(new Todo(new BaseCommand.CommandSettings("todo", true, true, Category
@@ -187,11 +188,10 @@ public class Shard {
                         .BOTADMINISTRATION)));
                 factory.registerCommand(new Eval(new BaseCommand.CommandSettings("eval", true, true, Category
                         .BOTADMINISTRATION)));
-                factory.registerCommand(manage);
+                factory.registerCommand(new Manage(new BaseCommand.CommandSettings("manage", false, true, Category.BOTADMINISTRATION)));
                 factory.registerCommand(new Botname(new BaseCommand.CommandSettings("botname", false, true, Category
                         .BOTADMINISTRATION)));
-                factory.registerCommand(new Request(new BaseCommand.CommandSettings("request", true, true, Category
-                        .BOTADMINISTRATION)));
+                factory.registerCommand(request);
 
                 factory.registerCommand(new About(new BaseCommand.CommandSettings("about", true, true, Category
                         .BOTINFO)));
@@ -233,6 +233,8 @@ public class Shard {
                         .FUN)));
                 factory.registerCommand(new Roll(new BaseCommand.CommandSettings("roll", true, true, Category.FUN)));
                 factory.registerCommand(new Coinflip(new BaseCommand.CommandSettings("coinflip", true, true, Category
+                        .FUN)));
+                factory.registerCommand(new RandomNum(new BaseCommand.CommandSettings("random", true, true, Category
                         .FUN)));
 
                 factory.registerCommand(new Prefix(new BaseCommand.CommandSettings("prefix", false, true, Category

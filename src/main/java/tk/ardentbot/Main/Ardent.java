@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 import static tk.ardentbot.Core.Translation.LangFactory.languages;
 
 public class Ardent {
-    public static final boolean testingBot = false;
+    public static boolean testingBot = false;
     public static Api spotifyApi;
     /**
      * Sharded
@@ -54,6 +54,7 @@ public class Ardent {
 
 
     public static void main(String[] args) throws Exception {
+        for (String s : args) if (s.equalsIgnoreCase("test")) testingBot = true;
         if (!testingBot) {
             spotifyApi = Api.builder()
                     .clientId("471f277107704e3b89d489284b65c6c6")

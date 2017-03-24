@@ -60,9 +60,15 @@ public class GuildUtils {
     }
 
     public static Language getLanguage(Guild guild) throws Exception {
-        Language language = getShard(guild).botLanguageData.getLanguage(guild);
-        if (language != null) return language;
-        else return LangFactory.english;
+        try {
+            Language language = getShard(guild).botLanguageData.getLanguage(guild);
+            if (language != null) return language;
+            else return LangFactory.english;
+        }
+        catch (Exception ex) {
+            getShard(guild).botLanguageData.set(guild, "english");
+            return LangFactory.english;
+        }
     }
 
     public static boolean hasManageServerPermission(Member member) {

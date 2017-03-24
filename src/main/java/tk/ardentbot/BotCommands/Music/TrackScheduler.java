@@ -26,6 +26,7 @@ public class TrackScheduler extends AudioEventAdapter {
         if (endReason.mayStartNext) {
             manager.nextTrack();
         }
+        manager.setCurrentlyPlaying(null);
     }
 
     @Override
@@ -38,6 +39,7 @@ public class TrackScheduler extends AudioEventAdapter {
     public void onTrackException(AudioPlayer player, AudioTrack track, FriendlyException exception) {
         onException(player, track, exception);
     }
+
 
     private void onException(AudioPlayer player, AudioTrack track, Object exception) {
         manager.nextTrack();

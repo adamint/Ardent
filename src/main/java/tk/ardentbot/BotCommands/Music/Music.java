@@ -393,37 +393,6 @@ public class Music extends Command {
 
     @Override
     public void setupSubcommands() throws Exception {
-        subcommands.add(new Subcommand(this, "volume") {
-            @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
-                               Language language) throws Exception {
-                AudioManager audioManager = guild.getAudioManager();
-                if (audioManager.isConnected()) {
-                    GuildMusicManager guildMusicManager = getGuildAudioPlayer(guild, channel);
-                    AudioPlayer player = guildMusicManager.player;
-                    if (args.length == 2) {
-                        sendTranslatedMessage(getTranslation("music", language, "currentplayervolume").getTranslation
-                                ().replace("{0}", String.valueOf(player.getVolume())), channel, user);
-                    }
-                    else {
-                        if (UserUtils.hasTierOnePermissions(user)) {
-                            try {
-                                int volume = Integer.parseInt(args[2]);
-                                player.setVolume(volume);
-                                sendTranslatedMessage(getTranslation("music", language, "setplayervolume")
-                                        .getTranslation()
-                                        .replace("{0}", String.valueOf(volume)), channel, user);
-                            }
-                            catch (NumberFormatException ex) {
-                                sendRetrievedTranslation(channel, "prune", language, "notanumber", user);
-                            }
-                        }
-                        else sendRetrievedTranslation(channel, "other", language, "mustbestafforpatron", user);
-                    }
-                }
-                else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel", user);
-            }
-        });
         subcommands.add(new Subcommand(this, "play") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
@@ -633,10 +602,10 @@ public class Music extends Command {
                                             sendTranslatedMessage(getTranslation("music", language, "removedfromqueue")
                                                     .getTranslation().replace("{0}", name), channel, user);
                                         }
-                                        else
+                                        else {
                                             sendRetrievedTranslation(channel, "music", language,
                                                     "queuedorhavepermissions", user);
-
+                                        }
                                     }
                                     current++;
                                 }
@@ -866,6 +835,7 @@ public class Music extends Command {
                 else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
             }
         });
+
         subcommands.add(new Subcommand(this, "restart") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
@@ -885,6 +855,89 @@ public class Music extends Command {
                     else sendRetrievedTranslation(channel, "music", language, "queuedorhavepermissions", user);
                 }
                 else sendRetrievedTranslation(channel, "music", language, "notplayingrn", user);
+            }
+        });
+
+        subcommands.add(new Subcommand(this, "geturl") {
+            @Override
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws
+                    Exception {
+                AudioManager audioManager = guild.getAudioManager();
+                if (audioManager.isConnected()) {
+                    try {
+                        GuildMusicManager manager = getGuildAudioPlayer(guild, channel);
+                        BlockingQueue<ArdentTrack> queue = manager.scheduler.manager.getQueue();
+                        if (args.length > 2) {
+                            int numberToRemove = Integer.parseInt(args[2]) - 1;
+                            if (numberToRemove >= queue.size() || numberToRemove < 0)
+                                sendRetrievedTranslation(channel, "tag", language, "invalidarguments", user);
+                            else {
+                                Iterator<ArdentTrack> iterator = queue.iterator();
+                                int current = 0;
+                                while (iterator.hasNext()) {
+                                    ArdentTrack ardentTrack = iterator.next();
+                                    AudioTrack track = ardentTrack.getTrack();
+                                    AudioTrackInfo info = track.getInfo();
+                                    String name = info.title;
+                                    if (current == numberToRemove) {
+                                        sendTranslatedMessage(getTranslation("music", language, "urlof").getTranslation()
+                                                .replace("{0}", name).replace("{1}", info.uri), channel, user);
+                                        return;
+                                    }
+                                    current++;
+                                }
+                            }
+                        }
+                        else {
+                            ArdentMusicManager musicManager = manager.scheduler.manager;
+                            ArdentTrack track = musicManager.getCurrentlyPlaying();
+                            if (track != null) {
+                                AudioTrackInfo info = track.getTrack().getInfo();
+                                sendTranslatedMessage(getTranslation("music", language, "urlof").getTranslation()
+                                        .replace("{0}", info.title).replace("{1}", info.uri), channel, user);
+                            }
+                            else {
+                                sendRetrievedTranslation(channel, "music", language, "notplayingrn", user);
+                            }
+                        }
+                    }
+                    catch (NumberFormatException ex) {
+                        sendRetrievedTranslation(channel, "tag", language, "invalidarguments", user);
+                    }
+                }
+                else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel", user);
+            }
+        });
+
+        subcommands.add(new Subcommand(this, "volume") {
+            @Override
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
+                               Language language) throws Exception {
+                AudioManager audioManager = guild.getAudioManager();
+                if (audioManager.isConnected()) {
+                    GuildMusicManager guildMusicManager = getGuildAudioPlayer(guild, channel);
+                    AudioPlayer player = guildMusicManager.player;
+                    if (args.length == 2) {
+                        sendTranslatedMessage(getTranslation("music", language, "currentplayervolume").getTranslation
+                                ().replace("{0}", String.valueOf(player.getVolume())), channel, user);
+                    }
+                    else {
+                        if (UserUtils.hasTierOnePermissions(user)) {
+                            try {
+                                int volume = Integer.parseInt(args[2]);
+                                player.setVolume(volume);
+                                sendTranslatedMessage(getTranslation("music", language, "setplayervolume")
+                                        .getTranslation()
+                                        .replace("{0}", String.valueOf(volume)), channel, user);
+                            }
+                            catch (NumberFormatException ex) {
+                                sendRetrievedTranslation(channel, "prune", language, "notanumber", user);
+                            }
+                        }
+                        else sendRetrievedTranslation(channel, "other", language, "mustbestafforpatron", user);
+                    }
+                }
+                else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel", user);
             }
         });
     }

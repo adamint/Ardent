@@ -41,6 +41,10 @@ public class ArdentMusicManager {
         return currentlyPlaying;
     }
 
+    public void setCurrentlyPlaying(ArdentTrack currentlyPlaying) {
+        this.currentlyPlaying = currentlyPlaying;
+    }
+
     public void queue(ArdentTrack track) {
         if (!player.startTrack(track.getTrack(), true)) {
             queue.offer(track);
