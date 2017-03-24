@@ -266,9 +266,15 @@ public class Music extends Command {
             VoiceChannel voiceChannel = voiceState.getChannel();
             Member bot = guild.getMember(GuildUtils.getShard(guild).bot);
             if (bot.hasPermission(voiceChannel, Permission.VOICE_CONNECT)) {
-                audioManager.openAudioConnection(voiceChannel);
-                command.sendTranslatedMessage(command.getTranslation("music", language, "connectedto").getTranslation()
-                        .replace("{0}", voiceChannel.getName()), channel, user.getUser());
+                try {
+                    audioManager.openAudioConnection(voiceChannel);
+                    command.sendTranslatedMessage(command.getTranslation("music", language, "connectedto").getTranslation()
+                            .replace("{0}", voiceChannel.getName()), channel, user.getUser());
+                }
+                catch (PermissionException e) {
+                    command.sendRetrievedTranslation(channel, "music", language, "unabletojoinvc", user.getUser());
+
+                }
             }
             else {
                 command.sendRetrievedTranslation(channel, "music", language, "nopermissiontojoin", user.getUser());
