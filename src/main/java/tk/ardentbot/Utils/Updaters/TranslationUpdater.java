@@ -7,8 +7,9 @@ import com.crowdin.parameters.CrowdinApiParametersBuilder;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.io.IOUtils;
-import tk.ardentbot.Core.Exceptions.BotException;
+import tk.ardentbot.Core.LoggingUtils.BotException;
 import tk.ardentbot.Core.Translation.Language;
+import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 
 import java.io.File;
@@ -19,13 +20,14 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.zip.ZipInputStream;
 
-import static tk.ardentbot.Main.Ardent.ardent;
+import static tk.ardentbot.Main.Ardent.botLogsShard;
+import static tk.ardentbot.Main.Ardent.shard0;
 
 /**
  * Downloads and inserts phrase translations on a loop
  */
 public class TranslationUpdater implements Runnable {
-    private Statement statement = ardent.conn.createStatement();
+    private Statement statement = Ardent.conn.createStatement();
     private Credentials credentials = new Credentials(PhraseUpdater.BASE_URL, PhraseUpdater.PROJECT_IDENTIFIER,
             PhraseUpdater.PROJECT_KEY, PhraseUpdater.ACCOUNT_KEY);
     private CrowdinApiClient crwdn = new Crwdn();
@@ -36,7 +38,7 @@ public class TranslationUpdater implements Runnable {
     @Override
     public void run() {
         try {
-            for (Language l : ardent.crowdinLanguages) {
+            for (Language l : shard0.crowdinLanguages) {
                 CrowdinApiParametersBuilder parameters = new CrowdinApiParametersBuilder();
 
                 File temp = new File("null" + l.getCrowdinLangCode() + ".zip");
@@ -90,6 +92,6 @@ public class TranslationUpdater implements Runnable {
     }
 
     private void p(String s) {
-        ardent.botLogs.sendMessage(s).queue();
+        botLogsShard.botLogs.sendMessage(s).queue();
     }
 }

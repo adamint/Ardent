@@ -11,7 +11,7 @@ import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.Discord.MessageUtils;
 import tk.ardentbot.Utils.Discord.UserUtils;
 
-import static tk.ardentbot.Main.Ardent.ardent;
+import java.util.ArrayList;
 
 public class About extends Command {
     public About(CommandSettings commandSettings) {
@@ -22,7 +22,7 @@ public class About extends Command {
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
             language) throws Exception {
         EmbedBuilder builder = MessageUtils.getDefaultEmbed(guild, user, this);
-        builder.setAuthor("Ardent About", ardent.url, ardent.bot.getAvatarUrl());
+        builder.setAuthor("Ardent About", getShard().url, getShard().bot.getAvatarUrl());
         StringBuilder description = new StringBuilder();
         description.append("**What's this?**\n\n")
                 .append("Ardent was a small project started by Adam#9261 in December of 2016 to have some " +
@@ -32,14 +32,19 @@ public class About extends Command {
         String devs = MessageUtils.listWithCommas(UserUtils.getNamesById(Ardent.developers));
         String moderators = MessageUtils.listWithCommas(UserUtils.getNamesById(Ardent.moderators));
         String translators = MessageUtils.listWithCommas(UserUtils.getNamesById(Ardent.translators));
-        String patrons = MessageUtils.listWithCommas(UserUtils.getNamesById(Ardent.patrons));
+        ArrayList<String> patronsList = new ArrayList<>();
+        patronsList.addAll(Ardent.tierOnepatrons);
+        patronsList.addAll(Ardent.tierTwopatrons);
+        patronsList.addAll(Ardent.tierThreepatrons);
+
+        String patrons = MessageUtils.listWithCommas(UserUtils.getNamesById(patronsList));
 
         description.append("**Developers**: *" + devs + "*\n")
                 .append("**Moderators**: *" + moderators + "*\n")
                 .append("**Translators**: *" + translators + "*\n")
                 .append("**Patrons**: *" + patrons + "*");
         builder.setDescription(description);
-        sendEmbed(builder, channel);
+        sendEmbed(builder, channel, user);
     }
 
     @Override

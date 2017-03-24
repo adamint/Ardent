@@ -7,6 +7,7 @@ import tk.ardentbot.Core.CommandExecution.Subcommand;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Core.Translation.Translation;
 import tk.ardentbot.Core.Translation.TranslationResponse;
+import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.Discord.MessageUtils;
 import tk.ardentbot.Utils.Discord.UserUtils;
@@ -18,8 +19,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import static tk.ardentbot.Main.Ardent.ardent;
 
 public class Iam extends Command {
     public Iam(CommandSettings commandSettings) {
@@ -38,6 +37,7 @@ public class Iam extends Command {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
+                Shard shard = GuildUtils.getShard(guild);
                 ArrayList<Translation> translations = new ArrayList<>();
                 translations.add(new Translation("iam", "autoroleslist"));
                 translations.add(new Translation("iam", "givesyou"));
@@ -49,7 +49,7 @@ public class Iam extends Command {
                 String givesYouRole = responses.get(1).getTranslation();
 
                 EmbedBuilder builder = MessageUtils.getDefaultEmbed(guild, user, Iam.this);
-                builder.setAuthor(title, ardent.url, ardent.bot.getAvatarUrl());
+                builder.setAuthor(title, shard.url, shard.bot.getAvatarUrl());
                 StringBuilder msg = new StringBuilder();
                 msg.append("**" + title + "**");
 
@@ -63,7 +63,7 @@ public class Iam extends Command {
                 }
                 msg.append("\n\n" + responses.get(2).getTranslation());
                 builder.setDescription(msg.toString());
-                sendEmbed(builder, channel);
+                sendEmbed(builder, channel, user);
             }
         });
         subcommands.add(new Subcommand(this, "role") {
@@ -80,7 +80,7 @@ public class Iam extends Command {
                             found = true;
                             Role role = rolePair.getV();
                             if (role == null)
-                                sendRetrievedTranslation(channel, "iam", language, "thereisnoroleforthis");
+                                sendRetrievedTranslation(channel, "iam", language, "thereisnoroleforthis", user);
                             else {
                                 boolean failure = false;
                                 try {
@@ -88,17 +88,17 @@ public class Iam extends Command {
                                 }
                                 catch (Exception ex) {
                                     failure = true;
-                                    sendRetrievedTranslation(channel, "iam", language, "makesureicanaddroles");
+                                    sendRetrievedTranslation(channel, "iam", language, "makesureicanaddroles", user);
                                 }
                                 if (!failure)
                                     sendTranslatedMessage(getTranslation("iam", language, "gaverole").getTranslation()
-                                            .replace("{0}", role.getName()), channel);
+                                            .replace("{0}", role.getName()), channel, user);
                             }
                         }
                     }
-                    if (!found) sendRetrievedTranslation(channel, "iam", language, "namenotfound");
+                    if (!found) sendRetrievedTranslation(channel, "iam", language, "namenotfound", user);
                 }
-                else sendRetrievedTranslation(channel, "iam", language, "includeautorolename");
+                else sendRetrievedTranslation(channel, "iam", language, "includeautorolename", user);
             }
         });
 
@@ -117,12 +117,12 @@ public class Iam extends Command {
                             new DatabaseAction("DELETE FROM Autoroles WHERE Name=? AND GuildID=?").set(query).set
                                     (guild.getId()).update();
                             sendTranslatedMessage(getTranslation("iam", language, "deletedautorole").getTranslation()
-                                    .replace("{0}", rolePair.getK()), channel);
+                                    .replace("{0}", rolePair.getK()), channel, user);
                         }
                     }
-                    if (!found) sendRetrievedTranslation(channel, "iam", language, "namenotfound");
+                    if (!found) sendRetrievedTranslation(channel, "iam", language, "namenotfound", user);
                 }
-                else sendRetrievedTranslation(channel, "other", language, "needmanageserver");
+                else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
             }
         });
 
@@ -142,7 +142,8 @@ public class Iam extends Command {
                                 found = true;
                             }
                         }
-                        if (found) sendRetrievedTranslation(channel, "iam", language, "autorolewithnamealreadyfound");
+                        if (found)
+                            sendRetrievedTranslation(channel, "iam", language, "autorolewithnamealreadyfound", user);
                         else {
                             List<Role> roleList = guild.getRolesByName(role, true);
                             if (roleList.size() > 0) {
@@ -150,14 +151,14 @@ public class Iam extends Command {
                                 new DatabaseAction("INSERT INTO Autoroles VALUES (?,?,?)").set(guild.getId())
                                         .set(name).set(toAdd.getId()).update();
                                 sendTranslatedMessage(getTranslation("iam", language, "addedautorole").getTranslation()
-                                        .replace("{0}", name).replace("{1}", role), channel);
+                                        .replace("{0}", name).replace("{1}", role), channel, user);
                             }
-                            else sendRetrievedTranslation(channel, "iam", language, "namenotfound");
+                            else sendRetrievedTranslation(channel, "iam", language, "namenotfound", user);
                         }
                     }
-                    else sendRetrievedTranslation(channel, "other", language, "needmanageserver");
+                    else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
                 }
-                else sendRetrievedTranslation(channel, "iam", language, "includenameandrole");
+                else sendRetrievedTranslation(channel, "iam", language, "includenameandrole", user);
             }
         });
     }

@@ -36,11 +36,13 @@ public class Translate extends Command {
 
     public Translate(CommandSettings commandSettings) {
         super(commandSettings);
-        translateApi = new YTranslateApiImpl("trnsl.1.1.20170227T013942Z.6878bfdf518abdf6.a6574733436345112da24eb08e7ee1ef2a0d6a97");
+        translateApi = new YTranslateApiImpl
+                ("trnsl.1.1.20170227T013942Z.6878bfdf518abdf6.a6574733436345112da24eb08e7ee1ef2a0d6a97");
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
+            language) throws Exception {
         sendHelp(language, channel, guild, user, this);
     }
 
@@ -49,13 +51,16 @@ public class Translate extends Command {
         languages.forEach(language -> {
             subcommands.add(new Subcommand(this, language) {
                 @Override
-                public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
+                public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
+                                   Language language) throws Exception {
                     if (args.length == 2) {
-                        sendRetrievedTranslation(channel, "translate", language, "includetext");
+                        sendRetrievedTranslation(channel, "translate", language, "includetext", user);
                     }
                     else {
-                        String query = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " + args[1] + " ", "");
-                        sendTranslatedMessage(translateApi.translationApi().translate(query, com.github.vbauer.yta.model.Language.of(args[1])).text(), channel);
+                        String query = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " +
+                                args[1] + " ", "");
+                        sendTranslatedMessage(translateApi.translationApi().translate(query, com.github.vbauer.yta
+                                .model.Language.of(args[1])).text(), channel, user);
                     }
                 }
             });

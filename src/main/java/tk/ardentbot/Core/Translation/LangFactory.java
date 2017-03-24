@@ -31,6 +31,8 @@ public class LangFactory {
 
     public static Language russian = new Language("russian", Language.Status.INFANCY, "ru", "Russian");
 
+    public static Language polish = new Language("polish", Language.Status.INFANCY, "po", "Polish");
+
     public static ArrayList<Language> languages;
 
     /**
@@ -71,6 +73,8 @@ public class LangFactory {
                 return emoji;
             case "RUSSIAN":
                 return russian;
+            case "POLISH":
+                return polish;
             default:
                 return null;
         }
@@ -91,6 +95,7 @@ public class LangFactory {
         else if (language == hindi) return "Hindi";
         else if (language == emoji) return "Emoji";
         else if (language == russian) return "Russian";
+        else if (language == polish) return "Polish";
         else return null;
     }
 

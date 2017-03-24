@@ -45,12 +45,12 @@ public class DefaultRole extends Command {
                                Language language) throws Exception {
                 Role role = getDefaultRole(guild);
                 if (role == null) {
-                    sendRetrievedTranslation(channel, "defaultrole", language, "nodefaultrole");
+                    sendRetrievedTranslation(channel, "defaultrole", language, "nodefaultrole", user);
                 }
                 else {
                     String reply = getTranslation("defaultrole", language, "currentdefaultrole").getTranslation()
                             .replace("{0}", role.getName());
-                    sendTranslatedMessage(reply, channel);
+                    sendTranslatedMessage(reply, channel, user);
                 }
             }
         });
@@ -61,14 +61,14 @@ public class DefaultRole extends Command {
                                Language language) throws Exception {
                 Role role = getDefaultRole(guild);
                 if (role == null) {
-                    sendRetrievedTranslation(channel, "defaultrole", language, "nodefaultrole");
+                    sendRetrievedTranslation(channel, "defaultrole", language, "nodefaultrole", user);
                 }
                 else {
                     if (guild.getMember(user).hasPermission(Permission.MANAGE_SERVER)) {
                         removeDefaultRole(guild);
-                        sendRetrievedTranslation(channel, "defaultrole", language, "removeddefaultrole");
+                        sendRetrievedTranslation(channel, "defaultrole", language, "removeddefaultrole", user);
                     }
-                    else sendRetrievedTranslation(channel, "other", language, "needmanageserver");
+                    else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
                 }
             }
         });
@@ -82,17 +82,17 @@ public class DefaultRole extends Command {
                             + args[1] + " ", "");
                     List<Role> roles = guild.getRolesByName(roleName, true);
                     if (roles.size() == 0) {
-                        sendRetrievedTranslation(channel, "defaultrole", language, "needtotyperole");
+                        sendRetrievedTranslation(channel, "defaultrole", language, "needtotyperole", user);
                     }
                     else {
                         Role role = roles.get(0);
                         setDefaultRole(role, guild);
                         String reply = getTranslation("defaultrole", language, "setdefaultrole").getTranslation()
                                 .replace("{0}", role.getName());
-                        sendTranslatedMessage(reply, channel);
+                        sendTranslatedMessage(reply, channel, user);
                     }
                 }
-                else sendRetrievedTranslation(channel, "other", language, "needmanageserver");
+                else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
             }
         });
     }

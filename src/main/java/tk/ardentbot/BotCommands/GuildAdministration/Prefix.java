@@ -29,7 +29,7 @@ public class Prefix extends Command {
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
                 sendTranslatedMessage(getTranslation("prefix", language, "viewprefix").getTranslation().replace
-                        ("{0}", GuildUtils.getPrefix(guild)), channel);
+                        ("{0}", GuildUtils.getPrefix(guild)), channel, user);
             }
         });
         subcommands.add(new Subcommand(this, "change") {
@@ -40,18 +40,21 @@ public class Prefix extends Command {
                     if (guild.getMember(user).hasPermission(Permission.MANAGE_SERVER)) {
                         String newPrefix = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " +
                                 "" + args[1] + " ", "");
+                        if (newPrefix.length() == message.getRawContent().length()) {
+                            newPrefix = message.getRawContent().replace("/" + args[0] + " " + args[1] + " ", "");
+                        }
+                        GuildUtils.updatePrefix(newPrefix, guild);
                         new DatabaseAction("UPDATE Guilds SET Prefix=? WHERE GuildID=?").set(newPrefix).set(guild
                                 .getId()).update();
                         sendTranslatedMessage(getTranslation("prefix", language, "successfullyupdated")
-                                .getTranslation().replace("{0}", newPrefix), channel);
-                        GuildUtils.updatePrefix(newPrefix, guild);
+                                .getTranslation().replace("{0}", newPrefix), channel, user);
                     }
                     else {
-                        sendRetrievedTranslation(channel, "other", language, "needmanageserver");
+                        sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
                     }
                 }
                 else {
-                    sendRetrievedTranslation(channel, "prefix", language, "mustincludeargument");
+                    sendRetrievedTranslation(channel, "prefix", language, "mustincludeargument", user);
                 }
             }
         });

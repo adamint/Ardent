@@ -9,7 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 
-import static tk.ardentbot.Main.Ardent.ardent;
+import static tk.ardentbot.Main.Ardent.botLogsShard;
 
 public class BotLanguageData {
     private HashMap<String, String> guildLanguages = new HashMap<>();
@@ -23,8 +23,11 @@ public class BotLanguageData {
         getLanguages.close();
     }
 
+    public void set(String guildId, String language) {
+        guildLanguages.put(guildId, language);
+    }
     public void set(Guild guild, String language) {
-        guildLanguages.putIfAbsent(guild.getId(), language);
+        guildLanguages.put(guild.getId(), language);
     }
 
     public Language getLanguage(Guild guild) {
@@ -36,10 +39,14 @@ public class BotLanguageData {
                 set(guild, "english");
             }
             catch (NullPointerException e) {
-                ardent.botLogs.sendMessage(guild.getId() + " - failed to retrieve their language, returned english")
-                        .queue();
+                botLogsShard.botLogs.sendMessage(guild.getId() + " - failed to retrieve their language, returned " +
+                        "english").queue();
             }
             return LangFactory.english;
         }
+    }
+
+    public void remove(Guild guild) {
+        guildLanguages.remove(guild.getId());
     }
 }

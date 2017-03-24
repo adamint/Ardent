@@ -14,7 +14,8 @@ public class Website extends Command {
 
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
-        sendTranslatedMessage(getTranslation("website", language, "website").getTranslation().replace("{0}", "@ https://ardentbot.tk"), channel);
+        sendTranslatedMessage(getTranslation("website", language, "website").getTranslation().replace("{0}", "@ " +
+                "https://ardentbot.tk"), channel, user);
     }
 
     @Override

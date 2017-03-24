@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static tk.ardentbot.Main.Ardent.ardent;
+import static tk.ardentbot.Main.Ardent.botLogsShard;
 
 public class Request extends Command {
     private static ArrayList<RequestUtil> usersUnableToRequest = new ArrayList<>();
@@ -25,18 +25,18 @@ public class Request extends Command {
         String prefix = GuildUtils.getPrefix(guild);
         if (args.length == 1) {
             sendTranslatedMessage(getTranslation("request", language, "requesthelp").getTranslation().replace("{0}",
-                    prefix + args[0]), channel);
+                    prefix + args[0]), channel, user);
         }
         else {
             if (canRequest(user)) {
                 String request = message.getRawContent().replace(prefix + args[0] + " ", "");
-                TextChannel ideasChannel = ardent.jda.getTextChannelById("262810786186002432");
+                TextChannel ideasChannel = botLogsShard.jda.getTextChannelById("262810786186002432");
                 ideasChannel.sendMessage("**Request** by " + user.getName() + "#" + user.getDiscriminator() + " (" +
                         user.getId() + "): " + request).queue();
                 usersUnableToRequest.add(new RequestUtil(Instant.now(), user));
-                sendRetrievedTranslation(channel, "request", language, "successfullyrequested");
+                sendRetrievedTranslation(channel, "request", language, "successfullyrequested", user);
             }
-            else sendTranslatedMessage(getRequestTime(user, language), channel);
+            else sendTranslatedMessage(getRequestTime(user, language), channel, user);
         }
     }
 

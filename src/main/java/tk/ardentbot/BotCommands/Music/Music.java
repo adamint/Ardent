@@ -6,19 +6,27 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
+import com.wrapper.spotify.methods.RecommendationsRequest;
+import com.wrapper.spotify.methods.TrackRequest;
+import com.wrapper.spotify.methods.TrackSearchRequest;
+import com.wrapper.spotify.models.Page;
+import com.wrapper.spotify.models.Track;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.managers.AudioManager;
 import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.CommandExecution.Subcommand;
-import tk.ardentbot.Core.Exceptions.BotException;
+import tk.ardentbot.Core.LoggingUtils.BotException;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Core.Translation.Translation;
 import tk.ardentbot.Core.Translation.TranslationResponse;
+import tk.ardentbot.Main.Shard;
+import tk.ardentbot.Main.ShardManager;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.Discord.UserUtils;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
+import tk.ardentbot.Utils.StringUtils;
 import tk.ardentbot.Utils.Tuples.Pair;
 
 import java.sql.ResultSet;
@@ -30,36 +38,58 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import static tk.ardentbot.Main.Ardent.ardent;
+import static tk.ardentbot.Main.Ardent.spotifyApi;
 
+@SuppressWarnings("Duplicates")
 public class Music extends Command {
-    public Music(CommandSettings commandSettings) {
+    public Music(CommandSettings commandSettings, Shard shard) {
         super(commandSettings);
     }
 
     public static Pair<Integer, Integer> getMusicStats() {
         int playingGuilds = 0;
         int queueLength = 0;
-        for (Guild guild : ardent.jda.getGuilds()) {
-            GuildMusicManager guildMusicManager = getGuildAudioPlayer(guild, null);
-            ArdentMusicManager manager = guildMusicManager.scheduler.manager;
-            if (manager.isTrackCurrentlyPlaying()) {
-                playingGuilds++;
-                queueLength++;
-                queueLength += manager.getQueue().size();
+        for (Shard shard : ShardManager.getShards()) {
+            for (Guild guild : shard.jda.getGuilds()) {
+                GuildMusicManager guildMusicManager = getGuildAudioPlayer(guild, null, shard);
+                ArdentMusicManager manager = guildMusicManager.scheduler.manager;
+                if (manager.isTrackCurrentlyPlaying()) {
+                    playingGuilds++;
+                    queueLength++;
+                    queueLength += manager.getQueue().size();
+                }
             }
         }
         return new Pair<>(playingGuilds, queueLength);
     }
 
-    public static synchronized GuildMusicManager getGuildAudioPlayer(Guild guild, MessageChannel channel) {
+    public static synchronized GuildMusicManager getGuildAudioPlayer(Guild guild, MessageChannel channel, Shard shard) {
         long guildId = Long.parseLong(guild.getId());
-        GuildMusicManager musicManager = ardent.musicManagers.get(guildId);
+        GuildMusicManager musicManager = shard.musicManagers.get(guildId);
 
         if (musicManager == null) {
-            musicManager = new GuildMusicManager(ardent.playerManager, channel);
+            musicManager = new GuildMusicManager(shard.playerManager, channel);
             guild.getAudioManager().setSendingHandler(musicManager.getSendHandler());
-            ardent.musicManagers.put(guildId, musicManager);
+            shard.musicManagers.put(guildId, musicManager);
+        }
+        else {
+            ArdentMusicManager ardentMusicManager = musicManager.scheduler.manager;
+            if (ardentMusicManager.getChannel() == null) {
+                ardentMusicManager.setChannel(channel);
+            }
+        }
+        return musicManager;
+    }
+
+    public static synchronized GuildMusicManager getGuildAudioPlayer(Guild guild, MessageChannel channel) {
+        long guildId = Long.parseLong(guild.getId());
+        System.out.println(GuildUtils.getShard(guild));
+        GuildMusicManager musicManager = GuildUtils.getShard(guild).musicManagers.get(guildId);
+
+        if (musicManager == null) {
+            musicManager = new GuildMusicManager(GuildUtils.getShard(guild).playerManager, channel);
+            guild.getAudioManager().setSendingHandler(musicManager.getSendHandler());
+            GuildUtils.getShard(guild).musicManagers.put(guildId, musicManager);
         }
         else {
             ArdentMusicManager ardentMusicManager = musicManager.scheduler.manager;
@@ -78,17 +108,71 @@ public class Music extends Command {
         musicManager.scheduler.manager.addToQueue(new ArdentTrack(user.getId(), textChannel, track));
     }
 
+    private static boolean shouldContinue(User user, Language language, Guild guild, TextChannel channel, int
+            numberOfTracks) throws Exception {
+        if (guild.getMembers().size() < 150) {
+            int trackAmount = getGuildAudioPlayer(guild, channel).scheduler.manager.getQueue().size();
+            if (trackAmount + numberOfTracks >= 100) {
+                // GuildUtils.getShard(guild).help.sendRetrievedTranslation(channel, "music", language,
+                // "cannotqueuemorethan20", user);
+                return true;
+            }
+            else return true;
+        }
+        else return true;
+    }
+
+    private static boolean shouldContinue(User user, Language language, Guild guild, TextChannel channel, AudioTrack
+            track) throws Exception {
+        if (guild.getMembers().size() < 150) {
+            long minutesDuration = track.getDuration() / 1000 / 60;
+            if (minutesDuration > 15 && getHours(track) > 0) {
+                GuildUtils.getShard(guild).help.sendRetrievedTranslation(channel, "music", language,
+                        "cannotplaylongerthan15", user);
+                return false;
+            }
+            else {
+                return shouldContinue(user, language, guild, channel, 1);
+            }
+        }
+        else return true;
+    }
+
     private static void loadAndPlay(User user, Command command, Language language, final TextChannel channel,
                                     String trackUrl, final VoiceChannel voiceChannel, boolean search) {
+        if (trackUrl.contains("spotify.com")) {
+            String[] parsed = trackUrl.split("/track/");
+            if (parsed.length == 2) {
+                final TrackRequest request = spotifyApi.getTrack(parsed[1]).build();
+                try {
+                    trackUrl = request.get().getName();
+                }
+                catch (Exception e) {
+                    new BotException(e);
+                }
+            }
+        }
+
         Guild guild = channel.getGuild();
         GuildMusicManager musicManager = getGuildAudioPlayer(channel.getGuild(), channel);
-        ardent.playerManager.loadItemOrdered(musicManager, trackUrl, new AudioLoadResultHandler() {
+        String finalTrackUrl = trackUrl;
+        GuildUtils.getShard(guild).playerManager.loadItemOrdered(musicManager, trackUrl, new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack track) {
+                if (!UserUtils.hasTierTwoPermissions(user)) {
+                    try {
+                        if (!shouldContinue(user, language, guild, channel, track)) {
+                            return;
+                        }
+                    }
+                    catch (Exception e) {
+                        new BotException(e);
+                    }
+                }
                 try {
                     command.sendTranslatedMessage(command.getTranslation("music", language, "addingsong")
                                     .getTranslation().replace("{0}", track.getInfo().title) + " " + getDuration(track),
-                            channel);
+                            channel, user);
                 }
                 catch (Exception e) {
                     new BotException(e);
@@ -104,10 +188,20 @@ public class Music extends Command {
                     if (firstTrack == null) {
                         firstTrack = playlist.getTracks().get(0);
                     }
+                    if (!UserUtils.hasTierTwoPermissions(user)) {
+                        try {
+                            if (!shouldContinue(user, language, guild, channel, firstTrack)) {
+                                return;
+                            }
+                        }
+                        catch (Exception e) {
+                            new BotException(e);
+                        }
+                    }
                     try {
                         command.sendTranslatedMessage(command.getTranslation("music", language, "addingsong")
                                 .getTranslation().replace("{0}", firstTrack.getInfo().title) + " " + getDuration
-                                (firstTrack), channel);
+                                (firstTrack), channel, user);
                     }
                     catch (Exception e) {
                         new BotException(e);
@@ -115,9 +209,19 @@ public class Music extends Command {
                     play(user, guild, voiceChannel, musicManager, firstTrack, channel);
                 }
                 else {
+                    if (!UserUtils.hasTierTwoPermissions(user)) {
+                        try {
+                            if (!shouldContinue(user, language, guild, channel, 1)) {
+                                return;
+                            }
+                        }
+                        catch (Exception e) {
+                            new BotException(e);
+                        }
+                    }
                     try {
                         command.sendTranslatedMessage(command.getTranslation("music", language, "playlist")
-                                .getTranslation().replace("{0}", String.valueOf(tracks.size())), channel);
+                                .getTranslation().replace("{0}", String.valueOf(tracks.size())), channel, user);
                     }
                     catch (Exception e) {
                         new BotException(e);
@@ -131,11 +235,11 @@ public class Music extends Command {
             @Override
             public void noMatches() {
                 if (!search) {
-                    loadAndPlay(user, command, language, channel, "ytsearch: " + trackUrl, voiceChannel, true);
+                    loadAndPlay(user, command, language, channel, "ytsearch: " + finalTrackUrl, voiceChannel, true);
                 }
                 else {
                     try {
-                        command.sendRetrievedTranslation(channel, "music", language, "nosongfound");
+                        command.sendRetrievedTranslation(channel, "music", language, "nosongfound", user);
                     }
                     catch (Exception e) {
                         new BotException(e);
@@ -146,7 +250,7 @@ public class Music extends Command {
             @Override
             public void loadFailed(FriendlyException exception) {
                 try {
-                    command.sendRetrievedTranslation(channel, "music", language, "notabletoplay");
+                    command.sendRetrievedTranslation(channel, "music", language, "notabletoplay", user);
                 }
                 catch (Exception e) {
                     new BotException(e);
@@ -160,62 +264,67 @@ public class Music extends Command {
         GuildVoiceState voiceState = user.getVoiceState();
         if (voiceState.inVoiceChannel()) {
             VoiceChannel voiceChannel = voiceState.getChannel();
-            Member bot = guild.getMember(ardent.bot);
+            Member bot = guild.getMember(GuildUtils.getShard(guild).bot);
             if (bot.hasPermission(voiceChannel, Permission.VOICE_CONNECT)) {
-                try {
-                    audioManager.openAudioConnection(voiceChannel);
-                    command.sendTranslatedMessage(command.getTranslation("music", language, "connectedto").getTranslation()
-
-                            .replace("{0}", voiceChannel.getName()), channel);
-                }
-                catch (PermissionException e) {
-                    command.sendRetrievedTranslation(channel, "music", language, "cannotjoinvc");
-                }
+                audioManager.openAudioConnection(voiceChannel);
+                command.sendTranslatedMessage(command.getTranslation("music", language, "connectedto").getTranslation()
+                        .replace("{0}", voiceChannel.getName()), channel, user.getUser());
             }
             else {
-                command.sendRetrievedTranslation(channel, "music", language, "unabletojoinvc");
+                command.sendRetrievedTranslation(channel, "music", language, "nopermissiontojoin", user.getUser());
             }
             return voiceChannel;
         }
         else {
-            command.sendRetrievedTranslation(channel, "music", language, "notinvoicechannel");
+            command.sendRetrievedTranslation(channel, "music", language, "notinvoicechannel", user.getUser());
             return null;
         }
     }
 
     public static void checkMusicConnections() {
-        ardent.executorService.scheduleAtFixedRate(() -> {
-            try {
-                for (Guild guild : ardent.jda.getGuilds()) {
-                    GuildMusicManager manager = getGuildAudioPlayer(guild, null);
-                    GuildVoiceState voiceState = guild.getSelfMember().getVoiceState();
-                    if (voiceState.inVoiceChannel()) {
-                        TextChannel channel = guild.getPublicChannel();
-                        if (channel.canTalk()) {
-                            VoiceChannel voiceChannel = voiceState.getChannel();
-                            Language language = GuildUtils.getLanguage(guild);
-                            AudioPlayer player = manager.player;
-                            if (voiceState.isGuildMuted()) {
-                                ardent.help.sendRetrievedTranslation(channel,
-                                        "music", language,
-                                        "mutedinchannelpausingnow");
-                                player.setPaused(true);
-                            }
-                            if (voiceChannel.getMembers().size() == 1) {
-                                ardent.help.sendTranslatedMessage(ardent.help.getTranslation("music", language,
-                                        "leftbcnic")
+        for (Shard shard : ShardManager.getShards()) {
+            shard.executorService.scheduleAtFixedRate(() -> {
+                try {
+                    for (Guild guild : shard.jda.getGuilds()) {
+                        GuildMusicManager manager = getGuildAudioPlayer(guild, null, shard);
+                        GuildVoiceState voiceState = guild.getSelfMember().getVoiceState();
+                        if (voiceState.inVoiceChannel()) {
+                            TextChannel channel = manager.scheduler.manager.getChannel();
+                            if (channel == null) channel = guild.getPublicChannel();
 
-                                        .getTranslation().replace("{0}", voiceChannel.getName()), channel);
-                                guild.getAudioManager().closeAudioConnection();
+                            if (channel.canTalk()) {
+                                VoiceChannel voiceChannel = voiceState.getChannel();
+                                Language language = GuildUtils.getLanguage(guild);
+                                AudioPlayer player = manager.player;
+                                if (voiceState.isGuildMuted()) {
+                                    shard.help.sendRetrievedTranslation(channel,
+                                            "music", language,
+                                            "mutedinchannelpausingnow", null);
+                                    player.setPaused(true);
+                                }
+                                if (voiceChannel.getMembers().size() == 1) {
+                                    shard.help.sendTranslatedMessage(shard.help.getTranslation("music", language,
+                                            "leftbcnic").getTranslation().replace("{0}", voiceChannel.getName()),
+                                            channel, null);
+                                    guild.getAudioManager().closeAudioConnection();
+                                }
                             }
                         }
                     }
                 }
-            }
-            catch (Exception ex) {
-                new BotException(ex);
-            }
-        }, 10, 10, TimeUnit.MINUTES);
+                catch (Exception ex) {
+                    new BotException(ex);
+                }
+            }, 5, 5, TimeUnit.MINUTES);
+        }
+    }
+
+    private static int getHours(AudioTrack track) {
+        long length = track.getInfo().length;
+        int seconds = (int) (length / 1000);
+        int minutes = seconds / 60;
+        int hours = minutes / 60;
+        return hours % 60;
     }
 
     private static String getDuration(AudioTrack track) {
@@ -223,14 +332,18 @@ public class Music extends Command {
         int seconds = (int) (length / 1000);
         int minutes = seconds / 60;
         int hours = minutes / 60;
-        return "[" + String.format("%02d", (hours % 60)) + ":" + String.format("%02d", (minutes % 60)) + ":" + String
-                .format("%02d", (seconds % 60)) + "]";
+        if (getHours(track) < 0) {
+            return "[Live Stream]";
+        }
+        else {
+            return "[" + String.format("%02d", (hours % 60)) + ":" + String.format("%02d", (minutes % 60)) + ":" +
+                    String.format("%02d", (seconds % 60)) + "]";
+        }
     }
 
     private static String getDuration(ArrayList<AudioTrack> tracks) {
         long length = 0;
-        for (AudioTrack t : tracks)
-            length += t.getDuration();
+        for (AudioTrack t : tracks) length += t.getDuration();
         int seconds = (int) (length / 1000);
         int minutes = seconds / 60;
         int hours = minutes / 60;
@@ -260,8 +373,7 @@ public class Music extends Command {
         DatabaseAction action = new DatabaseAction("SELECT * FROM MusicSettings WHERE GuildID=?").set(guild.getId());
         ResultSet set = action.request();
         if (set.next()) {
-            if (set.getBoolean("RemoveAdditionMessages"))
-                returnValue = true;
+            if (set.getBoolean("RemoveAdditionMessages")) returnValue = true;
         }
         action.close();
         return returnValue;
@@ -285,27 +397,25 @@ public class Music extends Command {
                     AudioPlayer player = guildMusicManager.player;
                     if (args.length == 2) {
                         sendTranslatedMessage(getTranslation("music", language, "currentplayervolume").getTranslation
-                                ().replace("{0}", String.valueOf(player.getVolume())), channel);
+                                ().replace("{0}", String.valueOf(player.getVolume())), channel, user);
                     }
                     else {
-                        if (UserUtils.isPatron(user)) {
+                        if (UserUtils.hasTierOnePermissions(user)) {
                             try {
                                 int volume = Integer.parseInt(args[2]);
                                 player.setVolume(volume);
                                 sendTranslatedMessage(getTranslation("music", language, "setplayervolume")
                                         .getTranslation()
-                                        .replace("{0}", String.valueOf(volume)), channel);
+                                        .replace("{0}", String.valueOf(volume)), channel, user);
                             }
                             catch (NumberFormatException ex) {
-                                sendRetrievedTranslation(channel, "prune", language, "notanumber");
+                                sendRetrievedTranslation(channel, "prune", language, "notanumber", user);
                             }
                         }
-                        else
-                            sendRetrievedTranslation(channel, "other", language, "mustbestafforpatron");
+                        else sendRetrievedTranslation(channel, "other", language, "mustbestafforpatron", user);
                     }
                 }
-                else
-                    sendRetrievedTranslation(channel, "music", language, "notinmusicchannel");
+                else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel", user);
             }
         });
         subcommands.add(new Subcommand(this, "play") {
@@ -346,8 +456,69 @@ public class Music extends Command {
                         }
                     }
                 }
-                else
-                    sendRetrievedTranslation(channel, "tag", language, "invalidarguments");
+                else sendRetrievedTranslation(channel, "tag", language, "invalidarguments", user);
+            }
+        });
+
+        subcommands.add(new Subcommand(this, "recommend") {
+            @Override
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
+                               Language language) throws Exception {
+                if (args.length > 2) {
+                    AudioManager audioManager = guild.getAudioManager();
+                    if (audioManager.isConnected()) {
+                        VoiceChannel connected = audioManager.getConnectedChannel();
+                        try {
+                            int amount = Integer.parseInt(args[2]);
+                            if (amount <= 0 || amount > 10) {
+                                sendRetrievedTranslation(channel, "music", language, "only10recommended", user);
+                                return;
+                            }
+                            GuildMusicManager manager = getGuildAudioPlayer(guild, channel);
+                            ArdentTrack ardentTrack = manager.scheduler.manager.getCurrentlyPlaying();
+                            if (ardentTrack == null) {
+                                sendRetrievedTranslation(channel, "music", language, "notplayingrn", user);
+                                return;
+                            }
+                            String[] nameArgs = StringUtils.removeBracketsParentheses(ardentTrack.getTrack().getInfo
+                                    ().title).split(" ");
+                            StringBuilder name = new StringBuilder();
+                            for (String arg : nameArgs) {
+                                if (!arg.contains(".") && !arg.contains("+") && !arg.contains(":") && !arg.contains
+                                        ("//"))
+                                {
+                                    name.append(arg);
+                                }
+                                name.append(" ");
+                            }
+                            TrackSearchRequest trackSearchRequest = spotifyApi.searchTracks(name.toString()).build();
+                            try {
+                                Page<Track> tracks = trackSearchRequest.get();
+                                String id = tracks.getItems().get(0).getId();
+                                ArrayList<String> ids = new ArrayList<>();
+                                ids.add(id);
+                                RecommendationsRequest recommendationsRequest = spotifyApi.getRecommendations()
+                                        .tracks(ids)
+                                        .build();
+                                List<Track> recommendations = recommendationsRequest.get();
+                                for (int i = 0; i < amount; i++) {
+                                    loadAndPlay(user, Music.this, language, (TextChannel) channel, recommendations
+                                            .get(i).getName(), connected, false);
+                                }
+                            }
+                            catch (Exception e) {
+                                channel.sendMessage("There were no recommendations available, sorry!").queue();
+                            }
+                        }
+                        catch (NumberFormatException e) {
+                            sendRetrievedTranslation(channel, "prune", language, "notanumber", user);
+                        }
+                    }
+                    else {
+                        sendRetrievedTranslation(channel, "music", language, "notinvoicechannel", user);
+                    }
+                }
+                else sendRetrievedTranslation(channel, "tag", language, "invalidarguments", user);
             }
         });
 
@@ -360,11 +531,11 @@ public class Music extends Command {
                 ResultSet set = action.request();
                 if (set.next()) {
                     sendTranslatedMessage("**Music Settings**\n" + "Delete music play messages: " + set.getBoolean
-                            ("RemoveAdditionMessages"), channel);
+                            ("RemoveAdditionMessages"), channel, user);
                 }
                 else
                     sendTranslatedMessage("Your guild has no set music settings! Type **/manage** to find your portal" +
-                            " link", channel);
+                            " link", channel, user);
             }
         });
 
@@ -391,19 +562,15 @@ public class Music extends Command {
                     AudioTrack track = ardentTrack.getTrack();
                     trackList.add(track);
                     sb.append("#" + current + ": " + track.getInfo().title + ": " + track.getInfo().author + " " +
-                            getDuration(track) + "\n     *" + queuedBy + " " + ardent.jda.getUserById(ardentTrack
-                            .getAuthor())
-                            .getName()
+                            getDuration(track) + "\n     *" + queuedBy + " " + GuildUtils.getShard(guild).jda
+                            .getUserById(ardentTrack.getAuthor()).getName()
                             + "*\n");
                     current++;
                 }
                 if (current == 1) {
                     sb.append(response.get(2).getTranslation());
                 }
-                else {
-                    sb.append("\n*" + response.get(3).getTranslation() + "*: " + getDuration(trackList));
-                }
-                sendTranslatedMessage(sb.toString(), channel);
+                sendTranslatedMessage(sb.toString(), channel, user);
             }
         });
 
@@ -419,18 +586,15 @@ public class Music extends Command {
                     ArdentTrack track = ardentMusicManager.getCurrentlyPlaying();
                     if (track != null) {
                         String ownerId = track.getAuthor();
-                        if (ownerId == null)
-                            ownerId = "";
+                        if (ownerId == null) ownerId = "";
                         if (UserUtils.hasManageServerOrStaff(member) || (user.getId().equalsIgnoreCase(ownerId))) {
                             ardentMusicManager.nextTrack();
-                            sendRetrievedTranslation(channel, "music", language, "skippedcurrent");
+                            sendRetrievedTranslation(channel, "music", language, "skippedcurrent", user);
                         }
-                        else
-                            sendRetrievedTranslation(channel, "music", language, "queuedorhavepermissions");
+                        else sendRetrievedTranslation(channel, "music", language, "queuedorhavepermissions", user);
                     }
                 }
-                else
-                    sendRetrievedTranslation(channel, "music", language, "notinmusicchannel");
+                else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel", user);
             }
         });
 
@@ -447,7 +611,7 @@ public class Music extends Command {
                             BlockingQueue<ArdentTrack> queue = manager.scheduler.manager.getQueue();
                             int numberToRemove = Integer.parseInt(args[2]) - 1;
                             if (numberToRemove > queue.size() || numberToRemove < 0)
-                                sendRetrievedTranslation(channel, "tag", language, "invalidarguments");
+                                sendRetrievedTranslation(channel, "tag", language, "invalidarguments", user);
                             else {
                                 Iterator<ArdentTrack> iterator = queue.iterator();
                                 int current = 0;
@@ -461,11 +625,11 @@ public class Music extends Command {
                                         {
                                             queue.remove(ardentTrack);
                                             sendTranslatedMessage(getTranslation("music", language, "removedfromqueue")
-                                                    .getTranslation().replace("{0}", name), channel);
+                                                    .getTranslation().replace("{0}", name), channel, user);
                                         }
                                         else
                                             sendRetrievedTranslation(channel, "music", language,
-                                                    "queuedorhavepermissions");
+                                                    "queuedorhavepermissions", user);
 
                                     }
                                     current++;
@@ -473,14 +637,12 @@ public class Music extends Command {
                             }
                         }
                         catch (NumberFormatException ex) {
-                            sendRetrievedTranslation(channel, "tag", language, "invalidarguments");
+                            sendRetrievedTranslation(channel, "tag", language, "invalidarguments", user);
                         }
                     }
-                    else
-                        sendRetrievedTranslation(channel, "music", language, "notinmusicchannel");
+                    else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel", user);
                 }
-                else
-                    sendRetrievedTranslation(channel, "prune", language, "notanumber");
+                else sendRetrievedTranslation(channel, "prune", language, "notanumber", user);
             }
         });
 
@@ -495,13 +657,11 @@ public class Music extends Command {
                         String name = audioManager.getConnectedChannel().getName();
                         audioManager.closeAudioConnection();
                         sendTranslatedMessage(getTranslation("music", language, "disconnected").getTranslation()
-                                .replace("{0}", name), channel);
+                                .replace("{0}", name), channel, user);
                     }
-                    else
-                        sendRetrievedTranslation(channel, "music", language, "notinmusicchannel");
+                    else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel", user);
                 }
-                else
-                    sendRetrievedTranslation(channel, "other", language, "needmanageserver");
+                else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
             }
         });
 
@@ -515,18 +675,16 @@ public class Music extends Command {
                     if (audioManager.isConnected()) {
                         GuildMusicManager manager = getGuildAudioPlayer(guild, channel);
                         if (manager.player.isPaused()) {
-                            sendRetrievedTranslation(channel, "music", language, "resumedplayback");
+                            sendRetrievedTranslation(channel, "music", language, "resumedplayback", user);
                             manager.player.setPaused(false);
                         }
                         else {
-                            sendRetrievedTranslation(channel, "music", language, "notpaused");
+                            sendRetrievedTranslation(channel, "music", language, "notpaused", user);
                         }
                     }
-                    else
-                        sendRetrievedTranslation(channel, "music", language, "notinmusicchannel");
+                    else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel", user);
                 }
-                else
-                    sendRetrievedTranslation(channel, "other", language, "needmanageserver");
+                else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
             }
         });
 
@@ -539,16 +697,13 @@ public class Music extends Command {
                 if (UserUtils.hasManageServerOrStaff(member)) {
                     if (audioManager.isConnected()) {
                         GuildMusicManager manager = getGuildAudioPlayer(guild, channel);
-                        if (manager.player.getPlayingTrack() != null)
-                            manager.player.stopTrack();
+                        if (manager.player.getPlayingTrack() != null) manager.player.stopTrack();
                         manager.scheduler.manager.resetQueue();
-                        sendRetrievedTranslation(channel, "music", language, "stoppedandcleared");
+                        sendRetrievedTranslation(channel, "music", language, "stoppedandcleared", user);
                     }
-                    else
-                        sendRetrievedTranslation(channel, "music", language, "notinmusicchannel");
+                    else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel", user);
                 }
-                else
-                    sendRetrievedTranslation(channel, "other", language, "needmanageserver");
+                else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
             }
         });
 
@@ -563,13 +718,11 @@ public class Music extends Command {
                     if (audioManager.isConnected()) {
                         GuildMusicManager manager = getGuildAudioPlayer(guild, channel);
                         manager.scheduler.manager.resetQueue();
-                        sendRetrievedTranslation(channel, "music", language, "clearedallsongs");
+                        sendRetrievedTranslation(channel, "music", language, "clearedallsongs", user);
                     }
-                    else
-                        sendRetrievedTranslation(channel, "music", language, "notinmusicchannel");
+                    else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel", user);
                 }
-                else
-                    sendRetrievedTranslation(channel, "other", language, "needmanageserver");
+                else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
             }
         });
 
@@ -580,21 +733,20 @@ public class Music extends Command {
                 GuildMusicManager manager = getGuildAudioPlayer(guild, channel);
                 ArdentMusicManager ardentMusicManager = manager.scheduler.manager;
                 ArdentTrack nowPlaying = ardentMusicManager.getCurrentlyPlaying();
-                if (nowPlaying != null && nowPlaying.getTrack() != null) {
+                if (nowPlaying != null) {
                     AudioTrack track = nowPlaying.getTrack();
-
                     AudioTrackInfo info = track.getInfo();
 
                     StringBuilder sb = new StringBuilder();
                     String queuedBy = getTranslation("music", language, "queuedby").getTranslation();
 
                     sb.append(info.title + ": " + info.author + " " + getCurrentTime
-                            (track) + "\n     *" + queuedBy + " " + ardent.jda.getUserById(nowPlaying.getAuthor())
-                            .getName() + "*");
-                    sendTranslatedMessage(sb.toString(), channel);
+                            (track) +
+                            "\n     *" + queuedBy + " " + UserUtils.getUserById(nowPlaying.getAuthor()).getName() +
+                            "*");
+                    sendTranslatedMessage(sb.toString(), channel, user);
                 }
-                else
-                    sendRetrievedTranslation(channel, "music", language, "notplayingrn");
+                else sendRetrievedTranslation(channel, "music", language, "notplayingrn", user);
             }
         });
 
@@ -608,13 +760,11 @@ public class Music extends Command {
                     if (audioManager.isConnected()) {
                         GuildMusicManager manager = getGuildAudioPlayer(guild, channel);
                         manager.scheduler.manager.shuffle();
-                        sendTranslatedMessage("Shuffled the queue!", channel);
+                        sendTranslatedMessage("Shuffled the queue!", channel, user);
                     }
-                    else
-                        sendRetrievedTranslation(channel, "music", language, "notinmusicchannel");
+                    else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel", user);
                 }
-                else
-                    sendRetrievedTranslation(channel, "other", language, "needmanageserver");
+                else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
             }
         });
 
@@ -628,18 +778,16 @@ public class Music extends Command {
                     if (audioManager.isConnected()) {
                         GuildMusicManager manager = getGuildAudioPlayer(guild, channel);
                         if (!manager.player.isPaused()) {
-                            sendRetrievedTranslation(channel, "music", language, "pausedplayback");
+                            sendRetrievedTranslation(channel, "music", language, "pausedplayback", user);
                             manager.player.setPaused(true);
                         }
                         else {
-                            sendRetrievedTranslation(channel, "music", language, "alreadypaused");
+                            sendRetrievedTranslation(channel, "music", language, "alreadypaused", user);
                         }
                     }
-                    else
-                        sendRetrievedTranslation(channel, "music", language, "notinmusicchannel");
+                    else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel", user);
                 }
-                else
-                    sendRetrievedTranslation(channel, "other", language, "needmanageserver");
+                else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
             }
         });
 
@@ -659,11 +807,11 @@ public class Music extends Command {
                             int amountOfTracks = queue.size();
 
                             if (songsToLoop < 0 || songsToLoop > amountOfTracks) {
-                                sendRetrievedTranslation(channel, "music", language, "impossibletoloop");
+                                sendRetrievedTranslation(channel, "music", language, "impossibletoloop", user);
                             }
                             else {
                                 if (amountOfTimes < 0 || amountOfTimes > 3) {
-                                    sendRetrievedTranslation(channel, "music", language, "onlycanloopsongs");
+                                    sendRetrievedTranslation(channel, "music", language, "onlycanloopsongs", user);
                                 }
                                 else {
                                     ArrayList<AudioTrack> tracksToLoop = new ArrayList<>();
@@ -680,19 +828,17 @@ public class Music extends Command {
                                     }
                                     sendTranslatedMessage(getTranslation("music", language, "addedtheloop")
                                             .getTranslation().replace("{0}", String.valueOf(songsToLoop)).replace
-                                                    ("{1}", String.valueOf(amountOfTimes)), channel);
+                                                    ("{1}", String.valueOf(amountOfTimes)), channel, user);
                                 }
                             }
                         }
                         catch (NumberFormatException ex) {
-                            sendRetrievedTranslation(channel, "prune", language, "notanumber");
+                            sendRetrievedTranslation(channel, "prune", language, "notanumber", user);
                         }
                     }
-                    else
-                        sendRetrievedTranslation(channel, "other", language, "needmanageserver");
+                    else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
                 }
-                else
-                    sendRetrievedTranslation(channel, "music", language, "loopsyntaxhelp");
+                else sendRetrievedTranslation(channel, "music", language, "loopsyntaxhelp", user);
             }
         });
 
@@ -707,13 +853,11 @@ public class Music extends Command {
                         User deleteFrom = mentionedUsers.get(0);
                         getGuildAudioPlayer(guild, channel).scheduler.manager.removeFrom(deleteFrom);
                         sendTranslatedMessage(getTranslation("music", language, "deletealltracksfrom").getTranslation()
-                                .replace("{0}", deleteFrom.getName()), channel);
+                                .replace("{0}", deleteFrom.getName()), channel, user);
                     }
-                    else
-                        sendRetrievedTranslation(channel, "other", language, "mentionuser");
+                    else sendRetrievedTranslation(channel, "other", language, "mentionuser", user);
                 }
-                else
-                    sendRetrievedTranslation(channel, "other", language, "needmanageserver");
+                else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
             }
         });
         subcommands.add(new Subcommand(this, "restart") {
@@ -730,13 +874,11 @@ public class Music extends Command {
                         AudioTrack track = current.getTrack();
                         track.setPosition(0);
                         sendTranslatedMessage(getTranslation("music", language, "restartedtrack").getTranslation()
-                                .replace("{0}", track.getInfo().title), channel);
+                                .replace("{0}", track.getInfo().title), channel, user);
                     }
-                    else
-                        sendRetrievedTranslation(channel, "music", language, "queuedorhavepermissions");
+                    else sendRetrievedTranslation(channel, "music", language, "queuedorhavepermissions", user);
                 }
-                else
-                    sendRetrievedTranslation(channel, "music", language, "notplayingrn");
+                else sendRetrievedTranslation(channel, "music", language, "notplayingrn", user);
             }
         });
     }

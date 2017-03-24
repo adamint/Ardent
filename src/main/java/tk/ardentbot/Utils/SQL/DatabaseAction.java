@@ -1,11 +1,11 @@
 package tk.ardentbot.Utils.SQL;
 
+import tk.ardentbot.Main.Ardent;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-
-import static tk.ardentbot.Main.Ardent.ardent;
 
 
 public class DatabaseAction {
@@ -13,7 +13,7 @@ public class DatabaseAction {
     private int currentPlace = 1;
 
     public DatabaseAction(String sql) throws SQLException {
-        preparedStatement = ardent.conn.prepareStatement(sql);
+        preparedStatement = Ardent.conn.prepareStatement(sql);
     }
 
     public DatabaseAction set(Object o) throws SQLException {

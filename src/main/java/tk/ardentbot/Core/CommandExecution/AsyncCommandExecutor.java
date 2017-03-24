@@ -4,12 +4,13 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.Core.Exceptions.BotException;
+import tk.ardentbot.Core.LoggingUtils.BotException;
 import tk.ardentbot.Core.Translation.Language;
+import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Main.Shard;
+import tk.ardentbot.Utils.Discord.GuildUtils;
 
 import java.util.concurrent.TimeUnit;
-
-import static tk.ardentbot.Main.Ardent.ardent;
 
 class AsyncCommandExecutor implements Runnable {
 
@@ -20,9 +21,10 @@ class AsyncCommandExecutor implements Runnable {
     private Message message;
     private String[] args;
     private Language language;
+    private User user;
 
     AsyncCommandExecutor(Command command, Guild guild, MessageChannel channel, User author, Message message, String[]
-            args, Language language) {
+            args, Language language, User user) {
         this.command = command;
         this.guild = guild;
         this.channel = channel;
@@ -30,6 +32,7 @@ class AsyncCommandExecutor implements Runnable {
         this.message = message;
         this.args = args;
         this.language = language;
+        this.user = user;
     }
 
     /**
@@ -39,12 +42,13 @@ class AsyncCommandExecutor implements Runnable {
     @Override
     public void run() {
         try {
-            if (ardent.announcement != null) {
-                if (!ardent.sentAnnouncement.get(guild.getId())) {
-                    ardent.sentAnnouncement.replace(guild.getId(), true);
-                    ardent.executorService.schedule(() -> {
+            Shard shard = GuildUtils.getShard(guild);
+            if (Ardent.announcement != null) {
+                if (!Ardent.sentAnnouncement.get(guild.getId())) {
+                    Ardent.sentAnnouncement.replace(guild.getId(), true);
+                    shard.executorService.schedule(() -> {
                         try {
-                            command.sendTranslatedMessage(ardent.announcement, channel);
+                            command.sendTranslatedMessage(Ardent.announcement, channel, user);
                         }
                         catch (Exception e) {
                             new BotException(e);
@@ -53,8 +57,8 @@ class AsyncCommandExecutor implements Runnable {
                 }
             }
 
-            command.getBotCommand().onUsage(guild, channel, author, message, args, language);
-            ardent.factory.addCommandUsage(command.getCommandIdentifier());
+            command.getBotCommand().onUsage(guild, channel, author, message, args, language, null);
+            shard.factory.addCommandUsage(command.getCommandIdentifier());
         }
         catch (Exception e) {
             new BotException(e);

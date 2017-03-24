@@ -4,12 +4,10 @@ import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.entities.Invite;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import tk.ardentbot.Core.CommandExecution.Command;
-import tk.ardentbot.Core.Exceptions.BotException;
+import tk.ardentbot.Core.LoggingUtils.BotException;
 import tk.ardentbot.Core.Translation.Language;
 
 import java.util.concurrent.TimeUnit;
-
-import static tk.ardentbot.Main.Ardent.ardent;
 
 public class Bug extends Command {
     public Bug(CommandSettings commandSettings) {
@@ -23,9 +21,9 @@ public class Bug extends Command {
         final boolean[] delete = {false};
         tch.getInvites().queue(invites -> {
             for (Invite invite : invites) {
-                if (invite.getInviter().equals(ardent.bot)) {
+                if (invite.getInviter().equals(getShard().bot)) {
                     try {
-                        sendRetrievedTranslation(channel, "bug", language, "disabled");
+                        sendRetrievedTranslation(channel, "bug", language, "disabled", user);
                     }
                     catch (Exception e) {
                         new BotException(e);
@@ -37,10 +35,10 @@ public class Bug extends Command {
             try {
                 tch.createInvite().setUnique(true).setTemporary(true).setMaxAge((long) 1, TimeUnit.DAYS).queue
                         (invite -> {
-                            ardent.jda.getTextChannelById("267404524484820994").sendMessage("**Request for help by "
+                            getShard().jda.getTextChannelById("267404524484820994").sendMessage("**Request for help by "
                                     + user.getName() + "**\n" + invite.getCode()).queue(successMsg -> {
                                 try {
-                                    sendRetrievedTranslation(channel, "bug", language, "success");
+                                    sendRetrievedTranslation(channel, "bug", language, "success", user);
                                 }
                                 catch (Exception e) {
                                     new BotException(e);
@@ -50,7 +48,7 @@ public class Bug extends Command {
             }
             catch (PermissionException ex) {
                 try {
-                    sendRetrievedTranslation(channel, "bug", language, "nopermission");
+                    sendRetrievedTranslation(channel, "bug", language, "nopermission", user);
                 }
                 catch (Exception e) {
                     new BotException(e);

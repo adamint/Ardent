@@ -3,21 +3,14 @@ package tk.ardentbot.BotCommands.GuildAdministration;
 import net.dv8tion.jda.core.entities.*;
 import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.CommandExecution.Subcommand;
-import tk.ardentbot.Core.Exceptions.BotException;
+import tk.ardentbot.Core.LoggingUtils.BotException;
 import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;
-import tk.ardentbot.Core.Translation.Translation;
-import tk.ardentbot.Core.Translation.TranslationResponse;
+import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
-import static tk.ardentbot.Main.Ardent.ardent;
 
 public class GuildLanguage extends Command {
     public Subcommand set;
@@ -39,7 +32,7 @@ public class GuildLanguage extends Command {
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
                 sendTranslatedMessage(getTranslation("language", language, "currentlanguage").getTranslation()
-                        .replace("{0}", "**" + LangFactory.getName(language) + "**"), channel);
+                        .replace("{0}", "**" + LangFactory.getName(language) + "**"), channel, user);
             }
         });
 
@@ -59,11 +52,11 @@ public class GuildLanguage extends Command {
                     String reply = getTranslation("language", language, "checklanguages").getTranslation().replace
                             ("{0}", languages.toString()).replace("{2}", set.getName(language)).replace("{1}",
                             GuildUtils.getPrefix(guild) + args[0]);
-                    sendTranslatedMessage(reply, channel);
+                    sendTranslatedMessage(reply, channel, user);
                 }
                 else
                     sendTranslatedMessage(getTranslation("other", language, "checksyntax").getTranslation().replace
-                            ("{0}", GuildUtils.getPrefix(guild) + args[0]), channel);
+                            ("{0}", GuildUtils.getPrefix(guild) + args[0]), channel, user);
             }
         });
 
@@ -71,55 +64,60 @@ public class GuildLanguage extends Command {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
+                Shard shard = GuildUtils.getShard(guild);
                 Member member = guild.getMember(user);
                 if (GuildUtils.hasManageServerPermission(member)) {
                     if (args.length == 3) {
                         Language changeTo = LangFactory.getLanguage(args[2]);
                         if (changeTo != null) {
+                            shard.botLanguageData.set(guild, changeTo.getIdentifier());
                             new DatabaseAction("UPDATE Guilds SET Language=? WHERE GuildID=?").set(changeTo
                                     .getIdentifier()).set(guild.getId()).update();
-                            ardent.botLanguageData.set(guild, changeTo.getIdentifier());
-                            sendRetrievedTranslation(channel, "language", changeTo, "changedlanguage");
-                            ardent.executorService.schedule(() -> {
+                            shard.botLanguageData.set(guild, changeTo.getIdentifier());
+                            sendRetrievedTranslation(channel, "language", changeTo, "changedlanguage", user);
+                            shard.executorService.schedule(() -> {
                                 try {
-                                    sendTranslatedMessage(getTranslation("other", language, "mentionedhelp")
+                                    sendTranslatedMessage(getTranslation("other", changeTo, "mentionedhelp")
                                             .getTranslation().replace("{0}", GuildUtils.getPrefix(guild) +
-                                                    ardent.help.getName(language)), channel);
+                                                    shard.help.getName(changeTo)), channel, user);
                                 }
                                 catch (Exception e) {
                                     new BotException(e);
                                 }
 
-                            }, 5, TimeUnit.SECONDS);
+                            }, 2, TimeUnit.SECONDS);
                         }
-                        else sendRetrievedTranslation(channel, "language", language, "invalidlanguage");
+                        else sendRetrievedTranslation(channel, "language", language, "invalidlanguage", user);
                     }
                     else
                         sendTranslatedMessage(getTranslation("other", language, "checksyntax").getTranslation()
-                                .replace("{0}", GuildUtils.getPrefix(guild) + args[0]), channel);
+                                .replace("{0}", GuildUtils.getPrefix(guild) + args[0]), channel, user);
                 }
-                else sendRetrievedTranslation(channel, "other", language, "needmanageserver");
+                else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
             }
         };
         subcommands.add(set);
-        subcommands.add(new Subcommand(this, "statistics") {
+
+        // TODO: 3/17/2017 fix below
+        /*subcommands.add(new Subcommand(this, "statistics") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
+                Shard shard = GuildUtils.getShard(guild);
                 ArrayList<Translation> translations = new ArrayList<>();
                 translations.add(new Translation("language", "languageusages"));
                 translations.add(new Translation("status", "guilds"));
                 HashMap<Integer, TranslationResponse> responses = getTranslations(language, translations);
                 Map<String, Integer> usages = GuildUtils.getLanguageUsages();
-                int guilds = ardent.jda.getGuilds().size();
+                int guilds = shard.jda.getGuilds().size();
                 DecimalFormat format = new DecimalFormat("##");
                 StringBuilder sb = new StringBuilder();
                 sb.append("**" + responses.get(0).getTranslation() + "**\n");
                 usages.forEach((key, value) -> {
                     sb.append(" > **" + key + "**: " + format.format((value / guilds)) + "%\n");
                 });
-                sendTranslatedMessage(sb.toString(), channel);
+                sendTranslatedMessage(sb.toString(), channel, user);
             }
-        });
+        });*/
     }
 }

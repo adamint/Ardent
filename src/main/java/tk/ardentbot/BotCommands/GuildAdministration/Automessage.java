@@ -7,6 +7,7 @@ import tk.ardentbot.Core.CommandExecution.Subcommand;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Core.Translation.Translation;
 import tk.ardentbot.Core.Translation.TranslationResponse;
+import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.Tuples.Triplet;
@@ -17,9 +18,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import static tk.ardentbot.Main.Ardent.ardent;
-import static tk.ardentbot.Utils.SQL.SQLUtils.cleanString;
 
 public class Automessage extends Command {
     public Automessage(CommandSettings commandSettings) {
@@ -40,7 +38,7 @@ public class Automessage extends Command {
     public static Triplet<String, String, String> getMessagesAndChannel(Guild guild) throws SQLException {
         Triplet<String, String, String> triplet;
         check(guild);
-        Statement statement = ardent.conn.createStatement();
+        Statement statement = Ardent.conn.createStatement();
         ResultSet set = statement.executeQuery("SELECT * FROM Automessages WHERE GuildID='" + guild.getId() + "'");
         if (set.next()) {
             String channel = set.getString("ChannelID");
@@ -65,22 +63,19 @@ public class Automessage extends Command {
         else if (num == 1) columnName = "Welcome";
         else if (num == 2) columnName = "Goodbye";
         else return;
-        Statement statement = ardent.conn.createStatement();
-        statement.executeUpdate("UPDATE Automessages SET " + columnName + "='000' WHERE GuildID='" + guild.getId() +
-                "'");
-        statement.close();
+        new DatabaseAction("UPDATE Automessages SET " + columnName + "=? WHERE GuildID=?").set("000").set(guild.getId
+                ()).update();
     }
 
+    @SuppressWarnings("Duplicates")
     public static void set(Guild guild, String text, int num) throws SQLException {
         String columnName;
         if (num == 0) columnName = "ChannelID";
         else if (num == 1) columnName = "Welcome";
         else if (num == 2) columnName = "Goodbye";
         else return;
-        Statement statement = ardent.conn.createStatement();
-        statement.executeUpdate("UPDATE Automessages SET " + columnName + "='" + cleanString(text) + "' WHERE " +
-                "GuildID='" + guild.getId() + "'");
-        statement.close();
+        new DatabaseAction("UPDATE Automessages SET " + columnName + " =? WHERE GuildID=?").set(text).set(guild.getId
+                ()).update();
     }
 
     @Override
@@ -125,7 +120,7 @@ public class Automessage extends Command {
                     sb.append(responses.get(6).getTranslation().replace("{0}", messages.getC()) + "\n");
                 else sb.append(responses.get(3).getTranslation());
 
-                sendTranslatedMessage(sb.toString(), channel);
+                sendTranslatedMessage(sb.toString(), channel, user);
             }
         });
 
@@ -135,7 +130,7 @@ public class Automessage extends Command {
                                Language language) throws Exception {
                 StringBuilder sb = new StringBuilder();
                 sb.append(getTranslation("automessage", language, "availablearguments").getTranslation());
-                sendTranslatedMessage(sb.toString(), channel);
+                sendTranslatedMessage(sb.toString(), channel, user);
             }
         });
 
@@ -145,7 +140,7 @@ public class Automessage extends Command {
                                Language language) throws Exception {
                 if (guild.getMember(user).hasPermission(Permission.MANAGE_SERVER)) {
                     if (args.length < 4) {
-                        sendRetrievedTranslation(channel, "automessage", language, "specifytype");
+                        sendRetrievedTranslation(channel, "automessage", language, "specifytype", user);
                     }
                     else {
                         if (args[2].equalsIgnoreCase("channel")) {
@@ -156,9 +151,9 @@ public class Automessage extends Command {
                                 sendTranslatedMessage(getTranslation("automessage", language, "successfullyset")
                                         .getTranslation()
                                         .replace("{0}", getTranslation("automessage", language, "channelword")
-                                                .getTranslation()).replace("{1}", mentioned.getName()), channel);
+                                                .getTranslation()).replace("{1}", mentioned.getName()), channel, user);
                             }
-                            else sendRetrievedTranslation(channel, "automessage", language, "mentionchannel");
+                            else sendRetrievedTranslation(channel, "automessage", language, "mentionchannel", user);
                         }
                         else if (args[2].equalsIgnoreCase("join")) {
                             String msg = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " "
@@ -167,7 +162,7 @@ public class Automessage extends Command {
                             sendTranslatedMessage(getTranslation("automessage", language, "successfullyset")
                                     .getTranslation()
                                     .replace("{0}", getTranslation("automessage", language, "joinword")
-                                            .getTranslation()).replace("{1}", msg), channel);
+                                            .getTranslation()).replace("{1}", msg), channel, user);
                         }
                         else if (args[2].equalsIgnoreCase("leave")) {
                             String msg = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " "
@@ -176,13 +171,13 @@ public class Automessage extends Command {
                             sendTranslatedMessage(getTranslation("automessage", language, "successfullyset")
                                     .getTranslation()
                                     .replace("{0}", getTranslation("automessage", language, "leaveword")
-                                            .getTranslation()).replace("{1}", msg), channel);
+                                            .getTranslation()).replace("{1}", msg), channel, user);
 
                         }
-                        else sendRetrievedTranslation(channel, "tag", language, "invalidarguments");
+                        else sendRetrievedTranslation(channel, "tag", language, "invalidarguments", user);
                     }
                 }
-                else sendRetrievedTranslation(channel, "other", language, "needmanageserver");
+                else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
             }
         });
 
@@ -192,45 +187,45 @@ public class Automessage extends Command {
                                Language language) throws Exception {
                 if (guild.getMember(user).hasPermission(Permission.MANAGE_SERVER)) {
                     if (args.length == 2) {
-                        sendRetrievedTranslation(channel, "automessage", language, "specifytype");
+                        sendRetrievedTranslation(channel, "automessage", language, "specifytype", user);
                     }
                     else {
                         String type = args[2];
                         Triplet<String, String, String> settings = getMessagesAndChannel(guild);
                         if (type.equalsIgnoreCase("channel")) {
                             if (settings.getA() == null) {
-                                sendRetrievedTranslation(channel, "automessage", language, "nochannelset");
+                                sendRetrievedTranslation(channel, "automessage", language, "nochannelset", user);
                             }
                             else {
                                 remove(guild, 0);
                                 sendTranslatedMessage(getTranslation("automessage", language,
-                                        "successfullyremovedchannel").getTranslation(), channel);
+                                        "successfullyremovedchannel").getTranslation(), channel, user);
                             }
                         }
                         else if (type.equalsIgnoreCase("join")) {
                             if (settings.getB() == null) {
-                                sendRetrievedTranslation(channel, "automessage", language, "nowelcomeset");
+                                sendRetrievedTranslation(channel, "automessage", language, "nowelcomeset", user);
                             }
                             else {
                                 remove(guild, 1);
                                 sendTranslatedMessage(getTranslation("automessage", language,
-                                        "successfullyremovedwelcome").getTranslation(), channel);
+                                        "successfullyremovedwelcome").getTranslation(), channel, user);
                             }
                         }
                         else if (type.equalsIgnoreCase("leave")) {
                             if (settings.getC() == null) {
-                                sendRetrievedTranslation(channel, "automessage", language, "nogoodbyeset");
+                                sendRetrievedTranslation(channel, "automessage", language, "nogoodbyeset", user);
                             }
                             else {
                                 remove(guild, 2);
                                 sendTranslatedMessage(getTranslation("automessage", language,
-                                        "successfullyremovedgoodbye").getTranslation(), channel);
+                                        "successfullyremovedgoodbye").getTranslation(), channel, user);
                             }
                         }
-                        else sendRetrievedTranslation(channel, "tag", language, "invalidarguments");
+                        else sendRetrievedTranslation(channel, "tag", language, "invalidarguments", user);
                     }
                 }
-                else sendRetrievedTranslation(channel, "other", language, "needmanageserver");
+                else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
             }
         });
     }

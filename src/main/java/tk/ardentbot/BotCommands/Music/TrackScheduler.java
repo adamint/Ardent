@@ -7,10 +7,10 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.MessageChannel;
-import tk.ardentbot.Core.Exceptions.BotException;
+import tk.ardentbot.Core.LoggingUtils.BotException;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 
-import static tk.ardentbot.Main.Ardent.ardent;
+import static tk.ardentbot.Utils.Discord.GuildUtils.getShard;
 
 public class TrackScheduler extends AudioEventAdapter {
     private final AudioPlayer player;
@@ -43,8 +43,8 @@ public class TrackScheduler extends AudioEventAdapter {
         manager.nextTrack();
         try {
             Guild guild = manager.getChannel().getGuild();
-            ardent.help.sendRetrievedTranslation(manager.getChannel(), "music", GuildUtils.getLanguage(guild),
-                    "notabletoplaytrack");
+            getShard(guild).help.sendRetrievedTranslation(manager.getChannel(), "music", GuildUtils.getLanguage(guild),
+                    "notabletoplaytrack", null);
             new BotException("Exception playing " + track.getInfo().uri + " in " + manager.getChannel().getName() + "" +
                     " (" + guild.getId() + ")");
             if (exception instanceof FriendlyException) {
