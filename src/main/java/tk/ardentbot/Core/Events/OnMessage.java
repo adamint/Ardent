@@ -36,12 +36,12 @@ public class OnMessage {
                     if (ardentMember == null || userMember == null || userMember.hasPermission(Permission
                             .MANAGE_SERVER) || !ardentMember.hasPermission(Permission.MESSAGE_MANAGE))
                     {
-                        shard.factory.pass(event, language, null, GuildUtils.getPrefix(guild));
+                        shard.factory.pass(event, language, GuildUtils.getPrefix(guild));
                         return; // The event will be handled and musn't be resumed here.
                     }
 
                     if (!shard.botMuteData.isMuted(event.getMember())) {
-                        shard.factory.pass(event, language, null, GuildUtils.getPrefix(guild));
+                        shard.factory.pass(event, language, GuildUtils.getPrefix(guild));
                         return; // The event will be handled and musn't be resumed here.
                     }
 
@@ -56,7 +56,7 @@ public class OnMessage {
 
                     break;
                 case PRIVATE:
-                    shard0.factory.pass(event, LangFactory.english, null, "/");
+                    shard0.factory.pass(event, LangFactory.english, "/");
                     shard0.factory.incrementMessagesReceived();
                     break;
             }

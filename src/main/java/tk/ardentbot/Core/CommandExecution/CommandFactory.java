@@ -116,7 +116,7 @@ public class CommandFactory {
      * @param event the MessageReceivedEvent to be handled
      * @throws Exception this will create a BotException
      */
-    public void pass(MessageReceivedEvent event, Language language, Language originalLanguage, String prefix) throws
+    public void pass(MessageReceivedEvent event, Language language, String prefix) throws
             Exception {
         try {
             User user = event.getAuthor();
@@ -159,9 +159,7 @@ public class CommandFactory {
                 }
             }
             else {
-                Queue<CommandTranslation> commandNames;
-                if (originalLanguage != null) commandNames = originalLanguage.getCommandTranslations();
-                else commandNames = language.getCommandTranslations();
+                Queue<CommandTranslation> commandNames = language.getCommandTranslations();
 
                 if (event.getAuthor().isBot()) return;
                 if (channel instanceof PrivateChannel) {
@@ -234,16 +232,9 @@ public class CommandFactory {
                                             command.botCommand.sendRetrievedTranslation(channel, "other",
                                                     language, "firstincommands", user);
                                         }
-                                        if (originalLanguage != null) {
-                                            shard.executorService.execute(new AsyncCommandExecutor(command.botCommand,
-                                                    guild, channel,
-                                                    event.getAuthor(), message, args, originalLanguage, user));
-                                        }
-                                        else {
-                                            shard.executorService.execute(new AsyncCommandExecutor(command.botCommand,
-                                                    guild, channel,
-                                                    event.getAuthor(), message, args, language, user));
-                                        }
+                                        shard.executorService.execute(new AsyncCommandExecutor(command.botCommand,
+                                                guild, channel,
+                                                event.getAuthor(), message, args, GuildUtils.getLanguage(guild), user));
                                         commandsReceived++;
 
                                         new DatabaseAction("INSERT INTO CommandsReceived " +
@@ -261,10 +252,10 @@ public class CommandFactory {
                     }
                     if (!ranCommand[0]) {
                         if (language != LangFactory.english) {
-                            pass(event, LangFactory.english, null, prefix);
+                            pass(event, LangFactory.english, prefix);
                         }
                         else if (!prefix.equalsIgnoreCase("/")) {
-                            pass(event, null, language, "/");
+                            pass(event, language, "/");
                         }
                     }
                 }
