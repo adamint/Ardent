@@ -6,7 +6,6 @@ import tk.ardentbot.BotCommands.BotInfo.Status;
 import tk.ardentbot.Core.CommandExecution.BaseCommand;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static tk.ardentbot.Main.Ardent.ardent;
@@ -37,13 +36,16 @@ public class UsageUtils {
     }
 
     public static boolean isGuildFirstInCommands(Guild guild) {
-        ConcurrentHashMap<String, Integer> commandsByGuild = Status.commandsByGuild;
+        /*ConcurrentHashMap<String, Integer> commandsByGuild = Status.commandsByGuild;
         final boolean[] first = {true};
         int guildCommands = commandsByGuild.get(guild.getId());
         commandsByGuild.forEach((key, value) -> {
             if (guildCommands < value) first[0] = false;
         });
-        return first[0];
+        return first[0];*/
+
+        // @Akio take a look at this pls
+        return false;
     }
 
     public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {

@@ -162,12 +162,18 @@ public class Music extends Command {
             VoiceChannel voiceChannel = voiceState.getChannel();
             Member bot = guild.getMember(ardent.bot);
             if (bot.hasPermission(voiceChannel, Permission.VOICE_CONNECT)) {
-                audioManager.openAudioConnection(voiceChannel);
-                command.sendTranslatedMessage(command.getTranslation("music", language, "connectedto").getTranslation()
-                        .replace("{0}", voiceChannel.getName()), channel);
+                try {
+                    audioManager.openAudioConnection(voiceChannel);
+                    command.sendTranslatedMessage(command.getTranslation("music", language, "connectedto").getTranslation()
+
+                            .replace("{0}", voiceChannel.getName()), channel);
+                }
+                catch (PermissionException e) {
+                    command.sendRetrievedTranslation(channel, "music", language, "cannotjoinvc");
+                }
             }
             else {
-                command.sendRetrievedTranslation(channel, "music", language, "nopermissiontojoin");
+                command.sendRetrievedTranslation(channel, "music", language, "unabletojoinvc");
             }
             return voiceChannel;
         }
@@ -223,7 +229,8 @@ public class Music extends Command {
 
     private static String getDuration(ArrayList<AudioTrack> tracks) {
         long length = 0;
-        for (AudioTrack t : tracks) length += t.getDuration();
+        for (AudioTrack t : tracks)
+            length += t.getDuration();
         int seconds = (int) (length / 1000);
         int minutes = seconds / 60;
         int hours = minutes / 60;
@@ -253,7 +260,8 @@ public class Music extends Command {
         DatabaseAction action = new DatabaseAction("SELECT * FROM MusicSettings WHERE GuildID=?").set(guild.getId());
         ResultSet set = action.request();
         if (set.next()) {
-            if (set.getBoolean("RemoveAdditionMessages")) returnValue = true;
+            if (set.getBoolean("RemoveAdditionMessages"))
+                returnValue = true;
         }
         action.close();
         return returnValue;
@@ -292,10 +300,12 @@ public class Music extends Command {
                                 sendRetrievedTranslation(channel, "prune", language, "notanumber");
                             }
                         }
-                        else sendRetrievedTranslation(channel, "other", language, "mustbestafforpatron");
+                        else
+                            sendRetrievedTranslation(channel, "other", language, "mustbestafforpatron");
                     }
                 }
-                else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel");
+                else
+                    sendRetrievedTranslation(channel, "music", language, "notinmusicchannel");
             }
         });
         subcommands.add(new Subcommand(this, "play") {
@@ -336,7 +346,8 @@ public class Music extends Command {
                         }
                     }
                 }
-                else sendRetrievedTranslation(channel, "tag", language, "invalidarguments");
+                else
+                    sendRetrievedTranslation(channel, "tag", language, "invalidarguments");
             }
         });
 
@@ -408,15 +419,18 @@ public class Music extends Command {
                     ArdentTrack track = ardentMusicManager.getCurrentlyPlaying();
                     if (track != null) {
                         String ownerId = track.getAuthor();
-                        if (ownerId == null) ownerId = "";
+                        if (ownerId == null)
+                            ownerId = "";
                         if (UserUtils.hasManageServerOrStaff(member) || (user.getId().equalsIgnoreCase(ownerId))) {
                             ardentMusicManager.nextTrack();
                             sendRetrievedTranslation(channel, "music", language, "skippedcurrent");
                         }
-                        else sendRetrievedTranslation(channel, "music", language, "queuedorhavepermissions");
+                        else
+                            sendRetrievedTranslation(channel, "music", language, "queuedorhavepermissions");
                     }
                 }
-                else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel");
+                else
+                    sendRetrievedTranslation(channel, "music", language, "notinmusicchannel");
             }
         });
 
@@ -462,9 +476,11 @@ public class Music extends Command {
                             sendRetrievedTranslation(channel, "tag", language, "invalidarguments");
                         }
                     }
-                    else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel");
+                    else
+                        sendRetrievedTranslation(channel, "music", language, "notinmusicchannel");
                 }
-                else sendRetrievedTranslation(channel, "prune", language, "notanumber");
+                else
+                    sendRetrievedTranslation(channel, "prune", language, "notanumber");
             }
         });
 
@@ -481,9 +497,11 @@ public class Music extends Command {
                         sendTranslatedMessage(getTranslation("music", language, "disconnected").getTranslation()
                                 .replace("{0}", name), channel);
                     }
-                    else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel");
+                    else
+                        sendRetrievedTranslation(channel, "music", language, "notinmusicchannel");
                 }
-                else sendRetrievedTranslation(channel, "other", language, "needmanageserver");
+                else
+                    sendRetrievedTranslation(channel, "other", language, "needmanageserver");
             }
         });
 
@@ -504,9 +522,11 @@ public class Music extends Command {
                             sendRetrievedTranslation(channel, "music", language, "notpaused");
                         }
                     }
-                    else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel");
+                    else
+                        sendRetrievedTranslation(channel, "music", language, "notinmusicchannel");
                 }
-                else sendRetrievedTranslation(channel, "other", language, "needmanageserver");
+                else
+                    sendRetrievedTranslation(channel, "other", language, "needmanageserver");
             }
         });
 
@@ -519,13 +539,16 @@ public class Music extends Command {
                 if (UserUtils.hasManageServerOrStaff(member)) {
                     if (audioManager.isConnected()) {
                         GuildMusicManager manager = getGuildAudioPlayer(guild, channel);
-                        if (manager.player.getPlayingTrack() != null) manager.player.stopTrack();
+                        if (manager.player.getPlayingTrack() != null)
+                            manager.player.stopTrack();
                         manager.scheduler.manager.resetQueue();
                         sendRetrievedTranslation(channel, "music", language, "stoppedandcleared");
                     }
-                    else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel");
+                    else
+                        sendRetrievedTranslation(channel, "music", language, "notinmusicchannel");
                 }
-                else sendRetrievedTranslation(channel, "other", language, "needmanageserver");
+                else
+                    sendRetrievedTranslation(channel, "other", language, "needmanageserver");
             }
         });
 
@@ -542,9 +565,11 @@ public class Music extends Command {
                         manager.scheduler.manager.resetQueue();
                         sendRetrievedTranslation(channel, "music", language, "clearedallsongs");
                     }
-                    else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel");
+                    else
+                        sendRetrievedTranslation(channel, "music", language, "notinmusicchannel");
                 }
-                else sendRetrievedTranslation(channel, "other", language, "needmanageserver");
+                else
+                    sendRetrievedTranslation(channel, "other", language, "needmanageserver");
             }
         });
 
@@ -555,20 +580,21 @@ public class Music extends Command {
                 GuildMusicManager manager = getGuildAudioPlayer(guild, channel);
                 ArdentMusicManager ardentMusicManager = manager.scheduler.manager;
                 ArdentTrack nowPlaying = ardentMusicManager.getCurrentlyPlaying();
-                if (nowPlaying != null) {
+                if (nowPlaying != null && nowPlaying.getTrack() != null) {
                     AudioTrack track = nowPlaying.getTrack();
+
                     AudioTrackInfo info = track.getInfo();
 
                     StringBuilder sb = new StringBuilder();
                     String queuedBy = getTranslation("music", language, "queuedby").getTranslation();
 
                     sb.append(info.title + ": " + info.author + " " + getCurrentTime
-                            (track) +
-                            "\n     *" + queuedBy + " " + ardent.jda.getUserById(nowPlaying.getAuthor())
+                            (track) + "\n     *" + queuedBy + " " + ardent.jda.getUserById(nowPlaying.getAuthor())
                             .getName() + "*");
                     sendTranslatedMessage(sb.toString(), channel);
                 }
-                else sendRetrievedTranslation(channel, "music", language, "notplayingrn");
+                else
+                    sendRetrievedTranslation(channel, "music", language, "notplayingrn");
             }
         });
 
@@ -584,9 +610,11 @@ public class Music extends Command {
                         manager.scheduler.manager.shuffle();
                         sendTranslatedMessage("Shuffled the queue!", channel);
                     }
-                    else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel");
+                    else
+                        sendRetrievedTranslation(channel, "music", language, "notinmusicchannel");
                 }
-                else sendRetrievedTranslation(channel, "other", language, "needmanageserver");
+                else
+                    sendRetrievedTranslation(channel, "other", language, "needmanageserver");
             }
         });
 
@@ -607,9 +635,11 @@ public class Music extends Command {
                             sendRetrievedTranslation(channel, "music", language, "alreadypaused");
                         }
                     }
-                    else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel");
+                    else
+                        sendRetrievedTranslation(channel, "music", language, "notinmusicchannel");
                 }
-                else sendRetrievedTranslation(channel, "other", language, "needmanageserver");
+                else
+                    sendRetrievedTranslation(channel, "other", language, "needmanageserver");
             }
         });
 
@@ -658,9 +688,11 @@ public class Music extends Command {
                             sendRetrievedTranslation(channel, "prune", language, "notanumber");
                         }
                     }
-                    else sendRetrievedTranslation(channel, "other", language, "needmanageserver");
+                    else
+                        sendRetrievedTranslation(channel, "other", language, "needmanageserver");
                 }
-                else sendRetrievedTranslation(channel, "music", language, "loopsyntaxhelp");
+                else
+                    sendRetrievedTranslation(channel, "music", language, "loopsyntaxhelp");
             }
         });
 
@@ -677,9 +709,11 @@ public class Music extends Command {
                         sendTranslatedMessage(getTranslation("music", language, "deletealltracksfrom").getTranslation()
                                 .replace("{0}", deleteFrom.getName()), channel);
                     }
-                    else sendRetrievedTranslation(channel, "other", language, "mentionuser");
+                    else
+                        sendRetrievedTranslation(channel, "other", language, "mentionuser");
                 }
-                else sendRetrievedTranslation(channel, "other", language, "needmanageserver");
+                else
+                    sendRetrievedTranslation(channel, "other", language, "needmanageserver");
             }
         });
         subcommands.add(new Subcommand(this, "restart") {
@@ -698,9 +732,11 @@ public class Music extends Command {
                         sendTranslatedMessage(getTranslation("music", language, "restartedtrack").getTranslation()
                                 .replace("{0}", track.getInfo().title), channel);
                     }
-                    else sendRetrievedTranslation(channel, "music", language, "queuedorhavepermissions");
+                    else
+                        sendRetrievedTranslation(channel, "music", language, "queuedorhavepermissions");
                 }
-                else sendRetrievedTranslation(channel, "music", language, "notplayingrn");
+                else
+                    sendRetrievedTranslation(channel, "music", language, "notplayingrn");
             }
         });
     }
