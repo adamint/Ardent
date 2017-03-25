@@ -7,6 +7,7 @@ import tk.ardentbot.BotCommands.Music.StuckVoiceConnection;
 import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.WebServer.SparkServer;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
+import tk.ardentbot.Utils.Searching.GoogleSearch;
 import tk.ardentbot.Utils.Updaters.BotlistUpdater;
 import tk.ardentbot.Utils.Updaters.SpotifyTokenRefresh;
 
@@ -23,9 +24,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static tk.ardentbot.Core.Translation.LangFactory.languages;
+import static tk.ardentbot.Utils.Searching.GoogleSearch.GOOGLE_API_KEY;
 
 public class Ardent {
-    public static boolean testingBot = false;
+    public static boolean testingBot = true;
     public static Api spotifyApi;
     /**
      * Sharded
@@ -89,6 +91,7 @@ public class Ardent {
             String id = keys.getString("Identifier");
             String value = keys.getString("Value");
             if (id.equalsIgnoreCase("mashape")) mashapeKey = value;
+            else if (id.equalsIgnoreCase("google")) GOOGLE_API_KEY = value;
         }
         getKeys.close();
 
@@ -100,6 +103,8 @@ public class Ardent {
 
         StuckVoiceConnection playerStuckDaemon = new StuckVoiceConnection();
         globalExecutorService.scheduleAtFixedRate(playerStuckDaemon, 10, 15, TimeUnit.SECONDS);
+
+        GoogleSearch.setup(GOOGLE_API_KEY);
 
         languages = new ArrayList<>();
         languages.add(LangFactory.english);

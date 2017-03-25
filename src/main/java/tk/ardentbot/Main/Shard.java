@@ -236,6 +236,10 @@ public class Shard {
                         .FUN)));
                 factory.registerCommand(new RandomNum(new BaseCommand.CommandSettings("random", true, true, Category
                         .FUN)));
+                factory.registerCommand(new GSearch(new BaseCommand.CommandSettings("google", true, true, Category
+                        .FUN)));
+                factory.registerCommand(new Wiki(new BaseCommand.CommandSettings("wiki", true, true, Category
+                        .FUN)));
 
                 factory.registerCommand(new Prefix(new BaseCommand.CommandSettings("prefix", false, true, Category
                         .GUILDADMINISTRATION)));

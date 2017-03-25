@@ -293,26 +293,27 @@ public class Music extends Command {
                 try {
                     for (Guild guild : shard.jda.getGuilds()) {
                         GuildMusicManager manager = getGuildAudioPlayer(guild, null, shard);
-                        GuildVoiceState voiceState = guild.getSelfMember().getVoiceState();
-                        if (voiceState.inVoiceChannel()) {
-                            TextChannel channel = manager.scheduler.manager.getChannel();
-                            if (channel == null) channel = guild.getPublicChannel();
-
-                            if (channel.canTalk()) {
-                                VoiceChannel voiceChannel = voiceState.getChannel();
-                                Language language = GuildUtils.getLanguage(guild);
-                                AudioPlayer player = manager.player;
-                                if (voiceState.isGuildMuted()) {
-                                    shard.help.sendRetrievedTranslation(channel,
-                                            "music", language,
-                                            "mutedinchannelpausingnow", null);
-                                    player.setPaused(true);
-                                }
-                                if (voiceChannel.getMembers().size() == 1) {
-                                    shard.help.sendTranslatedMessage(shard.help.getTranslation("music", language,
-                                            "leftbcnic").getTranslation().replace("{0}", voiceChannel.getName()),
-                                            channel, null);
-                                    guild.getAudioManager().closeAudioConnection();
+                        if (manager != null) {
+                            GuildVoiceState voiceState = guild.getSelfMember().getVoiceState();
+                            if (voiceState.inVoiceChannel()) {
+                                TextChannel channel = manager.scheduler.manager.getChannel();
+                                if (channel == null) channel = guild.getPublicChannel();
+                                if (channel.canTalk()) {
+                                    VoiceChannel voiceChannel = voiceState.getChannel();
+                                    Language language = GuildUtils.getLanguage(guild);
+                                    AudioPlayer player = manager.player;
+                                    if (voiceState.isGuildMuted()) {
+                                        shard.help.sendRetrievedTranslation(channel,
+                                                "music", language,
+                                                "mutedinchannelpausingnow", null);
+                                        player.setPaused(true);
+                                    }
+                                    if (voiceChannel.getMembers().size() == 1) {
+                                        shard.help.sendTranslatedMessage(shard.help.getTranslation("music", language,
+                                                "leftbcnic").getTranslation().replace("{0}", voiceChannel.getName()),
+                                                channel, null);
+                                        guild.getAudioManager().closeAudioConnection();
+                                    }
                                 }
                             }
                         }
@@ -585,7 +586,7 @@ public class Music extends Command {
                             GuildMusicManager manager = getGuildAudioPlayer(guild, channel);
                             BlockingQueue<ArdentTrack> queue = manager.scheduler.manager.getQueue();
                             int numberToRemove = Integer.parseInt(args[2]) - 1;
-                            if (numberToRemove > queue.size() || numberToRemove < 0)
+                            if (numberToRemove >= queue.size() || numberToRemove < 0)
                                 sendRetrievedTranslation(channel, "tag", language, "invalidarguments", user);
                             else {
                                 Iterator<ArdentTrack> iterator = queue.iterator();

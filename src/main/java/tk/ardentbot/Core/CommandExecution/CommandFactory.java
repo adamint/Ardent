@@ -242,6 +242,7 @@ public class CommandFactory {
                                                 .set(command.getCommandIdentifier()).set(Timestamp.from(Instant.now()
                                         )).update();
                                         ranCommand[0] = true;
+                                        return;
                                     }
                                     catch (Exception e) {
                                         new BotException(e);

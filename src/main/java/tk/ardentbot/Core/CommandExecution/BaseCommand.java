@@ -96,7 +96,7 @@ public abstract class BaseCommand {
      * @param user  user who sent the command
      * @param embed whether the bot attempted to send an embed or not
      */
-    private void sendFailed(User user, boolean embed) {
+    public void sendFailed(User user, boolean embed) {
         if (user != null) {
             user.openPrivateChannel().queue(privateChannel -> {
                 try {
@@ -114,6 +114,16 @@ public abstract class BaseCommand {
                 }
             });
         }
+    }
+
+
+    public String replace(String content, int amountOfArgs) throws Exception {
+        String[] arrayed = content.split(" ");
+        StringBuilder toReplace = new StringBuilder();
+        for (int start = 0; start < amountOfArgs; start++) {
+            toReplace.append(arrayed[start] + " ");
+        }
+        return content.replace(toReplace.toString(), "");
     }
 
     /**

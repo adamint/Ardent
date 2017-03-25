@@ -158,7 +158,12 @@ public class Automessage extends Command {
                         else if (args[2].equalsIgnoreCase("join")) {
                             String msg = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " "
                                     + args[1] + " " + args[2] + " ", "");
+                            if (msg.length() == message.getRawContent().length()) {
+                                msg = message.getRawContent().replace("/" + args[0] + " "
+                                        + args[1] + " " + args[2] + " ", "");
+                            }
                             set(guild, msg, 1);
+                            set(guild, channel.getId(), 0);
                             sendTranslatedMessage(getTranslation("automessage", language, "successfullyset")
                                     .getTranslation()
                                     .replace("{0}", getTranslation("automessage", language, "joinword")
@@ -168,6 +173,7 @@ public class Automessage extends Command {
                             String msg = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " "
                                     + args[1] + " " + args[2] + " ", "");
                             set(guild, msg, 2);
+                            set(guild, channel.getId(), 0);
                             sendTranslatedMessage(getTranslation("automessage", language, "successfullyset")
                                     .getTranslation()
                                     .replace("{0}", getTranslation("automessage", language, "leaveword")
