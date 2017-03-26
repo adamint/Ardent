@@ -113,9 +113,9 @@ public class Music extends Command {
         if (guild.getMembers().size() < 150) {
             int trackAmount = getGuildAudioPlayer(guild, channel).scheduler.manager.getQueue().size();
             if (trackAmount + numberOfTracks >= 100) {
-                // GuildUtils.getShard(guild).help.sendRetrievedTranslation(channel, "music", language,
-                // "cannotqueuemorethan20", user);
-                return true;
+                GuildUtils.getShard(guild).help.sendRetrievedTranslation(channel, "music", language,
+                        "cannotqueuemorethan20", user);
+                return false;
             }
             else return true;
         }

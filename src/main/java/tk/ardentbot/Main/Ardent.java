@@ -128,10 +128,10 @@ public class Ardent {
 
         if (!premiumBot) {
             SparkServer.setup();
-            Class currentClass = new Object() {
+            /*Class currentClass = new Object() {
             }.getClass().getEnclosingClass();
             premiumProcess = Runtime.getRuntime().exec("java -jar " + currentClass.getProtectionDomain().getCodeSource().getLocation()
-                    .getPath() + " -premium");
+                    .getPath() + " -premium");*/
 
         }
         else {

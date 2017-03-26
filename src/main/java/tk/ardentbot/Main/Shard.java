@@ -333,7 +333,7 @@ public class Shard {
                             game = "Serving " + InternalStats.collect().getGuilds() + " guilds";
                             break;
                         case 2:
-                            game = "Music for " + Status.getVoiceConnections() + " servers (on this shard)";
+                            game = "Music for " + Music.getMusicStats().getK() + " servers (on this shard)";
                             break;
                     }
                     jda.getPresence().setGame(Game.of(game, Ardent.gameUrl));
