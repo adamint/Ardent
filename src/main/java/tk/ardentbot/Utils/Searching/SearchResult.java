@@ -6,6 +6,9 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
+/**
+ * Credit DV8FromTheWorld (https://github.com/DV8FromTheWorld/Yui)
+ */
 public class SearchResult {
     private String title;
     private String content;

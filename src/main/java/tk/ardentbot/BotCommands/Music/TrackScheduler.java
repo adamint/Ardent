@@ -32,6 +32,7 @@ public class TrackScheduler extends AudioEventAdapter {
     @Override
     public void onTrackStuck(AudioPlayer player, AudioTrack track, long thresholdMs) {
         manager.nextTrack();
+        manager.setCurrentlyPlaying(null);
         onException(player, track, thresholdMs);
     }
 
@@ -42,6 +43,7 @@ public class TrackScheduler extends AudioEventAdapter {
 
 
     private void onException(AudioPlayer player, AudioTrack track, Object exception) {
+        manager.setCurrentlyPlaying(null);
         manager.nextTrack();
         try {
             Guild guild = manager.getChannel().getGuild();

@@ -61,7 +61,7 @@ public class Clear extends Command {
                     if (mentionedUsers.size() == 1) {
                         User mentioned = mentionedUsers.get(0);
                         try {
-                            int num = Integer.parseInt(args[2]);
+                            int num = Integer.parseInt(replace(message.getRawContent(), 2));
                             if (num > 1 && num < 100) {
                                 TextChannel textChannel = (TextChannel) channel;
                                 ArrayList<Message> messagesToDelete = new ArrayList<>();

@@ -63,6 +63,7 @@ public class Admin extends Command {
 
     private static void shutdown() {
         try {
+            Ardent.premiumProcess.destroy();
             System.exit(0);
             boolean useLoc1 = true;
             if (Admin.class.getProtectionDomain().getCodeSource().getLocation().getPath().contains("Ardent1")) {

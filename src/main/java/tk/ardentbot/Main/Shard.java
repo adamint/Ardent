@@ -98,11 +98,16 @@ public class Shard {
         this.testingBot = testingBot;
         this.id = shardNumber;
         String token;
-        if (testingBot) {
-            token = IOUtils.toString(new FileReader(new File("C:\\Users\\AMR\\Desktop\\Ardent\\v2testtoken.key")));
+        if (testingBot && !Ardent.premiumBot) {
+            token = Ardent.testBotToken;
         }
         else {
-            token = IOUtils.toString(new FileReader(new File("/root/Ardent/v2bottoken.key")));
+            if (Ardent.premiumBot) {
+                token = Ardent.premiumBotToken;
+            }
+            else {
+                token = IOUtils.toString(new FileReader(new File("/root/Ardent/v2bottoken.key")));
+            }
         }
 
         jda = new JDABuilder(AccountType.BOT)
@@ -244,6 +249,8 @@ public class Shard {
                         .FUN)));
                 factory.registerCommand(new Wiki(new BaseCommand.CommandSettings("wiki", true, true, Category
                         .FUN)));
+                factory.registerCommand(new UserProfile(new BaseCommand.CommandSettings("profile", true, true, Category
+                        .FUN)));
 
                 factory.registerCommand(new Prefix(new BaseCommand.CommandSettings("prefix", false, true, Category
                         .GUILDADMINISTRATION)));
@@ -290,6 +297,8 @@ public class Shard {
                 musicManagers = new HashMap<>();
 
                 playerManager = new DefaultAudioPlayerManager();
+                playerManager.useRemoteNodes(Ardent.node1Url + ":8080", Ardent.node0Url + ":8080");
+
                 playerManager.getConfiguration().setResamplingQuality(AudioConfiguration.ResamplingQuality.LOW);
                 playerManager.registerSourceManager(new YoutubeAudioSourceManager());
                 playerManager.registerSourceManager(new SoundCloudAudioSourceManager());

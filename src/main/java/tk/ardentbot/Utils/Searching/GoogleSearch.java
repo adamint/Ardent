@@ -13,6 +13,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Credit DV8FromTheWorld (https://github.com/DV8FromTheWorld/Yui)
+ */
 public class GoogleSearch {
     public static final String GOOGLE_URL = "https://www.googleapis.com/customsearch/v1?cx=%s&key=%s&num=%d&q=%s";
     public static String GOOGLE_API_KEY = null;

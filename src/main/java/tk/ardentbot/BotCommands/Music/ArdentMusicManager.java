@@ -19,7 +19,6 @@ public class ArdentMusicManager {
     private BlockingQueue<ArdentTrack> queue = new LinkedBlockingQueue<>();
     private MessageChannel channel;
     private ArdentTrack currentlyPlaying;
-
     public ArdentMusicManager(AudioPlayer player, MessageChannel channel) {
         this.player = player;
         this.channel = channel;

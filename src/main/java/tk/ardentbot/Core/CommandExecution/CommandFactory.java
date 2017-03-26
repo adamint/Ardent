@@ -1,6 +1,7 @@
 package tk.ardentbot.Core.CommandExecution;
 
 import com.google.code.chatterbotapi.ChatterBotSession;
+import com.mashape.unirest.http.Unirest;
 import com.vdurmont.emoji.Emoji;
 import com.vdurmont.emoji.EmojiManager;
 import net.dv8tion.jda.core.entities.*;
@@ -153,10 +154,18 @@ public class CommandFactory {
                     else command.sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
                 }
                 else {
-                    command.sendTranslatedMessage(command.getTranslation("other", language, "mentionedhelp")
-                            .getTranslation()
-                            .replace("{0}", GuildUtils.getPrefix(guild) +
-                                    command.getName(language)), channel, user);
+                    if (mentionedContent.length() == 0) {
+                        command.sendTranslatedMessage(command.getTranslation("other", language, "mentionedhelp")
+                                .getTranslation()
+                                .replace("{0}", GuildUtils.getPrefix(guild) +
+                                        command.getName(language)), channel, user);
+                    }
+                    else {
+                        command.sendTranslatedMessage(Unirest.post("https://cleverbot.io/1.0/ask").field("user", Ardent.cleverbotUser)
+                                .field("key", Ardent.cleverbotKey).field("nick", "ardent").field("text", mentionedContent).asJson()
+                                .getBody()
+                                .getObject().getString("response"), channel, user);
+                    }
                 }
             }
             else {
