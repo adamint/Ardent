@@ -18,6 +18,7 @@ import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.Discord.UsageUtils;
+import tk.ardentbot.Utils.Discord.UserUtils;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 
 import java.sql.ResultSet;
@@ -187,6 +188,7 @@ public class CommandFactory {
                                                         "notavailableinprivatechannel", user);
                                             }
                                             commandsReceived++;
+                                            UserUtils.addMoney(shard, user, 1);
                                         }
                                         catch (Exception e) {
                                             new BotException(e);
@@ -242,6 +244,7 @@ public class CommandFactory {
                                                 .set(command.getCommandIdentifier()).set(Timestamp.from(Instant.now()
                                         )).update();
                                         ranCommand[0] = true;
+                                        UserUtils.addMoney(shard, user, 1);
                                         return;
                                     }
                                     catch (Exception e) {

@@ -6,7 +6,9 @@ import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Main.ShardManager;
+import tk.ardentbot.Utils.Profiles.Profile;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
@@ -51,4 +53,15 @@ public class UserUtils {
 
         return null;
     }
+
+    public static void addMoney(Shard shard, User user, double amount) throws SQLException {
+        if (shard.userProfiles.containsKey(user.getId())) {
+            Profile profile = shard.userProfiles.get(user.getId());
+            profile.addMoney(amount);
+        }
+        else {
+            shard.userProfiles.put(user.getId(), new Profile(user));
+        }
+    }
+
 }

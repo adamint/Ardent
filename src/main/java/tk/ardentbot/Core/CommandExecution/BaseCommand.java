@@ -116,8 +116,15 @@ public abstract class BaseCommand {
         }
     }
 
-
-    public String replace(String content, int amountOfArgs) throws Exception {
+    /**
+     * Removes the amount of arguments supplied, because Adam was an idiot when he
+     * designed the CommandFactory
+     *
+     * @param content      original message raw content
+     * @param amountOfArgs args to remove, starting at 1
+     * @return the edited message
+     */
+    public String replace(String content, int amountOfArgs) {
         String[] arrayed = content.split(" ");
         StringBuilder toReplace = new StringBuilder();
         for (int start = 0; start < amountOfArgs; start++) {

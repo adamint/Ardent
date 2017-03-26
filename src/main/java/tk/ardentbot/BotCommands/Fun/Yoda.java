@@ -28,7 +28,13 @@ public class Yoda extends Command {
                         .header("X-Mashape-Key", "ReLLUaXvjImsh0IJ2pe3NoLknUMip1RW4fkjsn3ajtoFnaOCal")
                         .header("Accept", "text/plain")
                         .asString();
-                sendTranslatedMessage(response.getBody(), channel, user);
+                String body = response.getBody();
+                if (body.contains("<html>")) {
+                    sendRetrievedTranslation(channel, "yoda", language, "unavailable", user);
+                }
+                else {
+                    sendTranslatedMessage(response.getBody(), channel, user);
+                }
             }
             catch (UnirestException e) {
                 e.printStackTrace();

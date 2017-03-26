@@ -10,6 +10,7 @@ import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Utils.Discord.GuildUtils;
+import tk.ardentbot.Utils.Discord.UserUtils;
 
 import java.sql.Date;
 import java.time.Instant;
@@ -29,6 +30,10 @@ public class OnMessage {
                     shard.factory.incrementMessagesReceived();
                     if (event.getGuild() == null)
                         return; // This one will never be executed. But just in case to avoid NPE.
+
+                    if (guild.getId().equalsIgnoreCase("260841592070340609")) {
+                        UserUtils.addMoney(shard, event.getAuthor(), 0.10);
+                    }
 
                     Member ardentMember = event.getGuild().getMember(event.getJDA().getSelfUser());
                     Member userMember = event.getMember();

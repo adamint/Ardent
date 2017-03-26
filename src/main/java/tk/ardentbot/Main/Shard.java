@@ -26,6 +26,7 @@ import tk.ardentbot.BotCommands.Fun.*;
 import tk.ardentbot.BotCommands.GuildAdministration.*;
 import tk.ardentbot.BotCommands.GuildInfo.Botname;
 import tk.ardentbot.BotCommands.GuildInfo.GuildInfo;
+import tk.ardentbot.BotCommands.GuildInfo.ServerInfo;
 import tk.ardentbot.BotCommands.GuildInfo.Whois;
 import tk.ardentbot.BotCommands.Music.GuildMusicManager;
 import tk.ardentbot.BotCommands.Music.Music;
@@ -42,6 +43,7 @@ import tk.ardentbot.Core.LoggingUtils.BotException;
 import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Utils.Discord.InternalStats;
+import tk.ardentbot.Utils.Profiles.Profile;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.SQL.MuteDaemon;
 import tk.ardentbot.Utils.Updaters.GuildDaemon;
@@ -65,6 +67,8 @@ import java.util.concurrent.TimeUnit;
 import static tk.ardentbot.Core.Translation.LangFactory.languages;
 
 public class Shard {
+    public HashMap<String, Profile> userProfiles = new HashMap<>();
+
     public boolean testingBot;
     public ScheduledExecutorService executorService = Executors.newScheduledThreadPool(100);
     public BotMuteData botMuteData;
@@ -269,6 +273,8 @@ public class Shard {
                         Category.GUILDADMINISTRATION)));
 
                 factory.registerCommand(new GuildInfo(new BaseCommand.CommandSettings("guildinfo", false, true, Category
+                        .GUILDINFO)));
+                factory.registerCommand(new ServerInfo(new BaseCommand.CommandSettings("info", false, true, Category
                         .GUILDINFO)));
                 factory.registerCommand(new Whois(new BaseCommand.CommandSettings("whois", true, true, Category
                         .GUILDINFO)));
