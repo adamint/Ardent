@@ -66,7 +66,12 @@ public class GuildUtils {
             else return LangFactory.english;
         }
         catch (Exception ex) {
-            getShard(guild).botLanguageData.set(guild, "english");
+            try {
+                getShard(guild).botLanguageData.set(guild, "english");
+            }
+            catch (Exception e) {
+                return LangFactory.english;
+            }
             return LangFactory.english;
         }
     }

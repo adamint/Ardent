@@ -9,6 +9,7 @@ import tk.ardentbot.Core.LoggingUtils.BotException;
 import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.WebServer.SparkServer;
 import tk.ardentbot.Utils.Premium.CheckIfPremiumGuild;
+import tk.ardentbot.Utils.Premium.UpdatePremiumMembers;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.Searching.GoogleSearch;
 import tk.ardentbot.Utils.Updaters.BotlistUpdater;
@@ -125,6 +126,9 @@ public class Ardent {
 
         StuckVoiceConnection playerStuckDaemon = new StuckVoiceConnection();
         globalExecutorService.scheduleAtFixedRate(playerStuckDaemon, 5, 10, TimeUnit.SECONDS);
+
+        UpdatePremiumMembers updatePremiumMembers = new UpdatePremiumMembers();
+        globalExecutorService.scheduleAtFixedRate(updatePremiumMembers, 0, 1, TimeUnit.MINUTES);
 
         if (!premiumBot) {
             SparkServer.setup();

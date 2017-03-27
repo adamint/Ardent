@@ -299,21 +299,23 @@ public class Music extends Command {
                             if (voiceState.inVoiceChannel()) {
                                 TextChannel channel = manager.scheduler.manager.getChannel();
                                 if (channel == null) channel = guild.getPublicChannel();
-                                if (channel.canTalk()) {
-                                    VoiceChannel voiceChannel = voiceState.getChannel();
-                                    Language language = GuildUtils.getLanguage(guild);
-                                    AudioPlayer player = manager.player;
-                                    if (voiceState.isGuildMuted()) {
-                                        shard.help.sendRetrievedTranslation(channel,
-                                                "music", language,
-                                                "mutedinchannelpausingnow", null);
-                                        player.setPaused(true);
-                                    }
-                                    if (voiceChannel.getMembers().size() == 1) {
-                                        shard.help.sendTranslatedMessage(shard.help.getTranslation("music", language,
-                                                "leftbcnic").getTranslation().replace("{0}", voiceChannel.getName()),
-                                                channel, null);
-                                        guild.getAudioManager().closeAudioConnection();
+                                if (channel != null) {
+                                    if (channel.canTalk()) {
+                                        VoiceChannel voiceChannel = voiceState.getChannel();
+                                        Language language = GuildUtils.getLanguage(guild);
+                                        AudioPlayer player = manager.player;
+                                        if (voiceState.isGuildMuted()) {
+                                            shard.help.sendRetrievedTranslation(channel,
+                                                    "music", language,
+                                                    "mutedinchannelpausingnow", null);
+                                            player.setPaused(true);
+                                        }
+                                        if (voiceChannel.getMembers().size() == 1) {
+                                            shard.help.sendTranslatedMessage(shard.help.getTranslation("music", language,
+                                                    "leftbcnic").getTranslation().replace("{0}", voiceChannel.getName()),
+                                                    channel, null);
+                                            guild.getAudioManager().closeAudioConnection();
+                                        }
                                     }
                                 }
                             }

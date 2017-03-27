@@ -10,7 +10,6 @@ import net.dv8tion.jda.core.exceptions.PermissionException;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.util.ConcurrentArrayQueue;
-import tk.ardentbot.BotCommands.BotInfo.Status;
 import tk.ardentbot.Core.LoggingUtils.BotException;
 import tk.ardentbot.Core.Models.CommandTranslation;
 import tk.ardentbot.Core.Translation.LangFactory;
@@ -18,7 +17,6 @@ import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Utils.Discord.GuildUtils;
-import tk.ardentbot.Utils.Discord.UsageUtils;
 import tk.ardentbot.Utils.Discord.UserUtils;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 
@@ -233,7 +231,7 @@ public class CommandFactory {
                                         (identifier)).forEach(command -> {
                                     try {
                                         command.botCommand.usages++;
-                                        boolean beforeCmdFirst = false;
+                                        /*boolean beforeCmdFirst = false;
                                         int oldCommandAmount = Status.commandsByGuild.get(guild.getId());
                                         Status.commandsByGuild.replace(guild.getId(), oldCommandAmount,
                                                 oldCommandAmount + 1);
@@ -242,7 +240,7 @@ public class CommandFactory {
                                         if (!beforeCmdFirst && afterCmdFirst) {
                                             command.botCommand.sendRetrievedTranslation(channel, "other",
                                                     language, "firstincommands", user);
-                                        }
+                                        }*/
                                         shard.executorService.execute(new AsyncCommandExecutor(command.botCommand,
                                                 guild, channel,
                                                 event.getAuthor(), message, args, GuildUtils.getLanguage(guild), user));

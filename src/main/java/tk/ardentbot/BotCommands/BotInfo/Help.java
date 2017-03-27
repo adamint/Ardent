@@ -64,7 +64,7 @@ public class Help extends Command {
         for (Category category : Category.values()) {
             description.append("\n > *" + Category.getName(category) + "*");
         }
-
+        guild.getPublicChannel().getMessageById("11").queue(message1 -> channel.sendMessage(message1.getContent()).queue());
         description.append("\n" + responses.get(2).getTranslation().replace("{0}", GuildUtils.getPrefix(guild) +
                 args[0]));
         description.append("\n" + responses.get(3).getTranslation().replace("{0}", GuildUtils.getPrefix(guild) +
