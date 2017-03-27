@@ -233,7 +233,7 @@ public class CommandFactory {
                                         (identifier)).forEach(command -> {
                                     try {
                                         command.botCommand.usages++;
-                                        boolean beforeCmdFirst = UsageUtils.isGuildFirstInCommands(guild);
+                                        boolean beforeCmdFirst = false;
                                         int oldCommandAmount = Status.commandsByGuild.get(guild.getId());
                                         Status.commandsByGuild.replace(guild.getId(), oldCommandAmount,
                                                 oldCommandAmount + 1);

@@ -10,28 +10,30 @@ import tk.ardentbot.Utils.Profiles.Profile;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.stream.Collectors;
+import java.util.List;
 
+import static java.util.stream.Collectors.toCollection;
 import static tk.ardentbot.Main.Ardent.*;
 
 public class UserUtils {
+    public static boolean isStaff(User user) {
+        String id = user.getId();
+        return developers.contains(id) || moderators.contains(id) || translators.contains(id);
+    }
+
     public static boolean hasTierOnePermissions(User user) {
         String id = user.getId();
-        return developers.contains(id) || moderators.contains(id) || translators.contains(id) || tierOnepatrons
-                .contains(id)
-                || tierTwopatrons.contains(id) || tierThreepatrons.contains(id);
+        return isStaff(user) || tierOnepatrons.contains(id) || tierTwopatrons.contains(id) || tierThreepatrons.contains(id);
     }
 
     public static boolean hasTierTwoPermissions(User user) {
         String id = user.getId();
-        return developers.contains(id) || moderators.contains(id) || translators.contains(id)
-                || tierTwopatrons.contains(id) || tierThreepatrons.contains(id);
+        return isStaff(user) || translators.contains(id) || tierTwopatrons.contains(id) || tierThreepatrons.contains(id);
     }
 
     public static boolean hasTierThreePermissions(User user) {
         String id = user.getId();
-        return developers.contains(id) || moderators.contains(id) || translators.contains(id) || tierThreepatrons
-                .contains(id);
+        return isStaff(user) || tierThreepatrons.contains(id);
     }
 
     public static boolean hasManageServerOrStaff(Member member) {
@@ -39,10 +41,13 @@ public class UserUtils {
                 || Ardent.moderators.contains(member.getUser().getId());
     }
 
-    public static ArrayList<String> getNamesById(ArrayList<String> ids) {
-        ArrayList<String> names = ids.stream().map(id ->
-                getUserById(id).getName()).collect(Collectors.toCollection(ArrayList::new));
-        return names;
+    public static ArrayList<String> getNamesById(List<String> ids) {
+        return ids.stream().map(id ->
+                getUserById(id).getName()).collect(toCollection(ArrayList::new));
+    }
+
+    public static ArrayList<User> getUsersById(List<String> ids) {
+        return ids.stream().map(UserUtils::getUserById).collect(toCollection((ArrayList::new)));
     }
 
     public static User getUserById(String id) {

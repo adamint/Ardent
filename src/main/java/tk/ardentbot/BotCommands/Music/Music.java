@@ -25,6 +25,7 @@ import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Main.ShardManager;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.Discord.UserUtils;
+import tk.ardentbot.Utils.Premium.GuildPatronStatus;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.StringUtils;
 import tk.ardentbot.Utils.Tuples.Pair;
@@ -159,7 +160,7 @@ public class Music extends Command {
         GuildUtils.getShard(guild).playerManager.loadItemOrdered(musicManager, trackUrl, new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack track) {
-                if (!UserUtils.hasTierTwoPermissions(user)) {
+                if (!UserUtils.hasTierTwoPermissions(user) && !GuildPatronStatus.getGuildPatronStatus(guild).isPremium()) {
                     try {
                         if (!shouldContinue(user, language, guild, channel, track)) {
                             return;
@@ -188,7 +189,7 @@ public class Music extends Command {
                     if (firstTrack == null) {
                         firstTrack = playlist.getTracks().get(0);
                     }
-                    if (!UserUtils.hasTierTwoPermissions(user)) {
+                    if (!UserUtils.hasTierTwoPermissions(user) && !GuildPatronStatus.getGuildPatronStatus(guild).isPremium()) {
                         try {
                             if (!shouldContinue(user, language, guild, channel, firstTrack)) {
                                 return;
@@ -209,7 +210,7 @@ public class Music extends Command {
                     play(user, guild, voiceChannel, musicManager, firstTrack, channel);
                 }
                 else {
-                    if (!UserUtils.hasTierTwoPermissions(user)) {
+                    if (!UserUtils.hasTierTwoPermissions(user) && !GuildPatronStatus.getGuildPatronStatus(guild).isPremium()) {
                         try {
                             if (!shouldContinue(user, language, guild, channel, 1)) {
                                 return;
@@ -953,13 +954,13 @@ public class Music extends Command {
                                 ().replace("{0}", String.valueOf(player.getVolume())), channel, user);
                     }
                     else {
-                        if (UserUtils.hasTierOnePermissions(user)) {
+                        if (UserUtils.hasTierOnePermissions(user) && GuildPatronStatus.getGuildPatronStatus(guild).isPremium()) {
                             try {
                                 int volume = Integer.parseInt(args[2]);
                                 player.setVolume(volume);
                                 sendTranslatedMessage(getTranslation("music", language, "setplayervolume")
                                         .getTranslation()
-                                        .replace("{0}", String.valueOf(volume)), channel, user);
+                                        .replace("{0}", String.valueOf(volume)), sendTo(channel, guild), user);
                             }
                             catch (NumberFormatException ex) {
                                 sendRetrievedTranslation(channel, "prune", language, "notanumber", user);

@@ -9,6 +9,7 @@ import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Core.Translation.Translation;
 import tk.ardentbot.Core.Translation.TranslationResponse;
 import tk.ardentbot.Utils.Discord.GuildUtils;
+import tk.ardentbot.Utils.Premium.GuildPatronStatus;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,6 +26,7 @@ public class GuildInfo extends Command {
         translations.add(new Translation("guildinfo", "language"));
         translations.add(new Translation("guildinfo", "prefix"));
         translations.add(new Translation("guildinfo", "numberofusers"));
+        translations.add(new Translation("guildinfo", "premium"));
         HashMap<Integer, TranslationResponse> responses = getTranslations(language, translations);
         StringBuilder sb = new StringBuilder();
         sb.append("**" + responses.get(0).getTranslation() + "**\n" +
@@ -32,6 +34,7 @@ public class GuildInfo extends Command {
         sb.append(" **>** *" + responses.get(1).getTranslation() + ": " + language.getIdentifier() + "*\n");
         sb.append(" **>** *" + responses.get(2).getTranslation() + ": " + GuildUtils.getPrefix(guild) + "*\n");
         sb.append(" **>** *" + responses.get(3).getTranslation() + ": " + guild.getMembers().size() + "*\n");
+        sb.append(" **>** *" + responses.get(4).getTranslation() + ": " + GuildPatronStatus.getGuildPatronStatus(guild).isPremium() + "*");
         sendTranslatedMessage(sb.toString(), channel, user);
     }
 
