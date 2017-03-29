@@ -1,6 +1,6 @@
 package tk.ardentbot.Utils;
 
-import tk.ardentbot.Utils.Tuples.Pair;
+import tk.ardentbot.Utils.JLAdditions.Pair;
 
 import java.util.*;
 

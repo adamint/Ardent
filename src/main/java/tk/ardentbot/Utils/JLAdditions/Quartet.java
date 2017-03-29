@@ -1,4 +1,4 @@
-package tk.ardentbot.Utils.Tuples;
+package tk.ardentbot.Utils.JLAdditions;
 
 public class Quartet<A, B, C, D> {
     private A a;

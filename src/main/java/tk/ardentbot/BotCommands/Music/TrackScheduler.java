@@ -32,7 +32,6 @@ public class TrackScheduler extends AudioEventAdapter {
     @Override
     public void onTrackStuck(AudioPlayer player, AudioTrack track, long thresholdMs) {
         manager.nextTrack();
-        manager.setCurrentlyPlaying(null);
         onException(player, track, thresholdMs);
     }
 

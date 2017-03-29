@@ -72,7 +72,7 @@ public class ArdentMusicManager {
         return lastPlayedAt;
     }
 
-    void resetQueue() {
+    public void resetQueue() {
         this.queue = new LinkedBlockingQueue<>();
     }
 

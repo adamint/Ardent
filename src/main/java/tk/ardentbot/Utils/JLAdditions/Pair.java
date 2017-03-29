@@ -1,4 +1,4 @@
-package tk.ardentbot.Utils.Tuples;
+package tk.ardentbot.Utils.JLAdditions;
 
 public class Pair<K, V> {
     private K k;

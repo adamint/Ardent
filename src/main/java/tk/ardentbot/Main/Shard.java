@@ -39,6 +39,7 @@ import tk.ardentbot.Core.CommandExecution.CommandFactory;
 import tk.ardentbot.Core.Events.Join;
 import tk.ardentbot.Core.Events.Leave;
 import tk.ardentbot.Core.Events.OnMessage;
+import tk.ardentbot.Core.Events.VoiceLeaveEvent;
 import tk.ardentbot.Core.LoggingUtils.BotException;
 import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;
@@ -154,6 +155,7 @@ public class Shard {
                 jda.addEventListener(new OnMessage());
                 jda.addEventListener(new Join());
                 jda.addEventListener(new Leave());
+                jda.addEventListener(new VoiceLeaveEvent());
 
                 crowdinLanguages.add(LangFactory.croatian);
                 crowdinLanguages.add(LangFactory.french);
@@ -256,6 +258,8 @@ public class Shard {
                         .GUILDADMINISTRATION)));
                 factory.registerCommand(new GuildLanguage(new BaseCommand.CommandSettings("language", false, true,
                         Category.GUILDADMINISTRATION)));
+                factory.registerCommand(new Restrict(new BaseCommand.CommandSettings("restrict", false, true, Category
+                        .GUILDADMINISTRATION)));
                 factory.registerCommand(new Iam(new BaseCommand.CommandSettings("iam", false, true,
                         Category.GUILDADMINISTRATION)));
                 factory.registerCommand(new Setnickname(new BaseCommand.CommandSettings("setnickname", false, true,
@@ -297,7 +301,7 @@ public class Shard {
                 musicManagers = new HashMap<>();
 
                 playerManager = new DefaultAudioPlayerManager();
-                playerManager.useRemoteNodes(Ardent.node1Url + ":8080", Ardent.node0Url + ":8080");
+                playerManager.useRemoteNodes(Ardent.node1Url + ":8080");
 
                 playerManager.getConfiguration().setResamplingQuality(AudioConfiguration.ResamplingQuality.LOW);
                 playerManager.registerSourceManager(new YoutubeAudioSourceManager());

@@ -137,6 +137,44 @@ public class Admin extends Command {
                     Ardent.gameUrl = args[2];
                     sendTranslatedMessage("Updated the game URL", channel, user);
                 }
+                else if (args[1].equalsIgnoreCase("disable")) {
+                    if (args.length == 2) {
+                        StringBuilder disabledCommands = new StringBuilder();
+                        disabledCommands.append("**Disabled Commands/Features:**\n");
+                        Ardent.disabledCommands.forEach(s -> {
+                            disabledCommands.append(" **>** ").append(s).append("\n");
+                        });
+                        sendTranslatedMessage(disabledCommands.toString(), channel, user);
+                    }
+                    else if (args.length == 4) {
+                        try {
+                            boolean disable = Boolean.parseBoolean(args[2]);
+                            System.out.println(disable);
+                            String identifier = args[3];
+                            if (disable) {
+                                if (Ardent.disabledCommands.contains(identifier))
+                                    sendTranslatedMessage("This feature is already disabled", channel, user);
+                                else {
+                                    Ardent.disabledCommands.add(identifier);
+                                    sendTranslatedMessage("disabled " + identifier, channel, user);
+                                }
+                            }
+                            else {
+                                if (!Ardent.disabledCommands.contains(identifier)) {
+                                    sendTranslatedMessage("This feature is already enabled", channel, user);
+                                }
+                                else {
+                                    Ardent.disabledCommands.remove(identifier);
+                                    sendTranslatedMessage("enabled " + identifier, channel, user);
+                                }
+                            }
+                        }
+                        catch (Exception e) {
+                            sendTranslatedMessage("/admin restrict true/false command_identifier", channel, user);
+                        }
+                    }
+                    else sendTranslatedMessage("/admin restrict true/false command_identifier", channel, user);
+                }
             }
         }
         else sendRetrievedTranslation(channel, "other", language, "needdeveloperpermission", user);

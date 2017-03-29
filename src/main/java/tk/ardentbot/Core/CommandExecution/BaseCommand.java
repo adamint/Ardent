@@ -96,7 +96,7 @@ public abstract class BaseCommand {
      * @param user  user who sent the command
      * @param embed whether the bot attempted to send an embed or not
      */
-    public void sendFailed(User user, boolean embed) {
+    protected void sendFailed(User user, boolean embed) {
         if (user != null) {
             user.openPrivateChannel().queue(privateChannel -> {
                 try {
@@ -145,12 +145,7 @@ public abstract class BaseCommand {
         Optional<CommandTranslation> currentSubcommand = commandTranslations.stream()
                 .filter(subcommandTranslation -> subcommandTranslation.getIdentifier()
                         .equals(commandIdentifier)).distinct().findFirst();
-        if (currentSubcommand.isPresent()) {
-            return currentSubcommand.get();
-        }
-        else {
-            return (language != english) ? getCmdTranslations(english) : null;
-        }
+        return currentSubcommand.orElseGet(() -> (language != english) ? getCmdTranslations(english) : null);
     }
 
     /**
@@ -385,8 +380,7 @@ public abstract class BaseCommand {
     public boolean equals(Object o) {
         if (o instanceof BaseCommand) {
             BaseCommand c = (BaseCommand) o;
-            if (this.commandIdentifier.equalsIgnoreCase(c.getCommandIdentifier())) return true;
-            else return false;
+            return this.commandIdentifier.equalsIgnoreCase(c.getCommandIdentifier());
         }
         else return false;
     }

@@ -31,6 +31,8 @@ import static tk.ardentbot.Core.Translation.LangFactory.languages;
 import static tk.ardentbot.Utils.Searching.GoogleSearch.GOOGLE_API_KEY;
 
 public class Ardent {
+    public static ArrayList<String> disabledCommands = new ArrayList<>();
+
     public static String cleverbotUser;
     public static String cleverbotKey;
     public static Process premiumProcess;

@@ -23,8 +23,6 @@ import tk.ardentbot.Utils.SQL.DatabaseAction;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Queue;
@@ -159,10 +157,15 @@ public class CommandFactory {
                                         command.getName(language)), channel, user);
                     }
                     else {
-                        command.sendTranslatedMessage(Unirest.post("https://cleverbot.io/1.0/ask").field("user", Ardent.cleverbotUser)
-                                .field("key", Ardent.cleverbotKey).field("nick", "ardent").field("text", mentionedContent).asJson()
-                                .getBody()
-                                .getObject().getString("response"), channel, user);
+                        if (!Ardent.disabledCommands.contains("cleverbot")) {
+                            command.sendTranslatedMessage(Unirest.post("https://cleverbot.io/1.0/ask").field("user", Ardent.cleverbotUser)
+                                    .field("key", Ardent.cleverbotKey).field("nick", "ardent").field("text", mentionedContent).asJson()
+                                    .getBody()
+                                    .getObject().getString("response"), channel, user);
+                        }
+                        else {
+                            command.sendRetrievedTranslation(channel, "other", language, "disabledfeature", user);
+                        }
                     }
                 }
             }
@@ -171,40 +174,7 @@ public class CommandFactory {
 
                 if (event.getAuthor().isBot()) return;
                 if (channel instanceof PrivateChannel) {
-                    if (args[0].startsWith("/")) {
-                        args[0] = args[0].replace("/", "");
-                        commandNames.forEach(commandTranslation -> {
-                            String translation = commandTranslation.getTranslation();
-                            String identifier = commandTranslation.getIdentifier();
-                            if (StringUtils.stripAccents(translation).equalsIgnoreCase(StringUtils.stripAccents
-                                    (args[0])))
-                            {
-                                for (BaseCommand baseCommand : baseCommands) {
-                                    if (StringUtils.stripAccents(baseCommand.getCommandIdentifier()).equalsIgnoreCase
-                                            (StringUtils.stripAccents(identifier)))
-                                    {
-                                        try {
-                                            if (baseCommand.isPrivateChannelUsage()) {
-                                                baseCommand.botCommand.usages++;
-                                                shard.executorService.execute(new AsyncCommandExecutor(baseCommand
-                                                        .botCommand, guild,
-                                                        channel, event.getAuthor(), message, args, language, user));
-                                            }
-                                            else {
-                                                baseCommand.sendRetrievedTranslation(channel, "other", language,
-                                                        "notavailableinprivatechannel", user);
-                                            }
-                                            commandsReceived++;
-                                            UserUtils.addMoney(shard, user, 1);
-                                        }
-                                        catch (Exception e) {
-                                            new BotException(e);
-                                        }
-                                    }
-                                }
-                            }
-                        });
-                    }
+                    channel.sendMessage("Private channel integration will be re-added soon, please type this command in a guild!").queue();
                 }
                 else {
                     final boolean[] ranCommand = {false};
@@ -241,17 +211,18 @@ public class CommandFactory {
                                             command.botCommand.sendRetrievedTranslation(channel, "other",
                                                     language, "firstincommands", user);
                                         }*/
-                                        shard.executorService.execute(new AsyncCommandExecutor(command.botCommand,
-                                                guild, channel,
-                                                event.getAuthor(), message, args, GuildUtils.getLanguage(guild), user));
-                                        commandsReceived++;
-
-                                        new DatabaseAction("INSERT INTO CommandsReceived " +
-                                                "VALUES (?,?,?,?)").set(guild.getId()).set(event.getAuthor().getId())
-                                                .set(command.getCommandIdentifier()).set(Timestamp.from(Instant.now()
-                                        )).update();
-                                        ranCommand[0] = true;
-                                        UserUtils.addMoney(shard, user, 1);
+                                        if (!Ardent.disabledCommands.contains(command.getCommandIdentifier())) {
+                                            shard.executorService.execute(new AsyncCommandExecutor(command.botCommand,
+                                                    guild, channel,
+                                                    event.getAuthor(), message, args, GuildUtils.getLanguage(guild), user));
+                                            commandsReceived++;
+                                            ranCommand[0] = true;
+                                            UserUtils.addMoney(shard, user, 1);
+                                        }
+                                        else {
+                                            command.sendRetrievedTranslation(channel, "other", language, "disabledfeature", user);
+                                            ranCommand[0] = true;
+                                        }
                                         return;
                                     }
                                     catch (Exception e) {

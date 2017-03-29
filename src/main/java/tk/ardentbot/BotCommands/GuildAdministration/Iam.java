@@ -11,8 +11,8 @@ import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.Discord.MessageUtils;
 import tk.ardentbot.Utils.Discord.UserUtils;
+import tk.ardentbot.Utils.JLAdditions.Pair;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
-import tk.ardentbot.Utils.Tuples.Pair;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

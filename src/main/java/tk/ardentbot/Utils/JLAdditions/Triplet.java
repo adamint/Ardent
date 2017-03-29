@@ -1,18 +1,14 @@
-package tk.ardentbot.Utils.Tuples;
+package tk.ardentbot.Utils.JLAdditions;
 
-public class Quintet<A, B, C, D, E> {
+public class Triplet<A, B, C> {
     private A a;
     private B b;
     private C c;
-    private D d;
-    private E e;
 
-    public Quintet(A a, B b, C c, D d, E e) {
+    public Triplet(A a, B b, C c) {
         this.a = a;
         this.b = b;
         this.c = c;
-        this.d = d;
-        this.e = e;
     }
 
     public A getA() {
@@ -38,21 +34,4 @@ public class Quintet<A, B, C, D, E> {
     public void setC(C c) {
         this.c = c;
     }
-
-    public D getD() {
-        return d;
-    }
-
-    public void setD(D d) {
-        this.d = d;
-    }
-
-    public E getE() {
-        return e;
-    }
-
-    public void setE(E e) {
-        this.e = e;
-    }
-
 }

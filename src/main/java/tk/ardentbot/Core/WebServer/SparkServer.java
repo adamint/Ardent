@@ -11,9 +11,9 @@ import tk.ardentbot.Core.WebServer.Models.Status;
 import tk.ardentbot.Core.WebServer.Models.User;
 import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.Discord.InternalStats;
+import tk.ardentbot.Utils.JLAdditions.Pair;
+import tk.ardentbot.Utils.JLAdditions.Quintet;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
-import tk.ardentbot.Utils.Tuples.Pair;
-import tk.ardentbot.Utils.Tuples.Quintet;
 
 import java.lang.management.ManagementFactory;
 import java.sql.ResultSet;

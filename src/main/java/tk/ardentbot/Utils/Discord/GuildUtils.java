@@ -15,6 +15,14 @@ import java.util.Map;
 import static tk.ardentbot.Main.ShardManager.getShards;
 
 public class GuildUtils {
+    public static Guild getGuild(String id) {
+        for (Shard shard : getShards()) {
+            Guild temp = shard.jda.getGuildById(id);
+            if (temp != null) return temp;
+        }
+        return null;
+    }
+
     public static Shard getShard(int id) {
         for (Shard shard : getShards()) {
             if (shard.getId() == id) {
