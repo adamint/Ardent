@@ -8,7 +8,6 @@ import net.dv8tion.jda.core.entities.User;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -84,22 +83,16 @@ public class ArdentMusicManager {
     }
 
     void removeFrom(User user) {
-        Iterator<ArdentTrack> iterator = queue.iterator();
-        while (iterator.hasNext()) {
-            ArdentTrack currentTrack = iterator.next();
-            if (currentTrack.getAuthor().equalsIgnoreCase(user.getId())) iterator.remove();
-        }
+        queue.removeIf(currentTrack -> currentTrack.getAuthor().equalsIgnoreCase(user.getId()));
     }
 
     public BlockingQueue<ArdentTrack> getQueue() {
         return queue;
     }
 
-    public List<ArdentTrack> getQueueAsList() {
+    List<ArdentTrack> getQueueAsList() {
         ArrayList<ArdentTrack> tracks = new ArrayList<>();
-        for (ArdentTrack ardentTrack : queue) {
-            tracks.add(ardentTrack);
-        }
+        tracks.addAll(queue);
         return tracks;
     }
 }

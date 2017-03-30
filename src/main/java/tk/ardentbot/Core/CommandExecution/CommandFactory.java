@@ -18,6 +18,8 @@ import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.Discord.UserUtils;
+import tk.ardentbot.Utils.Models.RestrictedUser;
+import tk.ardentbot.Utils.Premium.EntityGuild;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 
 import java.sql.ResultSet;
@@ -212,6 +214,13 @@ public class CommandFactory {
                                                     language, "firstincommands", user);
                                         }*/
                                         if (!Ardent.disabledCommands.contains(command.getCommandIdentifier())) {
+                                            EntityGuild entityGuild = EntityGuild.get(guild);
+                                            for (RestrictedUser u : entityGuild.getRestrictedUsers()) {
+                                                if (u.getUserId().equalsIgnoreCase(user.getId())) {
+                                                    command.sendRestricted(user);
+                                                    return;
+                                                }
+                                            }
                                             shard.executorService.execute(new AsyncCommandExecutor(command.botCommand,
                                                     guild, channel,
                                                     event.getAuthor(), message, args, GuildUtils.getLanguage(guild), user));

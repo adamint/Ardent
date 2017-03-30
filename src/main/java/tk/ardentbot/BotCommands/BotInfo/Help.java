@@ -47,7 +47,7 @@ public class Help extends Command {
         description.append("\n > " + getShard().patreon.getName(language) + ": *" + getShard().patreon.getDescription
                 (language) + "*");
         description.append("\n > " + getShard().translateForArdent.getName(language) + ": *" + getShard()
-                .translateForArdent.getDescription(language) + "*\n\n");
+                .translateForArdent.getDescription(language) + "*");
         description.append("\n > " + getShard().request.getName(language) + ": *" + getShard()
                 .request.getDescription(language) + "*\n\n");
 
@@ -64,7 +64,6 @@ public class Help extends Command {
         for (Category category : Category.values()) {
             description.append("\n > *" + Category.getName(category) + "*");
         }
-        guild.getPublicChannel().getMessageById("11").queue(message1 -> channel.sendMessage(message1.getContent()).queue());
         description.append("\n" + responses.get(2).getTranslation().replace("{0}", GuildUtils.getPrefix(guild) +
                 args[0]));
         description.append("\n" + responses.get(3).getTranslation().replace("{0}", GuildUtils.getPrefix(guild) +

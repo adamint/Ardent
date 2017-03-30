@@ -1,5 +1,6 @@
 package tk.ardentbot.Main;
 
+import ch.qos.logback.classic.Level;
 import com.google.code.chatterbotapi.ChatterBot;
 import com.google.code.chatterbotapi.ChatterBotFactory;
 import com.google.code.chatterbotapi.ChatterBotType;
@@ -16,6 +17,7 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Game;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.hooks.AnnotatedEventManager;
@@ -44,6 +46,8 @@ import tk.ardentbot.Core.LoggingUtils.BotException;
 import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Utils.Discord.InternalStats;
+import tk.ardentbot.Utils.Models.RestrictedUser;
+import tk.ardentbot.Utils.Premium.EntityGuild;
 import tk.ardentbot.Utils.Profiles.Profile;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.SQL.MuteDaemon;
@@ -64,6 +68,7 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 import static tk.ardentbot.Core.Translation.LangFactory.languages;
 
@@ -327,6 +332,20 @@ public class Shard {
                 }
                 putGuildData.close();
 
+                DatabaseAction getRestrictions = new DatabaseAction("SELECT * FROM Restricted");
+                ResultSet restrictionSet = getRestrictions.request();
+                while (restrictionSet.next()) {
+                    String restrictedId = restrictionSet.getString("UserID");
+                    String restrictedBy = restrictionSet.getString("RestrictedByID");
+                    String guildId = restrictionSet.getString("GuildID");
+                    Guild temp = jda.getGuildById(guildId);
+                    if (temp != null) {
+                        EntityGuild entityGuild = EntityGuild.get(temp);
+                        entityGuild.addRestricted(new RestrictedUser(restrictedId, restrictedBy, temp));
+                    }
+                }
+                getRestrictions.close();
+
                 executorService.scheduleAtFixedRate(() -> {
                     String game = null;
                     switch (gameCounter) {
@@ -364,6 +383,13 @@ public class Shard {
                 executorService.scheduleAtFixedRate(muteDaemon, 1, 5, TimeUnit.SECONDS);
 
                 Music.checkMusicConnections();
+
+                Logger.getLogger("org.apache.http").setLevel(java.util.logging.Level.OFF);
+                Logger.getLogger("org.apache.http.wire").setLevel(java.util.logging.Level.OFF);
+                Logger.getLogger("org.apache.http.headers").setLevel(java.util.logging.Level.OFF);
+                ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory
+                        .getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+                root.setLevel(Level.OFF);
             }
             catch (Exception ex) {
                 new BotException(ex);

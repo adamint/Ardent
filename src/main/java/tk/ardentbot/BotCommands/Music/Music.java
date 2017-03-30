@@ -159,7 +159,7 @@ public class Music extends Command {
         GuildUtils.getShard(guild).playerManager.loadItemOrdered(musicManager, trackUrl, new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack track) {
-                if (!UserUtils.hasTierTwoPermissions(user) && !EntityGuild.getGuildPatronStatus(guild).isPremium()) {
+                if (!UserUtils.hasTierTwoPermissions(user) && !EntityGuild.get(guild).isPremium()) {
                     try {
                         if (!shouldContinue(user, language, guild, channel, track)) {
                             return;
@@ -188,7 +188,7 @@ public class Music extends Command {
                     if (firstTrack == null) {
                         firstTrack = playlist.getTracks().get(0);
                     }
-                    if (!UserUtils.hasTierTwoPermissions(user) && !EntityGuild.getGuildPatronStatus(guild).isPremium()) {
+                    if (!UserUtils.hasTierTwoPermissions(user) && !EntityGuild.get(guild).isPremium()) {
                         try {
                             if (!shouldContinue(user, language, guild, channel, firstTrack)) {
                                 return;
@@ -209,7 +209,7 @@ public class Music extends Command {
                     play(user, guild, voiceChannel, musicManager, firstTrack, channel);
                 }
                 else {
-                    if (!UserUtils.hasTierTwoPermissions(user) && !EntityGuild.getGuildPatronStatus(guild).isPremium()) {
+                    if (!UserUtils.hasTierTwoPermissions(user) && !EntityGuild.get(guild).isPremium()) {
                         try {
                             if (!shouldContinue(user, language, guild, channel, 1)) {
                                 return;
@@ -955,7 +955,7 @@ public class Music extends Command {
                                 ().replace("{0}", String.valueOf(player.getVolume())), channel, user);
                     }
                     else {
-                        if (UserUtils.hasTierOnePermissions(user) && EntityGuild.getGuildPatronStatus(guild).isPremium()) {
+                        if (UserUtils.hasTierOnePermissions(user) && EntityGuild.get(guild).isPremium()) {
                             try {
                                 int volume = Integer.parseInt(args[2]);
                                 player.setVolume(volume);

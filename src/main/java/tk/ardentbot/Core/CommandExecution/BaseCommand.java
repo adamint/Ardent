@@ -23,8 +23,7 @@ import java.util.stream.Collectors;
 import static tk.ardentbot.Core.Translation.LangFactory.english;
 
 /**
- * Abstracted from Command for possible future
- * implementations (WebCommand)
+ * Abstracted from Command for possible future implementations (WebCommand)
  */
 public abstract class BaseCommand {
     Command botCommand;
@@ -102,12 +101,26 @@ public abstract class BaseCommand {
                 try {
                     if (!embed) {
                         privateChannel.sendMessage(getTranslation("other", LangFactory.english,
-                                "nopermissionstotype").getTranslation());
+                                "nopermissionstotype").getTranslation()).queue();
                     }
                     else {
                         privateChannel.sendMessage(getTranslation("other", LangFactory.english,
-                                "nopermissionstosendembeds").getTranslation());
+                                "nopermissionstosendembeds").getTranslation()).queue();
                     }
+                }
+                catch (Exception e) {
+                    new BotException(e);
+                }
+            });
+        }
+    }
+
+    void sendRestricted(User user) {
+        if (user != null) {
+            user.openPrivateChannel().queue(privateChannel -> {
+                try {
+                    privateChannel.sendMessage(getTranslation("restrict", LangFactory.english,
+                            "youareblocked").getTranslation()).queue();
                 }
                 catch (Exception e) {
                     new BotException(e);
@@ -132,6 +145,27 @@ public abstract class BaseCommand {
         }
         return content.replace(toReplace.toString(), "");
     }
+
+    /**
+     * Replace {0}, {1}, etc.. easily in a translation
+     *
+     * @param category     Command category the translation is from
+     * @param language     The guild's language
+     * @param identifier   The unique identifier of the translation
+     * @param user         The user who sent the command
+     * @param replacements An array of replacements to make
+     * @throws Exception SQLException when retrieving translation
+     */
+    public void sendEditedTranslation(String category, Language language, String identifier, User user, MessageChannel channel, String...
+            replacements) throws
+            Exception {
+        String translation = getTranslation(category, language, identifier).getTranslation();
+        for (int i = 0; i < replacements.length; i++) {
+            translation = translation.replace("{" + i + "}", replacements[i]);
+        }
+        sendTranslatedMessage(translation, channel, user);
+    }
+
 
     /**
      * Retrieves the represented translations for this subcommand
@@ -209,7 +243,7 @@ public abstract class BaseCommand {
      * @throws Exception
      */
     private TranslationResponse getTranslationDb(String cmdName, Language lang, String id) throws Exception {
-        TranslationResponse response = null;
+        TranslationResponse response;
 
         DatabaseAction translationRequest = new DatabaseAction("SELECT * FROM Translations WHERE CommandIdentifier=? " +
                 "AND Language=? AND ID=?");
@@ -235,6 +269,20 @@ public abstract class BaseCommand {
         }
         translationRequest.close();
         return response;
+    }
+
+    /**
+     * Get translations, via an array as compared to a list
+     *
+     * @param language
+     * @param translations
+     * @return
+     * @throws Exception
+     */
+    public HashMap<Integer, TranslationResponse> getTranslations(Language language, Translation... translations) throws Exception {
+        ArrayList<Translation> translationArrayList = new ArrayList<>();
+        translationArrayList.addAll(Arrays.asList(translations));
+        return getTranslations(language, translationArrayList);
     }
 
     /**
@@ -269,7 +317,6 @@ public abstract class BaseCommand {
                     translationResponses.put(originalPlaces.get(translation), new TranslationResponse
                             (phraseTranslation.getTranslation(), language, true, true, true));
                     translationIterator.remove();
-
                 }
             }
         }

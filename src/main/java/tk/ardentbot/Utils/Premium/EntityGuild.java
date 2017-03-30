@@ -4,10 +4,7 @@ import lombok.Getter;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.User;
 import org.apache.commons.collections.ListUtils;
-import tk.ardentbot.Utils.ArdentLang.Failure;
-import tk.ardentbot.Utils.ArdentLang.ReturnWrapper;
 import tk.ardentbot.Utils.Discord.UserUtils;
-import tk.ardentbot.Utils.JLAdditions.FieldableList;
 import tk.ardentbot.Utils.Models.RestrictedUser;
 
 import java.util.ArrayList;
@@ -28,48 +25,52 @@ public class EntityGuild {
     @Getter
     private List<String> tierOneMembers;
     @Getter
-    private FieldableList<RestrictedUser> restrictedUsers;
+    private ArrayList<RestrictedUser> restrictedUsers = new ArrayList<>();
     @Getter
     private String id;
 
-    public EntityGuild(boolean ownerTierThree, List<String> tierThreeMembers, List<String> tierTwoMembers, List<String>
+    private EntityGuild(boolean ownerTierThree, List<String> tierThreeMembers, List<String> tierTwoMembers, List<String>
             tierOneMembers, Guild guild) {
         this.ownerTierThree = ownerTierThree;
         this.tierThreeMembers = tierThreeMembers;
         this.tierTwoMembers = tierTwoMembers;
         this.tierOneMembers = tierOneMembers;
-        this.restrictedUsers = new FieldableList<>();
         this.id = guild.getId();
     }
 
-    public static EntityGuild getGuildPatronStatus(Guild guild) {
+    public static EntityGuild get(Guild guild) {
         List<EntityGuild> retrieved = cache.stream().filter(entityGuild -> entityGuild.getId().equalsIgnoreCase(guild
                 .getId())).collect(Collectors.toList());
         if (retrieved.size() == 1) return retrieved.get(0);
-
-        boolean isOwnerTierThree = UserUtils.hasTierThreePermissions(guild.getOwner().getUser()) || UserUtils.isStaff(guild.getOwner()
-                .getUser());
-        ArrayList<String> tierThree = new ArrayList<>();
-        ArrayList<String> tierTwo = new ArrayList<>();
-        ArrayList<String> tierOne = new ArrayList<>();
-        guild.getMembers().forEach(member -> {
-            User user = member.getUser();
-            String id = user.getId();
-            if (UserUtils.hasTierThreePermissions(user)) tierThree.add(id);
-            else if (UserUtils.hasTierTwoPermissions(user)) tierTwo.add(id);
-            else if (UserUtils.hasTierOnePermissions(user)) tierOne.add(id);
-        });
-
-        EntityGuild entityGuild = new EntityGuild(isOwnerTierThree, tierThree, tierTwo, tierOne, guild);
-
+        EntityGuild entityGuild = new EntityGuild(false, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), guild);
+        cache.add(entityGuild);
         removeCaches.schedule(new TimerTask() {
             @Override
             public void run() {
-                cache.remove(entityGuild);
+                boolean isOwnerTierThree = UserUtils.hasTierThreePermissions(guild.getOwner().getUser()) || UserUtils.isStaff(guild
+                        .getOwner()
+                        .getUser());
+                ArrayList<String> tierThree = new ArrayList<>();
+                ArrayList<String> tierTwo = new ArrayList<>();
+                ArrayList<String> tierOne = new ArrayList<>();
+                guild.getMembers().forEach(member -> {
+                    User user = member.getUser();
+                    String id = user.getId();
+                    if (UserUtils.hasTierThreePermissions(user)) tierThree.add(id);
+                    else if (UserUtils.hasTierTwoPermissions(user)) tierTwo.add(id);
+                    else if (UserUtils.hasTierOnePermissions(user)) tierOne.add(id);
+                });
+                entityGuild.setTiers(isOwnerTierThree, tierOne, tierTwo, tierThree);
             }
-        }, 15000);
-
+        }, 100);
         return entityGuild;
+    }
+
+    public void setTiers(boolean isOwnerTierThree, List<String> tierOne, List<String> tierTwo, List<String> tierThree) {
+        this.ownerTierThree = isOwnerTierThree;
+        this.tierOneMembers = tierOne;
+        this.tierTwoMembers = tierTwo;
+        this.tierThreeMembers = tierThree;
     }
 
     public boolean isPremium() {
@@ -80,9 +81,18 @@ public class EntityGuild {
         return UserUtils.getUsersById(ListUtils.union(ListUtils.union(tierOneMembers, tierTwoMembers), tierThreeMembers));
     }
 
-    public ReturnWrapper isRestricted(User user) {
-        RestrictedUser restrictedUser = (RestrictedUser) restrictedUsers.containsGet("id", user.getId()).getReturnValue();
-        return (restrictedUser == null) ? new ReturnWrapper<>(Failure.CollectionsFailure.NOT_FOUND, null) : new ReturnWrapper<>(null,
-                restrictedUser);
+    public boolean isRestricted(User user) {
+        for (RestrictedUser restrictedUser : restrictedUsers) {
+            if (restrictedUser.getUserId().equalsIgnoreCase(user.getId())) return true;
+        }
+        return false;
+    }
+
+    public void addRestricted(RestrictedUser restrictedUser) {
+        restrictedUsers.add(restrictedUser);
+    }
+
+    public void removeRestricted(String id) {
+        restrictedUsers.removeIf(restrictedUser -> restrictedUser.getUserId().equalsIgnoreCase(id));
     }
 }
