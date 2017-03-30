@@ -138,8 +138,8 @@ public class Music extends Command {
         else return true;
     }
 
-    private static void loadAndPlay(User user, Command command, Language language, final TextChannel channel,
-                                    String trackUrl, final VoiceChannel voiceChannel, boolean search) {
+    static void loadAndPlay(User user, Command command, Language language, final TextChannel channel,
+                            String trackUrl, final VoiceChannel voiceChannel, boolean search) {
         if (trackUrl.contains("spotify.com")) {
             String[] parsed = trackUrl.split("/track/");
             if (parsed.length == 2) {
@@ -259,7 +259,7 @@ public class Music extends Command {
         });
     }
 
-    private static VoiceChannel joinChannel(Guild guild, Member user, Language language, Command command, AudioManager
+    static VoiceChannel joinChannel(Guild guild, Member user, Language language, Command command, AudioManager
             audioManager, MessageChannel channel) throws Exception {
         GuildVoiceState voiceState = user.getVoiceState();
         if (voiceState.inVoiceChannel()) {
@@ -377,7 +377,7 @@ public class Music extends Command {
                 .format("%02d", (lengthMinutes % 60)) + ":" + String.format("%02d", (lengthSeconds % 60)) + "]";
     }
 
-    private boolean shouldDeleteMessages(Guild guild) throws SQLException {
+    static boolean shouldDeleteMessages(Guild guild) throws SQLException {
         boolean returnValue = false;
         DatabaseAction action = new DatabaseAction("SELECT * FROM MusicSettings WHERE GuildID=?").set(guild.getId());
         ResultSet set = action.request();
@@ -386,6 +386,29 @@ public class Music extends Command {
         }
         action.close();
         return returnValue;
+    }
+
+    static TextChannel getOutputChannel(Guild guild) throws SQLException {
+        String id;
+        DatabaseAction get = new DatabaseAction("SELECT * FROM MusicSettings WHERE GuildID=?").set(guild.getId());
+        ResultSet set = get.request();
+        if (set.next()) {
+            String setId = set.getString("ChannelID");
+            if (setId.equalsIgnoreCase("none")) id = null;
+            else id = setId;
+        }
+        else {
+            id = null;
+            new DatabaseAction("INSERT INTO MusicSettings VALUES (?,?,?)").set(guild.getId()).set(false).set("none").update();
+        }
+        if (id == null) return null;
+        else return guild.getTextChannelById(id);
+    }
+
+    static MessageChannel sendTo(MessageChannel channel, Guild guild) throws SQLException {
+        TextChannel outputChannel = getOutputChannel(guild);
+        if (outputChannel != null) return outputChannel;
+        else return channel;
     }
 
     @Override
@@ -428,7 +451,7 @@ public class Music extends Command {
                                 guild.getOwner().getUser().openPrivateChannel().queue(privateChannel -> {
                                     privateChannel.sendMessage("Auto-deleting music play messages is enabled, " +
                                             "but you need to give me the `MANAGE MESSAGES` permission so I can " +
-                                            "actually delete the messages.");
+                                            "actually delete the messages.").queue();
                                 });
                             }
                         }
@@ -973,29 +996,6 @@ public class Music extends Command {
                 else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel", user);
             }
         });
-    }
-
-    private TextChannel getOutputChannel(Guild guild) throws SQLException {
-        String id;
-        DatabaseAction get = new DatabaseAction("SELECT * FROM MusicSettings WHERE GuildID=?").set(guild.getId());
-        ResultSet set = get.request();
-        if (set.next()) {
-            String setId = set.getString("ChannelID");
-            if (setId.equalsIgnoreCase("none")) id = null;
-            else id = setId;
-        }
-        else {
-            id = null;
-            new DatabaseAction("INSERT INTO MusicSettings VALUES (?,?,?)").set(guild.getId()).set(false).set("none").update();
-        }
-        if (id == null) return null;
-        else return guild.getTextChannelById(id);
-    }
-
-    private MessageChannel sendTo(MessageChannel channel, Guild guild) throws SQLException {
-        TextChannel outputChannel = getOutputChannel(guild);
-        if (outputChannel != null) return outputChannel;
-        else return channel;
     }
 
 }

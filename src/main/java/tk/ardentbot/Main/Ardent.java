@@ -38,7 +38,7 @@ public class Ardent {
     public static Process premiumProcess;
     public static boolean premiumBot = false;
     public static String premiumBotToken;
-    public static boolean testingBot = true;
+    public static boolean testingBot = false;
     public static Api spotifyApi;
     /**
      * Sharded
@@ -52,7 +52,7 @@ public class Ardent {
     public static String botsDiscordPwToken;
     public static String discordBotsOrgToken;
     public static Connection conn;
-    public static ScheduledExecutorService globalExecutorService = Executors.newScheduledThreadPool(100);
+    public static ScheduledExecutorService globalExecutorService = Executors.newScheduledThreadPool(125);
     public static Shard shard0;
     public static Shard botLogsShard;
     public static int shardCount = 2;

@@ -32,6 +32,7 @@ import tk.ardentbot.BotCommands.GuildInfo.ServerInfo;
 import tk.ardentbot.BotCommands.GuildInfo.Whois;
 import tk.ardentbot.BotCommands.Music.GuildMusicManager;
 import tk.ardentbot.BotCommands.Music.Music;
+import tk.ardentbot.BotCommands.Music.Play;
 import tk.ardentbot.Core.BotData.BotLanguageData;
 import tk.ardentbot.Core.BotData.BotMuteData;
 import tk.ardentbot.Core.BotData.BotPrefixData;
@@ -234,6 +235,8 @@ public class Shard {
 
                 factory.registerCommand(new Music(new BaseCommand.CommandSettings("music", false, true, Category.FUN)
                         , this));
+                factory.registerCommand(new Play(new BaseCommand.CommandSettings("play", false, true, Category
+                        .FUN)));
                 factory.registerCommand(new UD(new BaseCommand.CommandSettings("ud", true, true, Category.FUN)));
                 factory.registerCommand(new GIF(new BaseCommand.CommandSettings("gif", true, true, Category.FUN)));
                 factory.registerCommand(new FML(new BaseCommand.CommandSettings("fml", true, true, Category.FUN)));
@@ -255,6 +258,8 @@ public class Shard {
                 factory.registerCommand(new GSearch(new BaseCommand.CommandSettings("google", true, true, Category
                         .FUN)));
                 factory.registerCommand(new Wiki(new BaseCommand.CommandSettings("wiki", true, true, Category
+                        .FUN)));
+                factory.registerCommand(new Deeplearning(new BaseCommand.CommandSettings("deeplearning", false, true, Category
                         .FUN)));
                 factory.registerCommand(new UserProfile(new BaseCommand.CommandSettings("profile", true, true, Category
                         .FUN)));
