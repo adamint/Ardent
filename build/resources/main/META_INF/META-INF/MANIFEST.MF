@@ -10,10 +10,10 @@ Class-Path: activation-1.1.jar mockito-all-1.10.19.jar jcip-annotation
  khttp-3.6.0.jar spark-core-2.5.5.jar chatter-bot-api-2.0.0.jar jetty-
  webapp-9.3.6.v20151106.jar jsr305-3.0.1.jar commons-logging-1.2.jar j
  etty-security-9.3.6.v20151106.jar base64-2.3.9.jar okio-1.11.0.jar my
- sql-connector-java-5.1.39.jar log4j-api-2.5.jar JDA-3.0.0_160.jar gua
+ sql-connector-java-5.1.39.jar log4j-api-2.5.jar JDA-3.0.0_165.jar gua
  va-19.0.jar websocket-common-9.3.6.v20151106.jar jda-nas-1.0.3.jar sp
  otify-web-api-java-1.5.0.jar jackson-databind-2.8.6.jar jersey-json-1
- .19.1.jar httpcore-4.4.4.jar lavaplayer-1.2.32.jar jackson-core-2.8.6
+ .19.1.jar httpcore-4.4.4.jar lavaplayer-1.2.34.jar jackson-core-2.8.6
  .jar giphy4j-1.0.1.jar commons-codec-1.9.jar commons-collections4-4.1
  .jar commons-beanutils-1.8.0.jar javaslang-2.0.3.jar rhino-1.7R4.jar 
  slf4j-api-1.7.22.jar groovy-2.4.9.jar logback-classic-1.1.2.jar jacks
