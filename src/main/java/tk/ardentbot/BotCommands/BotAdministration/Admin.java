@@ -10,6 +10,7 @@ import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.Discord.UsageUtils;
+import tk.ardentbot.Utils.RPGUtils.Profiles.Profile;
 
 import java.util.Map;
 import java.util.Timer;
@@ -136,6 +137,21 @@ public class Admin extends Command {
                 else if (args[1].equalsIgnoreCase("setgameurl")) {
                     Ardent.gameUrl = args[2];
                     sendTranslatedMessage("Updated the game URL", channel, user);
+                }
+                else if (args[1].equalsIgnoreCase("addmoney")) {
+                    String[] raw = message.getRawContent().split(" ");
+                    if (raw.length == 4) {
+                        try {
+                            User mentioned = message.getMentionedUsers().get(0);
+                            double amount = Double.parseDouble(raw[3]);
+                            Profile.get(mentioned).addMoney(amount);
+                            sendTranslatedMessage("added " + amount + " to " + mentioned.getName(), channel, user);
+                        }
+                        catch (Exception e) {
+                            sendTranslatedMessage("bad", channel, user);
+                        }
+                    }
+                    else sendTranslatedMessage("bad", channel, user);
                 }
                 else if (args[1].equalsIgnoreCase("disable")) {
                     if (args.length == 2) {
