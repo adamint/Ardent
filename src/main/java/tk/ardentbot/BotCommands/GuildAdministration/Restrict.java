@@ -10,7 +10,7 @@ import tk.ardentbot.Core.Translation.Translation;
 import tk.ardentbot.Core.Translation.TranslationResponse;
 import tk.ardentbot.Utils.Discord.MessageUtils;
 import tk.ardentbot.Utils.Models.RestrictedUser;
-import tk.ardentbot.Utils.Premium.EntityGuild;
+import tk.ardentbot.Utils.RPGUtils.EntityGuild;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 
 import java.util.ArrayList;

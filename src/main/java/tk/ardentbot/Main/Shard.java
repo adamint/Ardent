@@ -33,6 +33,7 @@ import tk.ardentbot.BotCommands.GuildInfo.Whois;
 import tk.ardentbot.BotCommands.Music.GuildMusicManager;
 import tk.ardentbot.BotCommands.Music.Music;
 import tk.ardentbot.BotCommands.Music.Play;
+import tk.ardentbot.BotCommands.RPG.Money;
 import tk.ardentbot.Core.BotData.BotLanguageData;
 import tk.ardentbot.Core.BotData.BotMuteData;
 import tk.ardentbot.Core.BotData.BotPrefixData;
@@ -48,8 +49,7 @@ import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Utils.Discord.InternalStats;
 import tk.ardentbot.Utils.Models.RestrictedUser;
-import tk.ardentbot.Utils.Premium.EntityGuild;
-import tk.ardentbot.Utils.Profiles.Profile;
+import tk.ardentbot.Utils.RPGUtils.EntityGuild;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.SQL.MuteDaemon;
 import tk.ardentbot.Utils.Updaters.GuildDaemon;
@@ -74,7 +74,6 @@ import java.util.logging.Logger;
 import static tk.ardentbot.Core.Translation.LangFactory.languages;
 
 public class Shard {
-    public HashMap<String, Profile> userProfiles = new HashMap<>();
 
     public boolean testingBot;
     public ScheduledExecutorService executorService = Executors.newScheduledThreadPool(100);
@@ -305,6 +304,8 @@ public class Shard {
                 factory.registerCommand(new Emojis(new BaseCommand.CommandSettings("emojis", true, true, Category
                 .GUILDINFO)));
                 */
+
+                factory.registerCommand(new Money(new BaseCommand.CommandSettings("money", false, true, Category.RPG)));
 
                 cleverBot = new ChatterBotFactory().create(ChatterBotType.PANDORABOTS, "f5d922d97e345aa1");
 

@@ -12,7 +12,7 @@ import tk.ardentbot.Core.Events.Join;
 import tk.ardentbot.Core.Events.Leave;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Utils.Discord.MessageUtils;
-import tk.ardentbot.Utils.Discord.UsageUtils;
+import tk.ardentbot.Utils.MapUtils;
 
 import java.awt.*;
 import java.time.Instant;
@@ -72,7 +72,7 @@ public class Stats extends Command {
                                Language language) throws Exception {
                 StringBuilder commandBars = new StringBuilder();
 
-                Map<String, Long> commandsUsed = UsageUtils.sortByValue(getShard().factory.getCommandUsages());
+                Map<String, Long> commandsUsed = MapUtils.sortByValue(getShard().factory.getCommandUsages());
                 final int[] counter = {0};
                 final int[] totalCommandsReceived = {0};
                 commandsUsed.forEach((key, value) -> {

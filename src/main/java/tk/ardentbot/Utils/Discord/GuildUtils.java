@@ -7,6 +7,7 @@ import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Main.Shard;
+import tk.ardentbot.Utils.MapUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -64,7 +65,7 @@ public class GuildUtils {
         // TODO: 3/4/2017 fix this 
         // TODO: 3/19/2017 still waiting 
 
-        return UsageUtils.sortByValue(languageUses);
+        return MapUtils.sortByValue(languageUses);
     }
 
     public static Language getLanguage(Guild guild) throws Exception {

@@ -9,7 +9,7 @@ import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Core.Translation.Translation;
 import tk.ardentbot.Core.Translation.TranslationResponse;
 import tk.ardentbot.Utils.Discord.GuildUtils;
-import tk.ardentbot.Utils.Premium.EntityGuild;
+import tk.ardentbot.Utils.RPGUtils.EntityGuild;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -32,7 +32,7 @@ public class OnMessage {
                         return; // This one will never be executed. But just in case to avoid NPE.
 
                     if (guild.getId().equalsIgnoreCase("260841592070340609")) {
-                        UserUtils.addMoney(shard, event.getAuthor(), 0.10);
+                        UserUtils.addMoney(event.getAuthor(), 0.10);
                     }
 
                     Member ardentMember = event.getGuild().getMember(event.getJDA().getSelfUser());

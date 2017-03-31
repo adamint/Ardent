@@ -19,7 +19,7 @@ import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.Discord.UserUtils;
 import tk.ardentbot.Utils.Models.RestrictedUser;
-import tk.ardentbot.Utils.Premium.EntityGuild;
+import tk.ardentbot.Utils.RPGUtils.EntityGuild;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 
 import java.sql.ResultSet;
@@ -106,7 +106,7 @@ public class CommandFactory {
         botCommand.setupSubcommands();
         baseCommands.add(baseCommand);
         commandUsages.put(baseCommand.commandIdentifier, (long) 0);
-        System.out.println("Successfully registered " + baseCommand.toString());
+        System.out.println("Successfully registered " + baseCommand.getCommandIdentifier());
     }
 
     /**
@@ -226,7 +226,7 @@ public class CommandFactory {
                                                     event.getAuthor(), message, args, GuildUtils.getLanguage(guild), user));
                                             commandsReceived++;
                                             ranCommand[0] = true;
-                                            UserUtils.addMoney(shard, user, 1);
+                                            UserUtils.addMoney(user, 1);
                                         }
                                         else {
                                             command.sendRetrievedTranslation(channel, "other", language, "disabledfeature", user);

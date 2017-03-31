@@ -1,4 +1,4 @@
-package tk.ardentbot.Utils.Premium;
+package tk.ardentbot.Utils.RPGUtils;
 
 import lombok.Getter;
 import net.dv8tion.jda.core.entities.Guild;

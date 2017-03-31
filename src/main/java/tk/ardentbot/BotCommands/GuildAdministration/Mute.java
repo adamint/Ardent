@@ -69,7 +69,12 @@ public class Mute extends Command {
                             if (shard.botMuteData.wasMute(mentioned)) {
                                 shard.botMuteData.unmute(mentioned); // Do delete it from the list
                             }
-                            String muteTime = args[3];
+                            String[] rawContent = message.getRawContent().split(" ");
+                            if (rawContent.length <= 3) {
+                                sendRetrievedTranslation(channel, "tag", language, "invalidarguments", user);
+                                return;
+                            }
+                            String muteTime = rawContent[3];
                             if (muteTime.endsWith("w") || muteTime.endsWith("h") || muteTime.endsWith("d") ||
                                     muteTime.endsWith("m"))
                             {

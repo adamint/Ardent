@@ -1,4 +1,4 @@
-package tk.ardentbot.Utils.Profiles;
+package tk.ardentbot.Utils.RPGUtils.Profiles;
 
 import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.Utils.Discord.UserUtils;

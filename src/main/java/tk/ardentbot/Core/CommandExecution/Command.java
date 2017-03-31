@@ -118,6 +118,10 @@ public abstract class Command extends BaseCommand {
                     });
                 }
             });
+            if (message.getRawContent().split(" ").length == 2 && (message.getMentionedUsers().size() > 0)) {
+                noArgs(guild, channel, user, message, args, language);
+                return;
+            }
             if (!found[0] && language == LangFactory.english) {
                 sendRetrievedTranslation(channel, "other", language, "subcommandnotfound", user);
             }

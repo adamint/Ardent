@@ -26,7 +26,7 @@ import tk.ardentbot.Main.ShardManager;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.Discord.UserUtils;
 import tk.ardentbot.Utils.JLAdditions.Pair;
-import tk.ardentbot.Utils.Premium.EntityGuild;
+import tk.ardentbot.Utils.RPGUtils.EntityGuild;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.StringUtils;
 
@@ -708,7 +708,6 @@ public class Music extends Command {
             }
         });
 
-
         subcommands.add(new Subcommand(this, "clear") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
@@ -997,5 +996,4 @@ public class Music extends Command {
             }
         });
     }
-
 }

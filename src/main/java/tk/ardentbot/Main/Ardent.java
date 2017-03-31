@@ -10,6 +10,7 @@ import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.WebServer.SparkServer;
 import tk.ardentbot.Utils.Premium.CheckIfPremiumGuild;
 import tk.ardentbot.Utils.Premium.UpdatePremiumMembers;
+import tk.ardentbot.Utils.RPGUtils.Profiles.Profile;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.Searching.GoogleSearch;
 import tk.ardentbot.Utils.Updaters.BotlistUpdater;
@@ -22,6 +23,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -31,6 +33,8 @@ import static tk.ardentbot.Core.Translation.LangFactory.languages;
 import static tk.ardentbot.Utils.Searching.GoogleSearch.GOOGLE_API_KEY;
 
 public class Ardent {
+    public static HashMap<String, Profile> userProfiles = new HashMap<>();
+
     public static ArrayList<String> disabledCommands = new ArrayList<>();
 
     public static String cleverbotUser;
@@ -66,6 +70,11 @@ public class Ardent {
     static String node1Url;
 
     public static void main(String[] args) throws Exception {
+        for (int i = 1; i <= 100; i++)
+            if (i % 3 == 0 && i % 5 != 0) System.out.println("Fizz");
+            else if (i % 5 == 0 && i % 3 != 0) System.out.println("Buzz");
+            else if (i % 5 == 0 && i % 3 == 0) System.out.println("FizzBuzz");
+
         for (String s : args) {
             if (s.contains("premium")) premiumBot = true;
         }
@@ -163,10 +172,11 @@ public class Ardent {
         languages.add(LangFactory.spanish);
         languages.add(LangFactory.polish);
 
+        Profile.startProfileChecking();
+
         int status = Unirest.post("https://cleverbot.io/1.0/create").field("user", cleverbotUser).field("key", cleverbotKey).field
                 ("nick", "ardent")
                 .asString().getStatus();
         if (status != 200) new BotException("Unable to connect to cleverbot!");
-
     }
 }

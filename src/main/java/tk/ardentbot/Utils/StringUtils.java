@@ -165,10 +165,11 @@ public class StringUtils {
 
     /**
      * Return the number of millisecond found in commandTime.
+     *
      * @param commandTime Formatted String (ex 2d - 3w - 5h)
      * @return Number of millisecond
      */
-    public static long commandeTime(String commandTime){
+    public static long commandeTime(String commandTime) {
         int time = Integer.parseInt(commandTime.replace("w", "").replace("d", "").replace("h", "").replace("m", ""));
         long now = 0;
         if (commandTime.endsWith("m")) {

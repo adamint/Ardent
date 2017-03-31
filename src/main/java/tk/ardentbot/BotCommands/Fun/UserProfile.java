@@ -4,11 +4,12 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.exceptions.PermissionException;
 import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Core.Translation.Translation;
 import tk.ardentbot.Core.Translation.TranslationResponse;
-import tk.ardentbot.Utils.Profiles.Profile;
+import tk.ardentbot.Utils.RPGUtils.Profiles.Profile;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -57,8 +58,12 @@ public class UserProfile extends Command {
 
         File file = new File("img.png");
         ImageIO.write(profileImage, "png", file);
-
-        channel.sendFile(file, null).queue();
+        try {
+            channel.sendFile(file, null).queue();
+        }
+        catch (PermissionException ex) {
+            sendRetrievedTranslation(channel, "other", language, "giveattachfiles", user);
+        }
     }
 
     private String cutToSeven(String name) {
