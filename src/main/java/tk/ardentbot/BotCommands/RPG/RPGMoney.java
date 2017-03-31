@@ -14,6 +14,7 @@ import tk.ardentbot.Utils.Discord.MessageUtils;
 import tk.ardentbot.Utils.Discord.UserUtils;
 import tk.ardentbot.Utils.MapUtils;
 import tk.ardentbot.Utils.RPGUtils.Profiles.Profile;
+import tk.ardentbot.Utils.RPGUtils.RPGUtils;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 
 import java.sql.ResultSet;
@@ -35,14 +36,13 @@ public class RPGMoney extends Command {
         if (mentionedUsers.size() > 0) {
             User mentioned = mentionedUsers.get(0);
             sendTranslatedMessage(getTranslation("money", language, "theirbalance").getTranslation().replace("{0}", mentioned.getName())
-                    .replace("{1}", "$" + String.format
-                    ("%.2f", Profile.get(mentioned).getMoneyAmount())), channel, user);
+                    .replace("{1}", RPGUtils.formatMoney(Profile.get(mentioned).getMoneyAmount())), channel, user);
         }
         else {
             StringBuilder sb = new StringBuilder();
             HashMap<Integer, TranslationResponse> translations = getTranslations(language, new Translation("money", "yourbalance"),
                     new Translation("money", "checktop"));
-            sb.append(translations.get(0).getTranslation().replace("{0}", "$" + String.format("%.2f", Profile.get(user).getMoneyAmount())));
+            sb.append(translations.get(0).getTranslation().replace("{0}", RPGUtils.formatMoney(Profile.get(user).getMoneyAmount())));
             sb.append("\n\n" + translations.get(1).getTranslation());
             sendTranslatedMessage(sb.toString(), channel, user);
         }
@@ -76,8 +76,7 @@ public class RPGMoney extends Command {
                 description.append("**" + topMoney + "**");
                 final int[] current = {0};
                 sortedAmounts.forEach((u, money) -> {
-                    description.append("\n#" + (current[0] + 1) + ": **" + u.getName() + "** *$" + (String.format("%.2f", money)) +
-                            "*");
+                    description.append("\n#" + (current[0] + 1) + ": **" + u.getName() + "** " + RPGUtils.formatMoney(money));
                     current[0]++;
                 });
                 description.append("\n\n" + translations.get(1).getTranslation() + "\n\n" + translations.get(2).getTranslation());
@@ -111,20 +110,12 @@ public class RPGMoney extends Command {
                 final int[] current = {0};
                 sortedAmounts.forEach((u, money) -> {
                     if (current[0] < 10) {
-                        description.append("\n#" + (current[0] + 1) + ": **" + u.getName() + "** *$" + (String.format("%.2f", money)) +
-                                "*");
+                        description.append("\n#" + (current[0] + 1) + ": **" + u.getName() + "** " + RPGUtils.formatMoney(money));
                         current[0]++;
                     }
                 });
                 description.append("\n\n" + translations.get(1).getTranslation() + "\n\n" + translations.get(2).getTranslation());
                 sendEmbed(builder.setDescription(description.toString()), channel, user);
-            }
-        });
-        subcommands.add(new Subcommand(this, "top") {
-            @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws
-                    Exception {
-
             }
         });
     }

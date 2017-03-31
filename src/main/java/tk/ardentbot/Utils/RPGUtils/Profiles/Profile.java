@@ -38,6 +38,20 @@ public class Profile {
             new DatabaseAction("INSERT INTO Profiles VALUES (?,?)").set(userId).set(25).update();
         }
         getProfile.close();
+        Ardent.profileUpdateExecutorService.scheduleAtFixedRate(() -> {
+            try {
+                new DatabaseAction("UPDATE Profiles SET Money=? WHERE UserID=?").set(moneyAmount).set(userId).update();
+                new DatabaseAction("DELETE FROM Badges WHERE UserID=?").set(userId).update();
+                for (Badge badge : getBadges()) {
+                    new DatabaseAction("INSERT INTO Badges VALUES (?,?,?,?)").set(userId).set(badge.getId()).set(badge
+                            .isGuildWide())
+                            .set(Timestamp.from(Instant.ofEpochSecond(badge.getExpirationEpochSeconds()))).update();
+                }
+            }
+            catch (SQLException e) {
+                new BotException(e);
+            }
+        }, 5, 15, TimeUnit.SECONDS);
     }
 
     public Profile(String userId, double moneyAmount, List<Badge> badges) {
@@ -55,32 +69,13 @@ public class Profile {
             Profile profile = null;
             try {
                 profile = new Profile(user);
+                Ardent.userProfiles.put(id, profile);
             }
             catch (SQLException e) {
                 e.printStackTrace();
             }
-            Ardent.userProfiles.put(id, profile);
             return profile;
         }
-    }
-
-    public static void startProfileChecking() {
-        Ardent.globalExecutorService.scheduleWithFixedDelay(() -> {
-            Ardent.userProfiles.values().forEach(profile -> {
-                try {
-                    new DatabaseAction("UPDATE Profiles SET Money=? WHERE UserID=?").set(profile.moneyAmount).set(profile.userId).update();
-                    new DatabaseAction("DELETE FROM Badges WHERE UserID=?").set(profile.userId).update();
-                    for (Badge badge : profile.getBadges()) {
-                        new DatabaseAction("INSERT INTO Badges VALUES (?,?,?,?)").set(profile.userId).set(badge.getId()).set(badge
-                                .isGuildWide())
-                                .set(Timestamp.from(Instant.ofEpochSecond(badge.getExpirationEpochSeconds()))).update();
-                    }
-                }
-                catch (SQLException e) {
-                    new BotException(e);
-                }
-            });
-        }, 15, 60, TimeUnit.SECONDS);
     }
 
     public User getUser() {

@@ -59,7 +59,12 @@ public class UserUtils {
     }
 
     public static void addMoney(User user, double amount) throws SQLException {
-        Profile.get(user).addMoney(amount);
+        double finalAmount;
+        if (UserUtils.hasTierThreePermissions(user)) finalAmount = amount * 1.6;
+        else if (UserUtils.hasTierTwoPermissions(user)) finalAmount = amount * 1.4;
+        else if (UserUtils.hasTierOnePermissions(user)) finalAmount = amount * 1.2;
+        else finalAmount = amount;
+        Profile.get(user).addMoney(finalAmount);
     }
 
 }

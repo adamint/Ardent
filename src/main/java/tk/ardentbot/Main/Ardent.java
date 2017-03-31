@@ -56,7 +56,8 @@ public class Ardent {
     public static String botsDiscordPwToken;
     public static String discordBotsOrgToken;
     public static Connection conn;
-    public static ScheduledExecutorService globalExecutorService = Executors.newScheduledThreadPool(125);
+    public static ScheduledExecutorService globalExecutorService = Executors.newScheduledThreadPool(50);
+    public static ScheduledExecutorService profileUpdateExecutorService = Executors.newScheduledThreadPool(125);
     public static Shard shard0;
     public static Shard botLogsShard;
     public static int shardCount = 2;
@@ -70,11 +71,6 @@ public class Ardent {
     static String node1Url;
 
     public static void main(String[] args) throws Exception {
-        for (int i = 1; i <= 100; i++)
-            if (i % 3 == 0 && i % 5 != 0) System.out.println("Fizz");
-            else if (i % 5 == 0 && i % 3 != 0) System.out.println("Buzz");
-            else if (i % 5 == 0 && i % 3 == 0) System.out.println("FizzBuzz");
-
         for (String s : args) {
             if (s.contains("premium")) premiumBot = true;
         }
@@ -171,8 +167,6 @@ public class Ardent {
         languages.add(LangFactory.hindi);
         languages.add(LangFactory.spanish);
         languages.add(LangFactory.polish);
-
-        Profile.startProfileChecking();
 
         int status = Unirest.post("https://cleverbot.io/1.0/create").field("user", cleverbotUser).field("key", cleverbotKey).field
                 ("nick", "ardent")

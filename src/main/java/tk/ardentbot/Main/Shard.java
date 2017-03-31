@@ -33,7 +33,7 @@ import tk.ardentbot.BotCommands.GuildInfo.Whois;
 import tk.ardentbot.BotCommands.Music.GuildMusicManager;
 import tk.ardentbot.BotCommands.Music.Music;
 import tk.ardentbot.BotCommands.Music.Play;
-import tk.ardentbot.BotCommands.RPG.Money;
+import tk.ardentbot.BotCommands.RPG.RPGMoney;
 import tk.ardentbot.Core.BotData.BotLanguageData;
 import tk.ardentbot.Core.BotData.BotMuteData;
 import tk.ardentbot.Core.BotData.BotPrefixData;
@@ -305,7 +305,7 @@ public class Shard {
                 .GUILDINFO)));
                 */
 
-                factory.registerCommand(new Money(new BaseCommand.CommandSettings("money", false, true, Category.RPG)));
+                factory.registerCommand(new RPGMoney(new BaseCommand.CommandSettings("money", false, true, Category.RPG)));
 
                 cleverBot = new ChatterBotFactory().create(ChatterBotType.PANDORABOTS, "f5d922d97e345aa1");
 
