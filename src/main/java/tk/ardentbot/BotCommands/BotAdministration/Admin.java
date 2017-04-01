@@ -154,9 +154,9 @@ public class Admin extends Command {
                     else sendTranslatedMessage("bad", channel, user);
                 }
                 else if (args[1].equalsIgnoreCase("test2")) {
-                    interactivate(message, (returnedMessage) -> {
-                        if (returnedMessage.getContent().equalsIgnoreCase("ok")) {
-                            sendTranslatedMessage("it worked!", channel, user);
+                    interactivate(language, channel, message, (returnedMessage) -> {
+                        if (returnedMessage.getContent().equalsIgnoreCase("5")) {
+                            sendTranslatedMessage("5", channel, user);
                         }
                     });
                 }

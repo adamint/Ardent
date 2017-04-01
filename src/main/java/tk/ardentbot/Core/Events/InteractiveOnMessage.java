@@ -11,7 +11,7 @@ import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class InteractiveOnMessage {
-    private static final Timer timer = new Timer();
+    public static final Timer timer = new Timer();
     /**
      * First param is the text channel id, second is the user id
      */

@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.TimerTask;
 import java.util.function.Consumer;
 
+import static tk.ardentbot.Core.Events.InteractiveOnMessage.*;
+
 public abstract class Command extends BaseCommand {
     public int usages = 0;
     public ArrayList<Subcommand> subcommands = new ArrayList<>();
@@ -35,20 +37,27 @@ public abstract class Command extends BaseCommand {
         this.botCommand = this;
     }
 
-    public static void interactivate(Message message, Consumer<Message> function) {
-        queuedInteractives.put(message.getId(), message.getAuthor().getId());
-        dispatchInteractiveEvent(message.getCreationTime(), message.getTextChannel().getId(), message.getAuthor().getId(), function);
+    public static void interactivate(Language language, MessageChannel channel, Message message, Consumer<Message> function) {
+        if (channel instanceof TextChannel) {
+            queuedInteractives.put(message.getId(), message.getAuthor().getId());
+            dispatchInteractiveEvent(message.getCreationTime(), (TextChannel) channel, message, function, language);
+        }
     }
 
     private static void dispatchInteractiveEvent(OffsetDateTime creationTime, TextChannel channel, Message message, Consumer<Message>
-            function) {
-        int ranFor = 0;
+            function, Language language) {
+        final int[] ranFor = {0};
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                if (ranFor >= 10000) {
-                    GuildUtils.getShard(channel.getGuild()).help.sendRetrievedTranslation(channel, "other", language,
-                            "cancelledinteractiveevent", message.getAuthor());
+                if (ranFor[0] >= 10000) {
+                    try {
+                        GuildUtils.getShard(channel.getGuild()).help.sendRetrievedTranslation(channel, "other", language,
+                                "cancelledinteractiveevent", message.getAuthor());
+                    }
+                    catch (Exception e) {
+                        new BotException(e);
+                    }
                     this.cancel();
                     return;
                 }
@@ -65,7 +74,7 @@ public abstract class Command extends BaseCommand {
                         }
                     }
                 }
-                ranFor += 5;
+                ranFor[0] += 5;
             }
         }, 5, 5);
     }

@@ -28,7 +28,7 @@ public class Bet extends Command {
                     Exception {
                 Profile profile = Profile.get(user);
                 sendEditedTranslation("bet", language, "areyousure", user, channel, RPGUtils.formatMoney(profile.getMoneyAmount()));
-                interactivate(message, (returnedMessage) -> {
+                interactivate(language, channel, message, (returnedMessage) -> {
                     if (returnedMessage.getContent().equalsIgnoreCase("yes")) {
 
                     }
