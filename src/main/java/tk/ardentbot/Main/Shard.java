@@ -33,6 +33,7 @@ import tk.ardentbot.BotCommands.GuildInfo.Whois;
 import tk.ardentbot.BotCommands.Music.GuildMusicManager;
 import tk.ardentbot.BotCommands.Music.Music;
 import tk.ardentbot.BotCommands.Music.Play;
+import tk.ardentbot.BotCommands.RPG.Bet;
 import tk.ardentbot.BotCommands.RPG.Pay;
 import tk.ardentbot.BotCommands.RPG.RPGMoney;
 import tk.ardentbot.BotCommands.RPG.UserProfile;
@@ -304,6 +305,7 @@ public class Shard {
 
                 factory.registerCommand(new RPGMoney(new BaseCommand.CommandSettings("money", false, true, Category.RPG)));
                 factory.registerCommand(new Pay(new BaseCommand.CommandSettings("pay", false, true, Category.RPG)));
+                factory.registerCommand(new Bet(new BaseCommand.CommandSettings("bet", false, true, Category.RPG)));
                 factory.registerCommand(new UserProfile(new BaseCommand.CommandSettings("profile", true, true, Category
                         .RPG)));
 

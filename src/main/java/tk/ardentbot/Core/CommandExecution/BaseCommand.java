@@ -72,8 +72,15 @@ public abstract class BaseCommand {
      * @throws Exception
      */
     public void sendRetrievedTranslation(MessageChannel channel, String translationCategory, Language language,
-                                         String translationId, User user) throws Exception {
-        TranslationResponse response = getTranslation(translationCategory, language, translationId);
+                                         String translationId, User user) {
+        TranslationResponse response = null;
+        try {
+            response = getTranslation(translationCategory, language, translationId);
+        }
+        catch (Exception e) {
+            new BotException(e);
+            return;
+        }
         if (response.isTranslationAvailable()) {
             sendTranslatedMessage(response.getTranslation(), channel, user);
         }

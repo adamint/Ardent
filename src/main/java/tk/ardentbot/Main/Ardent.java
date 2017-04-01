@@ -42,7 +42,7 @@ public class Ardent {
     public static Process premiumProcess;
     public static boolean premiumBot = false;
     public static String premiumBotToken;
-    public static boolean testingBot = true;
+    public static boolean testingBot = false;
     public static Api spotifyApi;
     /**
      * Sharded
