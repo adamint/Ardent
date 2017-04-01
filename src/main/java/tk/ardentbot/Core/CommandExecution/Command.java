@@ -1,11 +1,8 @@
 package tk.ardentbot.Core.CommandExecution;
 
 import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageChannel;
-import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.Core.LoggingUtils.BotException;
+import net.dv8tion.jda.core.entities.*;
+import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
 import tk.ardentbot.Core.Models.SubcommandTranslation;
 import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;
@@ -14,8 +11,12 @@ import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.Discord.MessageUtils;
 
 import java.awt.*;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.TimerTask;
+import java.util.function.Consumer;
 
 public abstract class Command extends BaseCommand {
     public int usages = 0;
@@ -34,19 +35,54 @@ public abstract class Command extends BaseCommand {
         this.botCommand = this;
     }
 
+    public static void interactivate(Message message, Consumer<Message> function) {
+        queuedInteractives.put(message.getId(), message.getAuthor().getId());
+        dispatchInteractiveEvent(message.getCreationTime(), message.getTextChannel().getId(), message.getAuthor().getId(), function);
+    }
+
+    private static void dispatchInteractiveEvent(OffsetDateTime creationTime, TextChannel channel, Message message, Consumer<Message>
+            function) {
+        int ranFor = 0;
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                if (ranFor >= 10000) {
+                    GuildUtils.getShard(channel.getGuild()).help.sendRetrievedTranslation(channel, "other", language,
+                            "cancelledinteractiveevent", message.getAuthor());
+                    this.cancel();
+                    return;
+                }
+                Iterator<Message> iterator = lastMessages.keySet().iterator();
+                while (iterator.hasNext()) {
+                    Message m = iterator.next();
+                    if (m.getCreationTime().isAfter(creationTime)) {
+                        if (m.getAuthor().getId().equalsIgnoreCase(message.getAuthor().getId()) &&
+                                m.getChannel().getId().equalsIgnoreCase(channel.getId()))
+                        {
+                            function.accept(m);
+                            iterator.remove();
+                            this.cancel();
+                        }
+                    }
+                }
+                ranFor += 5;
+            }
+        }, 5, 5);
+    }
 
     /**
      * Called when a user runs a command with only one argument
      *
-     * @param guild The guild of the sent command
-     * @param channel Channel of the sent command
-     * @param user BaseCommand author
-     * @param message BaseCommand message
-     * @param args Message#getContent, split by spaces
+     * @param guild    The guild of the sent command
+     * @param channel  Channel of the sent command
+     * @param user     BaseCommand author
+     * @param message  BaseCommand message
+     * @param args     Message#getContent, split by spaces
      * @param language The current language of the guild
      * @throws Exception
      */
-    public abstract void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception;
+    public abstract void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws
+            Exception;
 
     public abstract void setupSubcommands() throws Exception;
 
@@ -83,11 +119,11 @@ public abstract class Command extends BaseCommand {
      * command. Will either call a subcommand from the list
      * or Command#noArgs
      *
-     * @param guild The guild of the sent command
-     * @param channel Channel of the sent command
-     * @param user BaseCommand author
-     * @param message BaseCommand message
-     * @param args Message#getContent, split by spaces
+     * @param guild    The guild of the sent command
+     * @param channel  Channel of the sent command
+     * @param user     BaseCommand author
+     * @param message  BaseCommand message
+     * @param args     Message#getContent, split by spaces
      * @param language The current language of the guild
      * @throws Exception
      */

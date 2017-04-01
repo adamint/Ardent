@@ -1,7 +1,7 @@
 package tk.ardentbot.Core.BotData;
 
 import net.dv8tion.jda.core.entities.Member;
-import tk.ardentbot.Core.LoggingUtils.BotException;
+import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
 import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 

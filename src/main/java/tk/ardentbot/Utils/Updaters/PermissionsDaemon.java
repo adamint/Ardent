@@ -1,6 +1,6 @@
 package tk.ardentbot.Utils.Updaters;
 
-import tk.ardentbot.Core.LoggingUtils.BotException;
+import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 
 import java.sql.ResultSet;

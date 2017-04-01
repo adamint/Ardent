@@ -9,7 +9,7 @@ import tk.ardentbot.BotCommands.BotInfo.Status;
 import tk.ardentbot.BotCommands.GuildAdministration.Automessage;
 import tk.ardentbot.BotCommands.GuildAdministration.DefaultRole;
 import tk.ardentbot.BotCommands.Music.GuildMusicManager;
-import tk.ardentbot.Core.LoggingUtils.BotException;
+import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
 import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Utils.Discord.GuildUtils;

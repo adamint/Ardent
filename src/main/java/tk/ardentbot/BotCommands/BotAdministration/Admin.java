@@ -4,7 +4,7 @@ import net.dv8tion.jda.core.entities.*;
 import tk.ardentbot.BotCommands.Music.GuildMusicManager;
 import tk.ardentbot.BotCommands.Music.Music;
 import tk.ardentbot.Core.CommandExecution.Command;
-import tk.ardentbot.Core.LoggingUtils.BotException;
+import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Main.Shard;
@@ -152,6 +152,13 @@ public class Admin extends Command {
                         }
                     }
                     else sendTranslatedMessage("bad", channel, user);
+                }
+                else if (args[1].equalsIgnoreCase("test2")) {
+                    interactivate(message, (returnedMessage) -> {
+                        if (returnedMessage.getContent().equalsIgnoreCase("ok")) {
+                            sendTranslatedMessage("it worked!", channel, user);
+                        }
+                    });
                 }
                 else if (args[1].equalsIgnoreCase("disable")) {
                     if (args.length == 2) {

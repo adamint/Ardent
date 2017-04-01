@@ -33,18 +33,17 @@ import tk.ardentbot.BotCommands.GuildInfo.Whois;
 import tk.ardentbot.BotCommands.Music.GuildMusicManager;
 import tk.ardentbot.BotCommands.Music.Music;
 import tk.ardentbot.BotCommands.Music.Play;
+import tk.ardentbot.BotCommands.RPG.Pay;
 import tk.ardentbot.BotCommands.RPG.RPGMoney;
+import tk.ardentbot.BotCommands.RPG.UserProfile;
 import tk.ardentbot.Core.BotData.BotLanguageData;
 import tk.ardentbot.Core.BotData.BotMuteData;
 import tk.ardentbot.Core.BotData.BotPrefixData;
 import tk.ardentbot.Core.CommandExecution.BaseCommand;
 import tk.ardentbot.Core.CommandExecution.Category;
 import tk.ardentbot.Core.CommandExecution.CommandFactory;
-import tk.ardentbot.Core.Events.Join;
-import tk.ardentbot.Core.Events.Leave;
-import tk.ardentbot.Core.Events.OnMessage;
-import tk.ardentbot.Core.Events.VoiceLeaveEvent;
-import tk.ardentbot.Core.LoggingUtils.BotException;
+import tk.ardentbot.Core.Events.*;
+import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
 import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Utils.Discord.InternalStats;
@@ -74,7 +73,6 @@ import java.util.logging.Logger;
 import static tk.ardentbot.Core.Translation.LangFactory.languages;
 
 public class Shard {
-
     public boolean testingBot;
     public ScheduledExecutorService executorService = Executors.newScheduledThreadPool(100);
     public BotMuteData botMuteData;
@@ -158,6 +156,7 @@ public class Shard {
 
                 // Register event listeners
                 jda.addEventListener(new OnMessage());
+                jda.addEventListener(new InteractiveOnMessage());
                 jda.addEventListener(new Join());
                 jda.addEventListener(new Leave());
                 jda.addEventListener(new VoiceLeaveEvent());
@@ -260,8 +259,6 @@ public class Shard {
                         .FUN)));
                 factory.registerCommand(new Deeplearning(new BaseCommand.CommandSettings("deeplearning", false, true, Category
                         .FUN)));
-                factory.registerCommand(new UserProfile(new BaseCommand.CommandSettings("profile", true, true, Category
-                        .FUN)));
 
                 factory.registerCommand(new Prefix(new BaseCommand.CommandSettings("prefix", false, true, Category
                         .GUILDADMINISTRATION)));
@@ -306,6 +303,9 @@ public class Shard {
                 */
 
                 factory.registerCommand(new RPGMoney(new BaseCommand.CommandSettings("money", false, true, Category.RPG)));
+                factory.registerCommand(new Pay(new BaseCommand.CommandSettings("pay", false, true, Category.RPG)));
+                factory.registerCommand(new UserProfile(new BaseCommand.CommandSettings("profile", true, true, Category
+                        .RPG)));
 
                 cleverBot = new ChatterBotFactory().create(ChatterBotType.PANDORABOTS, "f5d922d97e345aa1");
 

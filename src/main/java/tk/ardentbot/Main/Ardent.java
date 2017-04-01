@@ -5,9 +5,9 @@ import com.mashape.unirest.http.Unirest;
 import com.wrapper.spotify.Api;
 import org.apache.commons.io.IOUtils;
 import tk.ardentbot.BotCommands.Music.StuckVoiceConnection;
-import tk.ardentbot.Core.LoggingUtils.BotException;
+import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
+import tk.ardentbot.Core.Misc.WebServer.SparkServer;
 import tk.ardentbot.Core.Translation.LangFactory;
-import tk.ardentbot.Core.WebServer.SparkServer;
 import tk.ardentbot.Utils.Premium.CheckIfPremiumGuild;
 import tk.ardentbot.Utils.Premium.UpdatePremiumMembers;
 import tk.ardentbot.Utils.RPGUtils.Profiles.Profile;
@@ -42,7 +42,7 @@ public class Ardent {
     public static Process premiumProcess;
     public static boolean premiumBot = false;
     public static String premiumBotToken;
-    public static boolean testingBot = false;
+    public static boolean testingBot = true;
     public static Api spotifyApi;
     /**
      * Sharded

@@ -1,4 +1,4 @@
-package tk.ardentbot.Core.WebServer.Models;
+package tk.ardentbot.Core.Misc.WebServer.Models;
 
 /**
  * POJO Representation of /api/status

@@ -40,7 +40,8 @@ public class Restrict extends Command {
                         for (User mentioned : mentionedUsers) {
                             Member mentionedMember = guild.getMember(mentioned);
                             if (mentionedMember.hasPermission(member.getPermissions()) || mentionedMember.hasPermission(Permission
-                                    .MANAGE_SERVER))
+                                    .MANAGE_SERVER) || mentionedMember.getUser().getId().equalsIgnoreCase(guild.getSelfMember().getUser()
+                                    .getId()))
                             {
                                 sendRetrievedTranslation(channel, "roles", language, "cannotmodify", user);
                                 return;

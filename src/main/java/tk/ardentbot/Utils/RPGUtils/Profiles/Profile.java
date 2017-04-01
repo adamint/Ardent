@@ -1,8 +1,11 @@
 package tk.ardentbot.Utils.RPGUtils.Profiles;
 
+import lombok.Getter;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.Core.LoggingUtils.BotException;
+import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
+import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Utils.Discord.UserUtils;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 
@@ -12,11 +15,14 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 public class Profile {
     private String userId;
     private double moneyAmount;
+    @Getter
+    private double stocksOwned;
     private List<Badge> badges = new ArrayList<>();
 
     public Profile(User user) throws SQLException {
@@ -61,9 +67,10 @@ public class Profile {
     }
 
     public static Profile get(User user) {
+        Profile toReturn;
         String id = user.getId();
         if (Ardent.userProfiles.containsKey(id)) {
-            return Ardent.userProfiles.get(id);
+            toReturn = Ardent.userProfiles.get(id);
         }
         else {
             Profile profile = null;
@@ -74,8 +81,24 @@ public class Profile {
             catch (SQLException e) {
                 e.printStackTrace();
             }
-            return profile;
+            toReturn = profile;
         }
+        int lucky = new Random().nextInt(1000);
+        if (lucky == 69) {
+            Shard shard0 = Ardent.shard0;
+            user.openPrivateChannel().queue(privateChannel -> {
+                try {
+                    if (toReturn != null) {
+                        toReturn.addMoney(2500);
+                        shard0.help.sendRetrievedTranslation(privateChannel, "rpg", LangFactory.english, "gotlucky", user);
+                    }
+                }
+                catch (Exception e) {
+                    new BotException(e);
+                }
+            });
+        }
+        return toReturn;
     }
 
     public User getUser() {
@@ -90,12 +113,19 @@ public class Profile {
         return badges;
     }
 
-    public Profile addMoney(double amount) {
+    public void addMoney(double amount) {
         moneyAmount += amount;
-        return this;
     }
 
     public void removeMoney(double amount) {
         moneyAmount -= amount;
+    }
+
+    public void addStock(double amountToAdd) {
+        stocksOwned += amountToAdd;
+    }
+
+    public void removeStock(double amountToRemove) {
+        stocksOwned -= amountToRemove;
     }
 }

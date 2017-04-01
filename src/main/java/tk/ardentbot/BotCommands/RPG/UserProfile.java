@@ -1,4 +1,4 @@
-package tk.ardentbot.BotCommands.Fun;
+package tk.ardentbot.BotCommands.RPG;
 
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
@@ -32,7 +32,7 @@ public class UserProfile extends Command {
 
         HashMap<Integer, TranslationResponse> response = getTranslations(language, translations);
 
-        Profile profile = new Profile(user);
+        Profile profile = Profile.get(user);
         BufferedImage profileImage = ImageIO.read(new URL(
                 "https://s-media-cache-ak0.pinimg.com/736x/4d/10/77/4d1077fb1750b5d16f413a60707fa57a.jpg"));
 

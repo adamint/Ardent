@@ -1,14 +1,14 @@
-package tk.ardentbot.Core.WebServer;
+package tk.ardentbot.Core.Misc.WebServer;
 
 import spark.Request;
 import spark.Response;
 import tk.ardentbot.Core.CommandExecution.CommandFactory;
-import tk.ardentbot.Core.LoggingUtils.BotException;
+import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
+import tk.ardentbot.Core.Misc.WebServer.Models.Command;
+import tk.ardentbot.Core.Misc.WebServer.Models.Status;
+import tk.ardentbot.Core.Misc.WebServer.Models.User;
 import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;
-import tk.ardentbot.Core.WebServer.Models.Command;
-import tk.ardentbot.Core.WebServer.Models.Status;
-import tk.ardentbot.Core.WebServer.Models.User;
 import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.Discord.InternalStats;
 import tk.ardentbot.Utils.JLAdditions.Pair;
