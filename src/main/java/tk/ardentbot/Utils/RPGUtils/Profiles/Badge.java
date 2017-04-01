@@ -8,13 +8,15 @@ public class Badge {
     private String id;
     private String name;
     private boolean guildWide;
+    private boolean oneTimeBadge;
     private long expirationEpochSeconds;
 
-    public Badge(String userId, String id, String name, boolean guildWide, long expirationEpochSeconds) {
+    public Badge(String userId, String id, String name, boolean guildWide, boolean oneTimeBadge, long expirationEpochSeconds) {
         this.userId = userId;
         this.id = id;
         this.name = name;
         this.guildWide = guildWide;
+        this.oneTimeBadge = oneTimeBadge;
         this.expirationEpochSeconds = expirationEpochSeconds;
     }
 
@@ -36,5 +38,9 @@ public class Badge {
 
     public String getName() {
         return name;
+    }
+
+    public boolean isOneTimeBadge() {
+        return oneTimeBadge;
     }
 }

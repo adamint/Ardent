@@ -6,6 +6,8 @@ import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Main.ShardManager;
+import tk.ardentbot.Utils.RPGUtils.BadgesList;
+import tk.ardentbot.Utils.RPGUtils.Profiles.Badge;
 import tk.ardentbot.Utils.RPGUtils.Profiles.Profile;
 
 import java.sql.SQLException;
@@ -33,7 +35,17 @@ public class UserUtils {
 
     public static boolean hasTierThreePermissions(User user) {
         String id = user.getId();
-        return isStaff(user) || tierThreepatrons.contains(id);
+        boolean normalPermissions = isStaff(user) || tierThreepatrons.contains(id);
+        if (!normalPermissions) {
+            Profile profile = Profile.get(user);
+            for (Badge badge : profile.getBadges()) {
+                if (BadgesList.from(badge.getId()).getId().equalsIgnoreCase(BadgesList.PREMIUM_TRIAL.getId())) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        else return true;
     }
 
     public static boolean hasManageServerOrStaff(Member member) {

@@ -7,6 +7,7 @@ import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Utils.Discord.UserUtils;
+import tk.ardentbot.Utils.RPGUtils.BadgesList;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 
 import java.sql.ResultSet;
@@ -26,7 +27,7 @@ public class Profile {
     private double stocksOwned;
     private List<Badge> badges = new ArrayList<>();
 
-    public Profile(User user) throws SQLException {
+    private Profile(User user) throws SQLException {
         this.userId = user.getId();
         DatabaseAction getProfile = new DatabaseAction("SELECT * FROM Profiles WHERE UserID=?").set(userId);
         ResultSet set = getProfile.request();
@@ -36,8 +37,8 @@ public class Profile {
             ResultSet badgesWithId = retrieveBadges.request();
             while (badgesWithId.next()) {
                 badges.add(new Badge(userId, badgesWithId.getString("BadgeID"), badgesWithId.getString("FeatureName"), badgesWithId
-                        .getBoolean("GuildWide"), badgesWithId
-                        .getLong("ExpirationTime")));
+                        .getBoolean("GuildWide"), badgesWithId.getBoolean("OneTime"), badgesWithId
+                        .getTimestamp("ExpirationTime").toInstant().getEpochSecond()));
             }
             retrieveBadges.close();
         }
@@ -50,20 +51,22 @@ public class Profile {
             try {
                 for (Iterator<Badge> iterator = badges.iterator(); iterator.hasNext(); ) {
                     Badge badge = iterator.next();
-                    if (badge.getExpirationEpochSeconds() < Instant.now().getEpochSecond()) {
+                    if (badge.getExpirationEpochSeconds() < Instant.now().getEpochSecond() && badge.getExpirationEpochSeconds() != 1) {
                         user.openPrivateChannel().queue(privateChannel -> {
-                            privateChannel.sendMessage("Your badge with the ID of **" + badge.getName() + "** has expired.").queue();
+                            Ardent.shard0.help.sendTranslatedMessage("Your badge with the ID of **" + badge.getName() + "** has expired" +
+                                            ".", privateChannel,
+                                    user);
                             iterator.remove();
+                            try {
+                                new DatabaseAction("DELETE FROM Badges WHERE ID=? AND UserID=?").set(badge.getId()).set(userId).update();
+                            }
+                            catch (SQLException e) {
+                                new BotException(e);
+                            }
                         });
                     }
                 }
                 new DatabaseAction("UPDATE Profiles SET Money=? WHERE UserID=?").set(moneyAmount).set(userId).update();
-                new DatabaseAction("DELETE FROM Badges WHERE UserID=?").set(userId).update();
-                for (Badge badge : getBadges()) {
-                    new DatabaseAction("INSERT INTO Badges VALUES (?,?,?,?)").set(userId).set(badge.getId()).set(badge
-                            .isGuildWide())
-                            .set(Timestamp.from(Instant.ofEpochSecond(badge.getExpirationEpochSeconds()))).update();
-                }
             }
             catch (SQLException e) {
                 new BotException(e);
@@ -118,6 +121,37 @@ public class Profile {
 
     public double getMoneyAmount() {
         return moneyAmount;
+    }
+
+    public boolean addBadge(BadgesList badge) throws SQLException {
+        boolean succeeded = true;
+        if (badge.isOneTime()) {
+            DatabaseAction containsBadge = new DatabaseAction("SELECT * FROM OneTime WHERE UserID=? AND BadgeID=?").set(userId).set(badge
+                    .getId());
+            ResultSet set = containsBadge.request();
+            if (set.next()) {
+                succeeded = false;
+            }
+            else {
+                new DatabaseAction("INSERT INTO OneTime VALUES (?,?)").set(userId).set(badge.getId()).update();
+            }
+            containsBadge.close();
+        }
+        if (succeeded) {
+            int dayDuration = badge.getDayDuration();
+            Instant instant;
+            if (dayDuration == 0) {
+                instant = Instant.ofEpochSecond(1);
+            }
+            else {
+                instant = Instant.now().plusSeconds((dayDuration * 24 * 60 * 60));
+            }
+            badges.add(new Badge(userId, badge.getId(), badge.getName(), badge.isGuildWide(), badge.isOneTime(), instant.getEpochSecond()));
+            new DatabaseAction("INSERT INTO Badges VALUES (?,?,?,?,?,?)").set(userId).set(badge.getId()).set(badge.getName())
+                    .set(badge.isGuildWide()).set(badge.isOneTime()).set(Timestamp.from(instant)).update();
+            return true;
+        }
+        else return false;
     }
 
     public List<Badge> getBadges() {

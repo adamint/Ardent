@@ -92,9 +92,9 @@ public class Bet extends Command {
                                 if (num > 0 && num <= 2) {
                                     int generated = new Random().nextInt(2) + 1;
                                     if (num == generated) {
-                                        profile.addMoney(profile.getMoneyAmount());
                                         sendEditedTranslation("bet", language, "youwon", user, channel, RPGUtils.formatMoney(profile
                                                 .getMoneyAmount()));
+                                        profile.addMoney(profile.getMoneyAmount());
                                     }
                                     else {
                                         sendEditedTranslation("bet", language, "youlost", user, channel, RPGUtils.formatMoney(profile
