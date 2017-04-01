@@ -35,6 +35,10 @@ public class Bet extends Command {
                 try {
                     double amountToBet = Double.parseDouble(args[2]);
                     Profile profile = Profile.get(user);
+                    if (amountToBet <= 0 || profile.getMoneyAmount() < amountToBet) {
+                        sendRetrievedTranslation(channel, "bet", language, "lulno", user);
+                        return;
+                    }
                     sendEditedTranslation("bet", language, "areyousure", user, channel, RPGUtils.formatMoney(amountToBet));
                     interactivate(language, channel, message, (returnedMessage) -> {
                         if (returnedMessage.getContent().equalsIgnoreCase("yes")) {

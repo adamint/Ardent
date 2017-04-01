@@ -5,8 +5,6 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.SubscribeEvent;
 
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -20,16 +18,12 @@ public class InteractiveOnMessage {
     /**
      * Pair params are Pair(Channel ID, User ID) and then its corresponding message
      */
-    public static HashMap<Message, TextChannel> lastMessages = new HashMap<>();
+    public static ConcurrentHashMap<Message, TextChannel> lastMessages = new ConcurrentHashMap<>();
 
     @SubscribeEvent
     public void onMessage(GuildMessageReceivedEvent event) {
         if (lastMessages.size() + 1 > 1000) {
-            Iterator<Message> keys = lastMessages.keySet().iterator();
-            if (keys.hasNext()) {
-                keys.next();
-                keys.remove();
-            }
+            lastMessages.clear();
         }
         lastMessages.put(event.getMessage(), event.getChannel());
     }

@@ -12,13 +12,12 @@ import tk.ardentbot.Utils.Discord.MessageUtils;
 
 import java.awt.*;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.*;
 import java.util.List;
-import java.util.TimerTask;
 import java.util.function.Consumer;
 
-import static tk.ardentbot.Core.Events.InteractiveOnMessage.*;
+import static tk.ardentbot.Core.Events.InteractiveOnMessage.lastMessages;
+import static tk.ardentbot.Core.Events.InteractiveOnMessage.queuedInteractives;
 
 public abstract class Command extends BaseCommand {
     public int usages = 0;
@@ -47,7 +46,7 @@ public abstract class Command extends BaseCommand {
     private static void dispatchInteractiveEvent(OffsetDateTime creationTime, TextChannel channel, Message message, Consumer<Message>
             function, Language language) {
         final int[] ranFor = {0};
-        timer.scheduleAtFixedRate(new TimerTask() {
+        new Timer().scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 if (ranFor[0] >= 10000) {
