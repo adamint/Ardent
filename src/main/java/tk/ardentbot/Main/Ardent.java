@@ -132,7 +132,7 @@ public class Ardent {
         globalExecutorService.scheduleAtFixedRate(updater, 1, 1, TimeUnit.HOURS);
 
         StuckVoiceConnection playerStuckDaemon = new StuckVoiceConnection();
-        globalExecutorService.scheduleAtFixedRate(playerStuckDaemon, 5, 10, TimeUnit.SECONDS);
+        globalExecutorService.scheduleAtFixedRate(playerStuckDaemon, 10, 10, TimeUnit.SECONDS);
 
         UpdatePremiumMembers updatePremiumMembers = new UpdatePremiumMembers();
         globalExecutorService.scheduleAtFixedRate(updatePremiumMembers, 0, 1, TimeUnit.MINUTES);

@@ -26,7 +26,7 @@ public class StuckVoiceConnection implements Runnable {
                     AudioTrack playingTrack = player.getPlayingTrack();
                     if (playingTrack != null) {
                         long position = playingTrack.getPosition();
-                        if (position == 0) {
+                        if (position == 0 || (position > 0 && !guild.getAudioManager().isConnected())) {
                             String textChannelId = voiceChannelsAtZeroDuration.get(guild.getId());
                             if (textChannelId == null) {
                                 ArdentMusicManager ardentMusicManager = guildMusicManager.scheduler.manager;

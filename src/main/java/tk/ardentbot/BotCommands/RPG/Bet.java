@@ -42,12 +42,12 @@ public class Bet extends Command {
                     sendEditedTranslation("bet", language, "areyousure", user, channel, RPGUtils.formatMoney(amountToBet));
                     interactivate(language, channel, message, (returnedMessage) -> {
                         if (returnedMessage.getContent().equalsIgnoreCase("yes")) {
-                            sendRetrievedTranslation(channel, "bet", language, "numbetween1and5", user);
+                            sendRetrievedTranslation(channel, "bet", language, "numbetween1and2", user);
                             interactivate(language, channel, message, (numberInput) -> {
                                 try {
                                     int num = Integer.parseInt(numberInput.getContent());
-                                    if (num > 0 && num <= 5) {
-                                        int generated = new Random().nextInt(5) + 1;
+                                    if (num > 0 && num <= 2) {
+                                        int generated = new Random().nextInt(2) + 1;
                                         if (num == generated) {
                                             profile.addMoney(amountToBet);
                                             sendEditedTranslation("bet", language, "youwon", user, channel, RPGUtils.formatMoney
@@ -85,12 +85,12 @@ public class Bet extends Command {
                 sendEditedTranslation("bet", language, "areyousure", user, channel, RPGUtils.formatMoney(profile.getMoneyAmount()));
                 interactivate(language, channel, message, (returnedMessage) -> {
                     if (returnedMessage.getContent().equalsIgnoreCase("yes")) {
-                        sendRetrievedTranslation(channel, "bet", language, "numbetween1and5", user);
+                        sendRetrievedTranslation(channel, "bet", language, "numbetween1and2", user);
                         interactivate(language, channel, message, (numberInput) -> {
                             try {
                                 int num = Integer.parseInt(numberInput.getContent());
-                                if (num > 0 && num <= 5) {
-                                    int generated = new Random().nextInt(5) + 1;
+                                if (num > 0 && num <= 2) {
+                                    int generated = new Random().nextInt(2) + 1;
                                     if (num == generated) {
                                         profile.addMoney(profile.getMoneyAmount());
                                         sendEditedTranslation("bet", language, "youwon", user, channel, RPGUtils.formatMoney(profile

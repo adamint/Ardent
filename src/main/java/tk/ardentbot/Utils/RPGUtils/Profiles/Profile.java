@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -34,7 +35,8 @@ public class Profile {
             DatabaseAction retrieveBadges = new DatabaseAction("SELECT * FROM Badges WHERE UserID=?").set(userId);
             ResultSet badgesWithId = retrieveBadges.request();
             while (badgesWithId.next()) {
-                badges.add(new Badge(userId, badgesWithId.getString("FeatureName"), badgesWithId.getBoolean("GuildWide"), badgesWithId
+                badges.add(new Badge(userId, badgesWithId.getString("BadgeID"), badgesWithId.getString("FeatureName"), badgesWithId
+                        .getBoolean("GuildWide"), badgesWithId
                         .getLong("ExpirationTime")));
             }
             retrieveBadges.close();
@@ -46,6 +48,15 @@ public class Profile {
         getProfile.close();
         Ardent.profileUpdateExecutorService.scheduleAtFixedRate(() -> {
             try {
+                for (Iterator<Badge> iterator = badges.iterator(); iterator.hasNext(); ) {
+                    Badge badge = iterator.next();
+                    if (badge.getExpirationEpochSeconds() < Instant.now().getEpochSecond()) {
+                        user.openPrivateChannel().queue(privateChannel -> {
+                            privateChannel.sendMessage("Your badge with the ID of **" + badge.getName() + "** has expired.").queue();
+                            iterator.remove();
+                        });
+                    }
+                }
                 new DatabaseAction("UPDATE Profiles SET Money=? WHERE UserID=?").set(moneyAmount).set(userId).update();
                 new DatabaseAction("DELETE FROM Badges WHERE UserID=?").set(userId).update();
                 for (Badge badge : getBadges()) {
@@ -83,7 +94,7 @@ public class Profile {
             }
             toReturn = profile;
         }
-        int lucky = new Random().nextInt(1000);
+        int lucky = new Random().nextInt(2000);
         if (lucky == 69) {
             Shard shard0 = Ardent.shard0;
             user.openPrivateChannel().queue(privateChannel -> {

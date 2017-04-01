@@ -5,11 +5,9 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.SubscribeEvent;
 
-import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class InteractiveOnMessage {
-    public static final Timer timer = new Timer();
     /**
      * First param is the text channel id, second is the user id
      */
