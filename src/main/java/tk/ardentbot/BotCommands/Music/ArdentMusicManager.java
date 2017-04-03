@@ -77,7 +77,7 @@ public class ArdentMusicManager {
 
     void shuffle() {
         ArrayList<ArdentTrack> tracks = new ArrayList<>();
-        queue.forEach((tracks::add));
+        tracks.addAll(queue);
         Collections.shuffle(tracks);
         queue = new LinkedBlockingQueue<>(tracks);
     }

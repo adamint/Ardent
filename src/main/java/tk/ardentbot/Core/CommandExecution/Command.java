@@ -36,7 +36,7 @@ public abstract class Command extends BaseCommand {
         this.botCommand = this;
     }
 
-    public static void interactivate(Language language, MessageChannel channel, Message message, Consumer<Message> function) {
+    public static void nextMessageByUser(Language language, MessageChannel channel, Message message, Consumer<Message> function) {
         if (channel instanceof TextChannel) {
             queuedInteractives.put(message.getId(), message.getAuthor().getId());
             dispatchInteractiveEvent(message.getCreationTime(), (TextChannel) channel, message, function, language);
@@ -45,6 +45,8 @@ public abstract class Command extends BaseCommand {
 
     private static void dispatchInteractiveEvent(OffsetDateTime creationTime, TextChannel channel, Message message, Consumer<Message>
             function, Language language) {
+        final int interval = 50;
+
         final int[] ranFor = {0};
         new Timer().scheduleAtFixedRate(new TimerTask() {
             @Override
@@ -73,9 +75,9 @@ public abstract class Command extends BaseCommand {
                         }
                     }
                 }
-                ranFor[0] += 5;
+                ranFor[0] += interval;
             }
-        }, 5, 5);
+        }, interval, interval);
     }
 
     /**

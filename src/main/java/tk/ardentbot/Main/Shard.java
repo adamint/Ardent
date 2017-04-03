@@ -39,6 +39,7 @@ import tk.ardentbot.Core.BotData.BotMuteData;
 import tk.ardentbot.Core.BotData.BotPrefixData;
 import tk.ardentbot.Core.CommandExecution.BaseCommand;
 import tk.ardentbot.Core.CommandExecution.Category;
+import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.CommandExecution.CommandFactory;
 import tk.ardentbot.Core.Events.*;
 import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
@@ -85,7 +86,7 @@ public class Shard {
     public JDA jda;
     public User bot;
     public Twitter twitter;
-    public BaseCommand help;
+    public Command help;
     public BaseCommand patreon;
     public BaseCommand translateForArdent;
     public BaseCommand getDevHelp;
@@ -303,6 +304,7 @@ public class Shard {
                 factory.registerCommand(new RPGMoney(new BaseCommand.CommandSettings("money", false, true, Category.RPG)));
                 factory.registerCommand(new Pay(new BaseCommand.CommandSettings("pay", false, true, Category.RPG)));
                 factory.registerCommand(new Bet(new BaseCommand.CommandSettings("bet", false, true, Category.RPG)));
+                factory.registerCommand(new Trivia(new BaseCommand.CommandSettings("trivia", false, true, Category.RPG)));
                 factory.registerCommand(new Badges(new BaseCommand.CommandSettings("badges", false, true, Category.RPG)));
                 factory.registerCommand(new UserProfile(new BaseCommand.CommandSettings("profile", true, true, Category
                         .RPG)));

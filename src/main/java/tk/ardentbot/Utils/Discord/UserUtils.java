@@ -25,12 +25,33 @@ public class UserUtils {
 
     public static boolean hasTierOnePermissions(User user) {
         String id = user.getId();
-        return isStaff(user) || tierOnepatrons.contains(id) || tierTwopatrons.contains(id) || tierThreepatrons.contains(id);
+        boolean normalPermissions = isStaff(user) || tierOnepatrons.contains(id) || tierTwopatrons.contains(id) || tierThreepatrons
+                .contains(id);
+        if (!normalPermissions) {
+            Profile profile = Profile.get(user);
+            for (Badge badge : profile.getBadges()) {
+                if (BadgesList.from(badge.getId()).getId().equalsIgnoreCase(BadgesList.PREMIUM_TRIAL.getId())) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        else return true;
     }
 
     public static boolean hasTierTwoPermissions(User user) {
         String id = user.getId();
-        return isStaff(user) || translators.contains(id) || tierTwopatrons.contains(id) || tierThreepatrons.contains(id);
+        boolean normalPermissions = isStaff(user) || tierTwopatrons.contains(id) || tierThreepatrons.contains(id);
+        if (!normalPermissions) {
+            Profile profile = Profile.get(user);
+            for (Badge badge : profile.getBadges()) {
+                if (BadgesList.from(badge.getId()).getId().equalsIgnoreCase(BadgesList.PREMIUM_TRIAL.getId())) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        else return true;
     }
 
     public static boolean hasTierThreePermissions(User user) {

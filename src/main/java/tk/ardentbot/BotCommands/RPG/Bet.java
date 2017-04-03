@@ -10,7 +10,7 @@ import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Utils.RPGUtils.Profiles.Profile;
 import tk.ardentbot.Utils.RPGUtils.RPGUtils;
 
-import java.util.Random;
+import java.security.SecureRandom;
 
 public class Bet extends Command {
     public Bet(CommandSettings commandSettings) {
@@ -40,14 +40,14 @@ public class Bet extends Command {
                         return;
                     }
                     sendEditedTranslation("bet", language, "areyousure", user, channel, RPGUtils.formatMoney(amountToBet));
-                    interactivate(language, channel, message, (returnedMessage) -> {
+                    nextMessageByUser(language, channel, message, (returnedMessage) -> {
                         if (returnedMessage.getContent().equalsIgnoreCase("yes")) {
                             sendRetrievedTranslation(channel, "bet", language, "numbetween1and2", user);
-                            interactivate(language, channel, message, (numberInput) -> {
+                            nextMessageByUser(language, channel, message, (numberInput) -> {
                                 try {
                                     int num = Integer.parseInt(numberInput.getContent());
                                     if (num > 0 && num <= 2) {
-                                        int generated = new Random().nextInt(2) + 1;
+                                        int generated = new SecureRandom().nextInt(2) + 1;
                                         if (num == generated) {
                                             profile.addMoney(amountToBet);
                                             sendEditedTranslation("bet", language, "youwon", user, channel, RPGUtils.formatMoney
@@ -83,14 +83,14 @@ public class Bet extends Command {
                     Exception {
                 Profile profile = Profile.get(user);
                 sendEditedTranslation("bet", language, "areyousure", user, channel, RPGUtils.formatMoney(profile.getMoneyAmount()));
-                interactivate(language, channel, message, (returnedMessage) -> {
+                nextMessageByUser(language, channel, message, (returnedMessage) -> {
                     if (returnedMessage.getContent().equalsIgnoreCase("yes")) {
                         sendRetrievedTranslation(channel, "bet", language, "numbetween1and2", user);
-                        interactivate(language, channel, message, (numberInput) -> {
+                        nextMessageByUser(language, channel, message, (numberInput) -> {
                             try {
                                 int num = Integer.parseInt(numberInput.getContent());
                                 if (num > 0 && num <= 2) {
-                                    int generated = new Random().nextInt(2) + 1;
+                                    int generated = new SecureRandom().nextInt(2) + 1;
                                     if (num == generated) {
                                         sendEditedTranslation("bet", language, "youwon", user, channel, RPGUtils.formatMoney(profile
                                                 .getMoneyAmount()));

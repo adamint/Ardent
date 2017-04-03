@@ -2,8 +2,7 @@ package tk.ardentbot.Core.Events;
 
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.core.hooks.SubscribeEvent;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -18,11 +17,10 @@ public class InteractiveOnMessage {
      */
     public static ConcurrentHashMap<Message, TextChannel> lastMessages = new ConcurrentHashMap<>();
 
-    @SubscribeEvent
-    public void onMessage(GuildMessageReceivedEvent event) {
+    public static void onMessage(MessageReceivedEvent event) {
         if (lastMessages.size() + 1 > 1000) {
             lastMessages.clear();
         }
-        lastMessages.put(event.getMessage(), event.getChannel());
+        lastMessages.put(event.getMessage(), (TextChannel) event.getChannel());
     }
 }
