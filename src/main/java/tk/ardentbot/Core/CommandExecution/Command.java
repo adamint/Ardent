@@ -20,6 +20,7 @@ import static tk.ardentbot.Core.Events.InteractiveOnMessage.lastMessages;
 import static tk.ardentbot.Core.Events.InteractiveOnMessage.queuedInteractives;
 
 public abstract class Command extends BaseCommand {
+    private static Timer timer = new Timer();
     public int usages = 0;
     public ArrayList<Subcommand> subcommands = new ArrayList<>();
 
@@ -45,10 +46,10 @@ public abstract class Command extends BaseCommand {
 
     private static void dispatchInteractiveEvent(OffsetDateTime creationTime, TextChannel channel, Message message, Consumer<Message>
             function, Language language) {
-        final int interval = 50;
+        final int interval = 200;
 
         final int[] ranFor = {0};
-        new Timer().scheduleAtFixedRate(new TimerTask() {
+        timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 if (ranFor[0] >= 10000) {
@@ -89,7 +90,7 @@ public abstract class Command extends BaseCommand {
      * @param message  BaseCommand message
      * @param args     Message#getContent, split by spaces
      * @param language The current language of the guild
-     * @throws Exception
+     * @throws Exception this shouldn't happen
      */
     public abstract void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws
             Exception;

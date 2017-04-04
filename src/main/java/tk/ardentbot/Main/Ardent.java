@@ -14,6 +14,7 @@ import tk.ardentbot.Utils.RPGUtils.Profiles.Profile;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.Searching.GoogleSearch;
 import tk.ardentbot.Utils.Updaters.BotlistUpdater;
+import tk.ardentbot.Utils.Updaters.ProfileUpdater;
 import tk.ardentbot.Utils.Updaters.SpotifyTokenRefresh;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -64,11 +65,11 @@ public class Ardent {
     public static String botsDiscordPwToken;
     public static String discordBotsOrgToken;
     public static Connection conn;
-    public static ScheduledExecutorService globalExecutorService = Executors.newScheduledThreadPool(50);
-    public static ScheduledExecutorService profileUpdateExecutorService = Executors.newScheduledThreadPool(125);
+    public static ScheduledExecutorService globalExecutorService = Executors.newScheduledThreadPool(20);
+    public static ScheduledExecutorService profileUpdateExecutorService = Executors.newScheduledThreadPool(20);
     public static Shard shard0;
     public static Shard botLogsShard;
-    public static int shardCount = 2;
+    public static int shardCount = 3;
     public static ConcurrentHashMap<String, ChatterBotSession> cleverbots = new ConcurrentHashMap<>();
     public static String announcement;
     public static ConcurrentHashMap<String, Boolean> sentAnnouncement = new ConcurrentHashMap<>();
@@ -134,32 +135,6 @@ public class Ardent {
         }
         getKeys.close();
 
-        ShardManager.register(shardCount);
-
-        BotlistUpdater updater = new BotlistUpdater();
-        globalExecutorService.scheduleAtFixedRate(updater, 1, 1, TimeUnit.HOURS);
-
-        StuckVoiceConnection playerStuckDaemon = new StuckVoiceConnection();
-        globalExecutorService.scheduleAtFixedRate(playerStuckDaemon, 10, 10, TimeUnit.SECONDS);
-
-        UpdatePremiumMembers updatePremiumMembers = new UpdatePremiumMembers();
-        globalExecutorService.scheduleAtFixedRate(updatePremiumMembers, 0, 1, TimeUnit.MINUTES);
-
-        if (!premiumBot) {
-            SparkServer.setup();
-            /*Class currentClass = new Object() {
-            }.getClass().getEnclosingClass();
-            premiumProcess = Runtime.getRuntime().exec("java -jar " + currentClass.getProtectionDomain().getCodeSource().getLocation()
-                    .getPath() + " -premium");*/
-
-        }
-        else {
-            CheckIfPremiumGuild checkIfPremiumGuild = new CheckIfPremiumGuild();
-            globalExecutorService.scheduleAtFixedRate(checkIfPremiumGuild, 1, 1, TimeUnit.MINUTES);
-        }
-
-        GoogleSearch.setup(GOOGLE_API_KEY);
-
         languages = new ArrayList<>();
         languages.add(LangFactory.english);
         languages.add(LangFactory.french);
@@ -175,6 +150,35 @@ public class Ardent {
         languages.add(LangFactory.hindi);
         languages.add(LangFactory.spanish);
         languages.add(LangFactory.polish);
+
+        ShardManager.register(shardCount);
+
+        BotlistUpdater updater = new BotlistUpdater();
+        globalExecutorService.scheduleAtFixedRate(updater, 1, 1, TimeUnit.HOURS);
+
+        StuckVoiceConnection playerStuckDaemon = new StuckVoiceConnection();
+        globalExecutorService.scheduleAtFixedRate(playerStuckDaemon, 10, 10, TimeUnit.SECONDS);
+
+        UpdatePremiumMembers updatePremiumMembers = new UpdatePremiumMembers();
+        globalExecutorService.scheduleAtFixedRate(updatePremiumMembers, 0, 1, TimeUnit.MINUTES);
+
+        ProfileUpdater profileUpdater = new ProfileUpdater();
+        globalExecutorService.scheduleWithFixedDelay(profileUpdater, 1, 1, TimeUnit.MINUTES);
+
+        if (!premiumBot) {
+            SparkServer.setup();
+            /*Class currentClass = new Object() {
+            }.getClass().getEnclosingClass();
+            premiumProcess = Runtime.getRuntime().exec("java -jar " + currentClass.getProtectionDomain().getCodeSource().getLocation()
+                    .getPath() + " -premium");*/
+
+        }
+        else {
+            CheckIfPremiumGuild checkIfPremiumGuild = new CheckIfPremiumGuild();
+            globalExecutorService.scheduleAtFixedRate(checkIfPremiumGuild, 1, 1, TimeUnit.MINUTES);
+        }
+
+        GoogleSearch.setup(GOOGLE_API_KEY);
 
         int status = Unirest.post("https://cleverbot.io/1.0/create").field("user", cleverbotUser).field("key", cleverbotKey).field
                 ("nick", "ardent")

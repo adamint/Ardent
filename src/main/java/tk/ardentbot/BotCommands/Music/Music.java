@@ -977,7 +977,7 @@ public class Music extends Command {
                                 ().replace("{0}", String.valueOf(player.getVolume())), channel, user);
                     }
                     else {
-                        if (UserUtils.hasTierOnePermissions(user) && EntityGuild.get(guild).isPremium()) {
+                        if (UserUtils.hasTierOnePermissions(user) || EntityGuild.get(guild).isPremium()) {
                             try {
                                 int volume = Integer.parseInt(args[2]);
                                 player.setVolume(volume);

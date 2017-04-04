@@ -1,37 +1,3 @@
 Manifest-Version: 1.0
-Class-Path: activation-1.1.jar mockito-all-1.10.19.jar jcip-annotation
- s-1.0.jar commons-httpclient-3.1.jar javaslang-match-2.0.3.jar jetty-
- util-9.3.6.v20151106.jar websocket-client-9.3.6.v20151106.jar json-li
- b-2.4-jdk15.jar jackson-xc-1.9.2.jar httpmime-4.5.2.jar jsoup-1.10.2.
- jar commons-collections-3.2.1.jar twitter4j-core-4.0.6.jar mimepull-1
- .9.3.jar commons-lang3-3.5.jar jersey-client-1.19.1.jar exp4j-0.4.8.j
- ar jetty-http-9.3.6.v20151106.jar httpasyncclient-4.1.1.jar jackson-a
- nnotations-2.8.0.jar jna-4.4.0.jar jetty-server-9.3.6.v20151106.jar o
- khttp-3.6.0.jar spark-core-2.5.5.jar chatter-bot-api-2.0.0.jar jetty-
- webapp-9.3.6.v20151106.jar jsr305-3.0.1.jar commons-logging-1.2.jar j
- etty-security-9.3.6.v20151106.jar base64-2.3.9.jar okio-1.11.0.jar my
- sql-connector-java-5.1.39.jar log4j-api-2.5.jar JDA-3.0.0_165.jar gua
- va-19.0.jar websocket-common-9.3.6.v20151106.jar jda-nas-1.0.3.jar sp
- otify-web-api-java-1.5.0.jar jackson-databind-2.8.6.jar jersey-json-1
- .19.1.jar httpcore-4.4.4.jar lavaplayer-1.2.34.jar jackson-core-2.8.6
- .jar giphy4j-1.0.1.jar commons-codec-1.9.jar commons-collections4-4.1
- .jar commons-beanutils-1.8.0.jar javaslang-2.0.3.jar rhino-1.7R4.jar 
- slf4j-api-1.7.22.jar groovy-2.4.9.jar logback-classic-1.1.2.jar jacks
- on-mapper-asl-1.9.2.jar spark-template-handlebars-2.5.5.jar websocket
- -api-9.3.6.v20151106.jar httpclient-4.5.2.jar websocket-server-9.3.6.
- v20151106.jar commons-io-1.3.2.jar jsr311-api-1.1.1.jar websocket-ser
- vlet-9.3.6.v20151106.jar commons-io-2.5.jar annotations-3.0.1.jar jet
- ty-servlet-9.3.6.v20151106.jar emoji-java-3.2.0.jar logback-core-1.1.
- 2.jar gson-2.8.0.jar log4j-core-2.5.jar protobuf-java-2.5.0.jar crowd
- in-java-sdk-v1.0.1.jar commons-csv-1.4.jar jaxb-impl-2.2.3-1.jar yand
- ex-translate-api-1.2.4.jar jersey-multipart-1.19.1.jar nv-websocket-c
- lient-1.31.jar jersey-core-1.19.1.jar commons-lang-2.5.jar groovy-jsr
- 223-2.4.9.jar jackson-jaxrs-1.9.2.jar javax.servlet-api-3.1.0.jar uni
- rest-java-1.4.9.jar jackson-core-asl-1.9.2.jar handlebars-guava-cache
- -4.0.6.jar jettison-1.1.jar handlebars-4.0.6.jar stax-api-1.0-2.jar j
- axb-api-2.2.2.jar httpcore-nio-4.4.4.jar lavaplayer-common-1.0.4.jar 
- json-20160810.jar jetty-io-9.3.6.v20151106.jar udp-queue-1.0.4.jar ju
- nit-4.8.1.jar ezmorph-1.0.6.jar antlr4-runtime-4.5.1-1.jar jetty-xml-
- 9.3.6.v20151106.jar spotify-web-api-java.jar
 Main-Class: tk.ardentbot.Main.Ardent
 

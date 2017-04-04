@@ -4,6 +4,7 @@ import tk.ardentbot.Core.CommandExecution.BaseCommand;
 import tk.ardentbot.Core.Models.CommandTranslation;
 import tk.ardentbot.Core.Models.PhraseTranslation;
 import tk.ardentbot.Core.Models.SubcommandTranslation;
+import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
 
 import java.sql.ResultSet;
@@ -13,8 +14,6 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
-
-import static tk.ardentbot.Main.Ardent.shard0;
 
 /**
  * Holds a language, with automatically updating phrases,
@@ -32,7 +31,7 @@ public class Language {
         this.name = name;
         this.languageStatus = languageStatus;
         this.crowdinLangCode = crowdinLangCode;
-        shard0.executorService.scheduleAtFixedRate(() -> {
+        Ardent.globalExecutorService.scheduleAtFixedRate(() -> {
             phraseTranslations.clear();
             commandTranslations.clear();
             subcommandTranslations.clear();
@@ -115,6 +114,6 @@ public class Language {
         INFANCY,
         DECENT,
         MOST,
-        MATURE;
+        MATURE
     }
 }

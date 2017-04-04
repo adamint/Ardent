@@ -73,7 +73,7 @@ import static tk.ardentbot.Core.Translation.LangFactory.languages;
 
 public class Shard {
     public boolean testingBot;
-    public ScheduledExecutorService executorService = Executors.newScheduledThreadPool(100);
+    public ScheduledExecutorService executorService = Executors.newScheduledThreadPool(150);
     public BotMuteData botMuteData;
     public BotPrefixData botPrefixData;
     public BotLanguageData botLanguageData;
