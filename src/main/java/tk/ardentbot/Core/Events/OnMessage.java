@@ -25,7 +25,6 @@ public class OnMessage {
             switch (event.getChannel().getType()) {
                 case TEXT:
                     InteractiveOnMessage.onMessage(event);
-                    TriviaChecker.check(event);
                     Guild guild = event.getGuild();
                     Language language = GuildUtils.getLanguage(guild);
                     Shard shard = GuildUtils.getShard(guild);
@@ -61,6 +60,7 @@ public class OnMessage {
                     event.getAuthor().openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage(reply)
                             .queue());
 
+                    TriviaChecker.check(event);
                     break;
                 case PRIVATE:
                     shard0.factory.pass(event, LangFactory.english, "/");

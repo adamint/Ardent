@@ -82,10 +82,11 @@ public class Profile {
     }
 
     public static Profile get(User user) {
-        Profile toReturn;
+        final Profile[] toReturn = new Profile[1];
+        Ardent.profileUpdateExecutorService.execute(() -> {
         String id = user.getId();
         if (Ardent.userProfiles.containsKey(id)) {
-            toReturn = Ardent.userProfiles.get(id);
+            toReturn[0] = Ardent.userProfiles.get(id);
         }
         else {
             Profile profile = null;
@@ -96,15 +97,15 @@ public class Profile {
             catch (SQLException e) {
                 e.printStackTrace();
             }
-            toReturn = profile;
+            toReturn[0] = profile;
         }
         int lucky = new Random().nextInt(2000);
         if (lucky == 69) {
             Shard shard0 = Ardent.shard0;
             user.openPrivateChannel().queue(privateChannel -> {
                 try {
-                    if (toReturn != null) {
-                        toReturn.addMoney(2500);
+                    if (toReturn[0] != null) {
+                        toReturn[0].addMoney(2500);
                         shard0.help.sendRetrievedTranslation(privateChannel, "rpg", LangFactory.english, "gotlucky", user);
                     }
                 }
@@ -113,7 +114,8 @@ public class Profile {
                 }
             });
         }
-        return toReturn;
+        });
+        return toReturn[0];
     }
 
     public User getUser() {
