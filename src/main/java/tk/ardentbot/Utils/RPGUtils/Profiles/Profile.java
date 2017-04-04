@@ -58,7 +58,8 @@ public class Profile {
                                     user);
                             iterator.remove();
                             try {
-                                new DatabaseAction("DELETE FROM Badges WHERE ID=? AND UserID=?").set(badge.getId()).set(userId).update();
+                                new DatabaseAction("DELETE FROM Badges WHERE BadgeID=? AND UserID=?").set(badge.getId()).set(userId)
+                                        .update();
                             }
                             catch (SQLException e) {
                                 new BotException(e);

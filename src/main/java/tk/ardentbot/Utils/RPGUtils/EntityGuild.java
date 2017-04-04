@@ -14,6 +14,8 @@ import java.util.TimerTask;
 import java.util.stream.Collectors;
 
 public class EntityGuild {
+    public static final Timer timer = new Timer();
+
     private static ArrayList<EntityGuild> cache = new ArrayList<>();
     private boolean ownerTierThree;
     @Getter
@@ -42,7 +44,7 @@ public class EntityGuild {
         if (retrieved.size() == 1) return retrieved.get(0);
         EntityGuild entityGuild = new EntityGuild(false, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), guild);
         cache.add(entityGuild);
-        new Timer().schedule(new TimerTask() {
+        timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 boolean isOwnerTierThree = UserUtils.hasTierThreePermissions(guild.getOwner().getUser()) || UserUtils.isStaff(guild

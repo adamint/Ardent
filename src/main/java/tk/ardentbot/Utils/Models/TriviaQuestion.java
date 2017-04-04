@@ -2,63 +2,86 @@ package tk.ardentbot.Utils.Models;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import tk.ardentbot.Utils.Discord.MessageUtils;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import tk.ardentbot.Utils.StringUtils;
 
 public class TriviaQuestion {
 
-    @SerializedName("category")
+    @SerializedName("id")
     @Expose
-    private String category;
-    @SerializedName("type")
+    private Integer id;
+    @SerializedName("answer")
     @Expose
-    private String type;
-    @SerializedName("difficulty")
-    @Expose
-    private String difficulty;
+    private String answer;
     @SerializedName("question")
     @Expose
     private String question;
-    @SerializedName("correct_answer")
+    @SerializedName("value")
     @Expose
-    private String correctAnswer;
-    @SerializedName("incorrect_answers")
+    private Integer value;
+    @SerializedName("airdate")
     @Expose
-    private List<String> incorrectAnswers = null;
+    private String airdate;
+    @SerializedName("created_at")
+    @Expose
+    private String createdAt;
+    @SerializedName("updated_at")
+    @Expose
+    private String updatedAt;
+    @SerializedName("category_id")
+    @Expose
+    private Integer categoryId;
+    @SerializedName("game_id")
+    @Expose
+    private Object gameId;
+    @SerializedName("invalid_count")
+    @Expose
+    private Object invalidCount;
+    @SerializedName("category")
+    @Expose
+    private TriviaCategory category;
 
-    public String getCategory() {
-        return category;
+    public Integer getId() {
+        return id;
     }
 
-    public String getType() {
-        return type;
-    }
-
-    public String getDifficulty() {
-        return difficulty;
+    public String getAnswer() {
+        return answer;
     }
 
     public String getQuestion() {
-        return question;
+        return StringUtils.removeSideBrackets(StringUtils.removeBracketsParentheses(question)).replace("\"", "");
     }
 
-    public String getCorrectAnswer() {
-        return correctAnswer;
+    public Integer getValue() {
+        return value;
     }
 
-    public List<String> getIncorrectAnswers() {
-        return incorrectAnswers;
+    public String getAirdate() {
+        return airdate;
     }
 
-    public String listPossibleAnswers() {
-        ArrayList<String> answers = new ArrayList<>();
-        answers.addAll(incorrectAnswers);
-        answers.add(correctAnswer);
-        Collections.shuffle(answers);
-        return MessageUtils.listWithCommas(answers);
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    public String getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public Integer getCategoryId() {
+        return categoryId;
+    }
+
+    public Object getGameId() {
+        return gameId;
+    }
+
+    public Object getInvalidCount() {
+        return invalidCount;
+    }
+
+    public TriviaCategory getCategory() {
+        return category;
     }
 
 }

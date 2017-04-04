@@ -16,9 +16,17 @@ import tk.ardentbot.Utils.Searching.GoogleSearch;
 import tk.ardentbot.Utils.Updaters.BotlistUpdater;
 import tk.ardentbot.Utils.Updaters.SpotifyTokenRefresh;
 
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -42,7 +50,7 @@ public class Ardent {
     public static Process premiumProcess;
     public static boolean premiumBot = false;
     public static String premiumBotToken;
-    public static boolean testingBot = false;
+    public static boolean testingBot = true;
     public static Api spotifyApi;
     /**
      * Sharded
@@ -172,5 +180,44 @@ public class Ardent {
                 ("nick", "ardent")
                 .asString().getStatus();
         if (status != 200) new BotException("Unable to connect to cleverbot!");
+
+        disableSSLCertificateChecking();
+
     }
+
+    /**
+     * Disables the SSL certificate checking for new instances of {@link HttpsURLConnection} This has been created to
+     * aid testing on a local box, not for use on production.
+     * <p>
+     * Credit to https://gist.github.com/aembleton/889392
+     */
+    private static void disableSSLCertificateChecking() {
+        TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
+            public X509Certificate[] getAcceptedIssuers() {
+                return null;
+            }
+
+            @Override
+            public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
+                // Not implemented
+            }
+
+            @Override
+            public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
+                // Not implemented
+            }
+        }};
+
+        try {
+            SSLContext sc = SSLContext.getInstance("TLS");
+
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+        }
+        catch (KeyManagementException | NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

@@ -82,7 +82,8 @@ public class TriviaGame {
         TextChannel channel = guild.getTextChannelById(textChannelId);
         command.sendEditedTranslation("trivia", language, "thxforplayingpayout", guild.getSelfMember().getUser(), channel, String.valueOf
                 (perQuestion), String.valueOf(bonus));
-        Iterator<Map.Entry<String, Integer>> iterator = scores.entrySet().iterator();
+        Map<String, Integer> sorted = MapUtils.sortByValue(scores);
+        Iterator<Map.Entry<String, Integer>> iterator = sorted.entrySet().iterator();
         int current = 0;
         while (iterator.hasNext()) {
             Map.Entry<String, Integer> entry = iterator.next();
@@ -99,6 +100,7 @@ public class TriviaGame {
     }
 
     public EmbedBuilder displayScores(Shard shard, Command command) throws Exception {
+        Map<String, Integer> sorted = MapUtils.sortByValue(scores);
         Guild guild = shard.jda.getGuildById(guildId);
         Language language = GuildUtils.getLanguage(guild);
         EmbedBuilder builder = MessageUtils.getDefaultEmbed(guild, guild.getSelfMember().getUser(), command);
@@ -109,16 +111,16 @@ public class TriviaGame {
         builder.setAuthor(currentScores, shard.url, guild.getIconUrl());
         StringBuilder description = new StringBuilder();
         description.append("**" + currentScores + "**");
-        Iterator<Map.Entry<String, Integer>> iterator = scores.entrySet().iterator();
+        Iterator<Map.Entry<String, Integer>> iterator = sorted.entrySet().iterator();
         int currentPlace = 1;
         while (iterator.hasNext()) {
             Map.Entry<String, Integer> entry = iterator.next();
-            description.append("\n#" + currentScores + ": **" + shard.jda.getUserById(entry.getKey()).getName() + "** " + entry.getValue()
+            description.append("\n#" + currentPlace + ": **" + shard.jda.getUserById(entry.getKey()).getName() + "** " + entry.getValue()
                     + " " + translations.get(2).getTranslation());
             currentPlace++;
         }
         if (currentPlace == 1) {
-            description.append(translations.get(3).getTranslation());
+            description.append("\n" + translations.get(3).getTranslation());
         }
         description.append("\n\n" + translations.get(4).getTranslation() + ": " + round);
         return builder.setDescription(description.toString());

@@ -25,7 +25,7 @@ class TriviaChecker {
                         if (triviaGame.isSolo() && !triviaGame.getCreator().equalsIgnoreCase(user.getId())) return;
                         String content = event.getMessage().getContent();
                         if (triviaGame.getCurrentTriviaQuestion() != null && content.equalsIgnoreCase(triviaGame
-                                .getCurrentTriviaQuestion().getCorrectAnswer()))
+                                .getCurrentTriviaQuestion().getAnswer()))
                         {
                             triviaGame.addPoint(user);
                             shard.help.sendEditedTranslation("trivia", GuildUtils.getLanguage(guild), "gotitright", user, channel,
