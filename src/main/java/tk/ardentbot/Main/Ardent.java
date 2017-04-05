@@ -55,10 +55,8 @@ import static tk.ardentbot.Core.Translation.LangFactory.languages;
 import static tk.ardentbot.Utils.Searching.GoogleSearch.GOOGLE_API_KEY;
 
 public class Ardent {
-    private static final String APPLICATION_NAME =
-            "Ardent";
-    private static final JsonFactory JSON_FACTORY =
-            JacksonFactory.getDefaultInstance();
+    private static final String APPLICATION_NAME = "Ardent";
+    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private static final File DATA_STORE_DIR = new java.io.File("/root/Ardent", ".credentials/sheets.googleapis.com-java-quickstart");
     private static final List<String> SCOPES = Arrays.asList(SheetsScopes.SPREADSHEETS_READONLY);
     public static HashMap<String, Profile> userProfiles = new HashMap<>();
@@ -70,9 +68,6 @@ public class Ardent {
     public static String premiumBotToken;
     public static boolean testingBot = false;
     public static Api spotifyApi;
-    /**
-     * Sharded
-     */
     public static ArrayList<String> tierOnepatrons = new ArrayList<>();
     public static ArrayList<String> tierTwopatrons = new ArrayList<>();
     public static ArrayList<String> tierThreepatrons = new ArrayList<>();
