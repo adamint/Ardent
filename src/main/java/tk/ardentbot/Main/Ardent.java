@@ -1,5 +1,18 @@
 package tk.ardentbot.Main;
 
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
+import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.store.DataStoreFactory;
+import com.google.api.client.util.store.FileDataStoreFactory;
+import com.google.api.services.sheets.v4.Sheets;
+import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.code.chatterbotapi.ChatterBotSession;
 import com.mashape.unirest.http.Unirest;
 import com.wrapper.spotify.Api;
@@ -21,9 +34,7 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
+import java.io.*;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
@@ -32,7 +43,9 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -42,10 +55,14 @@ import static tk.ardentbot.Core.Translation.LangFactory.languages;
 import static tk.ardentbot.Utils.Searching.GoogleSearch.GOOGLE_API_KEY;
 
 public class Ardent {
+    private static final String APPLICATION_NAME =
+            "Ardent";
+    private static final JsonFactory JSON_FACTORY =
+            JacksonFactory.getDefaultInstance();
+    private static final File DATA_STORE_DIR = new java.io.File("/root/Ardent", ".credentials/sheets.googleapis.com-java-quickstart");
+    private static final List<String> SCOPES = Arrays.asList(SheetsScopes.SPREADSHEETS_READONLY);
     public static HashMap<String, Profile> userProfiles = new HashMap<>();
-
     public static ArrayList<String> disabledCommands = new ArrayList<>();
-
     public static String cleverbotUser;
     public static String cleverbotKey;
     public static Process premiumProcess;
@@ -76,8 +93,23 @@ public class Ardent {
     public static String mashapeKey;
     public static String gameUrl = "https://ardentbot.tk";
     public static String testBotToken;
+    public static Sheets sheetsApi;
     static String node0Url;
     static String node1Url;
+    private static String credential;
+    private static HttpTransport HTTP_TRANSPORT;
+    private static DataStoreFactory DATA_STORE_FACTORY;
+
+    static {
+        try {
+            DATA_STORE_FACTORY = new FileDataStoreFactory(new File("/root/Ardent"));
+            HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+        }
+        catch (Throwable t) {
+            t.printStackTrace();
+            System.exit(1);
+        }
+    }
 
     public static void main(String[] args) throws Exception {
         for (String s : args) {
@@ -132,6 +164,7 @@ public class Ardent {
             else if (id.equalsIgnoreCase("cleverbotkey")) cleverbotKey = value;
             else if (id.equalsIgnoreCase("premiumbottoken")) premiumBotToken = value;
             else if (id.equalsIgnoreCase("testbottoken")) testBotToken = value;
+            else if (id.equalsIgnoreCase("googlecredential")) credential = value;
         }
         getKeys.close();
 
@@ -186,7 +219,30 @@ public class Ardent {
         if (status != 200) new BotException("Unable to connect to cleverbot!");
 
         disableSSLCertificateChecking();
+        // sheetsApi = getSheetsApi();
+        //sheetsApi.spreadsheets().get().execute().getSheets().get(0).getData();
+        // TODO: 4/5/2017 complete, switch trivia to https://docs.google
+        // .com/spreadsheets/d/1qm27kGVQ4BdYjvPSlF0zM64j7nkW4HXzALFNcan4fbs/edit#gid=0
+    }
 
+    private static Sheets getSheetsApi() throws IOException {
+        Credential credential = authorize();
+        return new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential)
+                .setApplicationName(APPLICATION_NAME)
+                .build();
+    }
+
+    private static Credential authorize() throws IOException {
+        GoogleClientSecrets clientSecrets =
+                GoogleClientSecrets.load(JSON_FACTORY, new StringReader(credential));
+        GoogleAuthorizationCodeFlow flow =
+                new GoogleAuthorizationCodeFlow.Builder(
+                        HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
+                        .setDataStoreFactory(DATA_STORE_FACTORY)
+                        .setAccessType("offline")
+                        .build();
+        return new AuthorizationCodeInstalledApp(
+                flow, new LocalServerReceiver()).authorize("user");
     }
 
     /**

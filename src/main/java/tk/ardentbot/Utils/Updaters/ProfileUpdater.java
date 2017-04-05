@@ -12,8 +12,7 @@ import java.time.Instant;
 import java.util.Iterator;
 
 public class ProfileUpdater implements Runnable {
-    @Override
-    public void run() {
+    public static void updateProfiles() {
         Ardent.userProfiles.forEach((id, profile) -> {
             for (Iterator<Badge> iterator = profile.getBadges().iterator(); iterator.hasNext(); ) {
                 Badge badge = iterator.next();
@@ -39,10 +38,16 @@ public class ProfileUpdater implements Runnable {
             }
             try {
                 new DatabaseAction("UPDATE Profiles SET Money=? WHERE UserID=?").set(profile.getMoneyAmount()).set(id).update();
+                System.out.println("updated" + id);
             }
             catch (SQLException e) {
                 new BotException(e);
             }
         });
+    }
+
+    @Override
+    public void run() {
+        updateProfiles();
     }
 }

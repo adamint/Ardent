@@ -11,6 +11,7 @@ import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.Discord.UsageUtils;
 import tk.ardentbot.Utils.RPGUtils.Profiles.Profile;
+import tk.ardentbot.Utils.Updaters.ProfileUpdater;
 
 import java.util.Map;
 import java.util.Timer;
@@ -64,6 +65,7 @@ public class Admin extends Command {
 
     private static void shutdown() {
         try {
+            ProfileUpdater.updateProfiles();
             Ardent.premiumProcess.destroy();
             System.exit(0);
             boolean useLoc1 = true;

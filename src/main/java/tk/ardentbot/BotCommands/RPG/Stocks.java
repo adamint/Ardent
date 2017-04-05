@@ -15,12 +15,19 @@ public class Stocks extends Command {
 
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
-        sendHelp(language, channel, guild, user, this);
+        // Market status
     }
 
     @Override
     public void setupSubcommands() throws Exception {
         subcommands.add(new Subcommand(this, "buy") {
+            @Override
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws
+                    Exception {
+
+            }
+        });
+        subcommands.add(new Subcommand(this, "mine") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws
                     Exception {
