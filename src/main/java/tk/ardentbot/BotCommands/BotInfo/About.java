@@ -42,7 +42,7 @@ public class About extends Command {
         description.append("**Developers**: *" + devs + "*\n")
                 .append("**Moderators**: *" + moderators + "*\n")
                 .append("**Translators**: *" + translators + "*\n")
-                .append("**Patrons**: *" + patrons + "*");
+                .append("**Patron**: *" + patrons + "*");
         builder.setDescription(description);
         sendEmbed(builder, channel, user);
     }

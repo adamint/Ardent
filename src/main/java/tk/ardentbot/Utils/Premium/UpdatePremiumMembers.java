@@ -44,14 +44,14 @@ public class UpdatePremiumMembers implements Runnable {
     private boolean checkIfHasPermissions(Member member, String tierName) throws SQLException {
         boolean has = false;
         String id = member.getUser().getId();
-        DatabaseAction action = new DatabaseAction("SELECT * FROM Patrons WHERE UserID=? AND TierName=?").set(id).set(tierName);
+        DatabaseAction action = new DatabaseAction("SELECT * FROM Patron WHERE UserID=? AND TierName=?").set(id).set(tierName);
         ResultSet set = action.request();
         if (set.next()) {
             has = true;
         }
         else {
-            new DatabaseAction("DELETE FROM Patrons WHERE UserID=?").set(id).update();
-            new DatabaseAction("INSERT INTO Patrons VALUES (?,?)").set(id).set(tierName).update();
+            new DatabaseAction("DELETE FROM Patron WHERE UserID=?").set(id).update();
+            new DatabaseAction("INSERT INTO Patron VALUES (?,?)").set(id).set(tierName).update();
         }
         action.close();
         return has;

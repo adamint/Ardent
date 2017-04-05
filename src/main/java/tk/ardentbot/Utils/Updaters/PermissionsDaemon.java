@@ -16,7 +16,7 @@ public class PermissionsDaemon implements Runnable {
             tierTwopatrons.clear();
             tierThreepatrons.clear();
 
-            DatabaseAction retrievePatrons = new DatabaseAction("SELECT * FROM Patrons");
+            DatabaseAction retrievePatrons = new DatabaseAction("SELECT * FROM Patron");
             ResultSet set = retrievePatrons.request();
             while (set.next()) {
                 String tier = set.getString("TierName");
