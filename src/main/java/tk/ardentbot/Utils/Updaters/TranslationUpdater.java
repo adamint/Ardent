@@ -26,6 +26,7 @@ import static tk.ardentbot.Main.Ardent.shard0;
 /**
  * Downloads and inserts phrase translations on a loop
  */
+@Deprecated
 public class TranslationUpdater implements Runnable {
     private Statement statement = Ardent.conn.createStatement();
     private Credentials credentials = new Credentials(PhraseUpdater.BASE_URL, PhraseUpdater.PROJECT_IDENTIFIER,
@@ -74,7 +75,7 @@ public class TranslationUpdater implements Runnable {
                                         .set(translation).set(translationId).set(l.getIdentifier()).set(0).update();
                                 p("INSERTED VALUES: Language: " + l.getIdentifier() + " | BaseCommand ID: " +
                                         commandId +
-                                        " | Translation ID: " + translationId + " | Translation: " + translation);
+                                        " | TranslationModel ID: " + translationId + " | TranslationModel: " + translation);
                             }
                             queryTranslations.update();
                         }

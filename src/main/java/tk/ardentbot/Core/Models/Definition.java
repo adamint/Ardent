@@ -16,16 +16,7 @@ public class Definition {
         return definition;
     }
 
-    public void setDefinition(String definition) {
-        this.definition = definition;
-    }
-
     public String getPartOfSpeech() {
         return partOfSpeech;
     }
-
-    public void setPartOfSpeech(String partOfSpeech) {
-        this.partOfSpeech = partOfSpeech;
-    }
-
 }

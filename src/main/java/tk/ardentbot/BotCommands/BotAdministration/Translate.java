@@ -37,7 +37,7 @@ public class Translate extends Command {
         ResultSet translations = getTranslations.request();
         while (translations.next()) {
             englishTranslations.add(new Triplet<>(translations.getString("CommandIdentifier"), translations.getString
-                    ("ID"), translations.getString("Translation")));
+                    ("ID"), translations.getString("TranslationModel")));
         }
         translations.close();
         for (Triplet<String, String, String> translation : englishTranslations) {
@@ -113,11 +113,11 @@ public class Translate extends Command {
     @Override
     public void setupSubcommands() {
         StringBuilder sb = new StringBuilder();
-        sb.append("**Translation**\nUse /translate (language) to view simple translations for that language.\nUse " +
+        sb.append("**TranslationModel**\nUse /translate (language) to view simple translations for that language.\nUse " +
                 "/translate (language)cmds to view available command translations\nUse /translate (language)" +
                 "subcommands " +
                 "to view available subcommand translations\n" +
-                "Translation adding syntax varies by subcategory (basic, commands, subcommands) so the syntax will be on each page\n" +
+                "TranslationModel adding syntax varies by subcategory (basic, commands, subcommands) so the syntax will be on each page\n" +
                 "Example: /translate basic french 1 this is the translation for 1 in /translate french \nAvailable languages: ");
         for (Language language : LangFactory.languages) sb.append("**" + language.getIdentifier() + "** ");
         help = sb.toString();
@@ -186,7 +186,7 @@ public class Translate extends Command {
                                     if (parts.length == 2) {
 
                                         ResultSet set = new DatabaseAction("SELECT * FROM Commands WHERE Language = ?" +
-                                                " AND Translation = ? AND Description = ?")
+                                                " AND TranslationModel = ? AND Description = ?")
                                                 .set("english").set(translationOf.getK())
                                                 .set(translationOf.getV()).request();
 

@@ -1,22 +1,24 @@
 package tk.ardentbot.Core.BotData;
 
+import com.rethinkdb.net.Cursor;
 import net.dv8tion.jda.core.entities.Guild;
-import tk.ardentbot.Utils.SQL.DatabaseAction;
+import tk.ardentbot.Rethink.Models.GuildModel;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
+
+import static tk.ardentbot.Rethink.Database.connection;
+import static tk.ardentbot.Rethink.Database.r;
 
 public class BotPrefixData {
     private HashMap<String, String> guildPrefixes = new HashMap<>();
 
     public BotPrefixData() throws SQLException {
-        DatabaseAction getPrefixes = new DatabaseAction("SELECT * FROM Guilds");
-        ResultSet prefixes = getPrefixes.request();
-        while (prefixes.next()) {
-            guildPrefixes.put(prefixes.getString("GuildID"), prefixes.getString("Prefix"));
-        }
-        getPrefixes.close();
+        Cursor<GuildModel> guilds = r.db("data").table("guilds").run(connection);
+        guilds.forEach(guildModel -> {
+            guildPrefixes.put(guildModel.getGuild_id(), guildModel.getPrefix());
+        });
+        guilds.close();
     }
 
     public String getPrefix(Guild guild) {

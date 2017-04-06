@@ -57,12 +57,7 @@ public abstract class Subcommand {
         Optional<SubcommandTranslation> currentSubcommand = subcommandTranslations.stream()
                 .filter(subcommandTranslation -> subcommandTranslation.getIdentifier()
                         .equals(identifier)).distinct().findFirst();
-        if (currentSubcommand.isPresent()) {
-            return currentSubcommand.get();
-        }
-        else {
-            return (language != english) ? getSubTranslations(english) : null;
-        }
+        return currentSubcommand.orElseGet(() -> (language != english) ? getSubTranslations(english) : null);
     }
 
     /**

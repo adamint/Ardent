@@ -104,9 +104,9 @@ public class GuildLanguage extends Command {
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
                 Shard shard = GuildUtils.getShard(guild);
-                ArrayList<Translation> translations = new ArrayList<>();
-                translations.add(new Translation("language", "languageusages"));
-                translations.add(new Translation("status", "guilds"));
+                ArrayList<TranslationModel> translations = new ArrayList<>();
+                translations.add(new TranslationModel("language", "languageusages"));
+                translations.add(new TranslationModel("status", "guilds"));
                 HashMap<Integer, TranslationResponse> responses = getTranslations(language, translations);
                 Map<String, Integer> usages = GuildUtils.getLanguageUsages();
                 int guilds = shard.jda.getGuilds().size();

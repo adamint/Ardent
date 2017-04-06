@@ -13,7 +13,6 @@ import tk.ardentbot.Utils.Discord.GuildUtils;
 import java.util.concurrent.TimeUnit;
 
 class AsyncCommandExecutor implements Runnable {
-
     private Command command;
     private Guild guild;
     private MessageChannel channel;

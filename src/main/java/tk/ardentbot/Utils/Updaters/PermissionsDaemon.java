@@ -1,55 +1,42 @@
 package tk.ardentbot.Utils.Updaters;
 
-import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
-import tk.ardentbot.Utils.SQL.DatabaseAction;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import com.rethinkdb.net.Cursor;
+import tk.ardentbot.Rethink.Models.Patron;
+import tk.ardentbot.Rethink.Models.Staff;
 
 import static tk.ardentbot.Main.Ardent.*;
+import static tk.ardentbot.Rethink.Database.connection;
+import static tk.ardentbot.Rethink.Database.r;
 
 public class PermissionsDaemon implements Runnable {
     @Override
     public void run() {
-        try {
-            tierOnepatrons.clear();
-            tierTwopatrons.clear();
-            tierThreepatrons.clear();
-
-            DatabaseAction retrievePatrons = new DatabaseAction("SELECT * FROM Patron");
-            ResultSet set = retrievePatrons.request();
-            while (set.next()) {
-                String tier = set.getString("TierName");
-                String id = set.getString("UserID");
-                if (tier.equalsIgnoreCase("tier1")) {
-                    tierOnepatrons.add(id);
-                }
-                else if (tier.equalsIgnoreCase("tier2")) {
-                    tierTwopatrons.add(id);
-                }
-                else if (tier.equalsIgnoreCase("tier3")) {
-                    tierThreepatrons.add(id);
-                }
+        tierOnepatrons.clear();
+        tierTwopatrons.clear();
+        tierThreepatrons.clear();
+        Cursor<Patron> patrons = r.db("data").table("patrons").run(connection);
+        patrons.forEach(patron -> {
+            if (patron.getTier().equalsIgnoreCase("tier1")) {
+                tierOnepatrons.add(patron.getUser_id());
             }
-            retrievePatrons.close();
-
-            developers.clear();
-            moderators.clear();
-            translators.clear();
-
-            DatabaseAction retrieveStaff = new DatabaseAction("SELECT * FROM Staff");
-            ResultSet staff = retrieveStaff.request();
-            while (staff.next()) {
-                String role = staff.getString("Role");
-                String id = staff.getString("UserID");
-                if (role.equalsIgnoreCase("Developer")) developers.add(id);
-                else if (role.equalsIgnoreCase("Moderator")) moderators.add(id);
-                else if (role.equalsIgnoreCase("Translator")) translators.add(id);
+            else if (patron.getTier().equalsIgnoreCase("tier2")) {
+                tierTwopatrons.add(patron.getUser_id());
             }
-            retrieveStaff.close();
-        }
-        catch (SQLException e) {
-            new BotException(e);
-        }
+            else if (patron.getTier().equalsIgnoreCase("tier3")) {
+                tierThreepatrons.add(patron.getUser_id());
+            }
+
+        });
+        developers.clear();
+        moderators.clear();
+        translators.clear();
+        Cursor<Staff> staff = r.db("data").table("staff").run(connection);
+        staff.forEach(staffMember -> {
+            if (staffMember.getRole().equalsIgnoreCase("Developer")) developers.add(staffMember.getUser_id());
+            else if (staffMember.getRole().equalsIgnoreCase("Moderator")) moderators.add(staffMember.getUser_id());
+            else if (staffMember.getRole().equalsIgnoreCase("Translator")) translators.add(staffMember.getUser_id());
+        });
+        patrons.close();
+        staff.close();
     }
 }

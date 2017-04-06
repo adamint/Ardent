@@ -1,19 +1,23 @@
 package tk.ardentbot.Core.Translation;
 
+import com.rethinkdb.net.Cursor;
 import tk.ardentbot.Core.CommandExecution.BaseCommand;
 import tk.ardentbot.Core.Models.CommandTranslation;
 import tk.ardentbot.Core.Models.PhraseTranslation;
 import tk.ardentbot.Core.Models.SubcommandTranslation;
 import tk.ardentbot.Main.Ardent;
-import tk.ardentbot.Utils.SQL.DatabaseAction;
+import tk.ardentbot.Rethink.Models.CommandModel;
+import tk.ardentbot.Rethink.Models.Subcommand;
+import tk.ardentbot.Rethink.Models.TranslationModel;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
+
+import static tk.ardentbot.Rethink.Database.connection;
+import static tk.ardentbot.Rethink.Database.r;
 
 /**
  * Holds a language, with automatically updating phrases,
@@ -36,45 +40,30 @@ public class Language {
             commandTranslations.clear();
             subcommandTranslations.clear();
 
-            try {
-                DatabaseAction translationRequest = new DatabaseAction("SELECT * FROM Translations WHERE Language=?")
-                        .set(getIdentifier());
-                DatabaseAction commandsRequest = new DatabaseAction("SELECT * FROM Commands WHERE Language=?")
-                        .set(getIdentifier());
-                DatabaseAction subcommandsRequest = new DatabaseAction("SELECT * FROM Subcommands WHERE Language=?")
-                        .set(getIdentifier());
+            Cursor<TranslationModel> translations = r.db("data").table("translations").filter(r.hashMap("language", name)).run(connection);
+            translations.forEach(translationModel -> {
+                phraseTranslations.add(new PhraseTranslation(translationModel.getCommand_identifier(), translationModel.getId(),
+                        translationModel
+                        .getTranslation()));
+            });
 
-                ResultSet translations = translationRequest.request();
-                ResultSet commands = commandsRequest.request();
-                ResultSet subcommands = subcommandsRequest.request();
+            Cursor<Subcommand> subcommands = r.db("data").table("subcommands").filter(r.hashMap("language", name)).run(connection);
+            subcommands.forEach(subcommand -> {
+                subcommandTranslations.add(new SubcommandTranslation(subcommand.getCommand_identifier(), subcommand.getIdentifier(),
+                        subcommand.getTranslation(),
+                        subcommand.getSyntax(), subcommand.getDescription()));
+            });
 
-                while (translations.next()) {
-                    phraseTranslations.add(new PhraseTranslation(translations.getString("CommandIdentifier"),
-                            translations.getString("ID"), translations.getString("Translation")));
-                }
+            Cursor<CommandModel> commands = r.db("data").table("commands").filter(r.hashMap("language", name)).run(connection);
+            commands.forEach(commandModel -> {
+                commandTranslations.add(new CommandTranslation(commandModel.getIdentifier(), commandModel.getTranslation(), commandModel
+                        .getDescription()));
+            });
 
-                while (commands.next()) {
-                    commandTranslations.add(new CommandTranslation(commands.getString("Identifier"),
-                            commands.getString("Translation"), commands.getString("Description")));
-                }
-
-                while (subcommands.next()) {
-                    subcommandTranslations.add(new SubcommandTranslation(subcommands.getString("CommandIdentifier"),
-                            subcommands.getString("Identifier"), subcommands.getString("Translation"), subcommands
-                            .getString("Syntax"),
-                            subcommands.getString("Description")));
-                }
-
-                translationRequest.close();
-                commandsRequest.close();
-                subcommandsRequest.close();
-            }
-            catch (SQLException e) {
-                e.printStackTrace();
-            }
+            translations.close();
+            subcommands.close();
+            commands.close();
         }, 0, 60, TimeUnit.MINUTES);
-
-
     }
 
     public String getCrowdinLangCode() {

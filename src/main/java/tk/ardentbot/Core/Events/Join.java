@@ -1,5 +1,6 @@
 package tk.ardentbot.Core.Events;
 
+import com.rethinkdb.net.Cursor;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
@@ -9,19 +10,19 @@ import tk.ardentbot.BotCommands.BotInfo.Status;
 import tk.ardentbot.BotCommands.GuildAdministration.Automessage;
 import tk.ardentbot.BotCommands.GuildAdministration.DefaultRole;
 import tk.ardentbot.BotCommands.Music.GuildMusicManager;
-import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
 import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Main.Shard;
+import tk.ardentbot.Rethink.Models.GuildModel;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.JLAdditions.Triplet;
-import tk.ardentbot.Utils.SQL.DatabaseAction;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+
+import static tk.ardentbot.Rethink.Database.connection;
+import static tk.ardentbot.Rethink.Database.r;
 
 public class Join {
     public static ArrayList<Instant> botJoinEvents = new ArrayList<>();
@@ -50,49 +51,39 @@ public class Join {
 
     @SubscribeEvent
     public void onJoin(GuildJoinEvent event) {
-        try {
-            Guild guild = event.getGuild();
-            Shard shard = GuildUtils.getShard(guild);
-            DatabaseAction getGuild = new DatabaseAction("SELECT * FROM Guilds WHERE GuildID=?")
-                    .set(guild.getId());
-            ResultSet isGuildIn = getGuild.request();
-            if (!isGuildIn.next()) {
-                new DatabaseAction("INSERT INTO Guilds VALUES (?,?,?)").set(guild.getId())
-                        .set("english").set("/").update();
-                String prefix = "/";
-                String language = "english";
+        Guild guild = event.getGuild();
+        Shard shard = GuildUtils.getShard(guild);
+        Cursor<GuildModel> guilds = r.db("data").table("guilds").filter(r.hashMap("guild_id", guild.getId())).run(connection);
+        if (!guilds.hasNext()) {
+            r.db("data").table("guilds").insert(r.hashMap("guild_id", guild.getId()).with("language", "english").with("prefi", "/")).run
+                    (connection);
+            String prefix = "/";
+            String language = "english";
 
-                shard.botPrefixData.set(guild, prefix);
-                shard.botLanguageData.set(guild, language);
+            shard.botPrefixData.set(guild, prefix);
+            shard.botLanguageData.set(guild, language);
 
-                new DatabaseAction("INSERT INTO JoinEvents VALUES (?,?)").set(guild.getId())
-                        .set(Timestamp.from(Instant.now())).update();
-                botJoinEvents.add(Instant.now());
-                Status.commandsByGuild.put(guild.getId(), 0);
-                shard.musicManagers.put(Long.parseLong(guild.getId()), new GuildMusicManager(shard.playerManager,
-                        null));
+            botJoinEvents.add(Instant.now());
+            Status.commandsByGuild.put(guild.getId(), 0);
+            shard.musicManagers.put(Long.parseLong(guild.getId()), new GuildMusicManager(shard.playerManager,
+                    null));
 
 
-                Ardent.cleverbots.put(guild.getId(), shard.cleverBot.createSession());
-                Ardent.sentAnnouncement.put(guild.getId(), false);
-                TextChannel channel = guild.getPublicChannel();
-                Status.commandsByGuild.put(guild.getId(), 0);
-                shard.executorService.schedule(() -> {
-                    channel.sendMessage(welcomeText).queue();
-                    guild.getOwner().getUser().openPrivateChannel().queue(privateChannel -> privateChannel
-                            .sendMessage
-                                    ("Hey! Thanks for adding Ardent. If you have **any** " +
-                                            "questions, comments, concerns, or bug reports, please join our support " +
-                                            "guild at " +
-                                            "https://discordapp.com/invite/rfGSxNA\n" +
-                                            "Also, please don't hesitate to contact Adam#9261 or join our guild.")
-                            .queue());
-                }, 3, TimeUnit.SECONDS);
-            }
-            getGuild.close();
-        }
-        catch (Exception ex) {
-            new BotException(ex);
+            Ardent.cleverbots.put(guild.getId(), shard.cleverBot.createSession());
+            Ardent.sentAnnouncement.put(guild.getId(), false);
+            TextChannel channel = guild.getPublicChannel();
+            Status.commandsByGuild.put(guild.getId(), 0);
+            shard.executorService.schedule(() -> {
+                channel.sendMessage(welcomeText).queue();
+                guild.getOwner().getUser().openPrivateChannel().queue(privateChannel -> privateChannel
+                        .sendMessage
+                                ("Hey! Thanks for adding Ardent. If you have **any** " +
+                                        "questions, comments, concerns, or bug reports, please join our support " +
+                                        "guild at " +
+                                        "https://discordapp.com/invite/rfGSxNA\n" +
+                                        "Also, please don't hesitate to contact Adam#9261 or join our guild.")
+                        .queue());
+            }, 3, TimeUnit.SECONDS);
         }
     }
 

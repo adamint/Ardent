@@ -1,13 +1,13 @@
 package tk.ardentbot.Core.BotData;
 
+import com.rethinkdb.net.Cursor;
 import net.dv8tion.jda.core.entities.Member;
-import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
-import tk.ardentbot.Main.Ardent;
-import tk.ardentbot.Utils.SQL.DatabaseAction;
+import tk.ardentbot.Rethink.Models.MuteData;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.util.HashMap;
+
+import static tk.ardentbot.Rethink.Database.connection;
+import static tk.ardentbot.Rethink.Database.r;
 
 public class BotMuteData {
 
@@ -18,17 +18,11 @@ public class BotMuteData {
 
 
     public BotMuteData() {
-        try {
-            DatabaseAction selectMutes = new DatabaseAction("SELECT * FROM Mutes");
-            ResultSet mutes = selectMutes.request();
-            while (mutes.next()) { // Adding all old mute into the HashMap
-                this.addRaw(mutes.getString("GuildID"), mutes.getString("UserID"), mutes.getLong("UnmuteEpochSecond"));
-            }
-            selectMutes.close();
-        }
-        catch (Exception ex) {
-            new BotException(ex);
-        }
+        Cursor<MuteData> mutes = r.db("data").table("mutes").run(connection);
+        mutes.forEach(muteData -> {
+            this.addRaw(muteData.getGuild_id(), muteData.getUser_id(), muteData.getUnmute_epoch_second());
+        });
+        mutes.close();
     }
 
     private void addRaw(String gID, String uID, long endMute) {
@@ -47,38 +41,12 @@ public class BotMuteData {
 
 
     private void sql_add(Member m, long d, Member s) {
-        try {
-            PreparedStatement statement = Ardent.conn.prepareStatement("INSERT INTO Mutes VALUES (?, ?, ?, ?)");
-
-            statement.setString(1, m.getGuild().getId());
-            statement.setString(2, s.getUser().getId());
-            statement.setLong(3, d);
-            statement.setString(4, m.getUser().getId());
-
-            statement.executeUpdate();
-
-            statement.close();
-        }
-        catch (Exception ex) {
-            new BotException(ex);
-        }
+        r.db("data").table("mutes").insert(r.hashMap("guild_id", m.getGuild().getId()).with("user_id", m.getUser().getId())
+                .with("unmute_epoch_second", d).with("muted_by_id", s.getUser().getId())).run(connection);
     }
 
     private void sql_del(Member m) {
-        try {
-            PreparedStatement statement = Ardent.conn.prepareStatement("DELETE FROM Mutes WHERE GuildID = ? AND " +
-                    "UserID = ?");
-
-            statement.setString(1, m.getGuild().getId());
-            statement.setString(2, m.getUser().getId());
-
-            statement.executeUpdate();
-
-            statement.close();
-        }
-        catch (Exception ex) {
-            new BotException(ex);
-        }
+        r.db("data").table("mutes").filter(r.hashMap("user_id", m.getUser().getId())).delete().run(connection);
     }
 
     /**
@@ -115,7 +83,8 @@ public class BotMuteData {
      */
     public boolean isMuted(Member member) {
         if (this.usersGuildMute.keySet().contains(member.getGuild().getId())) {
-            boolean muted = this.usersGuildMute.get(member.getGuild().getId()).keySet().contains(member.getUser().getId()) && System.currentTimeMillis() < this.usersGuildMute.get(member.getGuild().getId()).get(member.getUser().getId());
+            boolean muted = this.usersGuildMute.get(member.getGuild().getId()).keySet().contains(member.getUser().getId()) && System
+                    .currentTimeMillis() < this.usersGuildMute.get(member.getGuild().getId()).get(member.getUser().getId());
             if (!muted) {
                 this.sql_del(member);
             }
@@ -136,7 +105,8 @@ public class BotMuteData {
      * @return True if the user is in the mute list.
      */
     public boolean wasMute(Member member) {
-        return this.usersGuildMute.keySet().contains(member.getGuild().getId()) && this.usersGuildMute.get(member.getGuild().getId()).keySet().contains(member.getUser().getId());
+        return this.usersGuildMute.keySet().contains(member.getGuild().getId()) && this.usersGuildMute.get(member.getGuild().getId())
+                .keySet().contains(member.getUser().getId());
     }
 
     /**
@@ -154,9 +124,9 @@ public class BotMuteData {
      * Get the unmute time in millisecond for an user.
      *
      * @param member Guild's Member
-     * @return       Unmute Time
+     * @return Unmute Time
      */
-    public long getUnmuteTime(Member member){
+    public long getUnmuteTime(Member member) {
         if (!this.isMuted(member)) return 0;
         return this.usersGuildMute.get(member.getGuild().getId()).get(member.getUser().getId());
     }

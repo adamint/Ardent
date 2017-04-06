@@ -1,26 +1,27 @@
 package tk.ardentbot.Core.BotData;
 
+import com.rethinkdb.net.Cursor;
 import net.dv8tion.jda.core.entities.Guild;
 import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;
-import tk.ardentbot.Utils.SQL.DatabaseAction;
+import tk.ardentbot.Rethink.Models.GuildModel;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 
 import static tk.ardentbot.Main.Ardent.botLogsShard;
+import static tk.ardentbot.Rethink.Database.connection;
+import static tk.ardentbot.Rethink.Database.r;
 
 public class BotLanguageData {
     private HashMap<String, String> guildLanguages = new HashMap<>();
 
     public BotLanguageData() throws SQLException {
-        DatabaseAction getLanguages = new DatabaseAction("SELECT * FROM Guilds");
-        ResultSet languages = getLanguages.request();
-        while (languages.next()) {
-            guildLanguages.put(languages.getString("GuildID"), languages.getString("Language"));
-        }
-        getLanguages.close();
+        Cursor<GuildModel> guilds = r.db("data").table("guilds").run(connection);
+        guilds.forEach(guildModel -> {
+            guildLanguages.put(guildModel.getGuild_id(), guildModel.getLanguage());
+        });
+        guilds.close();
     }
 
     public void set(String guildId, String language) {

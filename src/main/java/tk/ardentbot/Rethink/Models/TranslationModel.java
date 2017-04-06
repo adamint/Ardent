@@ -4,7 +4,7 @@ import lombok.Getter;
 import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;
 
-public class Translation {
+public class TranslationModel {
     @Getter
     private String command_identifier;
     @Getter

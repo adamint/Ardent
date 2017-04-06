@@ -14,6 +14,7 @@ import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.code.chatterbotapi.ChatterBotSession;
+import com.google.gson.Gson;
 import com.mashape.unirest.http.Unirest;
 import com.wrapper.spotify.Api;
 import org.apache.commons.io.IOUtils;
@@ -21,6 +22,7 @@ import tk.ardentbot.BotCommands.Music.StuckVoiceConnection;
 import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
 import tk.ardentbot.Core.Misc.WebServer.SparkServer;
 import tk.ardentbot.Core.Translation.LangFactory;
+import tk.ardentbot.Rethink.Database;
 import tk.ardentbot.Utils.Premium.CheckIfPremiumGuild;
 import tk.ardentbot.Utils.Premium.UpdatePremiumMembers;
 import tk.ardentbot.Utils.RPGUtils.Profiles.Profile;
@@ -52,9 +54,12 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static tk.ardentbot.Core.Translation.LangFactory.languages;
+import static tk.ardentbot.Rethink.Database.connection;
+import static tk.ardentbot.Rethink.Database.r;
 import static tk.ardentbot.Utils.Searching.GoogleSearch.GOOGLE_API_KEY;
 
 public class Ardent {
+    public static final Gson globalGson = new Gson();
     private static final String APPLICATION_NAME = "Ardent";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private static final File DATA_STORE_DIR = new java.io.File("/root/Ardent", ".credentials/sheets.googleapis.com-java-quickstart");
@@ -66,7 +71,7 @@ public class Ardent {
     public static Process premiumProcess;
     public static boolean premiumBot = false;
     public static String premiumBotToken;
-    public static boolean testingBot = false;
+    public static boolean testingBot = true;
     public static Api spotifyApi;
     public static ArrayList<String> tierOnepatrons = new ArrayList<>();
     public static ArrayList<String> tierTwopatrons = new ArrayList<>();
@@ -89,8 +94,8 @@ public class Ardent {
     public static String gameUrl = "https://ardentbot.tk";
     public static String testBotToken;
     public static Sheets sheetsApi;
+    public static String node1Url;
     static String node0Url;
-    static String node1Url;
     private static String credential;
     private static HttpTransport HTTP_TRANSPORT;
     private static DataStoreFactory DATA_STORE_FACTORY;
@@ -162,6 +167,7 @@ public class Ardent {
             else if (id.equalsIgnoreCase("googlecredential")) credential = value;
         }
         getKeys.close();
+        Database.setup();
 
         languages = new ArrayList<>();
         languages.add(LangFactory.english);
@@ -218,6 +224,21 @@ public class Ardent {
         //sheetsApi.spreadsheets().get().execute().getSheets().get(0).getData();
         // TODO: 4/5/2017 complete, switch trivia to https://docs.google
         // .com/spreadsheets/d/1qm27kGVQ4BdYjvPSlF0zM64j7nkW4HXzALFNcan4fbs/edit#gid=0
+
+        globalExecutorService.schedule(new Runnable() {
+            @Override
+            public void run() {
+                for (String s : moderators) {
+                    r.db("data").table("staff").insert(r.hashMap("user_id", s).with("role", "moderator")).run(connection);
+                }
+                for (String s : developers) {
+                    r.db("data").table("patrons").insert(r.hashMap("user_id", s).with("tier", "developer")).run(connection);
+                }
+                for (String s : translators) {
+                    r.db("data").table("patrons").insert(r.hashMap("user_id", s).with("tier", "translator")).run(connection);
+                }
+            }
+        }, 10, TimeUnit.SECONDS);
     }
 
     private static Sheets getSheetsApi() throws IOException {

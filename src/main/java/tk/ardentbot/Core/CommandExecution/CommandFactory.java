@@ -2,6 +2,7 @@ package tk.ardentbot.Core.CommandExecution;
 
 import com.google.code.chatterbotapi.ChatterBotSession;
 import com.mashape.unirest.http.Unirest;
+import com.rethinkdb.net.Cursor;
 import com.vdurmont.emoji.Emoji;
 import com.vdurmont.emoji.EmojiManager;
 import net.dv8tion.jda.core.entities.*;
@@ -16,19 +17,19 @@ import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Main.Shard;
+import tk.ardentbot.Rethink.Models.CommandModel;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.Discord.UserUtils;
 import tk.ardentbot.Utils.Models.RestrictedUser;
 import tk.ardentbot.Utils.RPGUtils.EntityGuild;
-import tk.ardentbot.Utils.SQL.DatabaseAction;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
+
+import static tk.ardentbot.Rethink.Database.connection;
+import static tk.ardentbot.Rethink.Database.r;
 
 public class CommandFactory {
     private Shard shard;
@@ -141,10 +142,8 @@ public class CommandFactory {
                 }
                 if (toChange != null) {
                     if (GuildUtils.hasManageServerPermission(guild.getMember(event.getAuthor()))) {
-                        DatabaseAction updateLanguage = new DatabaseAction("UPDATE Guilds SET Language=? " +
-                                "WHERE" +
-                                " GuildID=?").set(toChange.getIdentifier()).set(guild.getId());
-                        updateLanguage.update();
+                        r.db("data").table("guilds").filter(r.hashMap("guild_id", guild.getId())).update(r.hashMap("language", toChange
+                                .getIdentifier()));
                         command.sendRetrievedTranslation(channel, "language", LangFactory.getLanguage("english"),
                                 "changedlanguage", user);
                         getShard().botLanguageData.set(guild, toChange.getIdentifier());
@@ -232,7 +231,6 @@ public class CommandFactory {
                                             command.sendRetrievedTranslation(channel, "other", language, "disabledfeature", user);
                                             ranCommand[0] = true;
                                         }
-                                        return;
                                     }
                                     catch (Exception e) {
                                         new BotException(e);
@@ -275,18 +273,11 @@ public class CommandFactory {
     private class EmojiCommandUpdater implements Runnable {
         @Override
         public void run() {
-            try {
-                Statement statement = Ardent.conn.createStatement();
-                ResultSet emojis = statement.executeQuery("SELECT * FROM Commands WHERE Language='emoji'");
-                while (emojis.next()) {
-                    emojiCommandTags.add(emojis.getString("Translation").replace("\\:", ""));
-                }
-                emojis.close();
-                statement.close();
-            }
-            catch (SQLException e) {
-                e.printStackTrace();
-            }
+            emojiCommandTags.clear();
+            Cursor<CommandModel> emojiCommands = r.db("data").table("commands").filter(r.hashMap("language", "emoji")).run(connection);
+            emojiCommands.forEach(commandModel -> {
+                emojiCommandTags.add(commandModel.getTranslation().replace("\\:", ""));
+            });
         }
     }
 }
