@@ -47,10 +47,10 @@ import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
 import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Rethink.Models.GuildModel;
+import tk.ardentbot.Rethink.Models.RestrictedUserModel;
 import tk.ardentbot.Utils.Discord.InternalStats;
 import tk.ardentbot.Utils.Models.RestrictedUser;
 import tk.ardentbot.Utils.RPGUtils.EntityGuild;
-import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.Updaters.GuildDaemon;
 import tk.ardentbot.Utils.Updaters.MuteDaemon;
 import tk.ardentbot.Utils.Updaters.PermissionsDaemon;
@@ -61,7 +61,6 @@ import twitter4j.conf.ConfigurationBuilder;
 
 import java.io.File;
 import java.io.FileReader;
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -332,19 +331,16 @@ public class Shard {
                 });
                 guildData.close();
 
-                DatabaseAction getRestrictions = new DatabaseAction("SELECT * FROM Restricted");
-                ResultSet restrictionSet = getRestrictions.request();
-                while (restrictionSet.next()) {
-                    String restrictedId = restrictionSet.getString("UserID");
-                    String restrictedBy = restrictionSet.getString("RestrictedByID");
-                    String guildId = restrictionSet.getString("GuildID");
-                    Guild temp = jda.getGuildById(guildId);
+                Cursor<HashMap> restrictedData = r.db("data").table("restricted").run(connection);
+                restrictedData.forEach(hashMap -> {
+                    RestrictedUserModel r = asPojo(hashMap, RestrictedUserModel.class);
+                    Guild temp = jda.getGuildById(r.getGuild_id());
                     if (temp != null) {
                         EntityGuild entityGuild = EntityGuild.get(temp);
-                        entityGuild.addRestricted(new RestrictedUser(restrictedId, restrictedBy, temp));
+                        entityGuild.addRestricted(new RestrictedUser(r.getUser_id(), r.getRestricter_id(), temp));
                     }
-                }
-                getRestrictions.close();
+                });
+                restrictedData.close();
 
                 executorService.scheduleAtFixedRate(() -> {
                     String game = null;
