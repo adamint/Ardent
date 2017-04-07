@@ -8,16 +8,16 @@ public class Subcommand {
     @Getter
     private String command_identifier;
     @Getter
+    private String description;
+    @Getter
     private String identifier;
     private String language;
     @Getter
-    private String translation;
+    private boolean needsDb;
     @Getter
     private String syntax;
     @Getter
-    private String description;
-    @Getter
-    private boolean needsDb;
+    private String translation;
     @Getter
     private String uuid;
 

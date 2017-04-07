@@ -1,5 +1,6 @@
 package tk.ardentbot.BotCommands.Fun;
 
+import com.rethinkdb.net.Cursor;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
@@ -7,14 +8,16 @@ import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.CommandExecution.Subcommand;
 import tk.ardentbot.Core.Translation.Language;
+import tk.ardentbot.Rethink.Models.Tag;
 import tk.ardentbot.Utils.Discord.GuildUtils;
-import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.StringUtils;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
+import static tk.ardentbot.Rethink.Database.connection;
+import static tk.ardentbot.Rethink.Database.r;
 import static tk.ardentbot.Utils.SQL.SQLUtils.cleanString;
 
 public class Tags extends Command {
@@ -22,14 +25,14 @@ public class Tags extends Command {
         super(commandSettings);
     }
 
-    public static ArrayList<String> getTagsForGuild(Guild guild) throws SQLException {
+    private static ArrayList<String> getTagsForGuild(Guild guild) throws SQLException {
         ArrayList<String> tags = new ArrayList<>();
-        DatabaseAction getTags = new DatabaseAction("SELECT * FROM Tags WHERE GuildID=?").set(guild.getId());
-        ResultSet set = getTags.request();
-        while (set.next()) {
-            tags.add(set.getString("Name"));
-        }
-        getTags.close();
+        Cursor<HashMap> cursor = r.db("data").table("tags").filter(row -> row.g("guild_id").eq(guild
+                .getId())).run(connection);
+        cursor.forEach(hashMap -> {
+            tags.add(asPojo(hashMap, Tag.class).getResponse());
+        });
+        cursor.close();
         return tags;
     }
 
@@ -62,10 +65,10 @@ public class Tags extends Command {
                 StringBuilder sb = new StringBuilder();
                 String query = cleanString(message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " +
                         "" + args[1] + " ", ""));
-                DatabaseAction findTag = new DatabaseAction("SELECT * FROM Tags WHERE Name=?").set(query);
-                ResultSet set = findTag.request();
-                if (set.next()) {
-                    sb.append(set.getString("Text"));
+                Cursor<HashMap> findTag = r.db("data").table("tags").filter(row -> row.g("name").eq(query).and(row.g("guild_id").eq(guild
+                        .getId()))).run(connection);
+                if (findTag.hasNext()) {
+                    sb.append(asPojo(findTag.next(), Tag.class).getResponse());
                 }
                 else {
                     sb.append(getTranslation("tag", language, "didntfindtag").getTranslation());
@@ -107,8 +110,8 @@ public class Tags extends Command {
                         String result = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " +
                                 args[1] + " " + args[2] + " ", "");
                         if (!getTagsForGuild(guild).contains(name)) {
-                            new DatabaseAction("INSERT INTO Tags VALUES (?,?,?,?)").set(guild.getId()).set(name).set
-                                    (result).set(user.getId()).update();
+                            r.db("data").table("tags").insert((new Tag(guild.getId(), name, result, user.getId()))).run
+                                    (connection);
                             String reply = getTranslation("tag", language, "successfullyadded").getTranslation()
                                     .replace("{0}", GuildUtils.getPrefix(guild) + args[0]).replace("{1}", name);
                             sendTranslatedMessage(reply, channel, user);
@@ -128,8 +131,8 @@ public class Tags extends Command {
                     if (args.length == 3) {
                         String name = args[2];
                         if (getTagsForGuild(guild).contains(name)) {
-                            new DatabaseAction("DELETE FROM Tags WHERE GuildID=? AND Name=?").set(guild.getId())
-                                    .set(name).update();
+                            r.db("data").table("tags").filter(row -> row.g("guild_id").eq(guild.getId()).and(row.g("name").eq(name)))
+                                    .delete().run(connection);
                             String reply = getTranslation("tag", language, "successfullyremoved").getTranslation()
                                     .replace("{1}", name);
                             sendTranslatedMessage(reply, channel, user);
