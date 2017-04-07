@@ -3,7 +3,7 @@ package tk.ardentbot.Utils.RPGUtils;
 import lombok.Getter;
 
 public enum BadgesList {
-    PREMIUM_TRIAL(1, "premiumtrial", "Premium One Day Trial", "Buy a one day Tier 3 premium trial for $7500", 7500, false, true,
+    PREMIUM_TRIAL(1, "premiumtrial", "Premium One Day Trial", "Buy a one day Tier 3 premium trial for $500", 500, false, true,
             "http://i" +
             ".imgur.com/maP6A0N.png");
 

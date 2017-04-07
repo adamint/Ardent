@@ -58,7 +58,7 @@ public class Badges extends Command {
                         return;
                     }
                     Profile profile = Profile.get(user);
-                    if (profile.getMoneyAmount() < badgeToBuy.getCost()) {
+                    if (profile.getMoney() < badgeToBuy.getCost()) {
                         sendRetrievedTranslation(channel, "rpg", language, "notenoughmoney", user);
                     }
                     else {

@@ -1,103 +1,80 @@
 package tk.ardentbot.Utils.RPGUtils.Profiles;
 
+import com.rethinkdb.net.Cursor;
 import lombok.Getter;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
 import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Rethink.Models.OneTimeBadgeModel;
 import tk.ardentbot.Utils.Discord.UserUtils;
 import tk.ardentbot.Utils.RPGUtils.BadgesList;
-import tk.ardentbot.Utils.SQL.DatabaseAction;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+import static tk.ardentbot.Core.CommandExecution.BaseCommand.asPojo;
+import static tk.ardentbot.Rethink.Database.connection;
+import static tk.ardentbot.Rethink.Database.r;
+
 public class Profile {
-    private String userId;
-    private double moneyAmount;
+    private String user_id;
+    private double money;
     @Getter
     private double stocksOwned;
     private List<Badge> badges = new ArrayList<>();
 
-    private Profile(User user) throws SQLException {
+    private Profile(User user) {
         Ardent.profileUpdateExecutorService.execute(() -> {
-            try {
-                this.userId = user.getId();
-                DatabaseAction getProfile = new DatabaseAction("SELECT * FROM Profiles WHERE UserID=?").set(userId);
-                ResultSet set = getProfile.request();
-                if (set.next()) {
-                    moneyAmount = set.getDouble("Money");
-                    DatabaseAction retrieveBadges = new DatabaseAction("SELECT * FROM Badges WHERE UserID=?").set(userId);
-                    ResultSet badgesWithId = retrieveBadges.request();
-                    while (badgesWithId.next()) {
-                        badges.add(new Badge(userId, badgesWithId.getString("BadgeID"), badgesWithId.getString("FeatureName"), badgesWithId
-                                .getBoolean("GuildWide"), badgesWithId.getBoolean("OneTime"), badgesWithId
-                                .getTimestamp("ExpirationTime").toInstant().getEpochSecond()));
-                    }
-                    retrieveBadges.close();
-                }
-                else {
-                    moneyAmount = 25;
-                    new DatabaseAction("INSERT INTO Profiles VALUES (?,?)").set(userId).set(25).update();
-                }
-                getProfile.close();
+            this.user_id = user.getId();
+            List<HashMap> profileData = ((Cursor<HashMap>) r.db("data").table("profiles").filter(row -> row.g("user_id").eq(user_id)).run
+                    (connection)).toList();
+            if (profileData.size() > 1) {
+                Profile profile = asPojo(profileData.get(0), Profile.class);
+                List<HashMap> profileBadges = ((Cursor<HashMap>) r.db("data").table("badges").filter(row -> row.g("user_id").eq(user_id))
+                        .run(connection)).toList();
+                profileBadges.forEach(b -> badges.add(asPojo(b, Badge.class)));
+                this.money = profile.getMoney();
+                this.stocksOwned = profile.getStocksOwned();
             }
-            catch (SQLException e) {
-                new BotException(e);
+            else {
+                this.stocksOwned = 0;
+                this.money = 25;
+                r.db("data").table("profiles").insert(this).run(connection);
             }
         });
     }
 
-    public Profile(String userId, double moneyAmount, List<Badge> badges) {
-        this.userId = userId;
-        this.moneyAmount = moneyAmount;
+    public Profile(String user_id, double money, List<Badge> badges) {
+        this.user_id = user_id;
+        this.money = money;
         this.badges = badges;
     }
 
     public static Profile get(User user) {
-        Profile toReturn;
-        String id = user.getId();
-        if (Ardent.userProfiles.containsKey(id)) {
-            toReturn = Ardent.userProfiles.get(id);
-        }
-        else {
-            Profile profile = null;
-            try {
-                profile = new Profile(user);
-                Ardent.userProfiles.put(id, profile);
-            }
-            catch (SQLException e) {
-                e.printStackTrace();
-            }
-            toReturn = profile;
-        }
-        return toReturn;
+        return new Profile(user);
     }
 
     public User getUser() {
-        return UserUtils.getUserById(userId);
+        return UserUtils.getUserById(user_id);
     }
 
-    public double getMoneyAmount() {
-        return moneyAmount;
+    public double getMoney() {
+        return money;
     }
 
     public boolean addBadge(BadgesList badge) throws SQLException {
         boolean succeeded = true;
         if (badge.isOneTime()) {
-            DatabaseAction containsBadge = new DatabaseAction("SELECT * FROM OneTime WHERE UserID=? AND BadgeID=?").set(userId).set(badge
-                    .getId());
-            ResultSet set = containsBadge.request();
-            if (set.next()) {
+            List<HashMap> profileData = ((Cursor<HashMap>) r.db("data").table("one_time").filter(row -> row.g("user_id").eq(user_id).and
+                    (row.g("badge_id").eq(badge.getId()))).run(connection)).toList();
+            if (profileData.size() > 0) {
                 succeeded = false;
             }
             else {
-                new DatabaseAction("INSERT INTO OneTime VALUES (?,?)").set(userId).set(badge.getId()).update();
+                r.db("data").table("one_time").insert(new OneTimeBadgeModel(user_id, badge.getId())).run(connection);
             }
-            containsBadge.close();
         }
         if (succeeded) {
             int dayDuration = badge.getDayDuration();
@@ -108,9 +85,10 @@ public class Profile {
             else {
                 instant = Instant.now().plusSeconds((dayDuration * 24 * 60 * 60));
             }
-            badges.add(new Badge(userId, badge.getId(), badge.getName(), badge.isGuildWide(), badge.isOneTime(), instant.getEpochSecond()));
-            new DatabaseAction("INSERT INTO Badges VALUES (?,?,?,?,?,?)").set(userId).set(badge.getId()).set(badge.getName())
-                    .set(badge.isGuildWide()).set(badge.isOneTime()).set(Timestamp.from(instant)).update();
+            Badge badgeToAdd = new Badge(user_id, badge.getId(), badge.getName(), badge.isGuildWide(), badge.isOneTime(), instant
+                    .getEpochSecond());
+            badges.add(badgeToAdd);
+            r.db("data").table("badges").insert(badgeToAdd).run(connection);
             return true;
         }
         else return false;
@@ -121,11 +99,13 @@ public class Profile {
     }
 
     public void addMoney(double amount) {
-        moneyAmount += amount;
+        money += amount;
+        r.db("data").table("profiles").filter(row -> row.g("user_id").eq(user_id)).update(r.hashMap("money", money)).run(connection);
     }
 
     public void removeMoney(double amount) {
-        moneyAmount -= amount;
+        money -= amount;
+        r.db("data").table("profiles").filter(row -> row.g("user_id").eq(user_id)).update(r.hashMap("money", money)).run(connection);
     }
 
     public void addStock(double amountToAdd) {

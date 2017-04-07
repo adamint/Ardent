@@ -37,12 +37,15 @@ public abstract class BaseCommand {
     Category category;
     private Shard shard;
 
-    public static ArrayList<String> copyStringList(List list) {
-        ArrayList<String> a = new ArrayList<>();
-        a.addAll(list);
-        return a;
-    }
 
+    /**
+     * Convert a HashMap into a POJO via GSON and Java's JSON library - use only with RethinkDB
+     *
+     * @param map    Map returned from a rethink query
+     * @param tClass The POJO class
+     * @param <T>    an object created from tClass
+     * @return an instance of tClass
+     */
     public static <T> T asPojo(HashMap map, Class<T> tClass) {
         return globalGson.fromJson(JSONObject.toJSONString(map), tClass);
     }

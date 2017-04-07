@@ -37,7 +37,7 @@ public class ProfileUpdater implements Runnable {
                 }
             }
             try {
-                new DatabaseAction("UPDATE Profiles SET Money=? WHERE UserID=?").set(profile.getMoneyAmount()).set(id).update();
+                new DatabaseAction("UPDATE Profiles SET Money=? WHERE UserID=?").set(profile.getMoney()).set(id).update();
                 System.out.println("updated" + id);
             }
             catch (SQLException e) {

@@ -1,5 +1,6 @@
 package tk.ardentbot.BotCommands.RPG;
 
+import com.rethinkdb.net.Cursor;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
@@ -11,17 +12,17 @@ import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Core.Translation.Translation;
 import tk.ardentbot.Core.Translation.TranslationResponse;
 import tk.ardentbot.Utils.Discord.MessageUtils;
-import tk.ardentbot.Utils.Discord.UserUtils;
 import tk.ardentbot.Utils.MapUtils;
 import tk.ardentbot.Utils.RPGUtils.Profiles.Profile;
 import tk.ardentbot.Utils.RPGUtils.RPGUtils;
-import tk.ardentbot.Utils.SQL.DatabaseAction;
 
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static tk.ardentbot.Rethink.Database.connection;
+import static tk.ardentbot.Rethink.Database.r;
 
 public class RPGMoney extends Command {
     private ArrayList<String> generatedFirstTimeFor = new ArrayList<>();
@@ -36,13 +37,13 @@ public class RPGMoney extends Command {
         if (mentionedUsers.size() > 0) {
             User mentioned = mentionedUsers.get(0);
             sendTranslatedMessage(getTranslation("money", language, "theirbalance").getTranslation().replace("{0}", mentioned.getName())
-                    .replace("{1}", RPGUtils.formatMoney(Profile.get(mentioned).getMoneyAmount())), channel, user);
+                    .replace("{1}", RPGUtils.formatMoney(Profile.get(mentioned).getMoney())), channel, user);
         }
         else {
             StringBuilder sb = new StringBuilder();
             HashMap<Integer, TranslationResponse> translations = getTranslations(language, new Translation("money", "yourbalance"),
                     new Translation("money", "checktop"));
-            sb.append(translations.get(0).getTranslation().replace("{0}", RPGUtils.formatMoney(Profile.get(user).getMoneyAmount())));
+            sb.append(translations.get(0).getTranslation().replace("{0}", RPGUtils.formatMoney(Profile.get(user).getMoney())));
             sb.append("\n\n" + translations.get(1).getTranslation());
             sendTranslatedMessage(sb.toString(), channel, user);
         }
@@ -55,15 +56,12 @@ public class RPGMoney extends Command {
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws
                     Exception {
                 HashMap<User, Double> moneyAmounts = new HashMap<>();
-                DatabaseAction getTop = new DatabaseAction("SELECT * FROM Profiles ORDER BY Money DESC LIMIT 15");
-                ResultSet top = getTop.request();
-                while (top.next()) {
-                    User u = UserUtils.getUserById(top.getString("UserID"));
-                    if (u != null) {
-                        moneyAmounts.put(u, top.getDouble("Money"));
-                    }
-                }
-                getTop.close();
+                Cursor<HashMap> top = r.db("data").table("profiles").orderBy("money").limit(15).run(connection);
+                top.forEach(hashMap -> {
+                    Profile profile = asPojo(hashMap, Profile.class);
+                    moneyAmounts.put(profile.getUser(), profile.getMoney());
+                });
+                top.close();
 
                 Map<User, Double> sortedAmounts = MapUtils.sortByValue(moneyAmounts);
                 HashMap<Integer, TranslationResponse> translations = getTranslations(language, new Translation("money", "topmoney"),
@@ -95,7 +93,7 @@ public class RPGMoney extends Command {
                 HashMap<User, Double> moneyAmounts = new HashMap<>();
                 guild.getMembers().forEach(member -> {
                     User u = member.getUser();
-                    moneyAmounts.put(u, Profile.get(u).getMoneyAmount());
+                    moneyAmounts.put(u, Profile.get(u).getMoney());
                 });
                 Map<User, Double> sortedAmounts = MapUtils.sortByValue(moneyAmounts);
 

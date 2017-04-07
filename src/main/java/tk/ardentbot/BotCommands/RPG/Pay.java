@@ -31,7 +31,7 @@ public class Pay extends Command {
                 try {
                     double amount = Double.parseDouble(raw[2]);
                     Profile profile = Profile.get(user);
-                    if (amount <= 0 || profile.getMoneyAmount() < amount) {
+                    if (amount <= 0 || profile.getMoney() < amount) {
                         sendRetrievedTranslation(channel, "pay", language, "nope", user);
                         return;
                     }
