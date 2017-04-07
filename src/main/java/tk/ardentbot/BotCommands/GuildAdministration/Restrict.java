@@ -8,14 +8,17 @@ import tk.ardentbot.Core.CommandExecution.Subcommand;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Core.Translation.Translation;
 import tk.ardentbot.Core.Translation.TranslationResponse;
+import tk.ardentbot.Rethink.Models.RestrictedUserModel;
 import tk.ardentbot.Utils.Discord.MessageUtils;
 import tk.ardentbot.Utils.Models.RestrictedUser;
 import tk.ardentbot.Utils.RPGUtils.EntityGuild;
-import tk.ardentbot.Utils.SQL.DatabaseAction;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import static tk.ardentbot.Rethink.Database.connection;
+import static tk.ardentbot.Rethink.Database.r;
 
 public class Restrict extends Command {
     public Restrict(CommandSettings commandSettings) {
@@ -52,9 +55,10 @@ public class Restrict extends Command {
                                 sendRetrievedTranslation(channel, "restrict", language, "alreadyrestricted", user);
                             }
                             else {
-                                entityGuild.addRestricted(new RestrictedUser(mentioned.getId(), user.getId(), guild));
-                                new DatabaseAction("INSERT INTO Restricted VALUES (?,?,?)").set(mentioned.getId()).set(user.getId())
-                                        .set(guild.getId()).update();
+                                RestrictedUser restrictedUser = new RestrictedUser(mentioned.getId(), user.getId(), guild);
+                                entityGuild.addRestricted(restrictedUser);
+                                r.db("data").table("restricted").insert(new RestrictedUserModel(guild.getId(), mentioned.getId(), user
+                                        .getId())).run(connection);
                                 sendEditedTranslation("restrict", language, "restricteduser", user, channel, mentioned.getName(), user
                                         .getName());
                             }
@@ -81,8 +85,8 @@ public class Restrict extends Command {
                             }
                             else {
                                 entityGuild.removeRestricted(mentioned.getId());
-                                new DatabaseAction("DELETE FROM Restricted WHERE UserID=? AND GuildID=?").set(mentioned.getId())
-                                        .set(guild.getId()).update();
+                                r.db("data").table("restricted").filter(row -> row.g("user_id").eq(mentioned.getId())
+                                        .and(row.g("guild_id").eq(guild.getId()))).delete().run(connection);
                                 sendEditedTranslation("restrict", language, "unblockeduser", user, channel, mentioned.getName(), user
                                         .getName());
                             }
