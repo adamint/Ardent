@@ -1,5 +1,6 @@
 package tk.ardentbot.BotCommands.GuildAdministration;
 
+import com.rethinkdb.net.Cursor;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 import tk.ardentbot.Core.CommandExecution.Command;
@@ -7,17 +8,17 @@ import tk.ardentbot.Core.CommandExecution.Subcommand;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Core.Translation.Translation;
 import tk.ardentbot.Core.Translation.TranslationResponse;
-import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Rethink.Models.AutomessageModel;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.JLAdditions.Triplet;
-import tk.ardentbot.Utils.SQL.DatabaseAction;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import static tk.ardentbot.Rethink.Database.connection;
+import static tk.ardentbot.Rethink.Database.r;
 
 public class Automessage extends Command {
     public Automessage(CommandSettings commandSettings) {
@@ -25,57 +26,54 @@ public class Automessage extends Command {
     }
 
     private static void check(Guild guild) throws SQLException {
-        DatabaseAction selectAutomessage = new DatabaseAction("SELECT * FROM Automessages WHERE GuildID=?")
-                .set(guild.getId());
-        ResultSet set = selectAutomessage.request();
-        if (!set.next()) {
-            new DatabaseAction("INSERT INTO Automessages VALUES (?,?,?,?)").set(guild.getId()).set("000")
-                    .set("000").set("000").update();
+        List<HashMap> selectAutomessage = ((Cursor<HashMap>) r.db("data").table("automessages").filter(row -> row.g("guild_id")
+                .eq(guild.getId())).run(connection)).toList();
+        if (selectAutomessage.size() == 0) {
+            r.db("data").table("automessages").insert(new AutomessageModel(guild.getId(), "000", "000", "000")).run(connection);
         }
-        selectAutomessage.close();
     }
 
     public static Triplet<String, String, String> getMessagesAndChannel(Guild guild) throws SQLException {
         Triplet<String, String, String> triplet;
         check(guild);
-        Statement statement = Ardent.conn.createStatement();
-        ResultSet set = statement.executeQuery("SELECT * FROM Automessages WHERE GuildID='" + guild.getId() + "'");
-        if (set.next()) {
-            String channel = set.getString("ChannelID");
-            String welcome = set.getString("Welcome");
-            String goodbye = set.getString("Goodbye");
-            if (channel.equalsIgnoreCase("000")) channel = null;
-            if (welcome.equalsIgnoreCase("000")) welcome = null;
-            if (goodbye.equalsIgnoreCase("000")) goodbye = null;
+        List<HashMap> getAutomessages = ((Cursor<HashMap>) r.db("data").table("automessages").filter(row -> row.g("guild_id")
+                .eq(guild.getId())).run(connection)).toList();
+        if (getAutomessages.size() > 0) {
+            AutomessageModel automessageModel = asPojo(getAutomessages.get(0), AutomessageModel.class);
+            String channel;
+            String welcome;
+            String goodbye;
+            if (automessageModel.getChannel_id().equalsIgnoreCase("000")) channel = null;
+            else channel = automessageModel.getChannel_id();
+            if (automessageModel.getWelcome().equalsIgnoreCase("000")) welcome = null;
+            else welcome = automessageModel.getWelcome();
+            if (automessageModel.getGoodbye().equalsIgnoreCase("000")) goodbye = null;
+            else goodbye = automessageModel.getGoodbye();
             triplet = new Triplet<>(channel, welcome, goodbye);
         }
         else {
             triplet = new Triplet<>(null, null, null);
         }
-        set.close();
-        statement.close();
         return triplet;
     }
 
+    public static String getField(int num) {
+        String columnName = null;
+        if (num == 0) columnName = "channel_id";
+        else if (num == 1) columnName = "welcome";
+        else if (num == 2) columnName = "goodbye";
+        return columnName;
+    }
+
     public static void remove(Guild guild, int num) throws SQLException {
-        String columnName;
-        if (num == 0) columnName = "ChannelID";
-        else if (num == 1) columnName = "Welcome";
-        else if (num == 2) columnName = "Goodbye";
-        else return;
-        new DatabaseAction("UPDATE Automessages SET " + columnName + "=? WHERE GuildID=?").set("000").set(guild.getId
-                ()).update();
+        set(guild, "000", num);
     }
 
     @SuppressWarnings("Duplicates")
     public static void set(Guild guild, String text, int num) throws SQLException {
-        String columnName;
-        if (num == 0) columnName = "ChannelID";
-        else if (num == 1) columnName = "Welcome";
-        else if (num == 2) columnName = "Goodbye";
-        else return;
-        new DatabaseAction("UPDATE Automessages SET " + columnName + " =? WHERE GuildID=?").set(text).set(guild.getId
-                ()).update();
+        String fieldName = getField(num);
+        r.db("data").table("automessages").filter(row -> row.g("guild_id").eq(guild.getId())).update(r.hashMap(fieldName, text)).run
+                (connection);
     }
 
     @Override
