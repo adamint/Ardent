@@ -29,10 +29,8 @@ import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.Discord.UserUtils;
 import tk.ardentbot.Utils.JLAdditions.Pair;
 import tk.ardentbot.Utils.RPGUtils.EntityGuild;
-import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.StringUtils;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -383,12 +381,12 @@ public class Music extends Command {
 
     static boolean shouldDeleteMessages(Guild guild) throws SQLException {
         boolean returnValue = false;
-        DatabaseAction action = new DatabaseAction("SELECT * FROM MusicSettings WHERE GuildID=?").set(guild.getId());
-        ResultSet set = action.request();
-        if (set.next()) {
-            if (set.getBoolean("RemoveAdditionMessages")) returnValue = true;
+        Cursor<HashMap> settings = r.db("data").table("music_settings").filter(row -> row.g("guild_id").eq(guild.getId())).run(connection);
+        if (settings.hasNext()) {
+            MusicSettingsModel musicSettingsModel = asPojo(settings.next(), MusicSettingsModel.class);
+            if (musicSettingsModel.isRemove_addition_messages()) returnValue = true;
         }
-        action.close();
+        settings.close();
         return returnValue;
     }
 
@@ -531,12 +529,13 @@ public class Music extends Command {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
-                DatabaseAction action = new DatabaseAction("SELECT * FROM MusicSettings WHERE GuildID=?").set(guild
-                        .getId());
-                ResultSet set = action.request();
-                if (set.next()) {
-                    sendTranslatedMessage("**Music Settings**\n" + "Delete music play messages: " + set.getBoolean
-                            ("RemoveAdditionMessages"), channel, user);
+                Cursor<HashMap> settings = r.db("data").table("music_settings").filter(row -> row.g("guild_id").eq(guild.getId())).run
+                        (connection);
+                if (settings.hasNext()) {
+                    MusicSettingsModel musicSettingsModel = asPojo(settings.next(), MusicSettingsModel.class);
+                    sendTranslatedMessage("**Music Settings**\n" + "Delete music play messages: " + musicSettingsModel
+                            .isRemove_addition_messages(), channel, user);
+
                 }
                 else
                     sendTranslatedMessage("Your guild has no set music settings! Type **/manage** to find your portal" +
@@ -805,14 +804,14 @@ public class Music extends Command {
                         List<TextChannel> mentionedChannels = message.getMentionedChannels();
                         if (mentionedChannels.size() > 0) {
                             getOutputChannel(guild);
-                            new DatabaseAction("UPDATE MusicSettings SET ChannelID=? WHERE GuildID=?").set(mentionedChannels.get(0).getId
-                                    ()).set(guild.getId()).update();
+                            r.db("data").table("music_settings").filter(row -> row.g("guild_id").eq(guild.getId()))
+                                    .update(r.hashMap("channel_id", mentionedChannels.get(0).getId())).run(connection);
                             sendRetrievedTranslation(channel, "music", language, "setoutputchannel", user);
                         }
                         else {
                             if (getOutputChannel(guild) != null) {
-                                new DatabaseAction("UPDATE MusicSettings SET ChannelID=? WHERE GuildID=?").set("none").set(guild.getId())
-                                        .update();
+                                r.db("data").table("music_settings").filter(row -> row.g("guild_id").eq(guild.getId()))
+                                        .update(r.hashMap("channel_id", "none")).run(connection);
                                 sendRetrievedTranslation(channel, "music", language, "removedoutputchannel", user);
                             }
                             else {

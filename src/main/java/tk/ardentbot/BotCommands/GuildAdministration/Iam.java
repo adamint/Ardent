@@ -1,5 +1,6 @@
 package tk.ardentbot.BotCommands.GuildAdministration;
 
+import com.rethinkdb.net.Cursor;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.*;
 import tk.ardentbot.Core.CommandExecution.Command;
@@ -8,17 +9,19 @@ import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Core.Translation.Translation;
 import tk.ardentbot.Core.Translation.TranslationResponse;
 import tk.ardentbot.Main.Shard;
+import tk.ardentbot.Rethink.Models.AutoroleModel;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.Discord.MessageUtils;
 import tk.ardentbot.Utils.Discord.UserUtils;
 import tk.ardentbot.Utils.JLAdditions.Pair;
-import tk.ardentbot.Utils.SQL.DatabaseAction;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import static tk.ardentbot.Rethink.Database.connection;
+import static tk.ardentbot.Rethink.Database.r;
 
 public class Iam extends Command {
     public Iam(CommandSettings commandSettings) {
@@ -114,8 +117,8 @@ public class Iam extends Command {
                     for (Pair<String, Role> rolePair : autoroles) {
                         if (rolePair.getK().equalsIgnoreCase(query)) {
                             found = true;
-                            new DatabaseAction("DELETE FROM Autoroles WHERE Name=? AND GuildID=?").set(query).set
-                                    (guild.getId()).update();
+                            r.db("data").table("autoroles").filter(row -> row.g("name").eq(query).and(row.g("guild_id").eq(guild.getId())
+                            )).delete().run(connection);
                             sendTranslatedMessage(getTranslation("iam", language, "deletedautorole").getTranslation()
                                     .replace("{0}", rolePair.getK()), channel, user);
                         }
@@ -148,8 +151,8 @@ public class Iam extends Command {
                             List<Role> roleList = guild.getRolesByName(role, true);
                             if (roleList.size() > 0) {
                                 Role toAdd = roleList.get(0);
-                                new DatabaseAction("INSERT INTO Autoroles VALUES (?,?,?)").set(guild.getId())
-                                        .set(name).set(toAdd.getId()).update();
+                                r.db("data").table("autoroles").insert(new AutoroleModel(guild.getId(), name, toAdd.getId())).run
+                                        (connection);
                                 sendTranslatedMessage(getTranslation("iam", language, "addedautorole").getTranslation()
                                         .replace("{0}", name).replace("{1}", role), channel, user);
                             }
@@ -165,12 +168,11 @@ public class Iam extends Command {
 
     private ArrayList<Pair<String, Role>> getAutoRoles(Guild guild) throws SQLException {
         ArrayList<Pair<String, Role>> autoRoles = new ArrayList<>();
-        DatabaseAction getRoles = new DatabaseAction("SELECT * FROM Autoroles WHERE GuildID=?").set(guild.getId());
-        ResultSet set = getRoles.request();
-        while (set.next()) {
-            autoRoles.add(new Pair<>(set.getString("Name"), guild.getRoleById(set.getString("RoleID"))));
-        }
-        getRoles.close();
+        ((Cursor<HashMap>) r.db("data").table("autoroles").filter(row -> row.g("guild_id").eq(guild.getId())).run(connection)).toList()
+                .forEach(hashMap -> {
+                    AutoroleModel autoroleModel = asPojo(hashMap, AutoroleModel.class);
+                    autoRoles.add(new Pair<>(autoroleModel.getName(), guild.getRoleById(autoroleModel.getRole_id())));
+                });
         return autoRoles;
     }
 }

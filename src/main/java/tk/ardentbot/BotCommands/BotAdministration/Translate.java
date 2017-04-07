@@ -14,7 +14,6 @@ import tk.ardentbot.Utils.JLAdditions.Pair;
 import tk.ardentbot.Utils.JLAdditions.Quintet;
 import tk.ardentbot.Utils.JLAdditions.Triplet;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -28,7 +27,7 @@ public class Translate extends Command {
         super(commandSettings);
     }
 
-    public static ArrayList<String> getTranslationDiscrepancies(Language language) throws SQLException {
+    public static ArrayList<String> getTranslationDiscrepancies(Language language) {
         Cursor<HashMap> translations = r.db("data").table("translations").run(connection);
         ArrayList<String> discrepanciesInEnglish = new ArrayList<>();
         ArrayList<Triplet<String, String, String>> englishTranslations = new ArrayList<>();
@@ -49,7 +48,7 @@ public class Translate extends Command {
         return discrepanciesInEnglish;
     }
 
-    public static ArrayList<Pair<String, String>> getCommandDiscrepancies(Language language) throws SQLException {
+    public static ArrayList<Pair<String, String>> getCommandDiscrepancies(Language language) {
         ArrayList<Pair<String, String>> discrepanciesInEnglish = new ArrayList<>();
         ArrayList<Triplet<String, String, String>> englishTranslations = new ArrayList<>();
         Cursor<HashMap> translations = r.db("data").table("commands").run(connection);
@@ -69,8 +68,7 @@ public class Translate extends Command {
         return discrepanciesInEnglish;
     }
 
-    public static ArrayList<Quintet<String, String, String, String, String>> getSubCommandDiscrepancies(Language language) throws
-            SQLException {
+    public static ArrayList<Quintet<String, String, String, String, String>> getSubCommandDiscrepancies(Language language) {
         Cursor<HashMap> translations = r.db("data").table("subcommands").run(connection);
         ArrayList<Quintet<String, String, String, String, String>> discrepanciesInEnglish = new ArrayList<>();
         ArrayList<Quintet<String, String, String, String, String>> englishTranslations = new ArrayList<>();

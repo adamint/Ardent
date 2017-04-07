@@ -40,8 +40,6 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -78,7 +76,6 @@ public class Ardent {
     public static ArrayList<String> translators = new ArrayList<>();
     public static String botsDiscordPwToken;
     public static String discordBotsOrgToken;
-    public static Connection conn;
     public static ScheduledExecutorService globalExecutorService = Executors.newScheduledThreadPool(20);
     public static ScheduledExecutorService profileUpdateExecutorService = Executors.newScheduledThreadPool(20);
     public static Shard shard0;
@@ -127,10 +124,6 @@ public class Ardent {
         else spotifyApi = Api.DEFAULT_API;
 
         if (!testingBot) {
-            conn = DriverManager.getConnection(IOUtils.toString(new FileReader(new File("/root/Ardent/v2url.key"))),
-                    IOUtils.toString(new FileReader(new File("/root/Ardent/v2user.key"))), IOUtils.toString(new
-                            FileReader(new File("/root/Ardent/v2password.key"))));
-
             dbPassword = IOUtils.toString(new FileReader(new File("/root/Ardent/v2password.key")));
             botsDiscordPwToken = IOUtils.toString(new FileReader(new File("/root/Ardent/botsdiscordpw.key")));
             discordBotsOrgToken = IOUtils.toString(new FileReader(new File("/root/Ardent/discordbotsorg.key")));
@@ -139,18 +132,9 @@ public class Ardent {
             try {
                 dbPassword = IOUtils.toString(new
                         FileReader(new File("C:\\Users\\AMR\\Desktop\\Ardent\\dbpassword.key")));
-
-                conn = DriverManager.getConnection(IOUtils.toString(new FileReader(new File("C:\\Users\\AMR\\Desktop" +
-                                "\\Ardent\\dburl.key"))),
-                        IOUtils.toString(new FileReader(new File("C:\\Users\\AMR\\Desktop\\Ardent\\dbuser.key"))),
-                        IOUtils.toString(new
-                                FileReader(new File("C:\\Users\\AMR\\Desktop\\Ardent\\dbpassword.key"))));
             }
             catch (Exception ex) {
                 dbPassword = IOUtils.toString(new FileReader(new File("/root/Ardent/v2password.key")));
-                conn = DriverManager.getConnection(IOUtils.toString(new FileReader(new File("/root/Ardent/v2url.key"))),
-                        IOUtils.toString(new FileReader(new File("/root/Ardent/v2user.key"))), IOUtils.toString(new
-                                FileReader(new File("/root/Ardent/v2password.key"))));
             }
         }
         Database.setup();

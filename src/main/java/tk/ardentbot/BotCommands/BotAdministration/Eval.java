@@ -42,7 +42,6 @@ public class Eval extends Command {
                 shortcuts.put("msg", message);
                 shortcuts.put("me", message.getAuthor());
                 shortcuts.put("bot", message.getJDA().getSelfUser());
-                shortcuts.put("conn", Ardent.conn);
                 shortcuts.put("shard", getShard());
                 shortcuts.put("shards", ShardManager.getShards());
 

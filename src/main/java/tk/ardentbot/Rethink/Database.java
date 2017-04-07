@@ -10,6 +10,6 @@ public class Database {
 
     public static void setup() {
         // Reference a file in /root/Ardent/rethink
-        connection = r.connection().hostname(Ardent.node1Url).user("ardent", Ardent.dbPassword).db("data").connect();
+        connection = r.connection().hostname("db.ardentbot.tk").user("ardent", Ardent.dbPassword).db("data").connect();
     }
 }

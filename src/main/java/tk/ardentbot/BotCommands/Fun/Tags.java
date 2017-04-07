@@ -18,7 +18,6 @@ import java.util.HashMap;
 
 import static tk.ardentbot.Rethink.Database.connection;
 import static tk.ardentbot.Rethink.Database.r;
-import static tk.ardentbot.Utils.SQL.SQLUtils.cleanString;
 
 public class Tags extends Command {
     public Tags(CommandSettings commandSettings) {
@@ -63,8 +62,8 @@ public class Tags extends Command {
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
                 StringBuilder sb = new StringBuilder();
-                String query = cleanString(message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " +
-                        "" + args[1] + " ", ""));
+                String query = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " +
+                        "" + args[1] + " ", "");
                 Cursor<HashMap> findTag = r.db("data").table("tags").filter(row -> row.g("name").eq(query).and(row.g("guild_id").eq(guild
                         .getId()))).run(connection);
                 if (findTag.hasNext()) {
