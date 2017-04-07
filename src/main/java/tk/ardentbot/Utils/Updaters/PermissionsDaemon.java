@@ -4,6 +4,9 @@ import com.rethinkdb.net.Cursor;
 import tk.ardentbot.Rethink.Models.Patron;
 import tk.ardentbot.Rethink.Models.Staff;
 
+import java.util.HashMap;
+
+import static tk.ardentbot.Core.CommandExecution.BaseCommand.asPojo;
 import static tk.ardentbot.Main.Ardent.*;
 import static tk.ardentbot.Rethink.Database.connection;
 import static tk.ardentbot.Rethink.Database.r;
@@ -14,8 +17,9 @@ public class PermissionsDaemon implements Runnable {
         tierOnepatrons.clear();
         tierTwopatrons.clear();
         tierThreepatrons.clear();
-        Cursor<Patron> patrons = r.db("data").table("patrons").run(connection);
-        patrons.forEach(patron -> {
+        Cursor<HashMap> patrons = r.db("data").table("patrons").run(connection);
+        patrons.forEach(hashMap -> {
+            Patron patron = asPojo(hashMap, Patron.class);
             if (patron.getTier().equalsIgnoreCase("tier1")) {
                 tierOnepatrons.add(patron.getUser_id());
             }
@@ -30,11 +34,12 @@ public class PermissionsDaemon implements Runnable {
         developers.clear();
         moderators.clear();
         translators.clear();
-        Cursor<Staff> staff = r.db("data").table("staff").run(connection);
-        staff.forEach(staffMember -> {
-            if (staffMember.getRole().equalsIgnoreCase("Developer")) developers.add(staffMember.getUser_id());
-            else if (staffMember.getRole().equalsIgnoreCase("Moderator")) moderators.add(staffMember.getUser_id());
-            else if (staffMember.getRole().equalsIgnoreCase("Translator")) translators.add(staffMember.getUser_id());
+        Cursor<HashMap> staff = r.db("data").table("staff").run(connection);
+        staff.forEach(hashMap -> {
+            Staff staffMember = asPojo(hashMap, Staff.class);
+            if (staffMember.getRole().equalsIgnoreCase("Developer")) developers.add(staffMember.getId());
+            else if (staffMember.getRole().equalsIgnoreCase("Moderator")) moderators.add(staffMember.getId());
+            else if (staffMember.getRole().equalsIgnoreCase("Translator")) translators.add(staffMember.getId());
         });
         patrons.close();
         staff.close();

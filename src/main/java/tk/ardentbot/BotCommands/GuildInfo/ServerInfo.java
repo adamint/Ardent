@@ -88,7 +88,7 @@ public class ServerInfo extends Command {
     }
 
     private void setInfo(Guild guild, String parsed) throws SQLException {
-        String toPut = getServerInfo(guild) == null ? "none" : parsed;
+        String toPut = getServerInfo(guild) == null ? parsed : "none";
         r.db("data").table("serverinfo").filter(row -> row.g("guild_id").eq(guild.getId())).update(r.hashMap("message", toPut))
                 .run(connection);
     }

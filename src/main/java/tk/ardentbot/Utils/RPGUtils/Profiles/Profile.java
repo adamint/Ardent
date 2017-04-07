@@ -3,7 +3,6 @@ package tk.ardentbot.Utils.RPGUtils.Profiles;
 import com.rethinkdb.net.Cursor;
 import lombok.Getter;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Rethink.Models.OneTimeBadgeModel;
 import tk.ardentbot.Utils.Discord.UserUtils;
 import tk.ardentbot.Utils.RPGUtils.BadgesList;
@@ -15,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static tk.ardentbot.Core.CommandExecution.BaseCommand.asPojo;
+import static tk.ardentbot.Main.Ardent.globalGson;
 import static tk.ardentbot.Rethink.Database.connection;
 import static tk.ardentbot.Rethink.Database.r;
 
@@ -26,24 +26,22 @@ public class Profile {
     private List<Badge> badges = new ArrayList<>();
 
     private Profile(User user) {
-        Ardent.profileUpdateExecutorService.execute(() -> {
-            this.user_id = user.getId();
-            List<HashMap> profileData = ((Cursor<HashMap>) r.db("data").table("profiles").filter(row -> row.g("user_id").eq(user_id)).run
-                    (connection)).toList();
-            if (profileData.size() > 1) {
-                Profile profile = asPojo(profileData.get(0), Profile.class);
-                List<HashMap> profileBadges = ((Cursor<HashMap>) r.db("data").table("badges").filter(row -> row.g("user_id").eq(user_id))
-                        .run(connection)).toList();
-                profileBadges.forEach(b -> badges.add(asPojo(b, Badge.class)));
-                this.money = profile.getMoney();
-                this.stocksOwned = profile.getStocksOwned();
-            }
-            else {
-                this.stocksOwned = 0;
-                this.money = 25;
-                r.db("data").table("profiles").insert(this).run(connection);
-            }
-        });
+        this.user_id = user.getId();
+        List<HashMap> profileData = ((Cursor<HashMap>) r.db("data").table("profiles").filter(row -> row.g("user_id").eq(user_id)).run
+                (connection)).toList();
+        if (profileData.size() > 0) {
+            Profile profile = asPojo(profileData.get(0), Profile.class);
+            List<HashMap> profileBadges = ((Cursor<HashMap>) r.db("data").table("badges").filter(row -> row.g("user_id").eq(user_id))
+                    .run(connection)).toList();
+            profileBadges.forEach(b -> badges.add(asPojo(b, Badge.class)));
+            this.money = profile.getMoney();
+            this.stocksOwned = profile.getStocksOwned();
+        }
+        else {
+            this.stocksOwned = 0;
+            this.money = 25;
+            r.db("data").table("profiles").insert(r.json(globalGson.toJson(this))).run(connection);
+        }
     }
 
     public Profile(String user_id, double money, List<Badge> badges) {

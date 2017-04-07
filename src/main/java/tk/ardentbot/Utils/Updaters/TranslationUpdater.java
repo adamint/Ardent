@@ -1,34 +1,11 @@
 package tk.ardentbot.Utils.Updaters;
 
-import com.crowdin.Credentials;
-import com.crowdin.Crwdn;
-import com.crowdin.client.CrowdinApiClient;
-import com.crowdin.parameters.CrowdinApiParametersBuilder;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.io.IOUtils;
-import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
-import tk.ardentbot.Core.Translation.Language;
-import tk.ardentbot.Main.Ardent;
-import tk.ardentbot.Utils.SQL.DatabaseAction;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.StringReader;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.zip.ZipInputStream;
-
-import static tk.ardentbot.Main.Ardent.botLogsShard;
-import static tk.ardentbot.Main.Ardent.shard0;
-
 /**
  * Downloads and inserts phrase translations on a loop
  */
 @Deprecated
-public class TranslationUpdater implements Runnable {
-    private Statement statement = Ardent.conn.createStatement();
+public abstract class TranslationUpdater implements Runnable {
+    /*private Statement statement = Ardent.conn.createStatement();
     private Credentials credentials = new Credentials(PhraseUpdater.BASE_URL, PhraseUpdater.PROJECT_IDENTIFIER,
             PhraseUpdater.PROJECT_KEY, PhraseUpdater.ACCOUNT_KEY);
     private CrowdinApiClient crwdn = new Crwdn();
@@ -94,5 +71,5 @@ public class TranslationUpdater implements Runnable {
 
     private void p(String s) {
         botLogsShard.botLogs.sendMessage(s).queue();
-    }
+    }*/
 }

@@ -5,6 +5,7 @@ import com.google.code.chatterbotapi.ChatterBot;
 import com.google.code.chatterbotapi.ChatterBotFactory;
 import com.google.code.chatterbotapi.ChatterBotType;
 import com.google.gson.Gson;
+import com.rethinkdb.net.Cursor;
 import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import com.sedmelluq.discord.lavaplayer.player.AudioConfiguration;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
@@ -45,14 +46,14 @@ import tk.ardentbot.Core.Events.*;
 import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
 import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;
+import tk.ardentbot.Rethink.Models.GuildModel;
 import tk.ardentbot.Utils.Discord.InternalStats;
 import tk.ardentbot.Utils.Models.RestrictedUser;
 import tk.ardentbot.Utils.RPGUtils.EntityGuild;
 import tk.ardentbot.Utils.SQL.DatabaseAction;
-import tk.ardentbot.Utils.SQL.MuteDaemon;
 import tk.ardentbot.Utils.Updaters.GuildDaemon;
+import tk.ardentbot.Utils.Updaters.MuteDaemon;
 import tk.ardentbot.Utils.Updaters.PermissionsDaemon;
-import tk.ardentbot.Utils.Updaters.PhraseUpdater;
 import tk.ardentbot.Utils.Updaters.WebsiteDaemon;
 import twitter4j.Twitter;
 import twitter4j.TwitterFactory;
@@ -69,11 +70,14 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
+import static tk.ardentbot.Core.CommandExecution.BaseCommand.asPojo;
 import static tk.ardentbot.Core.Translation.LangFactory.languages;
+import static tk.ardentbot.Rethink.Database.connection;
+import static tk.ardentbot.Rethink.Database.r;
 
 public class Shard {
     public boolean testingBot;
-    public ScheduledExecutorService executorService = Executors.newScheduledThreadPool(150);
+    public ScheduledExecutorService executorService = Executors.newScheduledThreadPool(10);
     public BotMuteData botMuteData;
     public BotPrefixData botPrefixData;
     public BotLanguageData botLanguageData;
@@ -132,11 +136,6 @@ public class Shard {
         Class.forName("com.mysql.jdbc.Driver");
 
         if (!testingBot) {
-            PhraseUpdater.ACCOUNT_KEY = IOUtils.toString(new FileReader(new File("/root/Ardent/crowdin_account_key" +
-                    ".key")));
-            PhraseUpdater.PROJECT_KEY = IOUtils.toString(new FileReader(new File("/root/Ardent/crowdin_project_key" +
-                    ".key")));
-
             ConfigurationBuilder cb = new ConfigurationBuilder();
             cb.setDebugEnabled(true)
                     .setOAuthConsumerKey("Fi9IjqqsGmOXqjR5uYK8YM2Pr")
@@ -325,16 +324,13 @@ public class Shard {
                     Ardent.cleverbots.put(guild.getId(), cleverBot.createSession());
                 }));
 
-                DatabaseAction putGuildData = new DatabaseAction("SELECT * FROM Guilds");
-                ResultSet guildDataSet = putGuildData.request();
-                while (guildDataSet.next()) {
-                    String guildId = guildDataSet.getString("GuildID");
-                    String lang = guildDataSet.getString("Language");
-                    String prefix = guildDataSet.getString("Prefix");
-                    botLanguageData.set(guildId, lang);
-                    botPrefixData.set(guildId, prefix);
-                }
-                putGuildData.close();
+                Cursor<HashMap> guildData = r.db("data").table("guilds").run(connection);
+                guildData.forEach(hashMap -> {
+                    GuildModel g = asPojo(hashMap, GuildModel.class);
+                    botLanguageData.set(g.getGuild_id(), g.getLanguage());
+                    botPrefixData.set(g.getGuild_id(), g.getPrefix());
+                });
+                guildData.close();
 
                 DatabaseAction getRestrictions = new DatabaseAction("SELECT * FROM Restricted");
                 ResultSet restrictionSet = getRestrictions.request();

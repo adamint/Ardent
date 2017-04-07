@@ -1,6 +1,5 @@
 package tk.ardentbot.BotCommands.RPG;
 
-import com.rethinkdb.net.Cursor;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
@@ -56,12 +55,11 @@ public class RPGMoney extends Command {
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws
                     Exception {
                 HashMap<User, Double> moneyAmounts = new HashMap<>();
-                Cursor<HashMap> top = r.db("data").table("profiles").orderBy("money").limit(15).run(connection);
+                ArrayList<HashMap> top = r.db("data").table("profiles").orderBy(r.desc("money")).limit(15).run(connection);
                 top.forEach(hashMap -> {
                     Profile profile = asPojo(hashMap, Profile.class);
                     moneyAmounts.put(profile.getUser(), profile.getMoney());
                 });
-                top.close();
 
                 Map<User, Double> sortedAmounts = MapUtils.sortByValue(moneyAmounts);
                 HashMap<Integer, TranslationResponse> translations = getTranslations(language, new Translation("money", "topmoney"),

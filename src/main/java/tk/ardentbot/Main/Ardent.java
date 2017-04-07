@@ -16,6 +16,7 @@ import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.code.chatterbotapi.ChatterBotSession;
 import com.google.gson.Gson;
 import com.mashape.unirest.http.Unirest;
+import com.rethinkdb.net.Cursor;
 import com.wrapper.spotify.Api;
 import org.apache.commons.io.IOUtils;
 import tk.ardentbot.BotCommands.Music.StuckVoiceConnection;
@@ -25,7 +26,6 @@ import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Rethink.Database;
 import tk.ardentbot.Utils.Premium.CheckIfPremiumGuild;
 import tk.ardentbot.Utils.Premium.UpdatePremiumMembers;
-import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.Searching.GoogleSearch;
 import tk.ardentbot.Utils.Updaters.BotlistUpdater;
 import tk.ardentbot.Utils.Updaters.ProfileUpdater;
@@ -42,9 +42,9 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -153,24 +153,24 @@ public class Ardent {
                                 FileReader(new File("/root/Ardent/v2password.key"))));
             }
         }
-
-        DatabaseAction getKeys = new DatabaseAction("SELECT * FROM APIKeys");
-        ResultSet keys = getKeys.request();
-        while (keys.next()) {
-            String id = keys.getString("Identifier");
-            String value = keys.getString("Value");
-            if (id.equalsIgnoreCase("mashape")) mashapeKey = value;
-            else if (id.equalsIgnoreCase("google")) GOOGLE_API_KEY = value;
-            else if (id.equalsIgnoreCase("node0")) node0Url = value;
-            else if (id.equalsIgnoreCase("node1")) node1Url = value;
-            else if (id.equalsIgnoreCase("cleverbotuser")) cleverbotUser = value;
-            else if (id.equalsIgnoreCase("cleverbotkey")) cleverbotKey = value;
-            else if (id.equalsIgnoreCase("premiumbottoken")) premiumBotToken = value;
-            else if (id.equalsIgnoreCase("testbottoken")) testBotToken = value;
-            else if (id.equalsIgnoreCase("googlecredential")) credential = value;
-        }
-        getKeys.close();
         Database.setup();
+
+        Cursor<HashMap> apiKeys = r.db("data").table("api_keys").run(connection);
+        apiKeys.forEach((outside) -> {
+            outside.forEach((uId, uValue) -> {
+                String id = (String) uId;
+                String value = (String) uValue;
+                if (id.equalsIgnoreCase("mashape")) mashapeKey = value;
+                else if (id.equalsIgnoreCase("google")) GOOGLE_API_KEY = value;
+                else if (id.equalsIgnoreCase("node0")) node0Url = value;
+                else if (id.equalsIgnoreCase("node1")) node1Url = value;
+                else if (id.equalsIgnoreCase("cleverbotuser")) cleverbotUser = value;
+                else if (id.equalsIgnoreCase("cleverbotkey")) cleverbotKey = value;
+                else if (id.equalsIgnoreCase("premiumbottoken")) premiumBotToken = value;
+                else if (id.equalsIgnoreCase("testbottoken")) testBotToken = value;
+                else if (id.equalsIgnoreCase("googlecredential")) credential = value;
+            });
+        });
 
         languages = new ArrayList<>();
         languages.add(LangFactory.english);

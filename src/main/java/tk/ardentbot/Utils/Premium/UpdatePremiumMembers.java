@@ -1,5 +1,6 @@
 package tk.ardentbot.Utils.Premium;
 
+import com.rethinkdb.net.Cursor;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
@@ -9,8 +10,11 @@ import tk.ardentbot.Utils.SQL.DatabaseAction;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
 
 import static tk.ardentbot.Main.Ardent.botLogsShard;
+import static tk.ardentbot.Rethink.Database.r;
 
 public class UpdatePremiumMembers implements Runnable {
     Guild ardentGuild = null;
@@ -44,6 +48,7 @@ public class UpdatePremiumMembers implements Runnable {
     private boolean checkIfHasPermissions(Member member, String tierName) throws SQLException {
         boolean has = false;
         String id = member.getUser().getId();
+        List<HashMap> set = ((Cursor<HashMap>) r.db("data").table("patrons").filter(row -> row.g("tier")));
         DatabaseAction action = new DatabaseAction("SELECT * FROM Patron WHERE UserID=? AND TierName=?").set(id).set(tierName);
         ResultSet set = action.request();
         if (set.next()) {

@@ -1,27 +1,10 @@
 package tk.ardentbot.Utils.Updaters;
 
-import com.crowdin.Credentials;
-import com.crowdin.Crwdn;
-import com.crowdin.client.CrowdinApiClient;
-import com.crowdin.parameters.CrowdinApiParametersBuilder;
-import org.apache.commons.io.IOUtils;
-import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
-import tk.ardentbot.Core.Translation.LangFactory;
-import tk.ardentbot.Core.Translation.Language;
-import tk.ardentbot.Core.Translation.Phrase;
-import tk.ardentbot.Utils.SQL.DatabaseAction;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-
 /**
  * Updates needed phrases on a loop
  */
-public class PhraseUpdater implements Runnable {
-    static final String BASE_URL = "https://api.crowdin.com/api/";
+public abstract class PhraseUpdater implements Runnable {
+   /* static final String BASE_URL = "https://api.crowdin.com/api/";
     static final String PROJECT_IDENTIFIER = "bot";
     public static String PROJECT_KEY;
     public static String ACCOUNT_KEY;
@@ -67,5 +50,5 @@ public class PhraseUpdater implements Runnable {
         catch (Exception ex) {
             new BotException(ex);
         }
-    }
+    }*/
 }

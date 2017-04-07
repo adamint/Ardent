@@ -4,7 +4,7 @@ import lombok.Getter;
 
 public class Staff {
     @Getter
-    private String user_id;
+    private String id;
     @Getter
     private String role;
 }
