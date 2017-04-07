@@ -8,7 +8,7 @@ import tk.ardentbot.Core.Models.PhraseTranslation;
 import tk.ardentbot.Core.Models.SubcommandTranslation;
 import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Rethink.Models.CommandModel;
-import tk.ardentbot.Rethink.Models.Subcommand;
+import tk.ardentbot.Rethink.Models.SubcommandModel;
 import tk.ardentbot.Rethink.Models.TranslationModel;
 
 import java.util.ArrayList;
@@ -54,10 +54,11 @@ public class Language {
 
             Cursor<HashMap> subcommands = r.db("data").table("subcommands").filter(r.hashMap("language", name)).run(connection);
             subcommands.forEach(sc -> {
-                Subcommand subcommand = globalGson.fromJson(JSONObject.toJSONString(sc), Subcommand.class);
-                subcommandTranslations.add(new SubcommandTranslation(subcommand.getCommand_identifier(), subcommand.getIdentifier(),
-                        subcommand.getTranslation(),
-                        subcommand.getSyntax(), subcommand.getDescription()));
+                SubcommandModel subcommandModel = globalGson.fromJson(JSONObject.toJSONString(sc), SubcommandModel.class);
+                subcommandTranslations.add(new SubcommandTranslation(subcommandModel.getCommand_identifier(), subcommandModel
+                        .getIdentifier(),
+                        subcommandModel.getTranslation(),
+                        subcommandModel.getSyntax(), subcommandModel.getDescription()));
             });
 
             Cursor<HashMap> commands = r.db("data").table("commands").filter(r.hashMap("language", name)).run(connection);

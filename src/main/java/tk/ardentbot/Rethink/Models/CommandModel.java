@@ -13,4 +13,11 @@ public class CommandModel {
     private String description;
     @Getter
     private String uuid;
+
+    public CommandModel(String identifier, String language, String translation, String description) {
+        this.identifier = identifier;
+        this.language = language;
+        this.translation = translation;
+        this.description = description;
+    }
 }

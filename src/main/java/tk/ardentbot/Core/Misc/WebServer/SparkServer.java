@@ -286,10 +286,10 @@ public class SparkServer {
                                         "<h2>Translate Subcommands for " + LangFactory.getName(language) + " (" +
                                         discrepancies.size() + " subcommands left to translate)</h2><br>\n" +
                                         "\n" +
-                                        "Subcommand English Name<br>\n" +
+                                        "SubcommandModel English Name<br>\n" +
                                         "<textarea rows=\"4\" cols=\"100\" name=\"originalname\" form=\"subcommands\"" +
                                         " disabled>" + discrepancy.getB() + "</textarea>\n" +
-                                        "<br>Translated Subcommand Name (make sure it's lowercase) <br>\n" +
+                                        "<br>Translated SubcommandModel Name (make sure it's lowercase) <br>\n" +
                                         "<textarea rows=\"4\" cols=\"100\" name=\"translationname\" " +
                                         "form=\"subcommands\"></textarea>\n" +
                                         "<br>English Syntax<br>\n" +

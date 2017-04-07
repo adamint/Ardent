@@ -99,7 +99,7 @@ public class GuildLanguage extends Command {
         subcommands.add(set);
 
         // TODO: 3/17/2017 fix below
-        /*subcommands.add(new Subcommand(this, "statistics") {
+        /*subcommands.add(new SubcommandModel(this, "statistics") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {

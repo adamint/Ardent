@@ -7,11 +7,13 @@ import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.CommandExecution.Subcommand;
 import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Rethink.Models.CommandModel;
+import tk.ardentbot.Rethink.Models.SubcommandModel;
+import tk.ardentbot.Rethink.Models.TranslationModel;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 
-import java.sql.Statement;
-
-import static tk.ardentbot.Utils.SQL.SQLUtils.cleanString;
+import static tk.ardentbot.Rethink.Database.connection;
+import static tk.ardentbot.Rethink.Database.r;
 
 public class AddEnglishBase extends Command {
     public AddEnglishBase(CommandSettings settings) {
@@ -36,10 +38,8 @@ public class AddEnglishBase extends Command {
                         String id = args[3];
                         String lang = "english";
                         String translation = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " + args[1] + " " + args[2] + " " + args[3] + " ", "");
-                        Statement statement = Ardent.conn.createStatement();
-                        statement.executeUpdate("INSERT INTO Translations VALUES ('" + commandID + "', '" + cleanString(translation) + "', '" +
-                                id + "', '" + lang + "', '1')");
-                        statement.close();
+                        r.db("data").table("translations").insert(new TranslationModel(commandID, translation, id, lang, true)).run
+                                (connection);
                         sendTranslatedMessage("Inserted new translation successfully.", channel, user);
                     }
                     else sendTranslatedMessage("/shrug Incorrect arguments", channel, user);
@@ -58,10 +58,7 @@ public class AddEnglishBase extends Command {
                         String translation = args[3];
                         String lang = "english";
                         String description = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " + args[1] + " " + args[2] + " " + args[3] + " ", "");
-                        Statement statement = Ardent.conn.createStatement();
-                        statement.executeUpdate("INSERT INTO Commands VALUES ('" + commandID + "', '" + lang + "', '" +
-                                cleanString(translation) + "', '" + cleanString(description) + "')");
-                        statement.close();
+                        r.db("data").table("commands").insert(new CommandModel(commandID, lang, translation, description)).run(connection);
                         sendTranslatedMessage("Inserted new command successfully.", channel, user);
                     }
                     else sendTranslatedMessage("/shrug Incorrect arguments", channel, user);
@@ -84,10 +81,8 @@ public class AddEnglishBase extends Command {
                         String left = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " + args[1] + " " + args[2] + " " + args[3] + " " + args[4] + " " + args[5] + " ", "");
                         String[] syntaxDescription = left.split("//");
                         if (syntaxDescription.length == 2) {
-                            Ardent.conn.prepareStatement("INSERT INTO Subcommands VALUES ('" + commandID + "', '" +
-                                    identifier + "', '" +
-                                    lang + "', '" + cleanString(translation) + "', '" + cleanString(syntaxDescription[0]) + "', '" +
-                                    cleanString(syntaxDescription[1]) + "', '" + needsDb + "')").executeUpdate();
+                            r.db("data").table("subcommands").insert(new SubcommandModel(commandID, syntaxDescription[1], identifier,
+                                    lang, Boolean.parseBoolean(needsDb), syntaxDescription[0], translation)).run(connection);
                             sendTranslatedMessage("Inserted new subcommand successfully.", channel, user);
                         }
                         else sendTranslatedMessage("You didn't have the correct syntax :thinking:", channel, user);
