@@ -95,6 +95,7 @@ public class Ardent {
     public static String testBotToken;
     public static Sheets sheetsApi;
     public static String node1Url;
+    public static String dbPassword;
     static String node0Url;
     private static String credential;
     private static HttpTransport HTTP_TRANSPORT;
@@ -133,11 +134,15 @@ public class Ardent {
                     IOUtils.toString(new FileReader(new File("/root/Ardent/v2user.key"))), IOUtils.toString(new
                             FileReader(new File("/root/Ardent/v2password.key"))));
 
+            dbPassword = IOUtils.toString(new FileReader(new File("/root/Ardent/v2password.key")));
             botsDiscordPwToken = IOUtils.toString(new FileReader(new File("/root/Ardent/botsdiscordpw.key")));
             discordBotsOrgToken = IOUtils.toString(new FileReader(new File("/root/Ardent/discordbotsorg.key")));
         }
         else {
             try {
+                dbPassword = IOUtils.toString(new
+                        FileReader(new File("C:\\Users\\AMR\\Desktop\\Ardent\\dbpassword.key")));
+
                 conn = DriverManager.getConnection(IOUtils.toString(new FileReader(new File("C:\\Users\\AMR\\Desktop" +
                                 "\\Ardent\\dburl.key"))),
                         IOUtils.toString(new FileReader(new File("C:\\Users\\AMR\\Desktop\\Ardent\\dbuser.key"))),
@@ -145,6 +150,7 @@ public class Ardent {
                                 FileReader(new File("C:\\Users\\AMR\\Desktop\\Ardent\\dbpassword.key"))));
             }
             catch (Exception ex) {
+                dbPassword = IOUtils.toString(new FileReader(new File("/root/Ardent/v2password.key")));
                 conn = DriverManager.getConnection(IOUtils.toString(new FileReader(new File("/root/Ardent/v2url.key"))),
                         IOUtils.toString(new FileReader(new File("/root/Ardent/v2user.key"))), IOUtils.toString(new
                                 FileReader(new File("/root/Ardent/v2password.key"))));

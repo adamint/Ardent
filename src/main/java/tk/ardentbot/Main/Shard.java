@@ -194,8 +194,6 @@ public class Shard {
 
                 factory.registerCommand(new AddEnglishBase(new BaseCommand.CommandSettings("addenglishbase", true, true,
                         Category.BOTADMINISTRATION)));
-                factory.registerCommand(new Todo(new BaseCommand.CommandSettings("todo", true, true, Category
-                        .BOTADMINISTRATION)));
                 factory.registerCommand(new Tweet(new BaseCommand.CommandSettings("tweet", true, true, Category
                         .BOTADMINISTRATION)));
                 factory.registerCommand(new Admin(new BaseCommand.CommandSettings("admin", true, true, Category
@@ -216,8 +214,6 @@ public class Shard {
                 factory.registerCommand(new Invite(new BaseCommand.CommandSettings("invite", true, true, Category
                         .BOTINFO)));
                 factory.registerCommand(translateForArdent);
-                factory.registerCommand(new Changelog(new BaseCommand.CommandSettings("changelog", true, true, Category
-                        .BOTINFO)));
                 factory.registerCommand(patreon);
                 factory.registerCommand(new Joinmessage(new BaseCommand.CommandSettings("joinmessage", true, true,
                         Category.BOTINFO)));
