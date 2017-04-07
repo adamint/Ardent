@@ -1,5 +1,6 @@
 package tk.ardentbot.BotCommands.Music;
 
+import com.rethinkdb.net.Cursor;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
@@ -23,6 +24,7 @@ import tk.ardentbot.Core.Translation.Translation;
 import tk.ardentbot.Core.Translation.TranslationResponse;
 import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Main.ShardManager;
+import tk.ardentbot.Rethink.Models.MusicSettingsModel;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.Discord.UserUtils;
 import tk.ardentbot.Utils.JLAdditions.Pair;
@@ -40,6 +42,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import static tk.ardentbot.Main.Ardent.spotifyApi;
+import static tk.ardentbot.Rethink.Database.connection;
+import static tk.ardentbot.Rethink.Database.r;
 
 @SuppressWarnings("Duplicates")
 public class Music extends Command {
@@ -390,16 +394,16 @@ public class Music extends Command {
 
     static TextChannel getOutputChannel(Guild guild) throws SQLException {
         String id;
-        DatabaseAction get = new DatabaseAction("SELECT * FROM MusicSettings WHERE GuildID=?").set(guild.getId());
-        ResultSet set = get.request();
-        if (set.next()) {
-            String setId = set.getString("ChannelID");
+        List<HashMap> guildMusicSettings = ((Cursor<HashMap>) r.db("data").table("music_settings").filter(row -> row.g("guild_id")
+                .eq(guild.getId())).run(connection)).toList();
+        if (guildMusicSettings.size() > 0) {
+            String setId = asPojo(guildMusicSettings.get(0), MusicSettingsModel.class).getChannel_id();
             if (setId.equalsIgnoreCase("none")) id = null;
             else id = setId;
         }
         else {
             id = null;
-            new DatabaseAction("INSERT INTO MusicSettings VALUES (?,?,?)").set(guild.getId()).set(false).set("none").update();
+            r.db("data").table("music_settings").insert(new MusicSettingsModel(guild.getId(), false, "none")).run(connection);
         }
         if (id == null) return null;
         else return guild.getTextChannelById(id);

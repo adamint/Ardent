@@ -95,10 +95,10 @@ public class ServerInfo extends Command {
 
     private String getServerInfo(Guild guild) throws SQLException {
         String toReturn = null;
-        List<HashMap> selectAutomessage = ((Cursor<HashMap>) r.db("data").table("serverinfo").filter(row -> row.g("guild_id")
+        List<HashMap> serverinfo = ((Cursor<HashMap>) r.db("data").table("serverinfo").filter(row -> row.g("guild_id")
                 .eq(guild.getId())).run(connection)).toList();
-        if (selectAutomessage.size() > 0) {
-            String info = asPojo(selectAutomessage.get(0), ServerInfoModel.class).getMessage();
+        if (serverinfo.size() > 0) {
+            String info = asPojo(serverinfo.get(0), ServerInfoModel.class).getMessage();
             if (!info.equalsIgnoreCase("none")) toReturn = info;
         }
         else {
