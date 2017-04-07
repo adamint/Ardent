@@ -9,6 +9,7 @@ import tk.ardentbot.Rethink.Models.GuildModel;
 import java.sql.SQLException;
 import java.util.HashMap;
 
+import static tk.ardentbot.Core.CommandExecution.BaseCommand.asPojo;
 import static tk.ardentbot.Main.Ardent.botLogsShard;
 import static tk.ardentbot.Rethink.Database.connection;
 import static tk.ardentbot.Rethink.Database.r;
@@ -17,8 +18,9 @@ public class BotLanguageData {
     private HashMap<String, String> guildLanguages = new HashMap<>();
 
     public BotLanguageData() throws SQLException {
-        Cursor<GuildModel> guilds = r.db("data").table("guilds").run(connection);
-        guilds.forEach(guildModel -> {
+        Cursor<HashMap> guilds = r.db("data").table("guilds").run(connection);
+        guilds.forEach(hashMap -> {
+            GuildModel guildModel = asPojo(hashMap, GuildModel.class);
             guildLanguages.put(guildModel.getGuild_id(), guildModel.getLanguage());
         });
         guilds.close();

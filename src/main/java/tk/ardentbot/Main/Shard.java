@@ -130,9 +130,10 @@ public class Shard {
                 .buildBlocking();
 
         bot = jda.getUserById(jda.getSelfUser().getId());
-        if (jda.getGuildById("260841592070340609") != null) Ardent.botLogsShard = this;
-
-        Class.forName("com.mysql.jdbc.Driver");
+        if (jda.getGuildById("260841592070340609") != null) {
+            System.out.println("SFDKJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJjjjj-0==23=-=-23-4=2=-34");
+            Ardent.botLogsShard = this;
+        }
 
         if (!testingBot) {
             ConfigurationBuilder cb = new ConfigurationBuilder();
@@ -308,7 +309,7 @@ public class Shard {
                 musicManagers = new HashMap<>();
 
                 playerManager = new DefaultAudioPlayerManager();
-                playerManager.useRemoteNodes(Ardent.node1Url + ":8080");
+                //playerManager.useRemoteNodes(Ardent.node1Url + ":8080");
 
                 playerManager.getConfiguration().setResamplingQuality(AudioConfiguration.ResamplingQuality.LOW);
                 playerManager.registerSourceManager(new YoutubeAudioSourceManager());

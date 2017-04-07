@@ -66,7 +66,7 @@ public class Ardent {
     public static Process premiumProcess;
     public static boolean premiumBot = false;
     public static String premiumBotToken;
-    public static boolean testingBot = true;
+    public static boolean testingBot = false;
     public static Api spotifyApi;
     public static ArrayList<String> tierOnepatrons = new ArrayList<>();
     public static ArrayList<String> tierTwopatrons = new ArrayList<>();
@@ -80,7 +80,7 @@ public class Ardent {
     public static ScheduledExecutorService profileUpdateExecutorService = Executors.newScheduledThreadPool(20);
     public static Shard shard0;
     public static Shard botLogsShard;
-    public static int shardCount = 2;
+    public static int shardCount = 3;
     public static ConcurrentHashMap<String, ChatterBotSession> cleverbots = new ConcurrentHashMap<>();
     public static String announcement;
     public static ConcurrentHashMap<String, Boolean> sentAnnouncement = new ConcurrentHashMap<>();
@@ -184,7 +184,7 @@ public class Ardent {
         globalExecutorService.scheduleAtFixedRate(updatePremiumMembers, 0, 1, TimeUnit.MINUTES);
 
         ProfileUpdater profileUpdater = new ProfileUpdater();
-        globalExecutorService.scheduleWithFixedDelay(profileUpdater, 1, 1, TimeUnit.MINUTES);
+        globalExecutorService.scheduleWithFixedDelay(profileUpdater, 5, 5, TimeUnit.MINUTES);
 
         if (!premiumBot) {
             SparkServer.setup();

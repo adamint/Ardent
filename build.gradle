@@ -19,7 +19,7 @@ repositories {
 
 dependencies {
     compile 'com.sedmelluq:jda-nas:1.0.3'
-    compile 'net.dv8tion:JDA:3.0.0_165'
+    compile 'net.dv8tion:JDA:3.0.0_169'
     compile group: 'org.codehaus.groovy', name: 'groovy-jsr223', version: '2.4.9'
     compile 'com.sedmelluq:lavaplayer:1.2.34'
     compile "org.projectlombok:lombok:1.16.14"

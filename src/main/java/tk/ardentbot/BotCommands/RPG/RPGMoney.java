@@ -72,8 +72,10 @@ public class RPGMoney extends Command {
                 description.append("**" + topMoney + "**");
                 final int[] current = {0};
                 sortedAmounts.forEach((u, money) -> {
-                    description.append("\n#" + (current[0] + 1) + ": **" + u.getName() + "** " + RPGUtils.formatMoney(money));
-                    current[0]++;
+                    if (u != null) {
+                        description.append("\n#" + (current[0] + 1) + ": **" + u.getName() + "** " + RPGUtils.formatMoney(money));
+                        current[0]++;
+                    }
                 });
                 description.append("\n\n" + translations.get(1).getTranslation() + "\n\n" + translations.get(2).getTranslation());
                 sendEmbed(builder.setDescription(description.toString()), channel, user);
