@@ -11,4 +11,6 @@ public class CommandModel {
     private String translation;
     @Getter
     private String description;
+    @Getter
+    private String uuid;
 }

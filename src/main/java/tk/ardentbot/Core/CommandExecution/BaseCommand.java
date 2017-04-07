@@ -6,6 +6,7 @@ import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.PermissionException;
+import org.json.simple.JSONObject;
 import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
 import tk.ardentbot.Core.Models.CommandTranslation;
 import tk.ardentbot.Core.Models.PhraseTranslation;
@@ -21,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static tk.ardentbot.Core.Translation.LangFactory.english;
+import static tk.ardentbot.Main.Ardent.globalGson;
 import static tk.ardentbot.Rethink.Database.connection;
 import static tk.ardentbot.Rethink.Database.r;
 
@@ -81,7 +83,6 @@ public abstract class BaseCommand {
         }
         catch (Exception e) {
             new BotException(e);
-            return;
         }
         if (response.isTranslationAvailable()) {
             sendTranslatedMessage(response.getTranslation(), channel, user);
@@ -253,22 +254,22 @@ public abstract class BaseCommand {
      */
     private TranslationResponse getTranslationDb(String cmdName, Language lang, String id) throws Exception {
         TranslationResponse response;
-        Cursor<TranslationModel> translations = r.db("data").table("translations").filter(r.hashMap("language", lang.getIdentifier())
+        Cursor<HashMap> translations = r.db("data").table("translations").filter(r.hashMap("language", lang.getIdentifier())
                 .with("command_identifier",
                         cmdName).with("id", id)).run(connection);
         if (!translations.hasNext()) {
-            Cursor<TranslationModel> english = r.db("data").table("translations").filter(r.hashMap("language", "english").with
+            Cursor<HashMap> english = r.db("data").table("translations").filter(r.hashMap("language", "english").with
                     ("command_identifier",
                             cmdName).with("id", id)).run(connection);
             if (english.hasNext()) {
-                TranslationModel translationModel = translations.next();
+                TranslationModel translationModel = globalGson.fromJson(JSONObject.toJSONString(english.next()), TranslationModel.class);
                 response = new TranslationResponse(translationModel.getTranslation(), lang, false, true, true);
             }
             else response = new TranslationResponse(null, lang, false, false, false);
             english.close();
         }
         else {
-            TranslationModel translationModel = translations.next();
+            TranslationModel translationModel = globalGson.fromJson(JSONObject.toJSONString(translations.next()), TranslationModel.class);
             response = new TranslationResponse(translationModel.getTranslation(), lang, true, true, true);
         }
         translations.close();

@@ -1,6 +1,7 @@
 package tk.ardentbot.Core.Translation;
 
 import com.rethinkdb.net.Cursor;
+import org.json.simple.JSONObject;
 import tk.ardentbot.Core.CommandExecution.BaseCommand;
 import tk.ardentbot.Core.Models.CommandTranslation;
 import tk.ardentbot.Core.Models.PhraseTranslation;
@@ -11,11 +12,13 @@ import tk.ardentbot.Rethink.Models.Subcommand;
 import tk.ardentbot.Rethink.Models.TranslationModel;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 
+import static tk.ardentbot.Main.Ardent.globalGson;
 import static tk.ardentbot.Rethink.Database.connection;
 import static tk.ardentbot.Rethink.Database.r;
 
@@ -40,22 +43,26 @@ public class Language {
             commandTranslations.clear();
             subcommandTranslations.clear();
 
-            Cursor<TranslationModel> translations = r.db("data").table("translations").filter(r.hashMap("language", name)).run(connection);
-            translations.forEach(translationModel -> {
+            Cursor<HashMap> translations = r.db("data").table("translations").filter(row -> row.g("language").eq("english")).optArg
+                    ("default", r.error()).run(connection);
+            translations.forEach(tm -> {
+                TranslationModel translationModel = globalGson.fromJson(JSONObject.toJSONString(tm), TranslationModel.class);
                 phraseTranslations.add(new PhraseTranslation(translationModel.getCommand_identifier(), translationModel.getId(),
                         translationModel
                         .getTranslation()));
             });
 
-            Cursor<Subcommand> subcommands = r.db("data").table("subcommands").filter(r.hashMap("language", name)).run(connection);
-            subcommands.forEach(subcommand -> {
+            Cursor<HashMap> subcommands = r.db("data").table("subcommands").filter(r.hashMap("language", name)).run(connection);
+            subcommands.forEach(sc -> {
+                Subcommand subcommand = globalGson.fromJson(JSONObject.toJSONString(sc), Subcommand.class);
                 subcommandTranslations.add(new SubcommandTranslation(subcommand.getCommand_identifier(), subcommand.getIdentifier(),
                         subcommand.getTranslation(),
                         subcommand.getSyntax(), subcommand.getDescription()));
             });
 
-            Cursor<CommandModel> commands = r.db("data").table("commands").filter(r.hashMap("language", name)).run(connection);
-            commands.forEach(commandModel -> {
+            Cursor<HashMap> commands = r.db("data").table("commands").filter(r.hashMap("language", name)).run(connection);
+            commands.forEach(cm -> {
+                CommandModel commandModel = globalGson.fromJson(JSONObject.toJSONString(cm), CommandModel.class);
                 commandTranslations.add(new CommandTranslation(commandModel.getIdentifier(), commandModel.getTranslation(), commandModel
                         .getDescription()));
             });
@@ -63,6 +70,7 @@ public class Language {
             translations.close();
             subcommands.close();
             commands.close();
+
         }, 0, 60, TimeUnit.MINUTES);
     }
 

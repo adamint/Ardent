@@ -14,6 +14,8 @@ public class TranslationModel {
     private String language;
     @Getter
     private boolean verified;
+    @Getter
+    private String uuid;
 
 
     public Language getLanguage() {

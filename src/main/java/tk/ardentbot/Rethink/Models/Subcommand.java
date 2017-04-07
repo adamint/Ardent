@@ -18,6 +18,8 @@ public class Subcommand {
     private String description;
     @Getter
     private boolean needsDb;
+    @Getter
+    private String uuid;
 
     public Language getLanguage() {
         return LangFactory.getLanguage(language);
