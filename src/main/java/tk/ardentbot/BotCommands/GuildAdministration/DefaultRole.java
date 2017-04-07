@@ -23,7 +23,7 @@ public class DefaultRole extends Command {
 
     public static Role getDefaultRole(Guild guild) throws SQLException {
         Role returned = null;
-        List<HashMap> defaultRoleModels = ((Cursor<HashMap>) r.db("data").table("automessages").filter(row -> row.g("guild_id")
+        List<HashMap> defaultRoleModels = ((Cursor<HashMap>) r.db("data").table("defaultroles").filter(row -> row.g("guild_id")
                 .eq(guild.getId())).run(connection)).toList();
         if (defaultRoleModels.size() > 0) {
             DefaultRoleModel defaultRoleModel = asPojo(defaultRoleModels.get(0), DefaultRoleModel.class);
@@ -107,7 +107,7 @@ public class DefaultRole extends Command {
     }
 
     private void setDefaultRole(Role role, Guild guild) throws SQLException {
-        List<HashMap> defaultRoleModels = ((Cursor<HashMap>) r.db("data").table("automessages").filter(row -> row.g("guild_id")
+        List<HashMap> defaultRoleModels = ((Cursor<HashMap>) r.db("data").table("defaultroles").filter(row -> row.g("guild_id")
                 .eq(guild.getId())).run(connection)).toList();
         if (defaultRoleModels.size() > 0) {
             r.db("data").table("defaultroles").filter(row -> row.g("guild_id").eq(guild.getId())).update(r.hashMap("channel_id", role

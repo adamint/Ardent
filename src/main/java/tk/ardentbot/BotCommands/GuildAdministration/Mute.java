@@ -5,13 +5,10 @@ import net.dv8tion.jda.core.entities.*;
 import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.CommandExecution.Subcommand;
 import tk.ardentbot.Core.Translation.Language;
-import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.StringUtils;
 
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.Date;
 
 public class Mute extends Command {
@@ -32,24 +29,20 @@ public class Mute extends Command {
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
                 Shard shard = GuildUtils.getShard(guild);
-                Statement statement = Ardent.conn.createStatement();
-                ResultSet set = statement.executeQuery("SELECT * FROM Mutes WHERE GuildID='" + guild.getId() + "'");
                 String until = getTranslation("mute", language, "until").getTranslation();
                 StringBuilder sb = new StringBuilder();
-                int amt = 0;
-                while (set.next()) {
-                    amt++;
-                    sb.append(" - " + shard.jda.getUserById(set.getString("UserID")).getAsMention() + " " + until +
-                            " " +
-                            new Date(set.getLong("UnmuteEpochSecond")) + "\n");
-                }
-                if (amt == 0) {
+                final int[] amt = {0};
+                StringBuilder finalSb = sb;
+                shard.botMuteData.getMutes().forEach((s, stringLongMap) -> {
+                    amt[0]++;
+                    finalSb.append(" - " + shard.jda.getUserById(s).getAsMention() + " " + until +
+                            " " + new Date(stringLongMap.get(s)) + "\n");
+                });
+                if (amt[0] == 0) {
                     sb = new StringBuilder();
                     sb.append(getTranslation("mute", language, "nomutes").getTranslation());
                 }
                 sendTranslatedMessage(sb.toString(), channel, user);
-                set.close();
-                statement.close();
             }
         });
         subcommands.add(new Subcommand(this, "add") {

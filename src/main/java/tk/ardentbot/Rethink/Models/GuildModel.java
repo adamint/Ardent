@@ -9,4 +9,10 @@ public class GuildModel {
     private String language;
     @Getter
     private String prefix;
+
+    public GuildModel(String guild_id, String language, String prefix) {
+        this.guild_id = guild_id;
+        this.language = language;
+        this.prefix = prefix;
+    }
 }
