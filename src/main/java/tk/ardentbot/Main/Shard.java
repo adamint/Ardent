@@ -309,7 +309,7 @@ public class Shard {
                 musicManagers = new HashMap<>();
 
                 playerManager = new DefaultAudioPlayerManager();
-                //playerManager.useRemoteNodes(Ardent.node1Url + ":8080");
+                playerManager.useRemoteNodes(Ardent.node1Url + ":8080");
 
                 playerManager.getConfiguration().setResamplingQuality(AudioConfiguration.ResamplingQuality.LOW);
                 playerManager.registerSourceManager(new YoutubeAudioSourceManager());

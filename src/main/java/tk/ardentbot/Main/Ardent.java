@@ -7,12 +7,12 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.DataStoreFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
+import com.google.api.services.sheets.v4.model.ValueRange;
 import com.google.code.chatterbotapi.ChatterBotSession;
 import com.google.gson.Gson;
 import com.mashape.unirest.http.Unirest;
@@ -56,17 +56,15 @@ import static tk.ardentbot.Utils.Searching.GoogleSearch.GOOGLE_API_KEY;
 
 public class Ardent {
     public static final Gson globalGson = new Gson();
-    private static final String APPLICATION_NAME = "Ardent";
-    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
-    private static final File DATA_STORE_DIR = new java.io.File("/root/Ardent", ".credentials/sheets.googleapis.com-java-quickstart");
-    private static final List<String> SCOPES = Arrays.asList(SheetsScopes.SPREADSHEETS_READONLY);
+    private static final java.io.File DATA_STORE_DIR = new java.io.File(System.getProperty("user.home"), ".credentials/sheets.googleapis" +
+            ".com.json");
     public static ArrayList<String> disabledCommands = new ArrayList<>();
     public static String cleverbotUser;
     public static String cleverbotKey;
     public static Process premiumProcess;
     public static boolean premiumBot = false;
     public static String premiumBotToken;
-    public static boolean testingBot = false;
+    public static boolean testingBot = true;
     public static Api spotifyApi;
     public static ArrayList<String> tierOnepatrons = new ArrayList<>();
     public static ArrayList<String> tierTwopatrons = new ArrayList<>();
@@ -90,21 +88,15 @@ public class Ardent {
     public static Sheets sheetsApi;
     public static String node1Url;
     public static String dbPassword;
+    public static ValueRange triviaSheet;
     static String node0Url;
-    private static String credential;
+    private static HttpTransport transport;
+    private static JacksonFactory jsonFactory;
+    private static FileDataStoreFactory dataStoreFactory;
+    private static List<String> scopes = Arrays.asList(SheetsScopes.SPREADSHEETS);
     private static HttpTransport HTTP_TRANSPORT;
     private static DataStoreFactory DATA_STORE_FACTORY;
-
-    static {
-        try {
-            DATA_STORE_FACTORY = new FileDataStoreFactory(new File("/root/Ardent"));
-            HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-        }
-        catch (Throwable t) {
-            t.printStackTrace();
-            System.exit(1);
-        }
-    }
+    private static String clientSecret;
 
     public static void main(String[] args) throws Exception {
         for (String s : args) {
@@ -152,7 +144,7 @@ public class Ardent {
                 else if (id.equalsIgnoreCase("cleverbotkey")) cleverbotKey = value;
                 else if (id.equalsIgnoreCase("premiumbottoken")) premiumBotToken = value;
                 else if (id.equalsIgnoreCase("testbottoken")) testBotToken = value;
-                else if (id.equalsIgnoreCase("googlecredential")) credential = value;
+                else if (id.equalsIgnoreCase("googlesecret")) clientSecret = value;
             });
         });
 
@@ -207,46 +199,60 @@ public class Ardent {
         if (status != 200) new BotException("Unable to connect to cleverbot!");
 
         disableSSLCertificateChecking();
-        // sheetsApi = getSheetsApi();
-        //sheetsApi.spreadsheets().get().execute().getSheets().get(0).getData();
-        // TODO: 4/5/2017 complete, switch trivia to https://docs.google
-        // .com/spreadsheets/d/1qm27kGVQ4BdYjvPSlF0zM64j7nkW4HXzALFNcan4fbs/edit#gid=0
 
-        globalExecutorService.schedule(new Runnable() {
-            @Override
-            public void run() {
-                for (String s : moderators) {
-                    r.db("data").table("staff").insert(r.hashMap("user_id", s).with("role", "moderator")).run(connection);
-                }
-                for (String s : developers) {
-                    r.db("data").table("patrons").insert(r.hashMap("user_id", s).with("tier", "developer")).run(connection);
-                }
-                for (String s : translators) {
-                    r.db("data").table("patrons").insert(r.hashMap("user_id", s).with("tier", "translator")).run(connection);
-                }
+        globalExecutorService.schedule(() -> {
+            for (String s : moderators) {
+                r.db("data").table("staff").insert(r.hashMap("user_id", s).with("role", "moderator")).run(connection);
+            }
+            for (String s : developers) {
+                r.db("data").table("patrons").insert(r.hashMap("user_id", s).with("tier", "developer")).run(connection);
+            }
+            for (String s : translators) {
+                r.db("data").table("patrons").insert(r.hashMap("user_id", s).with("tier", "translator")).run(connection);
             }
         }, 10, TimeUnit.SECONDS);
+
+        try {
+            transport = GoogleNetHttpTransport.newTrustedTransport();
+            dataStoreFactory = new FileDataStoreFactory(DATA_STORE_DIR);
+            jsonFactory = JacksonFactory.getDefaultInstance();
+            sheetsApi = getSheetsService();
+            triviaSheet = sheetsApi.spreadsheets().values().get("1qm27kGVQ4BdYjvPSlF0zM64j7nkW4HXzALFNcan4fbs", "A2:C").execute();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            e.printStackTrace();
+            e.printStackTrace();
+            e.printStackTrace();
+            e.printStackTrace();
+            e.printStackTrace();
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
 
-    private static Sheets getSheetsApi() throws IOException {
+    public static Credential authorize() throws IOException {
+        // Load client secrets.
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(jsonFactory, new StringReader(clientSecret));
+
+        // Build flow and trigger user authorization request.
+        GoogleAuthorizationCodeFlow flow =
+                new GoogleAuthorizationCodeFlow.Builder(
+                        transport, jsonFactory, clientSecrets, scopes)
+                        .setDataStoreFactory(dataStoreFactory)
+                        .setAccessType("offline")
+                        .build();
+        Credential credential = new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
+        return credential;
+    }
+
+    public static Sheets getSheetsService() throws IOException {
         Credential credential = authorize();
-        return new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential)
-                .setApplicationName(APPLICATION_NAME)
+        return new Sheets.Builder(transport, jsonFactory, credential)
+                .setApplicationName("Ardent")
                 .build();
     }
 
-    private static Credential authorize() throws IOException {
-        GoogleClientSecrets clientSecrets =
-                GoogleClientSecrets.load(JSON_FACTORY, new StringReader(credential));
-        GoogleAuthorizationCodeFlow flow =
-                new GoogleAuthorizationCodeFlow.Builder(
-                        HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
-                        .setDataStoreFactory(DATA_STORE_FACTORY)
-                        .setAccessType("offline")
-                        .build();
-        return new AuthorizationCodeInstalledApp(
-                flow, new LocalServerReceiver()).authorize("user");
-    }
 
     /**
      * Disables the SSL certificate checking for new instances of {@link HttpsURLConnection} This has been created to

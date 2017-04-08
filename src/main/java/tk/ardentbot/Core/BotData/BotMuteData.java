@@ -6,6 +6,7 @@ import tk.ardentbot.Rethink.Models.MuteData;
 
 import java.util.HashMap;
 
+import static tk.ardentbot.Core.CommandExecution.BaseCommand.asPojo;
 import static tk.ardentbot.Rethink.Database.connection;
 import static tk.ardentbot.Rethink.Database.r;
 
@@ -18,8 +19,9 @@ public class BotMuteData {
 
 
     public BotMuteData() {
-        Cursor<MuteData> mutes = r.db("data").table("mutes").run(connection);
-        mutes.forEach(muteData -> {
+        Cursor<HashMap> mutes = r.db("data").table("mutes").run(connection);
+        mutes.forEach(hashMap -> {
+            MuteData muteData = asPojo(hashMap, MuteData.class);
             this.addRaw(muteData.getGuild_id(), muteData.getUser_id(), muteData.getUnmute_epoch_second());
         });
         mutes.close();
