@@ -56,7 +56,8 @@ public class Help extends Command {
             ArrayList<BaseCommand> commandsInCategory = getCommandsInCategory(category);
             for (BaseCommand baseCommand : commandsInCategory) {
                 if (!baseCommand.getCommandIdentifier().equalsIgnoreCase("admin") && !baseCommand.getCommandIdentifier().equalsIgnoreCase
-                        ("addenglishbase") && !baseCommand.getCommandIdentifier().equalsIgnoreCase("eval"))
+                        ("addenglishbase") && !baseCommand.getCommandIdentifier().equalsIgnoreCase("eval") && !baseCommand
+                        .getCommandIdentifier().equalsIgnoreCase("tweet"))
                 {
                     description.append("`" + baseCommand.getName(language) + "`  ");
                 }
@@ -119,7 +120,8 @@ public class Help extends Command {
                     for (BaseCommand baseCommand : commandsInCategory) {
                         if (!baseCommand.getCommandIdentifier().equalsIgnoreCase("admin") && !baseCommand.getCommandIdentifier()
                                 .equalsIgnoreCase
-                                        ("addenglishbase") && !baseCommand.getCommandIdentifier().equalsIgnoreCase("eval"))
+                                ("addenglishbase") && !baseCommand.getCommandIdentifier().equalsIgnoreCase("eval") && !baseCommand
+                                .getCommandIdentifier().equalsIgnoreCase("tweet"))
                         {
                             description.append(" > **" + baseCommand.getName(language) + "**: " + baseCommand.getDescription
                                     (language) + "\n");

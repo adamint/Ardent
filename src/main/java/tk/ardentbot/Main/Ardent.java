@@ -1,5 +1,7 @@
 package tk.ardentbot.Main;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
@@ -19,6 +21,7 @@ import com.mashape.unirest.http.Unirest;
 import com.rethinkdb.net.Cursor;
 import com.wrapper.spotify.Api;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.LoggerFactory;
 import tk.ardentbot.BotCommands.Music.StuckVoiceConnection;
 import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
 import tk.ardentbot.Core.Misc.WebServer.SparkServer;
@@ -57,7 +60,7 @@ public class Ardent {
     public static Process premiumProcess;
     public static boolean premiumBot = false;
     public static String premiumBotToken;
-    public static boolean testingBot = true;
+    public static boolean testingBot = false;
     public static Api spotifyApi;
     public static ArrayList<String> tierOnepatrons = new ArrayList<>();
     public static ArrayList<String> tierTwopatrons = new ArrayList<>();
@@ -92,6 +95,9 @@ public class Ardent {
     private static String clientSecret;
 
     public static void main(String[] args) throws Exception {
+        Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        root.setLevel(Level.OFF);
+
         for (String s : args) {
             if (s.contains("premium")) premiumBot = true;
         }
@@ -209,10 +215,11 @@ public class Ardent {
             jsonFactory = JacksonFactory.getDefaultInstance();
             sheetsApi = getSheetsService();
             triviaSheet = sheetsApi.spreadsheets().values().get("1qm27kGVQ4BdYjvPSlF0zM64j7nkW4HXzALFNcan4fbs", "A2:C").execute();
+
         }
         catch (Exception e) {
             e.printStackTrace();
-            System.exit(1);
+            // System.exit(1);
         }
     }
 
@@ -226,7 +233,8 @@ public class Ardent {
                         transport, jsonFactory, clientSecrets, scopes)
                         .setDataStoreFactory(dataStoreFactory)
                         .build();
-        Credential credential = new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
+        Credential credential = new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver.Builder().setHost("ardentbot.tk").setPort
+                (1337).build()).authorize("user");
         return credential;
     }
 

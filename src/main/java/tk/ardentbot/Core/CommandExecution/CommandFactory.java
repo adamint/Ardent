@@ -107,7 +107,6 @@ public class CommandFactory {
         botCommand.setupSubcommands();
         baseCommands.add(baseCommand);
         commandUsages.put(baseCommand.commandIdentifier, (long) 0);
-        System.out.println("Successfully registered " + baseCommand.getCommandIdentifier());
     }
 
     /**

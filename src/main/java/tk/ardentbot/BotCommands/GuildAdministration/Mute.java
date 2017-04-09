@@ -4,6 +4,7 @@ import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.CommandExecution.Subcommand;
+import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Utils.Discord.GuildUtils;
@@ -45,16 +46,15 @@ public class Mute extends Command {
                 sendTranslatedMessage(sb.toString(), channel, user);
             }
         });
-        subcommands.add(new Subcommand(this, "add") {
+        subcommands.add(new Subcommand(this, "person") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
                 Member author = guild.getMember(message.getAuthor());
-                if (author.hasPermission(Permission.ADMINISTRATOR)) {
+                if (author.hasPermission(Permission.MANAGE_SERVER)) {
                     if (message.getMentionedUsers().size() > 0) {
                         Shard shard = GuildUtils.getShard(guild);
                         Member mentioned = message.getGuild().getMember(message.getMentionedUsers().get(0));
-
                         if (shard.botMuteData.isMuted(mentioned)) {
                             sendRetrievedTranslation(channel, "mute", language, "alreadymuted", user);
                         }
@@ -62,34 +62,36 @@ public class Mute extends Command {
                             if (shard.botMuteData.wasMute(mentioned)) {
                                 shard.botMuteData.unmute(mentioned); // Do delete it from the list
                             }
-                            String[] rawContent = message.getRawContent().split(" ");
-                            if (rawContent.length <= 3) {
-                                sendRetrievedTranslation(channel, "tag", language, "invalidarguments", user);
-                                return;
-                            }
-                            String muteTime = rawContent[3];
-                            if (muteTime.endsWith("w") || muteTime.endsWith("h") || muteTime.endsWith("d") ||
-                                    muteTime.endsWith("m"))
-                            {
-                                try {
-                                    long now = System.currentTimeMillis() + StringUtils.commandeTime(muteTime);
-                                    shard.botMuteData.mute(mentioned, now, guild.getMember(message.getAuthor()));
-                                    String reply = getTranslation("mute", language, "nowmuteduntil").getTranslation()
-                                            .replace("{0}", mentioned.getUser().getName())
-                                            .replace("{1}", String.valueOf(new Date(now)));
-                                    sendTranslatedMessage(reply, channel, user);
+                            sendRetrievedTranslation(channel, "mute", language, "typeforhowlong", user);
+                            interactiveOperation(language, channel, message, howLongMessage -> {
+                                String howLong = howLongMessage.getRawContent();
+                                if (howLong.endsWith("w") || howLong.endsWith("h") || howLong.endsWith("d") ||
+                                        howLong.endsWith("m"))
+                                {
+                                    try {
+                                        long muteUntil = System.currentTimeMillis() + StringUtils.commandeTime(howLong);
+                                        shard.botMuteData.mute(mentioned, muteUntil, guild.getMember(message.getAuthor()));
+                                        String reply = getTranslation("mute", language, "nowmuteduntil").getTranslation()
+                                                .replace("{0}", mentioned.getUser().getName())
+                                                .replace("{1}", String.valueOf(new Date(muteUntil)));
+                                        sendTranslatedMessage(reply, channel, user);
+                                    }
+                                    catch (NumberFormatException ex) {
+                                        sendRetrievedTranslation(channel, "tag", language, "invalidarguments", user);
+                                    }
+                                    catch (Exception e) {
+                                        new BotException(e);
+                                    }
                                 }
-                                catch (NumberFormatException ex) {
-                                    sendRetrievedTranslation(channel, "tag", language, "invalidarguments", user);
+                                else {
+                                    sendRetrievedTranslation(channel, "mute", language, "invalidtimeperiod", user);
                                 }
-                            }
-                            else {
-                                sendRetrievedTranslation(channel, "tag", language, "invalidarguments", user);
-                            }
-
+                            });
                         }
                     }
+                    else sendRetrievedTranslation(channel, "other", language, "mentionuser", user);
                 }
+                else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
             }
         });
     }
