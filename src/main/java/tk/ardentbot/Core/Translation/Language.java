@@ -72,7 +72,7 @@ public class Language {
             subcommands.close();
             commands.close();
 
-        }, 0, 60, TimeUnit.MINUTES);
+        }, 0, 15, TimeUnit.MINUTES);
     }
 
     public String getCrowdinLangCode() {

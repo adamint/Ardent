@@ -92,7 +92,6 @@ public class Shard {
     public Command help;
     public BaseCommand patreon;
     public BaseCommand translateForArdent;
-    public BaseCommand getDevHelp;
     public BaseCommand request;
     public String url = "https://ardentbot.tk";
     public Gson gson = new Gson();
@@ -187,7 +186,6 @@ public class Shard {
                 patreon = new Patreon(new BaseCommand.CommandSettings("patreon", true, true, Category.GUILDINFO));
                 translateForArdent = new TranslateForArdent(new BaseCommand.CommandSettings("translateforardent", true,
                         true, Category.BOTINFO));
-                getDevHelp = new Bug(new BaseCommand.CommandSettings("getdevhelp", false, true, Category.BOTINFO));
                 request = new Request(new BaseCommand.CommandSettings("request", true, true, Category
                         .BOTADMINISTRATION));
 
@@ -223,7 +221,6 @@ public class Shard {
                 factory.registerCommand(help);
                 factory.registerCommand(new Stats(new BaseCommand.CommandSettings("stats", true, true, Category
                         .BOTINFO)));
-                factory.registerCommand(getDevHelp);
 
                 factory.registerCommand(new Music(new BaseCommand.CommandSettings("music", false, true, Category.FUN)
                         , this));

@@ -12,6 +12,7 @@ import tk.ardentbot.Rethink.Models.SubcommandModel;
 import tk.ardentbot.Rethink.Models.TranslationModel;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 
+import static tk.ardentbot.Main.Ardent.globalGson;
 import static tk.ardentbot.Rethink.Database.connection;
 import static tk.ardentbot.Rethink.Database.r;
 
@@ -38,7 +39,8 @@ public class AddEnglishBase extends Command {
                         String id = args[3];
                         String lang = "english";
                         String translation = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " + args[1] + " " + args[2] + " " + args[3] + " ", "");
-                        r.db("data").table("translations").insert(new TranslationModel(commandID, translation, id, lang, true)).run
+                        r.db("data").table("translations").insert(r.json(globalGson.toJson(new TranslationModel(commandID, translation,
+                                id, lang, true)))).run
                                 (connection);
                         sendTranslatedMessage("Inserted new translation successfully.", channel, user);
                     }
@@ -58,7 +60,7 @@ public class AddEnglishBase extends Command {
                         String translation = args[3];
                         String lang = "english";
                         String description = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " + args[1] + " " + args[2] + " " + args[3] + " ", "");
-                        r.db("data").table("commands").insert(new CommandModel(commandID, lang, translation, description)).run(connection);
+                        r.db("data").table("commands").insert(r.json(globalGson.toJson(new CommandModel(commandID, lang, translation, description))).run(connection));
                         sendTranslatedMessage("Inserted new command successfully.", channel, user);
                     }
                     else sendTranslatedMessage("/shrug Incorrect arguments", channel, user);
@@ -81,8 +83,9 @@ public class AddEnglishBase extends Command {
                         String left = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " + args[1] + " " + args[2] + " " + args[3] + " " + args[4] + " " + args[5] + " ", "");
                         String[] syntaxDescription = left.split("//");
                         if (syntaxDescription.length == 2) {
-                            r.db("data").table("subcommands").insert(new SubcommandModel(commandID, syntaxDescription[1], identifier,
-                                    lang, Boolean.parseBoolean(needsDb), syntaxDescription[0], translation)).run(connection);
+                            r.db("data").table("subcommands").insert(r.json(globalGson.toJson(new SubcommandModel(commandID,
+                                    syntaxDescription[1], identifier,
+                                    lang, Boolean.parseBoolean(needsDb), syntaxDescription[0], translation)))).run(connection);
                             sendTranslatedMessage("Inserted new subcommand successfully.", channel, user);
                         }
                         else sendTranslatedMessage("You didn't have the correct syntax :thinking:", channel, user);

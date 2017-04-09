@@ -32,14 +32,7 @@ import tk.ardentbot.Utils.Updaters.ProfileUpdater;
 import tk.ardentbot.Utils.Updaters.SpotifyTokenRefresh;
 
 import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 import java.io.*;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -78,7 +71,7 @@ public class Ardent {
     public static ScheduledExecutorService profileUpdateExecutorService = Executors.newScheduledThreadPool(20);
     public static Shard shard0;
     public static Shard botLogsShard;
-    public static int shardCount = 3;
+    public static int shardCount = 2;
     public static ConcurrentHashMap<String, ChatterBotSession> cleverbots = new ConcurrentHashMap<>();
     public static String announcement;
     public static ConcurrentHashMap<String, Boolean> sentAnnouncement = new ConcurrentHashMap<>();
@@ -188,7 +181,7 @@ public class Ardent {
         }
         else {
             CheckIfPremiumGuild checkIfPremiumGuild = new CheckIfPremiumGuild();
-            globalExecutorService.scheduleAtFixedRate(checkIfPremiumGuild, 1, 1, TimeUnit.MINUTES);
+            globalExecutorService.scheduleAtFixedRate(checkIfPremiumGuild, 1, 5, TimeUnit.MINUTES);
         }
 
         GoogleSearch.setup(GOOGLE_API_KEY);
@@ -197,8 +190,6 @@ public class Ardent {
                 ("nick", "ardent")
                 .asString().getStatus();
         if (status != 200) new BotException("Unable to connect to cleverbot!");
-
-        disableSSLCertificateChecking();
 
         globalExecutorService.schedule(() -> {
             for (String s : moderators) {
@@ -221,12 +212,6 @@ public class Ardent {
         }
         catch (Exception e) {
             e.printStackTrace();
-            e.printStackTrace();
-            e.printStackTrace();
-            e.printStackTrace();
-            e.printStackTrace();
-            e.printStackTrace();
-            e.printStackTrace();
             System.exit(1);
         }
     }
@@ -240,7 +225,6 @@ public class Ardent {
                 new GoogleAuthorizationCodeFlow.Builder(
                         transport, jsonFactory, clientSecrets, scopes)
                         .setDataStoreFactory(dataStoreFactory)
-                        .setAccessType("offline")
                         .build();
         Credential credential = new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
         return credential;
@@ -252,41 +236,10 @@ public class Ardent {
                 .setApplicationName("Ardent")
                 .build();
     }
-
-
     /**
      * Disables the SSL certificate checking for new instances of {@link HttpsURLConnection} This has been created to
      * aid testing on a local box, not for use on production.
      * <p>
      * Credit to https://gist.github.com/aembleton/889392
      */
-    private static void disableSSLCertificateChecking() {
-        TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
-            public X509Certificate[] getAcceptedIssuers() {
-                return null;
-            }
-
-            @Override
-            public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
-                // Not implemented
-            }
-
-            @Override
-            public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
-                // Not implemented
-            }
-        }};
-
-        try {
-            SSLContext sc = SSLContext.getInstance("TLS");
-
-            sc.init(null, trustAllCerts, new java.security.SecureRandom());
-
-            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-        }
-        catch (KeyManagementException | NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-    }
-
 }

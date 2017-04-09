@@ -40,10 +40,10 @@ public class Bet extends Command {
                         return;
                     }
                     sendEditedTranslation("bet", language, "areyousure", user, channel, RPGUtils.formatMoney(amountToBet));
-                    nextMessageByUser(language, channel, message, (returnedMessage) -> {
+                    interactiveOperation(language, channel, message, (returnedMessage) -> {
                         if (returnedMessage.getContent().equalsIgnoreCase("yes")) {
                             sendRetrievedTranslation(channel, "bet", language, "numbetween1and2", user);
-                            nextMessageByUser(language, channel, message, (numberInput) -> {
+                            interactiveOperation(language, channel, message, (numberInput) -> {
                                 try {
                                     int num = Integer.parseInt(numberInput.getContent());
                                     if (num > 0 && num <= 2) {
@@ -83,10 +83,10 @@ public class Bet extends Command {
                     Exception {
                 Profile profile = Profile.get(user);
                 sendEditedTranslation("bet", language, "areyousure", user, channel, RPGUtils.formatMoney(profile.getMoney()));
-                nextMessageByUser(language, channel, message, (returnedMessage) -> {
+                interactiveOperation(language, channel, message, (returnedMessage) -> {
                     if (returnedMessage.getContent().equalsIgnoreCase("yes")) {
                         sendRetrievedTranslation(channel, "bet", language, "numbetween1and2", user);
-                        nextMessageByUser(language, channel, message, (numberInput) -> {
+                        interactiveOperation(language, channel, message, (numberInput) -> {
                             try {
                                 int num = Integer.parseInt(numberInput.getContent());
                                 if (num > 0 && num <= 2) {

@@ -3,15 +3,18 @@ package tk.ardentbot.Utils.RPGUtils.Profiles;
 import com.rethinkdb.net.Cursor;
 import lombok.Getter;
 import net.dv8tion.jda.core.entities.User;
+import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Rethink.Models.OneTimeBadgeModel;
 import tk.ardentbot.Utils.Discord.UserUtils;
 import tk.ardentbot.Utils.RPGUtils.BadgesList;
 
-import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static tk.ardentbot.Core.CommandExecution.BaseCommand.asPojo;
 import static tk.ardentbot.Main.Ardent.globalGson;
@@ -19,6 +22,8 @@ import static tk.ardentbot.Rethink.Database.connection;
 import static tk.ardentbot.Rethink.Database.r;
 
 public class Profile {
+    private static CopyOnWriteArrayList<Profile> cachedProfiles = new CopyOnWriteArrayList<>();
+
     private String user_id;
     private double money;
     @Getter
@@ -42,6 +47,12 @@ public class Profile {
             this.money = 25;
             r.db("data").table("profiles").insert(r.json(globalGson.toJson(this))).run(connection);
         }
+        cachedProfiles.add(this);
+        Ardent.profileUpdateExecutorService.schedule(() -> {
+            r.db("data").table("profiles").filter(row -> row.g("user_id").eq(user_id)).update(r.json(globalGson.toJson(Profile.this)))
+                    .run(connection);
+            cachedProfiles.remove(Profile.this);
+        }, 5, TimeUnit.MINUTES);
     }
 
     public Profile(String user_id, double money, List<Badge> badges) {
@@ -51,7 +62,10 @@ public class Profile {
     }
 
     public static Profile get(User user) {
-        return new Profile(user);
+        List<Profile> cached = cachedProfiles.stream().filter(profile -> profile.user_id.equalsIgnoreCase(user.getId())).collect
+                (Collectors.toList());
+        if (cached.size() > 0) return cached.get(0);
+        else return new Profile(user);
     }
 
     public User getUser() {
@@ -62,12 +76,10 @@ public class Profile {
         return money;
     }
 
-    public boolean addBadge(BadgesList badge) throws SQLException {
+    public boolean addBadge(BadgesList badge) {
         boolean succeeded = true;
         if (badge.isOneTime()) {
-            List<HashMap> profileData = ((Cursor<HashMap>) r.db("data").table("one_time").filter(row -> row.g("user_id").eq(user_id).and
-                    (row.g("badge_id").eq(badge.getId()))).run(connection)).toList();
-            if (profileData.size() > 0) {
+            if (badges.contains(badge)) {
                 succeeded = false;
             }
             else {
@@ -86,7 +98,6 @@ public class Profile {
             Badge badgeToAdd = new Badge(user_id, badge.getId(), badge.getName(), badge.isGuildWide(), badge.isOneTime(), instant
                     .getEpochSecond());
             badges.add(badgeToAdd);
-            r.db("data").table("badges").insert(badgeToAdd).run(connection);
             return true;
         }
         else return false;
@@ -98,12 +109,10 @@ public class Profile {
 
     public void addMoney(double amount) {
         money += amount;
-        r.db("data").table("profiles").filter(row -> row.g("user_id").eq(user_id)).update(r.hashMap("money", money)).run(connection);
     }
 
     public void removeMoney(double amount) {
         money -= amount;
-        r.db("data").table("profiles").filter(row -> row.g("user_id").eq(user_id)).update(r.hashMap("money", money)).run(connection);
     }
 
     public void addStock(double amountToAdd) {

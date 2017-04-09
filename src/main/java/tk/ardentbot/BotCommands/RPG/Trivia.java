@@ -98,7 +98,7 @@ public class Trivia extends Command {
                     }
                 }
                 sendRetrievedTranslation(channel, "trivia", language, "soloornot", user);
-                nextMessageByUser(language, channel, message, (soloMessage) -> {
+                interactiveOperation(language, channel, message, (soloMessage) -> {
                     String content = soloMessage.getContent();
                     boolean solo;
                     if (content.equalsIgnoreCase("yes")) {

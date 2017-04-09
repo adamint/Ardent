@@ -37,7 +37,7 @@ public abstract class Command extends BaseCommand {
         this.botCommand = this;
     }
 
-    public static void nextMessageByUser(Language language, MessageChannel channel, Message message, Consumer<Message> function) {
+    public static void interactiveOperation(Language language, MessageChannel channel, Message message, Consumer<Message> function) {
         if (channel instanceof TextChannel) {
             queuedInteractives.put(message.getId(), message.getAuthor().getId());
             dispatchInteractiveEvent(message.getCreationTime(), (TextChannel) channel, message, function, language);
