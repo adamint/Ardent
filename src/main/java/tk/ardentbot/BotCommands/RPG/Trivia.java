@@ -33,6 +33,7 @@ public class Trivia extends Command {
             Language language = GuildUtils.getLanguage(guild);
             Shard shard = GuildUtils.getShard(guild);
             currentGame.incrementRounds();
+            if (currentGame.getRound() > currentGame.getTotalRounds()) return;
             channel.sendMessage(currentGame.displayScores(shard, shard.help).build()).queue();
             List<List<Object>> values = triviaSheet.getValues();
             List<Object> row = values.get(new SecureRandom().nextInt(values.size()));
@@ -73,10 +74,7 @@ public class Trivia extends Command {
                 }
             }, 17000);
         }
-        catch (Exception e) {
-            new BotException(e);
-            currentGame.decrementRounds();
-            dispatchRound(guild, channel, creator, currentGame, timer);
+        catch (Exception ignored) {
         }
     }
 
