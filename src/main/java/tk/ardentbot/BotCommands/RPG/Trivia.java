@@ -34,6 +34,7 @@ public class Trivia extends Command {
             Shard shard = GuildUtils.getShard(guild);
             currentGame.incrementRounds();
             if (currentGame.getRound() > currentGame.getTotalRounds()) return;
+            if (!gamesInSession.contains(currentGame)) return;
             channel.sendMessage(currentGame.displayScores(shard, shard.help).build()).queue();
             List<List<Object>> values = triviaSheet.getValues();
             List<Object> row = values.get(new SecureRandom().nextInt(values.size()));

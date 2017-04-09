@@ -1,9 +1,15 @@
 package tk.ardentbot.BotCommands.Music;
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import lombok.Getter;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
+
+import java.util.ArrayList;
 
 public class ArdentTrack {
+    @Getter
+    private ArrayList<String> votedToSkip = new ArrayList<>();
     private String authorId;
     private TextChannel addedFrom;
     private AudioTrack track;
@@ -18,11 +24,17 @@ public class ArdentTrack {
         return authorId;
     }
 
-    public TextChannel getAddedFrom() {
+    TextChannel getAddedFrom() {
         return addedFrom;
     }
 
-    public AudioTrack getTrack() {
+    AudioTrack getTrack() {
         return track;
+    }
+
+    public boolean addSkipVote(User user) {
+        if (votedToSkip.contains(user.getId())) return false;
+        votedToSkip.add(user.getId());
+        return true;
     }
 }

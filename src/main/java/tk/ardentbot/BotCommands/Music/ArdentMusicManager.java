@@ -50,7 +50,7 @@ public class ArdentMusicManager {
         else currentlyPlaying = track;
     }
 
-    void nextTrack() {
+    public void nextTrack() {
         ArdentTrack track = queue.poll();
         if (track != null) {
             player.startTrack(track.getTrack(), false);

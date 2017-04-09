@@ -12,10 +12,12 @@ import com.wrapper.spotify.methods.TrackRequest;
 import com.wrapper.spotify.methods.TrackSearchRequest;
 import com.wrapper.spotify.models.Page;
 import com.wrapper.spotify.models.Track;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.managers.AudioManager;
+import org.apache.commons.lang.WordUtils;
 import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.CommandExecution.Subcommand;
 import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
@@ -26,6 +28,7 @@ import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Main.ShardManager;
 import tk.ardentbot.Rethink.Models.MusicSettingsModel;
 import tk.ardentbot.Utils.Discord.GuildUtils;
+import tk.ardentbot.Utils.Discord.MessageUtils;
 import tk.ardentbot.Utils.Discord.UserUtils;
 import tk.ardentbot.Utils.JLAdditions.Pair;
 import tk.ardentbot.Utils.RPGUtils.EntityGuild;
@@ -38,6 +41,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static tk.ardentbot.Main.Ardent.spotifyApi;
 import static tk.ardentbot.Rethink.Database.connection;
@@ -362,7 +366,6 @@ public class Music extends Command {
                 .format("%02d", (seconds % 60)) + "]";
     }
 
-
     private static String getCurrentTime(AudioTrack track) {
         long current = track.getPosition();
         int seconds = (int) (current / 1000);
@@ -390,7 +393,7 @@ public class Music extends Command {
         return returnValue;
     }
 
-    static TextChannel getOutputChannel(Guild guild) throws SQLException {
+    private static TextChannel getOutputChannel(Guild guild) throws SQLException {
         String id;
         List<HashMap> guildMusicSettings = ((Cursor<HashMap>) r.db("data").table("music_settings").filter(row -> row.g("guild_id")
                 .eq(guild.getId())).run(connection)).toList();
@@ -411,6 +414,12 @@ public class Music extends Command {
         TextChannel outputChannel = getOutputChannel(guild);
         if (outputChannel != null) return outputChannel;
         else return channel;
+    }
+
+    private EmbedBuilder getMusicEmbed(Guild guild, Language language, User user) throws Exception {
+        EmbedBuilder builder = MessageUtils.getDefaultEmbed(guild, user, this);
+        builder.setAuthor(WordUtils.capitalize(getName(language)), getShard().url, guild.getSelfMember().getUser().getAvatarUrl());
+        return builder;
     }
 
     @Override
@@ -711,6 +720,36 @@ public class Music extends Command {
             }
         });
 
+        subcommands.add(new Subcommand(this, "votetoskip") {
+            @Override
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws
+                    Exception {
+                AudioManager audioManager = guild.getAudioManager();
+                VoiceChannel connected = audioManager.getConnectedChannel();
+                if (connected != null && connected.getMembers().stream().filter((member -> member.getUser().getId().equals(user.getId())))
+                        .collect(Collectors.toList()).size() > 0)
+                {
+                    GuildMusicManager guildMusicManager = getGuildAudioPlayer(guild, channel);
+                    ArdentTrack track = guildMusicManager.scheduler.manager.getCurrentlyPlaying();
+                    if (track == null) {
+                        sendRetrievedTranslation(channel, "music", language, "notplayingrn", user);
+                        return;
+                    }
+                    if (track.getVotedToSkip().contains(user.getId())) {
+                        sendRetrievedTranslation(channel, "music", language, "alreadyvotedtoskip", user);
+                        return;
+                    }
+                    track.addSkipVote(user);
+                    if (track.getVotedToSkip().size() >= Math.round(connected.getMembers().size())) {
+                        sendRetrievedTranslation(channel, "music", language, "skippedtrack", user);
+                        guildMusicManager.scheduler.manager.nextTrack();
+                    }
+                    else sendRetrievedTranslation(channel, "music", language, "skipvoteadded", user);
+                }
+                else sendRetrievedTranslation(channel, "music", language, "notinoryourenotin", user);
+            }
+        });
+
         subcommands.add(new Subcommand(this, "clear") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
@@ -744,7 +783,8 @@ public class Music extends Command {
                     sb.append(info.title + ": " + info.author + " " + getCurrentTime
                             (track) +
                             "\n     *" + queuedBy + " " + UserUtils.getUserById(nowPlaying.getAuthor()).getName() +
-                            "*");
+                            "* - [" + nowPlaying.getVotedToSkip().size() + " / " + Math.round(guild.getAudioManager().getConnectedChannel
+                            ().getMembers().size() / 2) + "] " + getTranslation("music", language, "votestoskip").getTranslation());
                     sendTranslatedMessage(sb.toString(), sendTo(channel, guild), user);
                 }
                 else sendRetrievedTranslation(channel, "music", language, "notplayingrn", user);
