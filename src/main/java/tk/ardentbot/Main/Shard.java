@@ -221,8 +221,8 @@ public class Shard {
                         .FUN)));
                 factory.registerCommand(new Wiki(new BaseCommand.CommandSettings("wiki", true, true, Category
                         .FUN)));
-                factory.registerCommand(new Deeplearning(new BaseCommand.CommandSettings("deeplearning", false, true, Category
-                        .FUN)));
+                // factory.registerCommand(new Deeplearning(new BaseCommand.CommandSettings("deeplearning", false, true, Category
+                //      .FUN)));
 
                 factory.registerCommand(new Prefix(new BaseCommand.CommandSettings("prefix", false, true, Category
                         .GUILDADMINISTRATION)));
