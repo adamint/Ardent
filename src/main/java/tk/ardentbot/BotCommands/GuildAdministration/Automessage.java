@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import static tk.ardentbot.Main.Ardent.globalGson;
 import static tk.ardentbot.Rethink.Database.connection;
 import static tk.ardentbot.Rethink.Database.r;
 
@@ -28,7 +29,8 @@ public class Automessage extends Command {
         List<HashMap> selectAutomessage = ((Cursor<HashMap>) r.db("data").table("automessages").filter(row -> row.g("guild_id")
                 .eq(guild.getId())).run(connection)).toList();
         if (selectAutomessage.size() == 0) {
-            r.db("data").table("automessages").insert(new AutomessageModel(guild.getId(), "000", "000", "000")).run(connection);
+            r.db("data").table("automessages").insert(r.json(globalGson.toJson(new AutomessageModel(guild.getId(), "000", "000", "000")))
+            ).run(connection);
         }
     }
 

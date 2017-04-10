@@ -174,8 +174,9 @@ public class Shard {
                 factory.registerCommand(new Botname(new BaseCommand.CommandSettings("botname", false, true, Category
                         .BOTADMINISTRATION)));
                 factory.registerCommand(request);
-
                 factory.registerCommand(new About(new BaseCommand.CommandSettings("about", true, true, Category
+                        .BOTINFO)));
+                factory.registerCommand(new HelpMe(new BaseCommand.CommandSettings("helpme", true, true, Category
                         .BOTINFO)));
                 factory.registerCommand(new Support(new BaseCommand.CommandSettings("support", true, true, Category
                         .BOTINFO)));
@@ -314,7 +315,7 @@ public class Shard {
                 restrictedData.close();
 
                 executorService.scheduleAtFixedRate(() -> {
-                    String game = "https://www.twitch.tv/ardentdiscord";
+                    String game = "https://twitch.tv/ ";
                     switch (gameCounter) {
                         case 0:
                             game = "ardentbot.tk";

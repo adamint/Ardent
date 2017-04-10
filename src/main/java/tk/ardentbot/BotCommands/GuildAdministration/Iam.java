@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import static tk.ardentbot.Main.Ardent.globalGson;
 import static tk.ardentbot.Rethink.Database.connection;
 import static tk.ardentbot.Rethink.Database.r;
 
@@ -133,45 +134,43 @@ public class Iam extends Command {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
-                    if (UserUtils.hasManageServerOrStaff(guild.getMember(user))) {
-                        sendRetrievedTranslation(channel, "iam", language, "typenameofiam", user);
-                        interactiveOperation(language, channel, message, nameMessage -> {
-                            String name = nameMessage.getContent();
-                            sendRetrievedTranslation(channel, "iam", language, "typerolenamenow", user);
-                            interactiveOperation(language, channel, message, roleMessage -> {
-                                try {
-                                    String role = roleMessage.getRawContent();
-                                    boolean found = false;
-                                    ArrayList<Pair<String, Role>> autoroles = getAutoRoles(guild);
-                                    for (Pair<String, Role> rolePair : autoroles) {
-                                        if (rolePair.getK().equalsIgnoreCase(name)) {
-                                            found = true;
-                                        }
-                                    }
-                                    if (found)
-                                        sendRetrievedTranslation(channel, "iam", language, "autorolewithnamealreadyfound", user);
-                                    else {
-                                        List<Role> roleList = guild.getRolesByName(role, true);
-                                        if (roleList.size() > 0) {
-                                            Role toAdd = roleList.get(0);
-                                            r.db("data").table("autoroles").insert(new AutoroleModel(guild.getId(), name, toAdd.getId()))
-                                                    .run
-
-                                                    (connection);
-                                            sendTranslatedMessage(getTranslation("iam", language, "addedautorole").getTranslation()
-                                                    .replace("{0}", name).replace("{1}", role), channel, user);
-                                        }
-                                        else sendRetrievedTranslation(channel, "iam", language, "namenotfound", user);
+                if (UserUtils.hasManageServerOrStaff(guild.getMember(user))) {
+                    sendRetrievedTranslation(channel, "iam", language, "typenameofiam", user);
+                    interactiveOperation(language, channel, message, nameMessage -> {
+                        String name = nameMessage.getContent();
+                        sendRetrievedTranslation(channel, "iam", language, "typerolenamenow", user);
+                        interactiveOperation(language, channel, message, roleMessage -> {
+                            try {
+                                String role = roleMessage.getRawContent();
+                                boolean found = false;
+                                ArrayList<Pair<String, Role>> autoroles = getAutoRoles(guild);
+                                for (Pair<String, Role> rolePair : autoroles) {
+                                    if (rolePair.getK().equalsIgnoreCase(name)) {
+                                        found = true;
                                     }
                                 }
-                                catch (Exception e) {
-                                    new BotException(e);
+                                if (found)
+                                    sendRetrievedTranslation(channel, "iam", language, "autorolewithnamealreadyfound", user);
+                                else {
+                                    List<Role> roleList = guild.getRolesByName(role, true);
+                                    if (roleList.size() > 0) {
+                                        Role toAdd = roleList.get(0);
+                                        r.db("data").table("autoroles").insert(r.json(globalGson.toJson(new AutoroleModel(guild.getId(),
+                                                name, toAdd.getId())))).run(connection);
+                                        sendTranslatedMessage(getTranslation("iam", language, "addedautorole").getTranslation()
+                                                .replace("{0}", name).replace("{1}", role), channel, user);
+                                    }
+                                    else sendRetrievedTranslation(channel, "iam", language, "namenotfound", user);
                                 }
-                            });
+                            }
+                            catch (Exception e) {
+                                new BotException(e);
+                            }
                         });
-                    }
-                    else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
+                    });
                 }
+                else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
+            }
         });
     }
 

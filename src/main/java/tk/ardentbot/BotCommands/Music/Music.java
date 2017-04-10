@@ -43,6 +43,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static tk.ardentbot.Main.Ardent.globalGson;
 import static tk.ardentbot.Main.Ardent.spotifyApi;
 import static tk.ardentbot.Rethink.Database.connection;
 import static tk.ardentbot.Rethink.Database.r;
@@ -404,7 +405,8 @@ public class Music extends Command {
         }
         else {
             id = null;
-            r.db("data").table("music_settings").insert(new MusicSettingsModel(guild.getId(), false, "none")).run(connection);
+            r.db("data").table("music_settings").insert(r.json(globalGson.toJson(new MusicSettingsModel(guild.getId(), false, "none"))))
+                    .run(connection);
         }
         if (id == null) return null;
         else return guild.getTextChannelById(id);

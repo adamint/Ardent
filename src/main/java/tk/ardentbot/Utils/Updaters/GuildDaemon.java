@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import static tk.ardentbot.Core.CommandExecution.BaseCommand.asPojo;
+import static tk.ardentbot.Main.Ardent.globalGson;
 import static tk.ardentbot.Rethink.Database.connection;
 import static tk.ardentbot.Rethink.Database.r;
 
@@ -23,7 +24,7 @@ public class GuildDaemon implements Runnable {
                 ArrayList<String> guildIds = getAllGuildIds();
                 for (Guild guild : shard.jda.getGuilds()) {
                     if (!guildIds.contains(guild.getId())) {
-                        r.db("data").table("guilds").insert(new GuildModel(guild.getId(), "english", "/"));
+                        r.db("data").table("guilds").insert(r.json(globalGson.toJson(new GuildModel(guild.getId(), "english", "/"))));
                         shard.botLanguageData.set(guild, "english");
                     }
                 }

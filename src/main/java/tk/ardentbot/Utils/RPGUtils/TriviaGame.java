@@ -109,7 +109,8 @@ public class TriviaGame {
                 new Translation("trivia", "currentround"), new Translation("trivia", "points"), new Translation("trivia",
                         "noscoredyet"), new Translation("trivia", "currentround"));
         String currentScores = translations.get(0).getTranslation();
-        builder.setAuthor(currentScores, shard.url, guild.getIconUrl());
+        if (solo) builder.setAuthor(currentScores + " | Solo Game", shard.url, guild.getIconUrl());
+        else builder.setAuthor(currentScores + " | Everyone can play", shard.url, guild.getIconUrl());
         StringBuilder description = new StringBuilder();
         description.append("**" + currentScores + "**");
         Iterator<Map.Entry<String, Integer>> iterator = sorted.entrySet().iterator();

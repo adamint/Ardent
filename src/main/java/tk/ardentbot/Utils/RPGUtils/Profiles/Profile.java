@@ -83,7 +83,8 @@ public class Profile {
                 succeeded = false;
             }
             else {
-                r.db("data").table("one_time").insert(new OneTimeBadgeModel(user_id, badge.getId())).run(connection);
+                r.db("data").table("one_time").insert(r.json(globalGson.toJson(new OneTimeBadgeModel(user_id, badge.getId())))).run
+                        (connection);
             }
         }
         if (succeeded) {

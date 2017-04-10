@@ -6,6 +6,7 @@ import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
 import tk.ardentbot.Core.Models.SubcommandTranslation;
 import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;
+import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.Discord.MessageUtils;
@@ -40,7 +41,8 @@ public abstract class Command extends BaseCommand {
     public static void interactiveOperation(Language language, MessageChannel channel, Message message, Consumer<Message> function) {
         if (channel instanceof TextChannel) {
             queuedInteractives.put(message.getId(), message.getAuthor().getId());
-            dispatchInteractiveEvent(message.getCreationTime(), (TextChannel) channel, message, function, language);
+            Ardent.globalExecutorService.execute(() -> dispatchInteractiveEvent(message.getCreationTime(), (TextChannel) channel,
+                    message, function, language));
         }
     }
 

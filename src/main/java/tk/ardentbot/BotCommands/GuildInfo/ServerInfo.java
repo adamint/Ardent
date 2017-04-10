@@ -15,6 +15,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 
+import static tk.ardentbot.Main.Ardent.globalGson;
 import static tk.ardentbot.Rethink.Database.connection;
 import static tk.ardentbot.Rethink.Database.r;
 
@@ -102,7 +103,7 @@ public class ServerInfo extends Command {
             if (!info.equalsIgnoreCase("none")) toReturn = info;
         }
         else {
-            r.db("data").table("serverinfo").insert(new ServerInfoModel(guild.getId(), "none")).run(connection);
+            r.db("data").table("serverinfo").insert(r.json(globalGson.toJson(new ServerInfoModel(guild.getId(), "none")))).run(connection);
         }
         return toReturn;
     }

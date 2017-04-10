@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import static tk.ardentbot.Main.Ardent.globalGson;
 import static tk.ardentbot.Rethink.Database.connection;
 import static tk.ardentbot.Rethink.Database.r;
 
@@ -57,8 +58,8 @@ public class Restrict extends Command {
                             else {
                                 RestrictedUser restrictedUser = new RestrictedUser(mentioned.getId(), user.getId(), guild);
                                 entityGuild.addRestricted(restrictedUser);
-                                r.db("data").table("restricted").insert(new RestrictedUserModel(guild.getId(), mentioned.getId(), user
-                                        .getId())).run(connection);
+                                r.db("data").table("restricted").insert(r.json(globalGson.toJson(new RestrictedUserModel(guild.getId(),
+                                        mentioned.getId(), user.getId())))).run(connection);
                                 sendEditedTranslation("restrict", language, "restricteduser", user, channel, mentioned.getName(), user
                                         .getName());
                             }

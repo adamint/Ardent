@@ -39,35 +39,46 @@ public class Language {
         this.languageStatus = languageStatus;
         this.crowdinLangCode = crowdinLangCode;
         Ardent.globalExecutorService.scheduleAtFixedRate(() -> {
-            phraseTranslations.clear();
-            commandTranslations.clear();
-            subcommandTranslations.clear();
-
             Cursor<HashMap> translations = r.db("data").table("translations").filter(row -> row.g("language").eq("english")).optArg
                     ("default", r.error()).run(connection);
             translations.forEach(tm -> {
                 TranslationModel translationModel = globalGson.fromJson(JSONObject.toJSONString(tm), TranslationModel.class);
-                phraseTranslations.add(new PhraseTranslation(translationModel.getCommand_identifier(), translationModel.getId(),
-                        translationModel
-                        .getTranslation()));
+                if (phraseTranslations.stream().filter(p -> p.getCommandIdentifier().equals(translationModel.getCommand_identifier()) &&
+                        p.getTranslation().equals(translationModel.getTranslation()) && p.getId().equals(translationModel.getId())).count
+                        () == 0)
+                {
+                    phraseTranslations.add(new PhraseTranslation(translationModel.getCommand_identifier(), translationModel.getId(),
+                            translationModel
+                                    .getTranslation()));
+                }
             });
 
             Cursor<HashMap> subcommands = r.db("data").table("subcommands").filter(r.hashMap("language", name)).run(connection);
             subcommands.forEach(sc -> {
                 SubcommandModel subcommandModel = globalGson.fromJson(JSONObject.toJSONString(sc), SubcommandModel.class);
-                subcommandTranslations.add(new SubcommandTranslation(subcommandModel.getCommand_identifier(), subcommandModel
-                        .getIdentifier(),
-                        subcommandModel.getTranslation(),
-                        subcommandModel.getSyntax(), subcommandModel.getDescription()));
+                if (subcommandTranslations.stream().filter(st -> st.getCommandIdentifier().equals(subcommandModel.getCommand_identifier())
+                        && st.getDescription().equals(subcommandModel.getDescription()) && st.getIdentifier().equals(subcommandModel
+                        .getIdentifier())
+                        && st.getTranslation().equals(subcommandModel.getTranslation())).count() == 0)
+                {
+                    subcommandTranslations.add(new SubcommandTranslation(subcommandModel.getCommand_identifier(), subcommandModel
+                            .getIdentifier(),
+                            subcommandModel.getTranslation(),
+                            subcommandModel.getSyntax(), subcommandModel.getDescription()));
+                }
             });
 
             Cursor<HashMap> commands = r.db("data").table("commands").filter(r.hashMap("language", name)).run(connection);
             commands.forEach(cm -> {
                 CommandModel commandModel = globalGson.fromJson(JSONObject.toJSONString(cm), CommandModel.class);
-                commandTranslations.add(new CommandTranslation(commandModel.getIdentifier(), commandModel.getTranslation(), commandModel
-                        .getDescription()));
+                if (commandTranslations.stream().filter(ct -> ct.getDescription().equals(commandModel.getDescription()) &&
+                        ct.getIdentifier().equals(commandModel.getIdentifier()) && ct.getTranslation().equals(commandModel.getLanguage())
+                ).count() == 0)
+                {
+                    commandTranslations.add(new CommandTranslation(commandModel.getIdentifier(), commandModel.getTranslation(), commandModel
+                            .getDescription()));
+                }
             });
-
             translations.close();
             subcommands.close();
             commands.close();

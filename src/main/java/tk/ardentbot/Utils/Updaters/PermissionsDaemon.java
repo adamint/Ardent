@@ -14,32 +14,32 @@ import static tk.ardentbot.Rethink.Database.r;
 public class PermissionsDaemon implements Runnable {
     @Override
     public void run() {
-        tierOnepatrons.clear();
-        tierTwopatrons.clear();
-        tierThreepatrons.clear();
         Cursor<HashMap> patrons = r.db("data").table("patrons").run(connection);
         patrons.forEach(hashMap -> {
             Patron patron = asPojo(hashMap, Patron.class);
             if (patron.getTier().equalsIgnoreCase("tier1")) {
-                tierOnepatrons.add(patron.getUser_id());
+                if (!tierOnepatrons.contains(patron.getUser_id())) tierOnepatrons.add(patron.getUser_id());
             }
             else if (patron.getTier().equalsIgnoreCase("tier2")) {
-                tierTwopatrons.add(patron.getUser_id());
+
+                if (!tierTwopatrons.contains(patron.getUser_id())) tierTwopatrons.add(patron.getUser_id());
             }
             else if (patron.getTier().equalsIgnoreCase("tier3")) {
-                tierThreepatrons.add(patron.getUser_id());
+                if (!tierThreepatrons.contains(patron.getUser_id())) tierThreepatrons.add(patron.getUser_id());
             }
-
         });
-        developers.clear();
-        moderators.clear();
-        translators.clear();
         Cursor<HashMap> staff = r.db("data").table("staff").run(connection);
         staff.forEach(hashMap -> {
             Staff staffMember = asPojo(hashMap, Staff.class);
-            if (staffMember.getRole().equalsIgnoreCase("Developer")) developers.add(staffMember.getId());
-            else if (staffMember.getRole().equalsIgnoreCase("Moderator")) moderators.add(staffMember.getId());
-            else if (staffMember.getRole().equalsIgnoreCase("Translator")) translators.add(staffMember.getId());
+            if (staffMember.getRole().equalsIgnoreCase("Developer")) {
+                if (!developers.contains(staffMember.getId())) developers.add(staffMember.getId());
+            }
+            else if (staffMember.getRole().equalsIgnoreCase("Moderator")) {
+                if (!moderators.contains(staffMember.getId())) moderators.add(staffMember.getId());
+            }
+            else if (staffMember.getRole().equalsIgnoreCase("Translator")) {
+                if (translators.contains(staffMember.getId())) translators.add(staffMember.getId());
+            }
         });
         patrons.close();
         staff.close();

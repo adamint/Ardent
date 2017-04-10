@@ -23,7 +23,7 @@ import static tk.ardentbot.Main.Ardent.triviaSheet;
 
 public class Trivia extends Command {
     public static final CopyOnWriteArrayList<TriviaGame> gamesInSession = new CopyOnWriteArrayList<>();
-
+    public static final CopyOnWriteArrayList<String> gamesSettingUp = new CopyOnWriteArrayList<>();
     public Trivia(CommandSettings commandSettings) {
         super(commandSettings);
     }
@@ -33,7 +33,7 @@ public class Trivia extends Command {
             Language language = GuildUtils.getLanguage(guild);
             Shard shard = GuildUtils.getShard(guild);
             currentGame.incrementRounds();
-            if (currentGame.getRound() > currentGame.getTotalRounds()) return;
+            if (currentGame.getRound() >= currentGame.getTotalRounds()) return;
             if (!gamesInSession.contains(currentGame)) return;
             channel.sendMessage(currentGame.displayScores(shard, shard.help).build()).queue();
             List<List<Object>> values = triviaSheet.getValues();
@@ -60,7 +60,8 @@ public class Trivia extends Command {
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    if (!currentGame.isAnsweredCurrentQuestion() && currentRound == currentGame.getRound()) {
+                    if (!currentGame.isAnsweredCurrentQuestion() && currentRound == currentGame.getRound() && !(currentRound ==
+                            currentGame.getTotalRounds())) {
                         try {
                             shard.help.sendEditedTranslation("trivia", language, "failed", creator, channel, triviaQuestion
                                     .getAnswers().get(0));
@@ -96,6 +97,11 @@ public class Trivia extends Command {
                         return;
                     }
                 }
+                if (gamesSettingUp.contains(guild.getId())) {
+                    sendRetrievedTranslation(channel, "trivia", language, "gameinsession", user);
+                    return;
+                }
+                gamesSettingUp.add(guild.getId());
                 sendRetrievedTranslation(channel, "trivia", language, "soloornot", user);
                 interactiveOperation(language, channel, message, (soloMessage) -> {
                     String content = soloMessage.getContent();
@@ -114,6 +120,7 @@ public class Trivia extends Command {
                     gamesInSession.add(currentGame);
                     sendRetrievedTranslation(channel, "trivia", language, "writeyouranswersthischannel", user);
                     commenceRounds(guild, (TextChannel) channel, user, currentGame);
+                    gamesSettingUp.remove(guild.getId());
                 });
             }
         });
