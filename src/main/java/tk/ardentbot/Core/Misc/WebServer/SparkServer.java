@@ -26,6 +26,7 @@ import java.util.Random;
 import static spark.Spark.get;
 import static spark.Spark.port;
 import static tk.ardentbot.BotCommands.BotAdministration.Translate.*;
+import static tk.ardentbot.Main.Ardent.globalGson;
 import static tk.ardentbot.Main.Ardent.shard0;
 import static tk.ardentbot.Rethink.Database.connection;
 import static tk.ardentbot.Rethink.Database.r;
@@ -120,8 +121,9 @@ public class SparkServer {
                             if (translation != null && !translation.isEmpty() && id != null && !id.isEmpty() &&
                                     command != null && !command.isEmpty())
                             {
-                                r.db("data").table("translations").insert(new TranslationModel(command, translation, id, language
-                                        .getIdentifier(), false)).run(connection);
+                                r.db("data").table("translations").insert(r.json(globalGson.toJson(new TranslationModel(command,
+                                        translation, id, language
+                                        .getIdentifier(), false)))).run(connection);
                                 return "Successfully added your translation. Go back and reload the page or use your " +
                                         "base URL to enter in another one!";
                             }
@@ -135,8 +137,9 @@ public class SparkServer {
                                     && !id.isEmpty() && !translationName.isEmpty() &&
                                     !translationDescription.isEmpty())
                             {
-                                r.db("data").table("commands").insert(new CommandModel(id, language.getIdentifier(), translationName,
-                                        translationDescription)).run(connection);
+                                r.db("data").table("commands").insert(r.json(globalGson.toJson(new CommandModel(id, language
+                                        .getIdentifier(), translationName,
+                                        translationDescription)))).run(connection);
                                 return "Successfully added your translation. Go back and reload the page or use your " +
                                         "base URL to enter in another one!";
                             }
@@ -153,8 +156,9 @@ public class SparkServer {
                                     && !id.isEmpty() && !commandId.isEmpty() && !translationName.isEmpty() &&
                                     !translationSyntax.isEmpty() && !translationDescription.isEmpty())
                             {
-                                r.db("data").table("subcommands").insert(new SubcommandModel(commandId, translationDescription, id,
-                                        language.getIdentifier(), true, translationSyntax, translationName)).run(connection);
+                                r.db("data").table("subcommands").insert(r.json(globalGson.toJson(new SubcommandModel(commandId,
+                                        translationDescription, id,
+                                        language.getIdentifier(), true, translationSyntax, translationName)))).run(connection);
                                 return "Successfully added your translation. Go back and reload the page or use your " +
                                         "base URL to enter in another one!";
                             }
