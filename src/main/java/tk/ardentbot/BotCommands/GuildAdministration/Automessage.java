@@ -1,81 +1,78 @@
 package tk.ardentbot.BotCommands.GuildAdministration;
 
+import com.rethinkdb.net.Cursor;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.CommandExecution.Subcommand;
+import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Core.Translation.Translation;
 import tk.ardentbot.Core.Translation.TranslationResponse;
-import tk.ardentbot.Main.Ardent;
-import tk.ardentbot.Utils.Discord.GuildUtils;
+import tk.ardentbot.Rethink.Models.AutomessageModel;
 import tk.ardentbot.Utils.JLAdditions.Triplet;
-import tk.ardentbot.Utils.SQL.DatabaseAction;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import static tk.ardentbot.Rethink.Database.connection;
+import static tk.ardentbot.Rethink.Database.r;
 
 public class Automessage extends Command {
     public Automessage(CommandSettings commandSettings) {
         super(commandSettings);
     }
 
-    private static void check(Guild guild) throws SQLException {
-        DatabaseAction selectAutomessage = new DatabaseAction("SELECT * FROM Automessages WHERE GuildID=?")
-                .set(guild.getId());
-        ResultSet set = selectAutomessage.request();
-        if (!set.next()) {
-            new DatabaseAction("INSERT INTO Automessages VALUES (?,?,?,?)").set(guild.getId()).set("000")
-                    .set("000").set("000").update();
+    private static void check(Guild guild) {
+        List<HashMap> selectAutomessage = ((Cursor<HashMap>) r.db("data").table("automessages").filter(row -> row.g("guild_id")
+                .eq(guild.getId())).run(connection)).toList();
+        if (selectAutomessage.size() == 0) {
+            r.db("data").table("automessages").insert(new AutomessageModel(guild.getId(), "000", "000", "000")).run(connection);
         }
-        selectAutomessage.close();
     }
 
-    public static Triplet<String, String, String> getMessagesAndChannel(Guild guild) throws SQLException {
+    public static Triplet<String, String, String> getMessagesAndChannel(Guild guild) {
         Triplet<String, String, String> triplet;
         check(guild);
-        Statement statement = Ardent.conn.createStatement();
-        ResultSet set = statement.executeQuery("SELECT * FROM Automessages WHERE GuildID='" + guild.getId() + "'");
-        if (set.next()) {
-            String channel = set.getString("ChannelID");
-            String welcome = set.getString("Welcome");
-            String goodbye = set.getString("Goodbye");
-            if (channel.equalsIgnoreCase("000")) channel = null;
-            if (welcome.equalsIgnoreCase("000")) welcome = null;
-            if (goodbye.equalsIgnoreCase("000")) goodbye = null;
+        List<HashMap> getAutomessages = ((Cursor<HashMap>) r.db("data").table("automessages").filter(row -> row.g("guild_id")
+                .eq(guild.getId())).run(connection)).toList();
+        if (getAutomessages.size() > 0) {
+            AutomessageModel automessageModel = asPojo(getAutomessages.get(0), AutomessageModel.class);
+            String channel;
+            String welcome;
+            String goodbye;
+            if (automessageModel.getChannel_id().equalsIgnoreCase("000")) channel = null;
+            else channel = automessageModel.getChannel_id();
+            if (automessageModel.getWelcome().equalsIgnoreCase("000")) welcome = null;
+            else welcome = automessageModel.getWelcome();
+            if (automessageModel.getGoodbye().equalsIgnoreCase("000")) goodbye = null;
+            else goodbye = automessageModel.getGoodbye();
             triplet = new Triplet<>(channel, welcome, goodbye);
         }
         else {
             triplet = new Triplet<>(null, null, null);
         }
-        set.close();
-        statement.close();
         return triplet;
     }
 
-    public static void remove(Guild guild, int num) throws SQLException {
-        String columnName;
-        if (num == 0) columnName = "ChannelID";
-        else if (num == 1) columnName = "Welcome";
-        else if (num == 2) columnName = "Goodbye";
-        else return;
-        new DatabaseAction("UPDATE Automessages SET " + columnName + "=? WHERE GuildID=?").set("000").set(guild.getId
-                ()).update();
+    public static String getField(int num) {
+        String columnName = null;
+        if (num == 0) columnName = "channel_id";
+        else if (num == 1) columnName = "welcome";
+        else if (num == 2) columnName = "goodbye";
+        return columnName;
+    }
+
+    public static void remove(Guild guild, int num) {
+        set(guild, "000", num);
     }
 
     @SuppressWarnings("Duplicates")
-    public static void set(Guild guild, String text, int num) throws SQLException {
-        String columnName;
-        if (num == 0) columnName = "ChannelID";
-        else if (num == 1) columnName = "Welcome";
-        else if (num == 2) columnName = "Goodbye";
-        else return;
-        new DatabaseAction("UPDATE Automessages SET " + columnName + " =? WHERE GuildID=?").set(text).set(guild.getId
-                ()).update();
+    public static void set(Guild guild, String text, int num) {
+        String fieldName = getField(num);
+        r.db("data").table("automessages").filter(row -> row.g("guild_id").eq(guild.getId())).update(r.hashMap(fieldName, text)).run
+                (connection);
     }
 
     @Override
@@ -86,41 +83,73 @@ public class Automessage extends Command {
 
     @Override
     public void setupSubcommands() throws Exception {
-        subcommands.add(new Subcommand(this, "view") {
+        subcommands.add(new Subcommand(this, "setup") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
-                               Language language) throws Exception {
-                ArrayList<Translation> translations = new ArrayList<>();
-                translations.add(new Translation("automessage", "settings"));
-                translations.add(new Translation("automessage", "nochannel"));
-                translations.add(new Translation("automessage", "nowelcome"));
-                translations.add(new Translation("automessage", "nogoodbye"));
-                translations.add(new Translation("automessage", "channel"));
-                translations.add(new Translation("automessage", "welcome"));
-                translations.add(new Translation("automessage", "goodbye"));
-
-                HashMap<Integer, TranslationResponse> responses = getTranslations(language, translations);
-                Triplet<String, String, String> messages = getMessagesAndChannel(guild);
-                StringBuilder sb = new StringBuilder();
-                sb.append(responses.get(0).getTranslation() + "\n=============\n");
-                if (messages.getA() == null) sb.append(responses.get(1).getTranslation() + "\n\n");
-                else {
-                    TextChannel textChannel = guild.getTextChannelById(messages.getA());
-                    if (textChannel != null) {
-                        sb.append(responses.get(4).getTranslation().replace("{0}", textChannel.getName() + "\n\n"));
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws
+                    Exception {
+                sendRetrievedTranslation(channel, "automessage", language, "automessagesetup", user);
+                interactiveOperation(language, channel, message, selectType -> {
+                    String type;
+                    String content = selectType.getContent();
+                    if (content.equalsIgnoreCase("join")) {
+                        type = "join";
+                        sendRetrievedTranslation(channel, "automessage", language, "typecontent", user);
                     }
-                    else sb.append(responses.get(1).getTranslation() + "\n\n");
-                }
+                    else if (content.equalsIgnoreCase("leave")) {
+                        type = "leave";
+                        sendRetrievedTranslation(channel, "automessage", language, "typecontent", user);
+                    }
+                    else if (content.equalsIgnoreCase("channel")) {
+                        type = "channel";
+                        sendRetrievedTranslation(channel, "automessage", language, "mentionachannel", user);
+                    }
+                    else {
+                        sendRetrievedTranslation(channel, "automessage", language, "invalidcategorytype", user);
+                        return;
+                    }
+                    interactiveOperation(language, channel, message, inputMessage -> {
+                        try {
+                            if (type.equals("channel")) {
+                                List<TextChannel> mentionedChannels = inputMessage.getMentionedChannels();
+                                if (mentionedChannels.size() > 0) {
+                                    TextChannel mentioned = mentionedChannels.get(0);
+                                    set(guild, mentioned.getId(), 0);
+                                    sendTranslatedMessage(getTranslation("automessage", language, "successfullyset")
+                                            .getTranslation()
+                                            .replace("{0}", getTranslation("automessage", language, "channelword")
+                                                    .getTranslation()).replace("{1}", mentioned.getName()), channel, user);
 
-                if (messages.getB() != null)
-                    sb.append(responses.get(5).getTranslation().replace("{0}", messages.getB()) + "\n\n");
-                else sb.append(responses.get(2).getTranslation() + "\n\n");
+                                }
+                                else sendRetrievedTranslation(channel, "automessage", language, "mentionchannel", user);
+                            }
+                            else {
+                                String toPut = inputMessage.getRawContent();
+                                if (type.equals("join")) {
+                                    set(guild, toPut, 1);
+                                    sendTranslatedMessage(getTranslation("automessage", language, "successfullyset")
+                                            .getTranslation()
+                                            .replace("{0}", getTranslation("automessage", language, "joinword")
+                                                    .getTranslation()).replace("{1}", toPut), channel, user);
+                                }
+                                else {
+                                    set(guild, toPut, 2);
+                                    sendTranslatedMessage(getTranslation("automessage", language, "successfullyset")
+                                            .getTranslation()
+                                            .replace("{0}", getTranslation("automessage", language, "leaveword")
+                                                    .getTranslation()).replace("{1}", toPut), channel, user);
+                                }
 
-                if (messages.getC() != null)
-                    sb.append(responses.get(6).getTranslation().replace("{0}", messages.getC()) + "\n");
-                else sb.append(responses.get(3).getTranslation());
-
-                sendTranslatedMessage(sb.toString(), channel, user);
+                                String textChannel = getMessagesAndChannel(guild).getA();
+                                if (textChannel == null || guild.getTextChannelById(textChannel) == null) {
+                                    sendRetrievedTranslation(channel, "automessage", language, "youneedtosetachannel", user);
+                                }
+                            }
+                        }
+                        catch (Exception e) {
+                            new BotException(e);
+                        }
+                    });
+                });
             }
         });
 
@@ -131,59 +160,6 @@ public class Automessage extends Command {
                 StringBuilder sb = new StringBuilder();
                 sb.append(getTranslation("automessage", language, "availablearguments").getTranslation());
                 sendTranslatedMessage(sb.toString(), channel, user);
-            }
-        });
-
-        subcommands.add(new Subcommand(this, "set") {
-            @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
-                               Language language) throws Exception {
-                if (guild.getMember(user).hasPermission(Permission.MANAGE_SERVER)) {
-                    if (args.length < 4) {
-                        sendRetrievedTranslation(channel, "automessage", language, "specifytype", user);
-                    }
-                    else {
-                        if (args[2].equalsIgnoreCase("channel")) {
-                            List<TextChannel> mentionedChannels = message.getMentionedChannels();
-                            if (mentionedChannels.size() > 0) {
-                                TextChannel mentioned = mentionedChannels.get(0);
-                                set(guild, mentioned.getId(), 0);
-                                sendTranslatedMessage(getTranslation("automessage", language, "successfullyset")
-                                        .getTranslation()
-                                        .replace("{0}", getTranslation("automessage", language, "channelword")
-                                                .getTranslation()).replace("{1}", mentioned.getName()), channel, user);
-                            }
-                            else sendRetrievedTranslation(channel, "automessage", language, "mentionchannel", user);
-                        }
-                        else if (args[2].equalsIgnoreCase("join")) {
-                            String msg = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " "
-                                    + args[1] + " " + args[2] + " ", "");
-                            if (msg.length() == message.getRawContent().length()) {
-                                msg = message.getRawContent().replace("/" + args[0] + " "
-                                        + args[1] + " " + args[2] + " ", "");
-                            }
-                            set(guild, msg, 1);
-                            set(guild, channel.getId(), 0);
-                            sendTranslatedMessage(getTranslation("automessage", language, "successfullyset")
-                                    .getTranslation()
-                                    .replace("{0}", getTranslation("automessage", language, "joinword")
-                                            .getTranslation()).replace("{1}", msg), channel, user);
-                        }
-                        else if (args[2].equalsIgnoreCase("leave")) {
-                            String msg = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " "
-                                    + args[1] + " " + args[2] + " ", "");
-                            set(guild, msg, 2);
-                            set(guild, channel.getId(), 0);
-                            sendTranslatedMessage(getTranslation("automessage", language, "successfullyset")
-                                    .getTranslation()
-                                    .replace("{0}", getTranslation("automessage", language, "leaveword")
-                                            .getTranslation()).replace("{1}", msg), channel, user);
-
-                        }
-                        else sendRetrievedTranslation(channel, "tag", language, "invalidarguments", user);
-                    }
-                }
-                else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
             }
         });
 
@@ -232,6 +208,44 @@ public class Automessage extends Command {
                     }
                 }
                 else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
+            }
+        });
+
+        subcommands.add(new Subcommand(this, "view") {
+            @Override
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
+                               Language language) throws Exception {
+                ArrayList<Translation> translations = new ArrayList<>();
+                translations.add(new Translation("automessage", "settings"));
+                translations.add(new Translation("automessage", "nochannel"));
+                translations.add(new Translation("automessage", "nowelcome"));
+                translations.add(new Translation("automessage", "nogoodbye"));
+                translations.add(new Translation("automessage", "channel"));
+                translations.add(new Translation("automessage", "welcome"));
+                translations.add(new Translation("automessage", "goodbye"));
+
+                HashMap<Integer, TranslationResponse> responses = getTranslations(language, translations);
+                Triplet<String, String, String> messages = getMessagesAndChannel(guild);
+                StringBuilder sb = new StringBuilder();
+                sb.append(responses.get(0).getTranslation() + "\n=============\n");
+                if (messages.getA() == null) sb.append(responses.get(1).getTranslation() + "\n\n");
+                else {
+                    TextChannel textChannel = guild.getTextChannelById(messages.getA());
+                    if (textChannel != null) {
+                        sb.append(responses.get(4).getTranslation().replace("{0}", textChannel.getName() + "\n\n"));
+                    }
+                    else sb.append(responses.get(1).getTranslation() + "\n\n");
+                }
+
+                if (messages.getB() != null)
+                    sb.append(responses.get(5).getTranslation().replace("{0}", messages.getB()) + "\n\n");
+                else sb.append(responses.get(2).getTranslation() + "\n\n");
+
+                if (messages.getC() != null)
+                    sb.append(responses.get(6).getTranslation().replace("{0}", messages.getC()) + "\n");
+                else sb.append(responses.get(3).getTranslation());
+
+                sendTranslatedMessage(sb.toString(), channel, user);
             }
         });
     }

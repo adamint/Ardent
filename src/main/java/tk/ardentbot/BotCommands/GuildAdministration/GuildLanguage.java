@@ -8,9 +8,11 @@ import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Utils.Discord.GuildUtils;
-import tk.ardentbot.Utils.SQL.DatabaseAction;
 
 import java.util.concurrent.TimeUnit;
+
+import static tk.ardentbot.Rethink.Database.connection;
+import static tk.ardentbot.Rethink.Database.r;
 
 public class GuildLanguage extends Command {
     public Subcommand set;
@@ -71,8 +73,8 @@ public class GuildLanguage extends Command {
                         Language changeTo = LangFactory.getLanguage(args[2]);
                         if (changeTo != null) {
                             shard.botLanguageData.set(guild, changeTo.getIdentifier());
-                            new DatabaseAction("UPDATE Guilds SET Language=? WHERE GuildID=?").set(changeTo
-                                    .getIdentifier()).set(guild.getId()).update();
+                            r.db("data").table("guilds").filter(row -> row.g("guild_id").eq(guild.getId())).update(r.hashMap("language",
+                                    changeTo.getIdentifier())).run(connection);
                             shard.botLanguageData.set(guild, changeTo.getIdentifier());
                             sendRetrievedTranslation(channel, "language", changeTo, "changedlanguage", user);
                             shard.executorService.schedule(() -> {
@@ -99,14 +101,14 @@ public class GuildLanguage extends Command {
         subcommands.add(set);
 
         // TODO: 3/17/2017 fix below
-        /*subcommands.add(new Subcommand(this, "statistics") {
+        /*subcommands.add(new SubcommandModel(this, "statistics") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
                 Shard shard = GuildUtils.getShard(guild);
-                ArrayList<Translation> translations = new ArrayList<>();
-                translations.add(new Translation("language", "languageusages"));
-                translations.add(new Translation("status", "guilds"));
+                ArrayList<TranslationModel> translations = new ArrayList<>();
+                translations.add(new TranslationModel("language", "languageusages"));
+                translations.add(new TranslationModel("status", "guilds"));
                 HashMap<Integer, TranslationResponse> responses = getTranslations(language, translations);
                 Map<String, Integer> usages = GuildUtils.getLanguageUsages();
                 int guilds = shard.jda.getGuilds().size();

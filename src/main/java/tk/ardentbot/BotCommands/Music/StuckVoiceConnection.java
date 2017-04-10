@@ -22,7 +22,9 @@ public class StuckVoiceConnection implements Runnable {
             for (Guild guild : shard.jda.getGuilds()) {
                 GuildMusicManager guildMusicManager = Music.getGuildAudioPlayer(guild, null, shard);
                 AudioPlayer player = guildMusicManager.player;
-                if (!player.isPaused()) {
+                if (!player.isPaused() && guild.getAudioManager().getConnectedChannel() != null && guild.getAudioManager()
+                        .getConnectedChannel().getMembers().size() > 1)
+                {
                     AudioTrack playingTrack = player.getPlayingTrack();
                     if (playingTrack != null) {
                         long position = playingTrack.getPosition();

@@ -55,7 +55,12 @@ public class Help extends Command {
             description.append("**" + WordUtils.capitalize(category.name().toLowerCase()) + "**\n");
             ArrayList<BaseCommand> commandsInCategory = getCommandsInCategory(category);
             for (BaseCommand baseCommand : commandsInCategory) {
-                description.append("`" + baseCommand.getName(language) + "`  ");
+                if (!baseCommand.getCommandIdentifier().equalsIgnoreCase("admin") && !baseCommand.getCommandIdentifier().equalsIgnoreCase
+                        ("addenglishbase") && !baseCommand.getCommandIdentifier().equalsIgnoreCase("eval") && !baseCommand
+                        .getCommandIdentifier().equalsIgnoreCase("tweet"))
+                {
+                    description.append("`" + baseCommand.getName(language) + "`  ");
+                }
             }
             description.append("\n");
         }
@@ -113,8 +118,14 @@ public class Help extends Command {
                     ArrayList<BaseCommand> commandsInCategory = Help.this.getCommandsInCategory(category);
                     StringBuilder description = new StringBuilder();
                     for (BaseCommand baseCommand : commandsInCategory) {
-                        description.append(" > **" + baseCommand.getName(language) + "**: " + baseCommand.getDescription
-                                (language) + "\n");
+                        if (!baseCommand.getCommandIdentifier().equalsIgnoreCase("admin") && !baseCommand.getCommandIdentifier()
+                                .equalsIgnoreCase
+                                ("addenglishbase") && !baseCommand.getCommandIdentifier().equalsIgnoreCase("eval") && !baseCommand
+                                .getCommandIdentifier().equalsIgnoreCase("tweet"))
+                        {
+                            description.append(" > **" + baseCommand.getName(language) + "**: " + baseCommand.getDescription
+                                    (language) + "\n");
+                        }
                     }
                     embedBuilder.setDescription(description.toString());
                     sendEmbed(embedBuilder, channel, user);

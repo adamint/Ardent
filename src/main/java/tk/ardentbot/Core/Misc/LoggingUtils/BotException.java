@@ -9,9 +9,9 @@ import static tk.ardentbot.Main.Ardent.botLogsShard;
  */
 public class BotException {
     public BotException(Exception ex) {
+        ex.printStackTrace();
         botLogsShard.help.sendTranslatedMessage("```" + ExceptionUtils.getStackTrace(ex) + "```", botLogsShard.jda
                 .getTextChannelById("270572632343183361"), null);
-        ex.printStackTrace();
      }
 
     public BotException(String s) {

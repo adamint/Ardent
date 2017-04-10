@@ -1,5 +1,6 @@
 package tk.ardentbot.BotCommands.GuildInfo;
 
+import com.rethinkdb.net.Cursor;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
@@ -8,10 +9,14 @@ import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.CommandExecution.Subcommand;
 import tk.ardentbot.Core.Translation.Language;
-import tk.ardentbot.Utils.SQL.DatabaseAction;
+import tk.ardentbot.Rethink.Models.ServerInfoModel;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+
+import static tk.ardentbot.Rethink.Database.connection;
+import static tk.ardentbot.Rethink.Database.r;
 
 public class ServerInfo extends Command {
     public ServerInfo(CommandSettings commandSettings) {
@@ -83,26 +88,22 @@ public class ServerInfo extends Command {
     }
 
     private void setInfo(Guild guild, String parsed) throws SQLException {
-        if (getServerInfo(guild) == null) {
-            new DatabaseAction("UPDATE ServerInfo SET Message=? WHERE GuildID=?").set(parsed).set(guild.getId()).update();
-        }
-        else {
-            new DatabaseAction("UPDATE ServerInfo SET Message=? WHERE GuildID=?").set("none").set(guild.getId()).update();
-        }
+        String toPut = getServerInfo(guild) == null ? parsed : "none";
+        r.db("data").table("serverinfo").filter(row -> row.g("guild_id").eq(guild.getId())).update(r.hashMap("message", toPut))
+                .run(connection);
     }
 
     private String getServerInfo(Guild guild) throws SQLException {
         String toReturn = null;
-        DatabaseAction getMessage = new DatabaseAction("SELECT * FROM ServerInfo WHERE GuildID=?").set(guild.getId());
-        ResultSet set = getMessage.request();
-        if (set.next()) {
-            String info = set.getString("Message");
+        List<HashMap> serverinfo = ((Cursor<HashMap>) r.db("data").table("serverinfo").filter(row -> row.g("guild_id")
+                .eq(guild.getId())).run(connection)).toList();
+        if (serverinfo.size() > 0) {
+            String info = asPojo(serverinfo.get(0), ServerInfoModel.class).getMessage();
             if (!info.equalsIgnoreCase("none")) toReturn = info;
         }
         else {
-            new DatabaseAction("INSERT INTO ServerInfo VALUES (?,?)").set(guild.getId()).set("none").update();
+            r.db("data").table("serverinfo").insert(new ServerInfoModel(guild.getId(), "none")).run(connection);
         }
-        getMessage.close();
         return toReturn;
     }
 

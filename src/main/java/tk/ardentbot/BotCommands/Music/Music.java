@@ -1,5 +1,6 @@
 package tk.ardentbot.BotCommands.Music;
 
+import com.rethinkdb.net.Cursor;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
@@ -11,10 +12,12 @@ import com.wrapper.spotify.methods.TrackRequest;
 import com.wrapper.spotify.methods.TrackSearchRequest;
 import com.wrapper.spotify.models.Page;
 import com.wrapper.spotify.models.Track;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.managers.AudioManager;
+import org.apache.commons.lang.WordUtils;
 import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.CommandExecution.Subcommand;
 import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
@@ -23,14 +26,14 @@ import tk.ardentbot.Core.Translation.Translation;
 import tk.ardentbot.Core.Translation.TranslationResponse;
 import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Main.ShardManager;
+import tk.ardentbot.Rethink.Models.MusicSettingsModel;
 import tk.ardentbot.Utils.Discord.GuildUtils;
+import tk.ardentbot.Utils.Discord.MessageUtils;
 import tk.ardentbot.Utils.Discord.UserUtils;
 import tk.ardentbot.Utils.JLAdditions.Pair;
 import tk.ardentbot.Utils.RPGUtils.EntityGuild;
-import tk.ardentbot.Utils.SQL.DatabaseAction;
 import tk.ardentbot.Utils.StringUtils;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,8 +41,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static tk.ardentbot.Main.Ardent.spotifyApi;
+import static tk.ardentbot.Rethink.Database.connection;
+import static tk.ardentbot.Rethink.Database.r;
 
 @SuppressWarnings("Duplicates")
 public class Music extends Command {
@@ -360,7 +366,6 @@ public class Music extends Command {
                 .format("%02d", (seconds % 60)) + "]";
     }
 
-
     private static String getCurrentTime(AudioTrack track) {
         long current = track.getPosition();
         int seconds = (int) (current / 1000);
@@ -379,27 +384,27 @@ public class Music extends Command {
 
     static boolean shouldDeleteMessages(Guild guild) throws SQLException {
         boolean returnValue = false;
-        DatabaseAction action = new DatabaseAction("SELECT * FROM MusicSettings WHERE GuildID=?").set(guild.getId());
-        ResultSet set = action.request();
-        if (set.next()) {
-            if (set.getBoolean("RemoveAdditionMessages")) returnValue = true;
+        Cursor<HashMap> settings = r.db("data").table("music_settings").filter(row -> row.g("guild_id").eq(guild.getId())).run(connection);
+        if (settings.hasNext()) {
+            MusicSettingsModel musicSettingsModel = asPojo(settings.next(), MusicSettingsModel.class);
+            if (musicSettingsModel.isRemove_addition_messages()) returnValue = true;
         }
-        action.close();
+        settings.close();
         return returnValue;
     }
 
-    static TextChannel getOutputChannel(Guild guild) throws SQLException {
+    private static TextChannel getOutputChannel(Guild guild) throws SQLException {
         String id;
-        DatabaseAction get = new DatabaseAction("SELECT * FROM MusicSettings WHERE GuildID=?").set(guild.getId());
-        ResultSet set = get.request();
-        if (set.next()) {
-            String setId = set.getString("ChannelID");
+        List<HashMap> guildMusicSettings = ((Cursor<HashMap>) r.db("data").table("music_settings").filter(row -> row.g("guild_id")
+                .eq(guild.getId())).run(connection)).toList();
+        if (guildMusicSettings.size() > 0) {
+            String setId = asPojo(guildMusicSettings.get(0), MusicSettingsModel.class).getChannel_id();
             if (setId.equalsIgnoreCase("none")) id = null;
             else id = setId;
         }
         else {
             id = null;
-            new DatabaseAction("INSERT INTO MusicSettings VALUES (?,?,?)").set(guild.getId()).set(false).set("none").update();
+            r.db("data").table("music_settings").insert(new MusicSettingsModel(guild.getId(), false, "none")).run(connection);
         }
         if (id == null) return null;
         else return guild.getTextChannelById(id);
@@ -409,6 +414,12 @@ public class Music extends Command {
         TextChannel outputChannel = getOutputChannel(guild);
         if (outputChannel != null) return outputChannel;
         else return channel;
+    }
+
+    private EmbedBuilder getMusicEmbed(Guild guild, Language language, User user) throws Exception {
+        EmbedBuilder builder = MessageUtils.getDefaultEmbed(guild, user, this);
+        builder.setAuthor(WordUtils.capitalize(getName(language)), getShard().url, guild.getSelfMember().getUser().getAvatarUrl());
+        return builder;
     }
 
     @Override
@@ -527,12 +538,13 @@ public class Music extends Command {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
                                Language language) throws Exception {
-                DatabaseAction action = new DatabaseAction("SELECT * FROM MusicSettings WHERE GuildID=?").set(guild
-                        .getId());
-                ResultSet set = action.request();
-                if (set.next()) {
-                    sendTranslatedMessage("**Music Settings**\n" + "Delete music play messages: " + set.getBoolean
-                            ("RemoveAdditionMessages"), channel, user);
+                Cursor<HashMap> settings = r.db("data").table("music_settings").filter(row -> row.g("guild_id").eq(guild.getId())).run
+                        (connection);
+                if (settings.hasNext()) {
+                    MusicSettingsModel musicSettingsModel = asPojo(settings.next(), MusicSettingsModel.class);
+                    sendTranslatedMessage("**Music Settings**\n" + "Delete music play messages: " + musicSettingsModel
+                            .isRemove_addition_messages(), channel, user);
+
                 }
                 else
                     sendTranslatedMessage("Your guild has no set music settings! Type **/manage** to find your portal" +
@@ -708,6 +720,36 @@ public class Music extends Command {
             }
         });
 
+        subcommands.add(new Subcommand(this, "votetoskip") {
+            @Override
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws
+                    Exception {
+                AudioManager audioManager = guild.getAudioManager();
+                VoiceChannel connected = audioManager.getConnectedChannel();
+                if (connected != null && connected.getMembers().stream().filter((member -> member.getUser().getId().equals(user.getId())))
+                        .collect(Collectors.toList()).size() > 0)
+                {
+                    GuildMusicManager guildMusicManager = getGuildAudioPlayer(guild, channel);
+                    ArdentTrack track = guildMusicManager.scheduler.manager.getCurrentlyPlaying();
+                    if (track == null) {
+                        sendRetrievedTranslation(channel, "music", language, "notplayingrn", user);
+                        return;
+                    }
+                    if (track.getVotedToSkip().contains(user.getId())) {
+                        sendRetrievedTranslation(channel, "music", language, "alreadyvotedtoskip", user);
+                        return;
+                    }
+                    track.addSkipVote(user);
+                    if (track.getVotedToSkip().size() >= Math.round(connected.getMembers().size() / 2)) {
+                        sendRetrievedTranslation(channel, "music", language, "skippedtrack", user);
+                        guildMusicManager.scheduler.manager.nextTrack();
+                    }
+                    else sendRetrievedTranslation(channel, "music", language, "skipvoteadded", user);
+                }
+                else sendRetrievedTranslation(channel, "music", language, "notinoryourenotin", user);
+            }
+        });
+
         subcommands.add(new Subcommand(this, "clear") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
@@ -741,7 +783,8 @@ public class Music extends Command {
                     sb.append(info.title + ": " + info.author + " " + getCurrentTime
                             (track) +
                             "\n     *" + queuedBy + " " + UserUtils.getUserById(nowPlaying.getAuthor()).getName() +
-                            "*");
+                            "* - [" + nowPlaying.getVotedToSkip().size() + " / " + Math.round(guild.getAudioManager().getConnectedChannel
+                            ().getMembers().size() / 2) + "] " + getTranslation("music", language, "votestoskip").getTranslation());
                     sendTranslatedMessage(sb.toString(), sendTo(channel, guild), user);
                 }
                 else sendRetrievedTranslation(channel, "music", language, "notplayingrn", user);
@@ -801,14 +844,14 @@ public class Music extends Command {
                         List<TextChannel> mentionedChannels = message.getMentionedChannels();
                         if (mentionedChannels.size() > 0) {
                             getOutputChannel(guild);
-                            new DatabaseAction("UPDATE MusicSettings SET ChannelID=? WHERE GuildID=?").set(mentionedChannels.get(0).getId
-                                    ()).set(guild.getId()).update();
+                            r.db("data").table("music_settings").filter(row -> row.g("guild_id").eq(guild.getId()))
+                                    .update(r.hashMap("channel_id", mentionedChannels.get(0).getId())).run(connection);
                             sendRetrievedTranslation(channel, "music", language, "setoutputchannel", user);
                         }
                         else {
                             if (getOutputChannel(guild) != null) {
-                                new DatabaseAction("UPDATE MusicSettings SET ChannelID=? WHERE GuildID=?").set("none").set(guild.getId())
-                                        .update();
+                                r.db("data").table("music_settings").filter(row -> row.g("guild_id").eq(guild.getId()))
+                                        .update(r.hashMap("channel_id", "none")).run(connection);
                                 sendRetrievedTranslation(channel, "music", language, "removedoutputchannel", user);
                             }
                             else {

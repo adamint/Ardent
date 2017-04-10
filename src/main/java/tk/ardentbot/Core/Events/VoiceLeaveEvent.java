@@ -8,10 +8,11 @@ import tk.ardentbot.BotCommands.Music.Music;
 
 public class VoiceLeaveEvent {
     @SubscribeEvent
-    public void onVoiceLeaveEvent(GuildVoiceLeaveEvent event) {
+    public void onVoiceLeaveEvent(GuildVoiceLeaveEvent event) throws Exception {
         Guild guild = event.getGuild();
+        GuildMusicManager musicManager = Music.getGuildAudioPlayer(guild, null);
+        assert musicManager != null;
         if (event.getMember().getUser().getId().equalsIgnoreCase(guild.getSelfMember().getUser().getId())) {
-            GuildMusicManager musicManager = Music.getGuildAudioPlayer(guild, null);
             musicManager.scheduler.manager.resetQueue();
         }
     }

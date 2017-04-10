@@ -24,17 +24,21 @@ class TriviaChecker {
                     if (!triviaGame.isAnsweredCurrentQuestion()) {
                         if (triviaGame.isSolo() && !triviaGame.getCreator().equalsIgnoreCase(user.getId())) return;
                         String content = event.getMessage().getContent();
-                        if (triviaGame.getCurrentTriviaQuestion() != null && content.equalsIgnoreCase(triviaGame
-                                .getCurrentTriviaQuestion().getAnswer()))
-                        {
-                            triviaGame.addPoint(user);
-                            shard.help.sendEditedTranslation("trivia", GuildUtils.getLanguage(guild), "gotitright", user, channel,
-                                    user.getName());
-                            if (triviaGame.getRound() < triviaGame.getTotalRounds()) {
-                                Trivia.dispatchRound(guild, channel, guild.getMemberById(triviaGame.getCreator()).getUser(), triviaGame,
-                                        triviaGame.getTimer());
+                        if (triviaGame.getCurrentTriviaQuestion() != null) {
+                            final boolean[] correct = {false};
+                            triviaGame.getCurrentTriviaQuestion().getAnswers().forEach(a -> {
+                                if (a.equalsIgnoreCase(content)) correct[0] = true;
+                            });
+                            if (correct[0]) {
+                                triviaGame.addPoint(user);
+                                shard.help.sendEditedTranslation("trivia", GuildUtils.getLanguage(guild), "gotitright", user, channel,
+                                        user.getName());
+                                if (triviaGame.getRound() != triviaGame.getTotalRounds()) {
+                                    Trivia.dispatchRound(guild, channel, guild.getMemberById(triviaGame.getCreator()).getUser(), triviaGame,
+                                            triviaGame.getTimer());
+                                }
+                                else triviaGame.finish(shard, shard.help);
                             }
-                            else triviaGame.finish(shard, shard.help);
                         }
                     }
                 }

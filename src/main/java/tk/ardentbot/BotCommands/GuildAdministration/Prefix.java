@@ -9,7 +9,9 @@ import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.CommandExecution.Subcommand;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Utils.Discord.GuildUtils;
-import tk.ardentbot.Utils.SQL.DatabaseAction;
+
+import static tk.ardentbot.Rethink.Database.connection;
+import static tk.ardentbot.Rethink.Database.r;
 
 public class Prefix extends Command {
     public Prefix(CommandSettings commandSettings) {
@@ -45,8 +47,8 @@ public class Prefix extends Command {
                         }
                         if (!newPrefix.contains(" ") && !newPrefix.contains("$")) {
                             GuildUtils.updatePrefix(newPrefix, guild);
-                            new DatabaseAction("UPDATE Guilds SET Prefix=? WHERE GuildID=?").set(newPrefix).set(guild
-                                    .getId()).update();
+                            r.db("data").table("guilds").filter(row -> row.g("guild_id").eq(guild.getId())).update(r.hashMap("prefix",
+                                    newPrefix)).run(connection);
                             sendTranslatedMessage(getTranslation("prefix", language, "successfullyupdated")
                                     .getTranslation().replace("{0}", newPrefix), channel, user);
                         }

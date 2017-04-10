@@ -1,5 +1,6 @@
 package tk.ardentbot.Core.Misc.WebServer;
 
+import com.rethinkdb.net.Cursor;
 import spark.Request;
 import spark.Response;
 import tk.ardentbot.Core.CommandExecution.CommandFactory;
@@ -10,23 +11,24 @@ import tk.ardentbot.Core.Misc.WebServer.Models.User;
 import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Main.Ardent;
+import tk.ardentbot.Rethink.Models.CommandModel;
+import tk.ardentbot.Rethink.Models.SubcommandModel;
+import tk.ardentbot.Rethink.Models.TranslationModel;
 import tk.ardentbot.Utils.Discord.InternalStats;
 import tk.ardentbot.Utils.JLAdditions.Pair;
 import tk.ardentbot.Utils.JLAdditions.Quintet;
-import tk.ardentbot.Utils.SQL.DatabaseAction;
 
 import java.lang.management.ManagementFactory;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 
 import static spark.Spark.get;
 import static spark.Spark.port;
 import static tk.ardentbot.BotCommands.BotAdministration.Translate.*;
 import static tk.ardentbot.Main.Ardent.shard0;
-import static tk.ardentbot.Utils.SQL.SQLUtils.cleanString;
+import static tk.ardentbot.Rethink.Database.connection;
+import static tk.ardentbot.Rethink.Database.r;
 
 public class SparkServer {
     /**
@@ -34,7 +36,7 @@ public class SparkServer {
      */
     public static void setup() {
         if (Ardent.testingBot) {
-            return;
+            port(666);
         }
         else {
             port(666);
@@ -90,7 +92,7 @@ public class SparkServer {
                 String type = rq.queryParams("type");
                 String language = rq.queryParams("language");
                 if (type != null && language != null) {
-                    rs.redirect("http://ardentbot.tk:666/api/translate/169904324980244480/" + type + "/" + language);
+                    rs.redirect("http://ardentbot.tk:666/api/translate/212286049802649600/" + type + "/" + language);
                 }
             }
             return null;
@@ -118,8 +120,8 @@ public class SparkServer {
                             if (translation != null && !translation.isEmpty() && id != null && !id.isEmpty() &&
                                     command != null && !command.isEmpty())
                             {
-                                new DatabaseAction("INSERT INTO Translations VALUES (?,?,?,?,?)").set(command)
-                                        .set(translation).set(id).set(language.getIdentifier()).set(0).update();
+                                r.db("data").table("translations").insert(new TranslationModel(command, translation, id, language
+                                        .getIdentifier(), false)).run(connection);
                                 return "Successfully added your translation. Go back and reload the page or use your " +
                                         "base URL to enter in another one!";
                             }
@@ -133,8 +135,8 @@ public class SparkServer {
                                     && !id.isEmpty() && !translationName.isEmpty() &&
                                     !translationDescription.isEmpty())
                             {
-                                new DatabaseAction("INSERT INTO Commands VALUES (?,?,?,?)").set(id).set(language
-                                        .getIdentifier()).set(translationName).set(translationDescription).update();
+                                r.db("data").table("commands").insert(new CommandModel(id, language.getIdentifier(), translationName,
+                                        translationDescription)).run(connection);
                                 return "Successfully added your translation. Go back and reload the page or use your " +
                                         "base URL to enter in another one!";
                             }
@@ -151,10 +153,8 @@ public class SparkServer {
                                     && !id.isEmpty() && !commandId.isEmpty() && !translationName.isEmpty() &&
                                     !translationSyntax.isEmpty() && !translationDescription.isEmpty())
                             {
-                                new DatabaseAction("INSERT INTO Subcommands VALUES (?,?,?,?,?,?,?)").set(commandId)
-                                        .set(id).set(language.getIdentifier()).set(translationName).set
-                                        (translationSyntax)
-                                        .set(translationDescription).set(true).update();
+                                r.db("data").table("subcommands").insert(new SubcommandModel(commandId, translationDescription, id,
+                                        language.getIdentifier(), true, translationSyntax, translationName)).run(connection);
                                 return "Successfully added your translation. Go back and reload the page or use your " +
                                         "base URL to enter in another one!";
                             }
@@ -189,144 +189,139 @@ public class SparkServer {
             if (Ardent.translators.contains(String.valueOf(Long.valueOf(splats[0])))) {
                 Language language = LangFactory.getLanguage(splats[2]);
                 if (language != null) {
-                    try (Statement statement = Ardent.conn.createStatement()) {
-                        if (splats[1].equalsIgnoreCase("phrases")) {
-                            ArrayList<String> discrepancies = getTranslationDiscrepancies(language);
-                            if (discrepancies.size() > 0) {
-                                String discrepancy1 = discrepancies.get(0);
-                                ResultSet set = statement.executeQuery("SELECT * FROM Translations WHERE " +
-                                        "Translation='" + cleanString(discrepancy1) + "'");
-                                if (set.next()) {
-                                    String commandIdentifier = set.getString("CommandIdentifier");
-                                    String id = set.getString("ID");
-                                    set.close();
-                                    return "<!DOCTYPE html>\n" +
-                                            "<html>\n" +
-                                            "<body>\n" +
-                                            "\n" +
-                                            "<h2>Translate Phrases for " + LangFactory.getName(language) + " (" +
-                                            discrepancies.size() + " phrases left to translate)</h2><br>\n" +
-                                            "\n" +
-                                            "English Text<br>\n" +
-                                            "<textarea rows=\"4\" cols=\"100\" name=\"original\" form=\"phrases\" " +
-                                            "disabled>" + discrepancy1 + "</textarea>\n" +
-                                            "<br>Translate Here <br>\n" +
-                                            "<textarea rows=\"4\" cols=\"100\" name=\"translation\" " +
-                                            "form=\"phrases\"></textarea>\n" +
-                                            "\n" +
-                                            "<form action=\"/api/translate/submit\" id=\"phrases\">\n" +
-                                            "  <br>\n" +
-                                            "<input type=\"hidden\" name=\"identifier\" value=\"" + id + "\"><input " +
-                                            "type=\"hidden\" name=\"commandidentifier\" value=\"" + commandIdentifier
-                                            + "\"><input type=\"hidden\" name=\"language\" value=\"" + LangFactory
-                                            .getName(language) + "\"><input type=\"hidden\" name=\"type\" " +
-                                            "value=\"phrases\"><input type=\"submit\" value=\"Add Translation\">\n" +
-                                            "</form>\n" +
-                                            "<br>\n" +
-                                            "</body>\n" +
-                                            "</html>\n";
-                                }
-                                else return "Something went wrong (like really wrong): " + discrepancy1;
-                            }
-                            else
-                                return "No untranslated phrases for this language! Try commands or subcommand " +
-                                        "translations.";
-                        }
-                        else if (splats[1].equalsIgnoreCase("commands")) {
-                            ArrayList<Pair<String, String>> discrepancies = getCommandDiscrepancies(language);
-                            if (discrepancies.size() > 0) {
-                                Pair<String, String> discrepancy = discrepancies.get(0);
+                    if (splats[1].equalsIgnoreCase("phrases")) {
+                        ArrayList<String> discrepancies = getTranslationDiscrepancies(language);
+                        if (discrepancies.size() > 0) {
+                            String discrepancy1 = discrepancies.get(0);
+                            Cursor<HashMap> set = r.db("data").table("translations").filter(row -> row.g("translation").eq(discrepancy1))
+                                    .run(connection);
+                            if (set.hasNext()) {
+                                TranslationModel translationModel = asPojo(set.next(), TranslationModel.class);
+                                String commandIdentifier = translationModel.getCommand_identifier();
+                                String id = translationModel.getId();
+                                set.close();
                                 return "<!DOCTYPE html>\n" +
                                         "<html>\n" +
                                         "<body>\n" +
                                         "\n" +
-                                        "<h2>Translate Commands for " + LangFactory.getName
-                                        (language) +
-                                        " (" + discrepancies.size() + " commands left to translate)</h2><br>\n" +
+                                        "<h2>Translate Phrases for " + LangFactory.getName(language) + " (" +
+                                        discrepancies.size() + " phrases left to translate)</h2><br>\n" +
                                         "\n" +
-                                        "English Name<br>\n" +
-                                        "<textarea rows=\"4\" cols=\"100\" name=\"originalname\" form=\"commands\" " +
-                                        "disabled>" + discrepancy.getK() + "</textarea>\n" +
-                                        "<br>Translated Name (make sure it's lowercase) <br>\n" +
-                                        "<textarea rows=\"4\" cols=\"100\" name=\"translationname\" " +
-                                        "form=\"commands\"></textarea>\n" +
-                                        "<br>English Description<br>\n" +
-                                        "<textarea rows=\"4\" cols=\"100\" name=\"originaldescription\" " +
-                                        "form=\"commands\" disabled>" + discrepancy.getV() + "</textarea>\n" +
-                                        "<br>Translated Description<br>\n" +
-                                        "<textarea rows=\"4\" cols=\"100\" name=\"translationdescription\" " +
-                                        "form=\"commands\"></textarea>\n" +
+                                        "English Text<br>\n" +
+                                        "<textarea rows=\"4\" cols=\"100\" name=\"original\" form=\"phrases\" " +
+                                        "disabled>" + discrepancy1 + "</textarea>\n" +
+                                        "<br>Translate Here <br>\n" +
+                                        "<textarea rows=\"4\" cols=\"100\" name=\"translation\" " +
+                                        "form=\"phrases\"></textarea>\n" +
                                         "\n" +
-                                        "<form action=\"/api/translate/submit\" id=\"commands\">\n" +
-                                        "  <br>\n" +
-                                        "<input type=\"hidden\" name=\"identifier\" value=\"" + discrepancy.getK() +
-                                        "\">  <input type=\"hidden\" name=\"language\" value=\"" + LangFactory
-                                        .getName(language) + "\"><input type=\"hidden\" name=\"type\" " +
-                                        "value=\"commands\"><input type=\"submit\" value=\"Add Translation\">\n" +
-                                        "</form>\n" +
-                                        "<br>\n" +
-                                        "</body>\n" +
-                                        "</html>\n";
-                            }
-                            else
-                                return "No untranslated commands for this language! Try phrases or subcommand " +
-                                        "translations.";
-                        }
-                        else if (splats[1].equalsIgnoreCase("subcommands")) {
-                            ArrayList<Quintet<String, String, String, String, String>> discrepancies =
-                                    getSubCommandDiscrepancies(language);
-                            if (discrepancies.size() > 0) {
-                                Quintet<String, String, String, String, String> discrepancy = discrepancies.get(0);
-                                String cmdId = discrepancy.getA();
-                                String id = discrepancy.getB();
-                                return "<!DOCTYPE html>\n" +
-                                        "<html>\n" +
-                                        "<body>\n" +
-                                        "\n" +
-                                        "<h2>Translate Subcommands for " + LangFactory.getName(language) + " (" +
-                                        discrepancies.size() + " subcommands left to translate)</h2><br>\n" +
-                                        "\n" +
-                                        "Subcommand English Name<br>\n" +
-                                        "<textarea rows=\"4\" cols=\"100\" name=\"originalname\" form=\"subcommands\"" +
-                                        " disabled>" + discrepancy.getB() + "</textarea>\n" +
-                                        "<br>Translated Subcommand Name (make sure it's lowercase) <br>\n" +
-                                        "<textarea rows=\"4\" cols=\"100\" name=\"translationname\" " +
-                                        "form=\"subcommands\"></textarea>\n" +
-                                        "<br>English Syntax<br>\n" +
-                                        "<textarea rows=\"4\" cols=\"100\" name=\"originalsyntax\" " +
-                                        "form=\"subcommands\" disabled>" + discrepancy.getD() + "</textarea>\n" +
-                                        "<br>Translated Syntax<br>\n" +
-                                        "<textarea rows=\"4\" cols=\"100\" name=\"translationsyntax\" " +
-                                        "form=\"subcommands\"></textarea>\n" +
-                                        "<br>English Description<br><textarea rows=\"4\" cols=\"100\" " +
-                                        "name=\"originaldescription\" form=\"subcommands\" disabled>" + discrepancy
-                                        .getE() + "</textarea>\n" +
-                                        "<br>Translated Description<br>\n" +
-                                        "<textarea rows=\"4\" cols=\"100\" name=\"translationdescription\" " +
-                                        "form=\"subcommands\"></textarea>\n" +
-                                        "\n" +
-                                        "<form action=\"/api/translate/submit\" id=\"subcommands\">\n" +
+                                        "<form action=\"/api/translate/submit\" id=\"phrases\">\n" +
                                         "  <br>\n" +
                                         "<input type=\"hidden\" name=\"identifier\" value=\"" + id + "\"><input " +
-                                        "type=\"hidden\" name=\"commandidentifier\" value=\"" + cmdId + "\"><input " +
-                                        "type=\"hidden\" name=\"language\" value=\"" + LangFactory.getName(language)
-                                        + "\"><input type=\"hidden\" name=\"type\" value=\"subcommands\"><input " +
-                                        "type=\"submit\" value=\"Add Translation\">\n" +
+                                        "type=\"hidden\" name=\"commandidentifier\" value=\"" + commandIdentifier
+                                        + "\"><input type=\"hidden\" name=\"language\" value=\"" + LangFactory
+                                        .getName(language) + "\"><input type=\"hidden\" name=\"type\" " +
+                                        "value=\"phrases\"><input type=\"submit\" value=\"Add Translation\">\n" +
                                         "</form>\n" +
                                         "<br>\n" +
                                         "</body>\n" +
                                         "</html>\n";
                             }
-                            else
-                                return "No untranslated commands for this language! Try phrases or subcommand " +
-                                        "translations.";
+                            else return "Something went wrong (like really wrong): " + discrepancy1;
                         }
-                        else return incorrectArgs;
+                        else
+                            return "No untranslated phrases for this language! Try commands or subcommand " +
+                                    "translations.";
                     }
-                    catch (SQLException ex) {
-                        new BotException(ex);
-                        return "The database returned an error which has been logged";
+                    else if (splats[1].equalsIgnoreCase("commands")) {
+                        ArrayList<Pair<String, String>> discrepancies = getCommandDiscrepancies(language);
+                        if (discrepancies.size() > 0) {
+                            Pair<String, String> discrepancy = discrepancies.get(0);
+                            return "<!DOCTYPE html>\n" +
+                                    "<html>\n" +
+                                    "<body>\n" +
+                                    "\n" +
+                                    "<h2>Translate Commands for " + LangFactory.getName
+                                    (language) +
+                                    " (" + discrepancies.size() + " commands left to translate)</h2><br>\n" +
+                                    "\n" +
+                                    "English Name<br>\n" +
+                                    "<textarea rows=\"4\" cols=\"100\" name=\"originalname\" form=\"commands\" " +
+                                    "disabled>" + discrepancy.getK() + "</textarea>\n" +
+                                    "<br>Translated Name (make sure it's lowercase) <br>\n" +
+                                    "<textarea rows=\"4\" cols=\"100\" name=\"translationname\" " +
+                                    "form=\"commands\"></textarea>\n" +
+                                    "<br>English Description<br>\n" +
+                                    "<textarea rows=\"4\" cols=\"100\" name=\"originaldescription\" " +
+                                    "form=\"commands\" disabled>" + discrepancy.getV() + "</textarea>\n" +
+                                    "<br>Translated Description<br>\n" +
+                                    "<textarea rows=\"4\" cols=\"100\" name=\"translationdescription\" " +
+                                    "form=\"commands\"></textarea>\n" +
+                                    "\n" +
+                                    "<form action=\"/api/translate/submit\" id=\"commands\">\n" +
+                                    "  <br>\n" +
+                                    "<input type=\"hidden\" name=\"identifier\" value=\"" + discrepancy.getK() +
+                                    "\">  <input type=\"hidden\" name=\"language\" value=\"" + LangFactory
+                                    .getName(language) + "\"><input type=\"hidden\" name=\"type\" " +
+                                    "value=\"commands\"><input type=\"submit\" value=\"Add Translation\">\n" +
+                                    "</form>\n" +
+                                    "<br>\n" +
+                                    "</body>\n" +
+                                    "</html>\n";
+                        }
+                        else
+                            return "No untranslated commands for this language! Try phrases or subcommand " +
+                                    "translations.";
                     }
+                    else if (splats[1].equalsIgnoreCase("subcommands")) {
+                        ArrayList<Quintet<String, String, String, String, String>> discrepancies =
+                                getSubCommandDiscrepancies(language);
+                        if (discrepancies.size() > 0) {
+                            Quintet<String, String, String, String, String> discrepancy = discrepancies.get(0);
+                            String cmdId = discrepancy.getA();
+                            String id = discrepancy.getB();
+                            return "<!DOCTYPE html>\n" +
+                                    "<html>\n" +
+                                    "<body>\n" +
+                                    "\n" +
+                                    "<h2>Translate Subcommands for " + LangFactory.getName(language) + " (" +
+                                    discrepancies.size() + " subcommands left to translate)</h2><br>\n" +
+                                    "\n" +
+                                    "SubcommandModel English Name<br>\n" +
+                                    "<textarea rows=\"4\" cols=\"100\" name=\"originalname\" form=\"subcommands\"" +
+                                    " disabled>" + discrepancy.getB() + "</textarea>\n" +
+                                    "<br>Translated SubcommandModel Name (make sure it's lowercase) <br>\n" +
+                                    "<textarea rows=\"4\" cols=\"100\" name=\"translationname\" " +
+                                    "form=\"subcommands\"></textarea>\n" +
+                                    "<br>English Syntax<br>\n" +
+                                    "<textarea rows=\"4\" cols=\"100\" name=\"originalsyntax\" " +
+                                    "form=\"subcommands\" disabled>" + discrepancy.getD() + "</textarea>\n" +
+                                    "<br>Translated Syntax<br>\n" +
+                                    "<textarea rows=\"4\" cols=\"100\" name=\"translationsyntax\" " +
+                                    "form=\"subcommands\"></textarea>\n" +
+                                    "<br>English Description<br><textarea rows=\"4\" cols=\"100\" " +
+                                    "name=\"originaldescription\" form=\"subcommands\" disabled>" + discrepancy
+                                    .getE() + "</textarea>\n" +
+                                    "<br>Translated Description<br>\n" +
+                                    "<textarea rows=\"4\" cols=\"100\" name=\"translationdescription\" " +
+                                    "form=\"subcommands\"></textarea>\n" +
+                                    "\n" +
+                                    "<form action=\"/api/translate/submit\" id=\"subcommands\">\n" +
+                                    "  <br>\n" +
+                                    "<input type=\"hidden\" name=\"identifier\" value=\"" + id + "\"><input " +
+                                    "type=\"hidden\" name=\"commandidentifier\" value=\"" + cmdId + "\"><input " +
+                                    "type=\"hidden\" name=\"language\" value=\"" + LangFactory.getName(language)
+                                    + "\"><input type=\"hidden\" name=\"type\" value=\"subcommands\"><input " +
+                                    "type=\"submit\" value=\"Add Translation\">\n" +
+                                    "</form>\n" +
+                                    "<br>\n" +
+                                    "</body>\n" +
+                                    "</html>\n";
+                        }
+                        else
+                            return "No untranslated commands for this language! Try phrases or subcommand " +
+                                    "translations.";
+                    }
+                    else return incorrectArgs;
                 }
                 else return "Incorrect language specified";
             }

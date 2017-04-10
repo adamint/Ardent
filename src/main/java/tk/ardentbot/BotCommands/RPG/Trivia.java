@@ -1,7 +1,6 @@
 package tk.ardentbot.BotCommands.RPG;
 
 import net.dv8tion.jda.core.entities.*;
-import org.apache.commons.io.IOUtils;
 import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.CommandExecution.Subcommand;
 import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
@@ -13,14 +12,14 @@ import tk.ardentbot.Utils.Discord.GuildUtils;
 import tk.ardentbot.Utils.Models.TriviaQuestion;
 import tk.ardentbot.Utils.RPGUtils.TriviaGame;
 
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.security.SecureRandom;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import static tk.ardentbot.Main.Ardent.shard0;
+import static tk.ardentbot.Main.Ardent.triviaSheet;
 
 public class Trivia extends Command {
     public static final CopyOnWriteArrayList<TriviaGame> gamesInSession = new CopyOnWriteArrayList<>();
@@ -30,20 +29,31 @@ public class Trivia extends Command {
     }
 
     public static void dispatchRound(Guild guild, TextChannel channel, User creator, TriviaGame currentGame, Timer timer) {
-        currentGame.incrementRounds();
-        String url = "http://jservice.io/api/random";
         try {
             Language language = GuildUtils.getLanguage(guild);
             Shard shard = GuildUtils.getShard(guild);
-            currentGame.displayScores(shard, shard.help);
-            TriviaQuestion triviaQuestion = getJson(url);
+            currentGame.incrementRounds();
+            if (currentGame.getRound() > currentGame.getTotalRounds()) return;
+            if (!gamesInSession.contains(currentGame)) return;
+            channel.sendMessage(currentGame.displayScores(shard, shard.help).build()).queue();
+            List<List<Object>> values = triviaSheet.getValues();
+            List<Object> row = values.get(new SecureRandom().nextInt(values.size()));
+            String category = (String) row.get(0);
+            String q = (String) row.get(1);
+            String answerUnparsed = (String) row.get(2);
+            TriviaQuestion triviaQuestion = new TriviaQuestion();
+            triviaQuestion.setQuestion(q);
+            triviaQuestion.setCategory(category);
+            for (String answer : answerUnparsed.split("~")) {
+                triviaQuestion.withAnswer(answer);
+            }
             currentGame.setCurrentTriviaQuestion(triviaQuestion);
             HashMap<Integer, TranslationResponse> translations = shard.help.getTranslations(language, new Translation
                     ("trivia", "trueorfalse"), new Translation("trivia", "multiplechoice"), new Translation("trivia",
                     "yourchoices"));
 
             StringBuilder question = new StringBuilder();
-            question.append("**" + triviaQuestion.getCategory().getTitle() + "**: " + triviaQuestion.getQuestion());
+            question.append("**" + triviaQuestion.getCategory() + "**: " + triviaQuestion.getQuestion());
             shard.help.sendTranslatedMessage(question.toString(), channel, creator);
 
             int currentRound = currentGame.getRound();
@@ -53,8 +63,7 @@ public class Trivia extends Command {
                     if (!currentGame.isAnsweredCurrentQuestion() && currentRound == currentGame.getRound()) {
                         try {
                             shard.help.sendEditedTranslation("trivia", language, "failed", creator, channel, triviaQuestion
-                                    .getAnswer());
-                            shard.help.sendEmbed(currentGame.displayScores(shard, shard.help), channel, creator);
+                                    .getAnswers().get(0));
                             if (currentGame.getRound() + 1 < currentGame.getTotalRounds())
                                 dispatchRound(guild, channel, creator, currentGame, timer);
                             else currentGame.finish(shard, shard.help);
@@ -66,17 +75,8 @@ public class Trivia extends Command {
                 }
             }, 17000);
         }
-        catch (Exception e) {
-            new BotException(e);
-            currentGame.decrementRounds();
-            dispatchRound(guild, channel, creator, currentGame, timer);
+        catch (Exception ignored) {
         }
-    }
-
-    private static TriviaQuestion getJson(String url) throws Exception {
-        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-        String json = IOUtils.toString(connection.getInputStream());
-        return shard0.gson.fromJson(json, TriviaQuestion[].class)[0];
     }
 
     @Override
@@ -97,7 +97,7 @@ public class Trivia extends Command {
                     }
                 }
                 sendRetrievedTranslation(channel, "trivia", language, "soloornot", user);
-                nextMessageByUser(language, channel, message, (soloMessage) -> {
+                interactiveOperation(language, channel, message, (soloMessage) -> {
                     String content = soloMessage.getContent();
                     boolean solo;
                     if (content.equalsIgnoreCase("yes")) {

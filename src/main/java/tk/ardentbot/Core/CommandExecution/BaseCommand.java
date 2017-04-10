@@ -1,10 +1,12 @@
 package tk.ardentbot.Core.CommandExecution;
 
+import com.rethinkdb.net.Cursor;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.PermissionException;
+import org.json.simple.JSONObject;
 import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
 import tk.ardentbot.Core.Models.CommandTranslation;
 import tk.ardentbot.Core.Models.PhraseTranslation;
@@ -13,14 +15,16 @@ import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Core.Translation.Translation;
 import tk.ardentbot.Core.Translation.TranslationResponse;
 import tk.ardentbot.Main.Shard;
-import tk.ardentbot.Utils.SQL.DatabaseAction;
+import tk.ardentbot.Rethink.Models.TranslationModel;
 
-import java.sql.ResultSet;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static tk.ardentbot.Core.Translation.LangFactory.english;
+import static tk.ardentbot.Main.Ardent.globalGson;
+import static tk.ardentbot.Rethink.Database.connection;
+import static tk.ardentbot.Rethink.Database.r;
 
 /**
  * Abstracted from Command for possible future implementations (WebCommand)
@@ -32,6 +36,19 @@ public abstract class BaseCommand {
     boolean guildUsage = true;
     Category category;
     private Shard shard;
+
+
+    /**
+     * Convert a HashMap into a POJO via GSON and Java's JSON library - use only with RethinkDB
+     *
+     * @param map    Map returned from a rethink query
+     * @param tClass The POJO class
+     * @param <T>    an object created from tClass
+     * @return an instance of tClass
+     */
+    public static <T> T asPojo(HashMap map, Class<T> tClass) {
+        return globalGson.fromJson(JSONObject.toJSONString(map), tClass);
+    }
 
     /**
      * Handles messages longer than 2000 characters
@@ -79,7 +96,6 @@ public abstract class BaseCommand {
         }
         catch (Exception e) {
             new BotException(e);
-            return;
         }
         if (response.isTranslationAvailable()) {
             sendTranslatedMessage(response.getTranslation(), channel, user);
@@ -251,30 +267,25 @@ public abstract class BaseCommand {
      */
     private TranslationResponse getTranslationDb(String cmdName, Language lang, String id) throws Exception {
         TranslationResponse response;
-
-        DatabaseAction translationRequest = new DatabaseAction("SELECT * FROM Translations WHERE CommandIdentifier=? " +
-                "AND Language=? AND ID=?");
-        translationRequest.set(cmdName).set(lang.getIdentifier()).set(id);
-        ResultSet langTranslations = translationRequest.request();
-        if (langTranslations.next()) {
-            String translation = langTranslations.getString("Translation").replace("{newline}", "\n");
-            response = new TranslationResponse(translation, lang, true, false, true);
+        Cursor<HashMap> translations = r.db("data").table("translations").filter(r.hashMap("language", lang.getIdentifier())
+                .with("command_identifier",
+                        cmdName).with("id", id)).run(connection);
+        if (!translations.hasNext()) {
+            Cursor<HashMap> english = r.db("data").table("translations").filter(r.hashMap("language", "english").with
+                    ("command_identifier",
+                            cmdName).with("id", id)).run(connection);
+            if (english.hasNext()) {
+                TranslationModel translationModel = globalGson.fromJson(JSONObject.toJSONString(english.next()), TranslationModel.class);
+                response = new TranslationResponse(translationModel.getTranslation(), lang, false, true, true);
+            }
+            else response = new TranslationResponse(null, lang, false, false, false);
+            english.close();
         }
         else {
-            DatabaseAction englishRequest = new DatabaseAction("SELECT * FROM Translations WHERE CommandIdentifier=? " +
-                    "AND Language=? AND ID=?");
-            englishRequest.set(cmdName).set("english").set(id);
-            ResultSet englishSet = englishRequest.request();
-            if (englishSet.next()) {
-                String translation = englishSet.getString("Translation").replace("{newline}", "\n");
-                response = new TranslationResponse(translation, lang, true, false, true);
-            }
-            else {
-                response = new TranslationResponse(null, lang, false, false, false);
-            }
-            englishRequest.close();
+            TranslationModel translationModel = globalGson.fromJson(JSONObject.toJSONString(translations.next()), TranslationModel.class);
+            response = new TranslationResponse(translationModel.getTranslation(), lang, true, true, true);
         }
-        translationRequest.close();
+        translations.close();
         return response;
     }
 
@@ -327,79 +338,6 @@ public abstract class BaseCommand {
                 }
             }
         }
-
-        if (translations.size() > 0) {
-            HashMap<Integer, TranslationResponse> dbResponses = getTranslationsDb(language, translations);
-            dbResponses.forEach(translationResponses::put);
-        }
-
-        return translationResponses;
-    }
-
-    /**
-     * Returns the translation responses representing the given translations'
-     * parameters. This method queries the database.
-     *
-     * @param language     the current language of the guild
-     * @param translations a list of translations to request
-     * @return the TranslationResponse representing this translation
-     * @throws Exception
-     */
-    private HashMap<Integer, TranslationResponse> getTranslationsDb(Language language, List<Translation>
-            translations) throws Exception {
-        ConcurrentHashMap<Translation, Integer> originalPlaces = new ConcurrentHashMap<>();
-        for (int i = 0; i < translations.size(); i++) {
-            Translation translation = translations.get(i);
-            originalPlaces.put(translation, i);
-        }
-        HashMap<Integer, TranslationResponse> translationResponses = new HashMap<>();
-
-        DatabaseAction langRequest = new DatabaseAction("SELECT * FROM Translations WHERE Language=?").set(language
-                .getIdentifier());
-
-        ResultSet langSet = langRequest.request();
-        while (langSet.next()) {
-            String commandIdentifier = langSet.getString("CommandIdentifier");
-            String id = langSet.getString("ID");
-            for (int i = 0; i < translations.size(); i++) {
-                Translation translation = translations.get(i);
-                if (translation.getCommandId().equalsIgnoreCase(commandIdentifier) && translation.getId()
-                        .equalsIgnoreCase(id))
-                {
-                    String returnedTranslation = langSet.getString("Translation").replace("{newline}", "\n");
-                    translationResponses.put(originalPlaces.get(translation), new TranslationResponse
-                            (returnedTranslation, language, true, true, true));
-                    translations.remove(translation);
-                }
-            }
-        }
-        if (translations.size() > 0) {
-            DatabaseAction englishRequest = new DatabaseAction("SELECT * FROM Translations WHERE Language=?").set
-                    ("english");
-
-            ResultSet englishSet = englishRequest.request();
-            while (englishSet.next()) {
-                String commandIdentifier = englishSet.getString("CommandIdentifier");
-                String id = englishSet.getString("ID");
-                for (int i = 0; i < translations.size(); i++) {
-                    Translation translation = translations.get(i);
-                    if (translation.getCommandId().equalsIgnoreCase(commandIdentifier) && translation.getId()
-                            .equalsIgnoreCase(id))
-                    {
-                        String returnedTranslation = englishSet.getString("Translation");
-                        translationResponses.put(originalPlaces.get(translation), new TranslationResponse
-                                (returnedTranslation, language, true, true, true));
-                        translations.remove(translation);
-                    }
-                }
-            }
-            for (Translation translation : translations) {
-                translationResponses.put(originalPlaces.get(translation), new TranslationResponse(null, language,
-                        false, false, false));
-            }
-            englishRequest.close();
-        }
-        langRequest.close();
         return translationResponses;
     }
 

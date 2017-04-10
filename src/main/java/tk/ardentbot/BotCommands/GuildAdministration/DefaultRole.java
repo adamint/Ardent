@@ -1,16 +1,20 @@
 package tk.ardentbot.BotCommands.GuildAdministration;
 
+import com.rethinkdb.net.Cursor;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.CommandExecution.Subcommand;
 import tk.ardentbot.Core.Translation.Language;
+import tk.ardentbot.Rethink.Models.DefaultRoleModel;
 import tk.ardentbot.Utils.Discord.GuildUtils;
-import tk.ardentbot.Utils.SQL.DatabaseAction;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+
+import static tk.ardentbot.Rethink.Database.connection;
+import static tk.ardentbot.Rethink.Database.r;
 
 public class DefaultRole extends Command {
     public DefaultRole(CommandSettings commandSettings) {
@@ -19,15 +23,15 @@ public class DefaultRole extends Command {
 
     public static Role getDefaultRole(Guild guild) throws SQLException {
         Role returned = null;
-        DatabaseAction retrieve = new DatabaseAction("SELECT * FROM DefaultRole WHERE GuildID=?").set(guild.getId());
-        ResultSet set = retrieve.request();
-        if (set.next()) {
-            String roleID = set.getString("RoleID");
+        List<HashMap> defaultRoleModels = ((Cursor<HashMap>) r.db("data").table("defaultroles").filter(row -> row.g("guild_id")
+                .eq(guild.getId())).run(connection)).toList();
+        if (defaultRoleModels.size() > 0) {
+            DefaultRoleModel defaultRoleModel = asPojo(defaultRoleModels.get(0), DefaultRoleModel.class);
+            String roleID = defaultRoleModel.getRole_id();
             if (!roleID.equalsIgnoreCase("none")) {
                 returned = guild.getRoleById(roleID);
             }
         }
-        retrieve.close();
         return returned;
     }
 
@@ -98,19 +102,20 @@ public class DefaultRole extends Command {
     }
 
     private void removeDefaultRole(Guild guild) throws SQLException {
-        new DatabaseAction("UPDATE DefaultRole SET RoleID=? WHERE GuildID=?").set("none").set(guild.getId()).update();
+        r.db("data").table("defaultroles").filter(row -> row.g("guild_id").eq(guild.getId())).update(r.hashMap("channel_id", "none")).run
+                (connection);
     }
 
     private void setDefaultRole(Role role, Guild guild) throws SQLException {
-        DatabaseAction retrieve = new DatabaseAction("SELECT * FROM DefaultRole WHERE GuildID=?").set(guild.getId());
-        ResultSet isIn = retrieve.request();
-        if (isIn.next()) {
-            new DatabaseAction("UPDATE DefaultRole SET RoleID=? WHERE GuildID=?").set(role.getId()).set(guild.getId()
-            ).update();
+        List<HashMap> defaultRoleModels = ((Cursor<HashMap>) r.db("data").table("defaultroles").filter(row -> row.g("guild_id")
+                .eq(guild.getId())).run(connection)).toList();
+        if (defaultRoleModels.size() > 0) {
+            r.db("data").table("defaultroles").filter(row -> row.g("guild_id").eq(guild.getId())).update(r.hashMap("channel_id", role
+                    .getId()))
+                    .run(connection);
         }
         else {
-            new DatabaseAction("INSERT INTO DefaultRole VALUES (?,?)").set(guild.getId()).set(role.getId()).update();
+            r.db("data").table("defaultroles").insert(new DefaultRoleModel(guild.getId(), role.getId())).run(connection);
         }
-        retrieve.close();
     }
 }

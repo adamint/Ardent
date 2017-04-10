@@ -75,8 +75,11 @@ public class UserUtils {
     }
 
     public static ArrayList<String> getNamesById(List<String> ids) {
-        return ids.stream().map(id ->
-                getUserById(id).getName()).collect(toCollection(ArrayList::new));
+        return ids.stream().map(id -> {
+            User user = getUserById(id);
+            if (user != null) return user.getName();
+            else return null;
+        }).collect(toCollection(ArrayList::new));
     }
 
     public static ArrayList<User> getUsersById(List<String> ids) {

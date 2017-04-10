@@ -73,13 +73,14 @@ public class TriviaGame {
     }
 
     public void finish(Shard shard, Command command) throws Exception {
+        totalRounds = 9001;
         final int bonus = 250;
         final int perQuestion = 50;
         Trivia.gamesInSession.remove(this);
-        displayScores(shard, command);
         Guild guild = shard.jda.getGuildById(guildId);
         Language language = GuildUtils.getLanguage(guild);
         TextChannel channel = guild.getTextChannelById(textChannelId);
+        channel.sendMessage(displayScores(shard, command).build()).queue();
         command.sendEditedTranslation("trivia", language, "thxforplayingpayout", guild.getSelfMember().getUser(), channel, String.valueOf
                 (perQuestion), String.valueOf(bonus));
         Map<String, Integer> sorted = MapUtils.sortByValue(scores);

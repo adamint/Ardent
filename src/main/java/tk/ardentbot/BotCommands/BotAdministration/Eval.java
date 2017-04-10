@@ -27,7 +27,7 @@ public class Eval extends Command {
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
             language) throws Exception {
         if (Ardent.developers.contains(user.getId())) {
-            if (args.length == 1) channel.sendMessage("Use " + args[0] + " (code) to evaluate stuff");
+            if (args.length == 1) channel.sendMessage("Use " + args[0] + " (code) to evaluate stuff").queue();
             else {
                 String content = message.getContent().replace(GuildUtils.getPrefix(guild) + args[0] + " ", "");
                 final MessageBuilder builder = new MessageBuilder();
@@ -42,7 +42,6 @@ public class Eval extends Command {
                 shortcuts.put("msg", message);
                 shortcuts.put("me", message.getAuthor());
                 shortcuts.put("bot", message.getJDA().getSelfUser());
-                shortcuts.put("conn", Ardent.conn);
                 shortcuts.put("shard", getShard());
                 shortcuts.put("shards", ShardManager.getShards());
 
