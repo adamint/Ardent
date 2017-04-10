@@ -1,6 +1,5 @@
 package tk.ardentbot.Main;
 
-import ch.qos.logback.classic.Level;
 import com.google.code.chatterbotapi.ChatterBot;
 import com.google.code.chatterbotapi.ChatterBotFactory;
 import com.google.code.chatterbotapi.ChatterBotType;
@@ -48,16 +47,8 @@ import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Rethink.Models.GuildModel;
 import tk.ardentbot.Rethink.Models.RestrictedUserModel;
-import tk.ardentbot.Utils.Discord.InternalStats;
 import tk.ardentbot.Utils.Models.RestrictedUser;
 import tk.ardentbot.Utils.RPGUtils.EntityGuild;
-import tk.ardentbot.Utils.Updaters.GuildDaemon;
-import tk.ardentbot.Utils.Updaters.MuteDaemon;
-import tk.ardentbot.Utils.Updaters.PermissionsDaemon;
-import tk.ardentbot.Utils.Updaters.WebsiteDaemon;
-import twitter4j.Twitter;
-import twitter4j.TwitterFactory;
-import twitter4j.conf.ConfigurationBuilder;
 
 import java.io.File;
 import java.io.FileReader;
@@ -67,7 +58,6 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
 import static tk.ardentbot.Core.CommandExecution.BaseCommand.asPojo;
 import static tk.ardentbot.Core.Translation.LangFactory.languages;
@@ -88,7 +78,6 @@ public class Shard {
     public CommandFactory factory;
     public JDA jda;
     public User bot;
-    public Twitter twitter;
     public Command help;
     public BaseCommand patreon;
     public BaseCommand translateForArdent;
@@ -130,27 +119,11 @@ public class Shard {
 
         bot = jda.getUserById(jda.getSelfUser().getId());
         if (jda.getGuildById("260841592070340609") != null) {
-            System.out.println("SFDKJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJjjjj-0==23=-=-23-4=2=-34");
             Ardent.botLogsShard = this;
-        }
-
-        if (!testingBot) {
-            ConfigurationBuilder cb = new ConfigurationBuilder();
-            cb.setDebugEnabled(true)
-                    .setOAuthConsumerKey("Fi9IjqqsGmOXqjR5uYK8YM2Pr")
-                    .setOAuthConsumerSecret(IOUtils.toString(new FileReader(new File
-                            ("/root/Ardent/twitterconsumersecret.key"))))
-                    .setOAuthAccessToken("818984879018954752-aCzxyML6Xp0QcRpq5sjoe8wfp0sjVDt")
-                    .setOAuthAccessTokenSecret(IOUtils.toString(new FileReader(new File
-                            ("/root/Ardent/twitteroauthsecret.key"))));
-            TwitterFactory tf = new TwitterFactory(cb.build());
-            twitter = tf.getInstance();
         }
 
         executorService.schedule(() -> {
             try {
-                GIF.setupCategories();
-
                 // Register event listeners
                 jda.addEventListener(new OnMessage());
                 jda.addEventListener(new InteractiveOnMessage());
@@ -341,49 +314,30 @@ public class Shard {
                 restrictedData.close();
 
                 executorService.scheduleAtFixedRate(() -> {
-                    String game = null;
+                    String game = "https://www.twitch.tv/ardentdiscord";
                     switch (gameCounter) {
                         case 0:
-                            game = "Shard [" + shardNumber + "] - " + jda.getGuilds().size() + " guilds";
+                            game = "ardentbot.tk";
                             break;
                         case 1:
-                            game = "Serving " + InternalStats.collect().getGuilds() + " guilds";
+                            game = "music | /help";
                             break;
                         case 2:
-                            game = "Music for " + Music.getMusicStats().getK() + " servers (on this shard)";
+                            game = "fun | try /bet!";
                             break;
+                        case 3:
+                            game = "data | share Ardent w/friends!";
                     }
                     jda.getPresence().setGame(Game.of(game, Ardent.gameUrl));
 
-                    if (gameCounter == 2) gameCounter = 0;
+                    if (gameCounter == 3) gameCounter = 0;
                     else gameCounter++;
 
-                }, 10, 25, TimeUnit.SECONDS);
+                }, 5, 25, TimeUnit.SECONDS);
 
                 // On hold for a bit
                 // PhraseUpdater phraseUpdater = new PhraseUpdater();
                 // TranslationUpdater translationUpdater = new TranslationUpdater();
-
-                WebsiteDaemon websiteDaemon = new WebsiteDaemon();
-                executorService.scheduleAtFixedRate(websiteDaemon, 5, 15, TimeUnit.SECONDS);
-
-                PermissionsDaemon permissionsDaemon = new PermissionsDaemon();
-                executorService.scheduleAtFixedRate(permissionsDaemon, 0, 60, TimeUnit.SECONDS);
-
-                GuildDaemon guildDaemon = new GuildDaemon();
-                executorService.scheduleAtFixedRate(guildDaemon, 0, 10, TimeUnit.SECONDS);
-
-                MuteDaemon muteDaemon = new MuteDaemon();
-                executorService.scheduleAtFixedRate(muteDaemon, 1, 5, TimeUnit.SECONDS);
-
-                Music.checkMusicConnections();
-
-                Logger.getLogger("org.apache.http").setLevel(java.util.logging.Level.OFF);
-                Logger.getLogger("org.apache.http.wire").setLevel(java.util.logging.Level.OFF);
-                Logger.getLogger("org.apache.http.headers").setLevel(java.util.logging.Level.OFF);
-                ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory
-                        .getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
-                root.setLevel(Level.OFF);
             }
             catch (Exception ex) {
                 new BotException(ex);

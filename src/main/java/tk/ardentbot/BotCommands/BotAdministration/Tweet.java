@@ -30,9 +30,10 @@ public class Tweet extends Command {
                     mentionEveryone = true;
                     content = content.replace("{{mentionall}}", "");
                 }
-                Status status = getShard().twitter.tweets().updateStatus(content);
+                Status status = Ardent.twitter.tweets().updateStatus(content);
                 StringBuilder sb = new StringBuilder();
-                sb.append("**New Tweet** by Ardent\n" + content + "\n\nIf you liked this, follow us on twitter & like the post - https://twitter.com/ardentbot/status/" + status.getId());
+                sb.append("**New Tweet** by Ardent\n" + content + "\n\nIf you liked this, follow us on twitter & like the post - " +
+                        "https://twitter.com/ardentbot/status/" + status.getId());
                 if (mentionEveryone) sb.append("\n@everyone");
                 botLogsShard.jda.getTextChannelById("272411413031419904").sendMessage(sb.toString()).queue();
             }

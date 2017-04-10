@@ -21,6 +21,8 @@ import com.rethinkdb.net.Cursor;
 import com.wrapper.spotify.Api;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.LoggerFactory;
+import tk.ardentbot.BotCommands.Fun.GIF;
+import tk.ardentbot.BotCommands.Music.Music;
 import tk.ardentbot.BotCommands.Music.StuckVoiceConnection;
 import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
 import tk.ardentbot.Core.Misc.WebServer.SparkServer;
@@ -29,9 +31,10 @@ import tk.ardentbot.Rethink.Database;
 import tk.ardentbot.Utils.Premium.CheckIfPremiumGuild;
 import tk.ardentbot.Utils.Premium.UpdatePremiumMembers;
 import tk.ardentbot.Utils.Searching.GoogleSearch;
-import tk.ardentbot.Utils.Updaters.BotlistUpdater;
-import tk.ardentbot.Utils.Updaters.ProfileUpdater;
-import tk.ardentbot.Utils.Updaters.SpotifyTokenRefresh;
+import tk.ardentbot.Utils.Updaters.*;
+import twitter4j.Twitter;
+import twitter4j.TwitterFactory;
+import twitter4j.conf.ConfigurationBuilder;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
@@ -84,6 +87,7 @@ public class Ardent {
     public static String node1Url;
     public static String dbPassword;
     public static ValueRange triviaSheet;
+    public static Twitter twitter;
     static String node0Url;
     private static HttpTransport transport;
     private static JacksonFactory jsonFactory;
@@ -94,8 +98,8 @@ public class Ardent {
     private static String clientSecret;
 
     public static void main(String[] args) throws Exception {
-        Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-        root.setLevel(Level.OFF);
+        Logger root1 = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        root1.setLevel(Level.OFF);
 
         for (String s : args) {
             if (s.contains("premium")) premiumBot = true;
@@ -195,6 +199,42 @@ public class Ardent {
                 ("nick", "ardent")
                 .asString().getStatus();
         if (status != 200) new BotException("Unable to connect to cleverbot!");
+
+        WebsiteDaemon websiteDaemon = new WebsiteDaemon();
+        globalExecutorService.scheduleAtFixedRate(websiteDaemon, 5, 15, TimeUnit.SECONDS);
+
+        PermissionsDaemon permissionsDaemon = new PermissionsDaemon();
+        globalExecutorService.scheduleAtFixedRate(permissionsDaemon, 0, 60, TimeUnit.SECONDS);
+
+        GuildDaemon guildDaemon = new GuildDaemon();
+        globalExecutorService.scheduleAtFixedRate(guildDaemon, 0, 10, TimeUnit.SECONDS);
+
+        MuteDaemon muteDaemon = new MuteDaemon();
+        globalExecutorService.scheduleAtFixedRate(muteDaemon, 1, 5, TimeUnit.SECONDS);
+
+        Music.checkMusicConnections();
+
+        GIF.setupCategories();
+
+        if (!testingBot) {
+            ConfigurationBuilder cb = new ConfigurationBuilder();
+            cb.setDebugEnabled(true)
+                    .setOAuthConsumerKey("Fi9IjqqsGmOXqjR5uYK8YM2Pr")
+                    .setOAuthConsumerSecret(IOUtils.toString(new FileReader(new File
+                            ("/root/Ardent/twitterconsumersecret.key"))))
+                    .setOAuthAccessToken("818984879018954752-aCzxyML6Xp0QcRpq5sjoe8wfp0sjVDt")
+                    .setOAuthAccessTokenSecret(IOUtils.toString(new FileReader(new File
+                            ("/root/Ardent/twitteroauthsecret.key"))));
+            TwitterFactory tf = new TwitterFactory(cb.build());
+            twitter = tf.getInstance();
+        }
+
+        java.util.logging.Logger.getLogger("org.apache.http").setLevel(java.util.logging.Level.OFF);
+        java.util.logging.Logger.getLogger("org.apache.http.wire").setLevel(java.util.logging.Level.OFF);
+        java.util.logging.Logger.getLogger("org.apache.http.headers").setLevel(java.util.logging.Level.OFF);
+        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory
+                .getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+        root.setLevel(Level.OFF);
 
         try {
             //transport = GoogleNetHttpTransport.newTrustedTransport();
