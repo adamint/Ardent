@@ -28,7 +28,7 @@ public class Translate extends Command {
     }
 
     public static ArrayList<String> getTranslationDiscrepancies(Language language) {
-        Cursor<HashMap> translations = r.db("data").table("translations").run(connection);
+        Cursor<HashMap> translations = r.db("data").table("translations").filter(r.hashMap("language", "english")).run(connection);
         ArrayList<String> discrepanciesInEnglish = new ArrayList<>();
         ArrayList<Triplet<String, String, String>> englishTranslations = new ArrayList<>();
         while (translations.hasNext()) {
@@ -51,7 +51,7 @@ public class Translate extends Command {
     public static ArrayList<Pair<String, String>> getCommandDiscrepancies(Language language) {
         ArrayList<Pair<String, String>> discrepanciesInEnglish = new ArrayList<>();
         ArrayList<Triplet<String, String, String>> englishTranslations = new ArrayList<>();
-        Cursor<HashMap> translations = r.db("data").table("commands").run(connection);
+        Cursor<HashMap> translations = r.db("data").table("commands").filter(r.hashMap("language", "english")).run(connection);
         while (translations.hasNext()) {
             CommandModel commandModel = asPojo(translations.next(), CommandModel.class);
             englishTranslations.add(new Triplet<>(commandModel.getIdentifier(), commandModel.getLanguage(), commandModel.getDescription()));
@@ -69,7 +69,7 @@ public class Translate extends Command {
     }
 
     public static ArrayList<Quintet<String, String, String, String, String>> getSubCommandDiscrepancies(Language language) {
-        Cursor<HashMap> translations = r.db("data").table("subcommands").run(connection);
+        Cursor<HashMap> translations = r.db("data").table("subcommands").filter(r.hashMap("language", "english")).run(connection);
         ArrayList<Quintet<String, String, String, String, String>> discrepanciesInEnglish = new ArrayList<>();
         ArrayList<Quintet<String, String, String, String, String>> englishTranslations = new ArrayList<>();
         while (translations.hasNext()) {

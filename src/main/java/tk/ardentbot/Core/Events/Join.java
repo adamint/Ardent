@@ -55,7 +55,7 @@ public class Join {
         Shard shard = GuildUtils.getShard(guild);
         Cursor<GuildModel> guilds = r.db("data").table("guilds").filter(r.hashMap("guild_id", guild.getId())).run(connection);
         if (!guilds.hasNext()) {
-            r.db("data").table("guilds").insert(r.hashMap("guild_id", guild.getId()).with("language", "english").with("prefi", "/")).run
+            r.db("data").table("guilds").insert(r.hashMap("guild_id", guild.getId()).with("language", "english").with("prefix", "/")).run
                     (connection);
             String prefix = "/";
             String language = "english";

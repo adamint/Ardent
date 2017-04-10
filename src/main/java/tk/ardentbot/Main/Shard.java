@@ -371,7 +371,7 @@ public class Shard {
                 executorService.scheduleAtFixedRate(permissionsDaemon, 0, 60, TimeUnit.SECONDS);
 
                 GuildDaemon guildDaemon = new GuildDaemon();
-                executorService.scheduleAtFixedRate(guildDaemon, 1, 5, TimeUnit.SECONDS);
+                executorService.scheduleAtFixedRate(guildDaemon, 0, 10, TimeUnit.SECONDS);
 
                 MuteDaemon muteDaemon = new MuteDaemon();
                 executorService.scheduleAtFixedRate(muteDaemon, 1, 5, TimeUnit.SECONDS);

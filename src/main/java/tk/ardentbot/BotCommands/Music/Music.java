@@ -740,7 +740,7 @@ public class Music extends Command {
                         return;
                     }
                     track.addSkipVote(user);
-                    if (track.getVotedToSkip().size() >= Math.round(connected.getMembers().size())) {
+                    if (track.getVotedToSkip().size() >= Math.round(connected.getMembers().size() / 2)) {
                         sendRetrievedTranslation(channel, "music", language, "skippedtrack", user);
                         guildMusicManager.scheduler.manager.nextTrack();
                     }

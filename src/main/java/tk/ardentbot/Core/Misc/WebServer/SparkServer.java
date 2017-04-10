@@ -36,7 +36,7 @@ public class SparkServer {
      */
     public static void setup() {
         if (Ardent.testingBot) {
-            return;
+            port(666);
         }
         else {
             port(666);
@@ -92,7 +92,7 @@ public class SparkServer {
                 String type = rq.queryParams("type");
                 String language = rq.queryParams("language");
                 if (type != null && language != null) {
-                    rs.redirect("http://ardentbot.tk:666/api/translate/169904324980244480/" + type + "/" + language);
+                    rs.redirect("http://ardentbot.tk:666/api/translate/212286049802649600/" + type + "/" + language);
                 }
             }
             return null;

@@ -7,7 +7,6 @@ import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInsta
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.DataStoreFactory;
@@ -197,24 +196,12 @@ public class Ardent {
                 .asString().getStatus();
         if (status != 200) new BotException("Unable to connect to cleverbot!");
 
-        globalExecutorService.schedule(() -> {
-            for (String s : moderators) {
-                r.db("data").table("staff").insert(r.hashMap("user_id", s).with("role", "moderator")).run(connection);
-            }
-            for (String s : developers) {
-                r.db("data").table("patrons").insert(r.hashMap("user_id", s).with("tier", "developer")).run(connection);
-            }
-            for (String s : translators) {
-                r.db("data").table("patrons").insert(r.hashMap("user_id", s).with("tier", "translator")).run(connection);
-            }
-        }, 10, TimeUnit.SECONDS);
-
         try {
-            transport = GoogleNetHttpTransport.newTrustedTransport();
-            dataStoreFactory = new FileDataStoreFactory(DATA_STORE_DIR);
-            jsonFactory = JacksonFactory.getDefaultInstance();
-            sheetsApi = getSheetsService();
-            triviaSheet = sheetsApi.spreadsheets().values().get("1qm27kGVQ4BdYjvPSlF0zM64j7nkW4HXzALFNcan4fbs", "A2:C").execute();
+            //transport = GoogleNetHttpTransport.newTrustedTransport();
+            //dataStoreFactory = new FileDataStoreFactory(DATA_STORE_DIR);
+            //jsonFactory = JacksonFactory.getDefaultInstance();
+            //sheetsApi = getSheetsService();
+            //triviaSheet = sheetsApi.spreadsheets().values().get("1qm27kGVQ4BdYjvPSlF0zM64j7nkW4HXzALFNcan4fbs", "A2:C").execute();
 
         }
         catch (Exception e) {
@@ -234,7 +221,8 @@ public class Ardent {
                         .setDataStoreFactory(dataStoreFactory)
                         .build();
         Credential credential = new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver.Builder().setHost("ardentbot.tk").setPort
-                (1337).build()).authorize("user");
+                (1337).build()).authorize("703818195441-no5nh31a0rfcogq8k9ggsvsvkq5ai0ih.apps.googleusercontent.com");
+        //System.out.println(credential.refreshToken());
         return credential;
     }
 
