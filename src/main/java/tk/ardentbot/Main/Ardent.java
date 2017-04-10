@@ -7,6 +7,7 @@ import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInsta
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.DataStoreFactory;
@@ -237,12 +238,11 @@ public class Ardent {
         root.setLevel(Level.OFF);
 
         try {
-            //transport = GoogleNetHttpTransport.newTrustedTransport();
-            //dataStoreFactory = new FileDataStoreFactory(DATA_STORE_DIR);
-            //jsonFactory = JacksonFactory.getDefaultInstance();
-            //sheetsApi = getSheetsService();
-            //triviaSheet = sheetsApi.spreadsheets().values().get("1qm27kGVQ4BdYjvPSlF0zM64j7nkW4HXzALFNcan4fbs", "A2:C").execute();
-
+            transport = GoogleNetHttpTransport.newTrustedTransport();
+            dataStoreFactory = new FileDataStoreFactory(DATA_STORE_DIR);
+            jsonFactory = JacksonFactory.getDefaultInstance();
+            sheetsApi = getSheetsService();
+            triviaSheet = sheetsApi.spreadsheets().values().get("1qm27kGVQ4BdYjvPSlF0zM64j7nkW4HXzALFNcan4fbs", "A2:C").execute();
         }
         catch (Exception e) {
             e.printStackTrace();
