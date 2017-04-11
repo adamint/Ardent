@@ -3,7 +3,6 @@ package tk.ardentbot.Utils.RPGUtils.Profiles;
 import com.rethinkdb.net.Cursor;
 import lombok.Getter;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.Main.Ardent;
 import tk.ardentbot.Rethink.Models.OneTimeBadgeModel;
 import tk.ardentbot.Utils.Discord.UserUtils;
 import tk.ardentbot.Utils.RPGUtils.BadgesList;
@@ -12,9 +11,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static tk.ardentbot.Core.CommandExecution.BaseCommand.asPojo;
 import static tk.ardentbot.Main.Ardent.globalGson;
@@ -22,20 +18,16 @@ import static tk.ardentbot.Rethink.Database.connection;
 import static tk.ardentbot.Rethink.Database.r;
 
 public class Profile {
-    private static CopyOnWriteArrayList<Profile> cachedProfiles = new CopyOnWriteArrayList<>();
-
-    private String user_id;
+    private List<Badge> badges = new ArrayList<>();
     private double money;
     @Getter
     private double stocksOwned;
-    private List<Badge> badges = new ArrayList<>();
+    private String user_id;
 
     private Profile(User user) {
         this.user_id = user.getId();
-        Cursor<HashMap> profiles = r.db("data").table("profiles").filter(row -> row.g("user_id").eq(user_id)).run
-                (connection);
-        if (profiles.hasNext()) {
-            Profile profile = asPojo(profiles.next(), Profile.class);
+        Profile profile = asPojo(r.db("data").table("profiles").get(user.getId()).run(connection), Profile.class);
+        if (profile != null) {
             Cursor<HashMap> rBadges = r.db("data").table("badges").filter(row -> row.g("user_id").eq(user_id))
                     .run(connection);
             rBadges.forEach(b -> badges.add(asPojo(b, Badge.class)));
@@ -45,26 +37,20 @@ public class Profile {
         else {
             this.stocksOwned = 0;
             this.money = 25;
-            r.db("data").table("profiles").insert(r.json(globalGson.toJson(this))).run(connection);
+            r.table("profiles").insert(r.json(globalGson.toJson(this))).run(connection);
         }
-        cachedProfiles.add(this);
-        Ardent.profileUpdateExecutorService.schedule(() -> {
-            r.db("data").table("profiles").filter(row -> row.g("user_id").eq(user_id)).update(r.json(globalGson.toJson(Profile.this)))
-                    .run(connection);
-            cachedProfiles.remove(Profile.this);
-        }, 5, TimeUnit.MINUTES);
     }
 
-    public Profile(String user_id, double money, List<Badge> badges) {
+    public Profile(List<Badge> badges, double money, double stocksOwned, String user_id) {
         this.user_id = user_id;
         this.money = money;
+        this.stocksOwned = stocksOwned;
         this.badges = badges;
     }
 
     public static Profile get(User user) {
-        List<Profile> cached = cachedProfiles.stream().filter(profile -> profile.user_id.equalsIgnoreCase(user.getId())).collect
-                (Collectors.toList());
-        if (cached.size() > 0) return cached.get(0);
+        Profile profile = asPojo(r.db("data").table("profiles").get(user.getId()).run(connection), Profile.class);
+        if (profile != null) return profile;
         else return new Profile(user);
     }
 
@@ -110,10 +96,13 @@ public class Profile {
 
     public void addMoney(double amount) {
         money += amount;
+        System.out.println(user_id);
+        r.table("profiles").get(user_id).update(r.hashMap("money", money)).run(connection);
     }
 
     public void removeMoney(double amount) {
         money -= amount;
+        r.table("profiles").get(user_id).update(r.hashMap("money", money)).run(connection);
     }
 
     public void addStock(double amountToAdd) {

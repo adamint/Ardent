@@ -14,7 +14,7 @@ import java.util.TimerTask;
 import java.util.stream.Collectors;
 
 public class EntityGuild {
-    public static final Timer timer = new Timer();
+    private static final Timer timer = new Timer();
 
     private static ArrayList<EntityGuild> cache = new ArrayList<>();
     private boolean ownerTierThree;
