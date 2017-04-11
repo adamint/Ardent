@@ -33,7 +33,10 @@ public class Trivia extends Command {
             Language language = GuildUtils.getLanguage(guild);
             Shard shard = GuildUtils.getShard(guild);
             currentGame.incrementRounds();
-            if (currentGame.getRound() >= currentGame.getTotalRounds()) return;
+            if (currentGame.getRound() >= currentGame.getTotalRounds()) {
+                currentGame.finish(shard, shard.help);
+                return;
+            }
             if (!gamesInSession.contains(currentGame)) return;
             channel.sendMessage(currentGame.displayScores(shard, shard.help).build()).queue();
             List<List<Object>> values = triviaSheet.getValues();
@@ -114,6 +117,7 @@ public class Trivia extends Command {
                     }
                     else {
                         sendRetrievedTranslation(channel, "trivia", language, "invalidyesorno", user);
+                        gamesSettingUp.remove(guild.getId());
                         return;
                     }
                     TriviaGame currentGame = new TriviaGame(user, solo, (TextChannel) channel, 15);

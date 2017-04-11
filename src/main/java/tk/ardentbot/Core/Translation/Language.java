@@ -72,7 +72,7 @@ public class Language {
             commands.forEach(cm -> {
                 CommandModel commandModel = globalGson.fromJson(JSONObject.toJSONString(cm), CommandModel.class);
                 if (commandTranslations.stream().filter(ct -> ct.getDescription().equals(commandModel.getDescription()) &&
-                        ct.getIdentifier().equals(commandModel.getIdentifier()) && ct.getTranslation().equals(commandModel.getLanguage())
+                        ct.getIdentifier().equals(commandModel.getIdentifier()) && ct.getTranslation().equals(commandModel.getTranslation())
                 ).count() == 0)
                 {
                     commandTranslations.add(new CommandTranslation(commandModel.getIdentifier(), commandModel.getTranslation(), commandModel

@@ -315,7 +315,7 @@ public class Shard {
                 restrictedData.close();
 
                 executorService.scheduleAtFixedRate(() -> {
-                    String game = "https://twitch.tv/ ";
+                    String game = null;
                     switch (gameCounter) {
                         case 0:
                             game = "ardentbot.tk";
@@ -329,7 +329,9 @@ public class Shard {
                         case 3:
                             game = "data | share Ardent w/friends!";
                     }
-                    jda.getPresence().setGame(Game.of(game, Ardent.gameUrl));
+                    if (game != null) {
+                        jda.getPresence().setGame(Game.of(game, "https://twitch.tv/ "));
+                    }
 
                     if (gameCounter == 3) gameCounter = 0;
                     else gameCounter++;

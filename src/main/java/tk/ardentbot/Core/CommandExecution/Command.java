@@ -38,26 +38,93 @@ public abstract class Command extends BaseCommand {
         this.botCommand = this;
     }
 
+    public static void longInteractiveOperation(Language language, MessageChannel channel, Message message, User user, int seconds,
+                                                Consumer<Message> function) {
+        if (channel instanceof TextChannel) {
+            queuedInteractives.put(message.getId(), user.getId());
+            Ardent.globalExecutorService.execute(() -> dispatchInteractiveEvent(message.getCreationTime(), (TextChannel) channel,
+                    message, user, function, language, seconds * 1000));
+        }
+    }
+
+    public static void longInteractiveOperation(Language language, MessageChannel channel, Message message, int seconds,
+                                                Consumer<Message> function) {
+        if (channel instanceof TextChannel) {
+            queuedInteractives.put(message.getId(), message.getAuthor().getId());
+            Ardent.globalExecutorService.execute(() -> dispatchInteractiveEvent(message.getCreationTime(), (TextChannel) channel,
+                    message, function, language, seconds * 1000));
+        }
+    }
+
     public static void interactiveOperation(Language language, MessageChannel channel, Message message, Consumer<Message> function) {
         if (channel instanceof TextChannel) {
             queuedInteractives.put(message.getId(), message.getAuthor().getId());
             Ardent.globalExecutorService.execute(() -> dispatchInteractiveEvent(message.getCreationTime(), (TextChannel) channel,
-                    message, function, language));
+                    message, function, language, 10000));
         }
     }
 
-    private static void dispatchInteractiveEvent(OffsetDateTime creationTime, TextChannel channel, Message message, Consumer<Message>
-            function, Language language) {
-        final int interval = 200;
+    private static void dispatchInteractiveEvent(OffsetDateTime creationTime, TextChannel channel, Message message, User user,
+                                                 Consumer<Message>
+            function, Language language, int time) {
+        final int interval = 50;
 
         final int[] ranFor = {0};
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                if (ranFor[0] >= 10000) {
+                if (ranFor[0] >= time) {
                     try {
-                        GuildUtils.getShard(channel.getGuild()).help.sendRetrievedTranslation(channel, "other", language,
-                                "cancelledinteractiveevent", message.getAuthor());
+                        if (time == 10000) {
+                            GuildUtils.getShard(channel.getGuild()).help.sendRetrievedTranslation(channel, "other", language,
+                                    "cancelledinteractiveevent", message.getAuthor());
+                        }
+                        else {
+                            GuildUtils.getShard(channel.getGuild()).help.sendEditedTranslation("other", language, "cancelledlongint",
+                                    message.getAuthor(), channel, String.valueOf(time / 1000));
+                        }
+                    }
+                    catch (Exception e) {
+                        new BotException(e);
+                    }
+                    this.cancel();
+                    return;
+                }
+                Iterator<Message> iterator = lastMessages.keySet().iterator();
+                while (iterator.hasNext()) {
+                    Message m = iterator.next();
+                    if (m.getCreationTime().isAfter(creationTime)) {
+                        if (m.getAuthor().getId().equalsIgnoreCase(user.getId()) &&
+                                m.getChannel().getId().equalsIgnoreCase(channel.getId()))
+                        {
+                            function.accept(m);
+                            iterator.remove();
+                            this.cancel();
+                        }
+                    }
+                }
+                ranFor[0] += interval;
+            }
+        }, interval, interval);
+    }
+    private static void dispatchInteractiveEvent(OffsetDateTime creationTime, TextChannel channel, Message message, Consumer<Message>
+            function, Language language, int time) {
+        final int interval = 50;
+
+        final int[] ranFor = {0};
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                if (ranFor[0] >= time) {
+                    try {
+                        if (time == 10000) {
+                            GuildUtils.getShard(channel.getGuild()).help.sendRetrievedTranslation(channel, "other", language,
+                                    "cancelledinteractiveevent", message.getAuthor());
+                        }
+                        else {
+                            GuildUtils.getShard(channel.getGuild()).help.sendEditedTranslation("other", language, "cancelledlongint",
+                                    message.getAuthor(), channel, String.valueOf(time / 1000));
+                        }
                     }
                     catch (Exception e) {
                         new BotException(e);
@@ -82,6 +149,7 @@ public abstract class Command extends BaseCommand {
             }
         }, interval, interval);
     }
+
 
     /**
      * Called when a user runs a command with only one argument

@@ -9,7 +9,6 @@ import tk.ardentbot.Main.Ardent;
 
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.List;
 
 import static tk.ardentbot.Main.Ardent.botLogsShard;
 import static tk.ardentbot.Rethink.Database.connection;
@@ -47,9 +46,9 @@ public class UpdatePremiumMembers implements Runnable {
     private boolean checkIfHasPermissions(Member member, String tierName) throws SQLException {
         boolean has = false;
         String id = member.getUser().getId();
-        List<HashMap> set = ((Cursor<HashMap>) r.db("data").table("patrons").filter(row -> row.g("tier").eq(tierName).and(
-                row.g("user_id").eq(id))).run(connection)).toList();
-        if (set.size() > 0) has = true;
+        Cursor<HashMap> set = r.db("data").table("patrons").filter(row -> row.g("tier").eq(tierName).and(
+                row.g("user_id").eq(id))).run(connection);
+        if (set.hasNext()) has = true;
         else {
             r.db("data").table("patrons").filter(row -> row.g("user_id").eq(id)).delete().run(connection);
         }

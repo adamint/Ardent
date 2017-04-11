@@ -60,7 +60,8 @@ public class AddEnglishBase extends Command {
                         String translation = args[3];
                         String lang = "english";
                         String description = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " + args[1] + " " + args[2] + " " + args[3] + " ", "");
-                        r.db("data").table("commands").insert(r.json(globalGson.toJson(new CommandModel(commandID, lang, translation, description))).run(connection));
+                        r.db("data").table("commands").insert(r.json(globalGson.toJson(new CommandModel(commandID, lang, translation,
+                                description)))).run(connection);
                         sendTranslatedMessage("Inserted new command successfully.", channel, user);
                     }
                     else sendTranslatedMessage("/shrug Incorrect arguments", channel, user);

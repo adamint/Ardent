@@ -32,13 +32,13 @@ public class Profile {
 
     private Profile(User user) {
         this.user_id = user.getId();
-        List<HashMap> profileData = ((Cursor<HashMap>) r.db("data").table("profiles").filter(row -> row.g("user_id").eq(user_id)).run
-                (connection)).toList();
-        if (profileData.size() > 0) {
-            Profile profile = asPojo(profileData.get(0), Profile.class);
-            List<HashMap> profileBadges = ((Cursor<HashMap>) r.db("data").table("badges").filter(row -> row.g("user_id").eq(user_id))
-                    .run(connection)).toList();
-            profileBadges.forEach(b -> badges.add(asPojo(b, Badge.class)));
+        Cursor<HashMap> profiles = r.db("data").table("profiles").filter(row -> row.g("user_id").eq(user_id)).run
+                (connection);
+        if (profiles.hasNext()) {
+            Profile profile = asPojo(profiles.next(), Profile.class);
+            Cursor<HashMap> rBadges = r.db("data").table("badges").filter(row -> row.g("user_id").eq(user_id))
+                    .run(connection);
+            rBadges.forEach(b -> badges.add(asPojo(b, Badge.class)));
             this.money = profile.getMoney();
             this.stocksOwned = profile.getStocksOwned();
         }

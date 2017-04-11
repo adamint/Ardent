@@ -55,7 +55,7 @@ public class RPGMoney extends Command {
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws
                     Exception {
                 HashMap<User, Double> moneyAmounts = new HashMap<>();
-                ArrayList<HashMap> top = r.db("data").table("profiles").orderBy(r.desc("money")).limit(15).run(connection);
+                List<HashMap> top = r.db("data").table("profiles").orderBy(r.desc("money")).limit(15).run(connection);
                 top.forEach(hashMap -> {
                     Profile profile = asPojo(hashMap, Profile.class);
                     moneyAmounts.put(profile.getUser(), profile.getMoney());

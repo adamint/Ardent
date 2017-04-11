@@ -109,7 +109,7 @@ public class Automessage extends Command {
                         sendRetrievedTranslation(channel, "automessage", language, "invalidcategorytype", user);
                         return;
                     }
-                    interactiveOperation(language, channel, message, inputMessage -> {
+                    longInteractiveOperation(language, channel, message, 60, inputMessage -> {
                         try {
                             if (type.equals("channel")) {
                                 List<TextChannel> mentionedChannels = inputMessage.getMentionedChannels();
