@@ -3,6 +3,7 @@ package tk.ardentbot.Utils.Discord;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.TextChannel;
 import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Main.Ardent;
@@ -87,6 +88,15 @@ public class GuildUtils {
 
     public static boolean hasManageServerPermission(Member member) {
         return member.hasPermission(Permission.MANAGE_SERVER) || Ardent.developers.contains(member.getUser().getId());
+    }
+
+    public static ArrayList<String> getChannelNames(ArrayList<String> ids, Guild guild) {
+        ArrayList<String> names = new ArrayList<>();
+        ids.forEach(id -> {
+            TextChannel channel = guild.getTextChannelById(id);
+            if (channel != null) names.add(channel.getName());
+        });
+        return names;
     }
 
 }

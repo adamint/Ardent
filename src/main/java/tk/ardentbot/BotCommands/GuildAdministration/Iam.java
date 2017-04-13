@@ -155,7 +155,7 @@ public class Iam extends Command {
                                     List<Role> roleList = guild.getRolesByName(role, true);
                                     if (roleList.size() > 0) {
                                         Role toAdd = roleList.get(0);
-                                        r.db("data").table("autoroles").insert(r.json(globalGson.toJson(new AutoroleModel(guild.getId(),
+                                        r.table("autoroles").insert(r.json(globalGson.toJson(new AutoroleModel(guild.getId(),
                                                 name, toAdd.getId())))).run(connection);
                                         sendTranslatedMessage(getTranslation("iam", language, "addedautorole").getTranslation()
                                                 .replace("{0}", name).replace("{1}", role), channel, user);
@@ -176,11 +176,11 @@ public class Iam extends Command {
 
     private ArrayList<Pair<String, Role>> getAutoRoles(Guild guild) {
         ArrayList<Pair<String, Role>> autoRoles = new ArrayList<>();
-        ((Cursor<HashMap>) r.db("data").table("autoroles").filter(row -> row.g("guild_id").eq(guild.getId())).run(connection)).toList()
-                .forEach(hashMap -> {
-                    AutoroleModel autoroleModel = asPojo(hashMap, AutoroleModel.class);
-                    autoRoles.add(new Pair<>(autoroleModel.getName(), guild.getRoleById(autoroleModel.getRole_id())));
-                });
+        Cursor<HashMap> cursor = r.table("autoroles").filter(r.hashMap("guild_id", guild.getId())).run(connection);
+        cursor.forEach(hashMap -> {
+            AutoroleModel autoroleModel = asPojo(hashMap, AutoroleModel.class);
+            autoRoles.add(new Pair<>(autoroleModel.getName(), guild.getRoleById(autoroleModel.getRole_id())));
+        });
         return autoRoles;
     }
 }

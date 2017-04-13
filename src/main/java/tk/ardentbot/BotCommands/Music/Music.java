@@ -714,6 +714,7 @@ public class Music extends Command {
                         GuildMusicManager manager = getGuildAudioPlayer(guild, channel);
                         if (manager.player.getPlayingTrack() != null) manager.player.stopTrack();
                         manager.scheduler.manager.resetQueue();
+                        getShard().musicManagers.remove(Long.parseLong(guild.getId()));
                         sendRetrievedTranslation(sendTo(channel, guild), "music", language, "stoppedandcleared", user);
                     }
                     else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel", user);
