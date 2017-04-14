@@ -23,7 +23,7 @@ public class Marry extends Command {
         super(commandSettings);
     }
 
-    private static Marriage getMarriage(User user) {
+    static Marriage getMarriage(User user) {
         Cursor<HashMap> marriagesForUser = r.db("data").table("marriages").filter(row -> row.g("user_one").eq(user.getId()).or(row.g
                 ("user_two").eq(user.getId()))).run(connection);
         if (marriagesForUser.hasNext()) return asPojo(marriagesForUser.next(), Marriage.class);
@@ -65,7 +65,7 @@ public class Marry extends Command {
                 return;
             }
             sendEditedTranslation("marry", language, "requesttomarry", user, channel, toMarryTo.getAsMention(), user.getName());
-            longInteractiveOperation(language, channel, message, toMarryTo, 30, replyMessage -> {
+            longInteractiveOperation(language, channel, message, toMarryTo, 90, replyMessage -> {
                 String reply = replyMessage.getContent();
                 if (reply.equalsIgnoreCase("yes")) {
                     sendRetrievedTranslation(channel, "marry", language, "nowmarried", user);

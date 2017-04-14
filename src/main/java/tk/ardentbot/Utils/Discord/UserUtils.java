@@ -103,4 +103,10 @@ public class UserUtils {
         Profile.get(user).addMoney(finalAmount);
     }
 
+    public static String getNameWithDiscriminator(String id) {
+        User user = getUserById(id);
+        if (user == null) return null;
+        return user.getName() + "#" + user.getDiscriminator();
+    }
+
 }
