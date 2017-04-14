@@ -19,7 +19,8 @@ public class HelpMe extends Command {
         interactiveOperation(language, channel, message, categoryMessage -> {
             String category = categoryMessage.getContent();
             if (category.equalsIgnoreCase("music")) {
-                sendTranslatedMessage("First, make sure Ardent has permission to connect to that voice channel and speak. If that doesn't" +
+                sendTranslatedMessage("First, reconnect to the channel! It could just be Discord messing up. If not, make sure Ardent has" +
+                        " permission to connect to that voice channel and speak. If that doesn't" +
                         " work, type /music leave, which will reset the player. If it continues to have issues, go to our guild here: " +
                         "https://discordapp.com/invite/rfGSxNA and explain your issue **in detail**", channel, user);
             }

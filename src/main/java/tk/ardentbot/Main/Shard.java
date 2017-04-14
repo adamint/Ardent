@@ -34,6 +34,7 @@ import tk.ardentbot.BotCommands.Music.GuildMusicManager;
 import tk.ardentbot.BotCommands.Music.Music;
 import tk.ardentbot.BotCommands.Music.Play;
 import tk.ardentbot.BotCommands.NSFW.Asses;
+import tk.ardentbot.BotCommands.NSFW.Feet;
 import tk.ardentbot.BotCommands.NSFW.NSFW;
 import tk.ardentbot.BotCommands.NSFW.Tits;
 import tk.ardentbot.BotCommands.RPG.*;
@@ -275,12 +276,14 @@ public class Shard {
                 factory.registerCommand(new Bet(new BaseCommand.CommandSettings("bet", false, true, Category.RPG)));
                 factory.registerCommand(new Trivia(new BaseCommand.CommandSettings("trivia", false, true, Category.RPG)));
                 factory.registerCommand(new Badges(new BaseCommand.CommandSettings("badges", false, true, Category.RPG)));
+                factory.registerCommand(new Marry(new BaseCommand.CommandSettings("marry", false, true, Category.RPG)));
                 factory.registerCommand(new UserProfile(new BaseCommand.CommandSettings("profile", true, true, Category
                         .RPG)));
 
                 factory.registerCommand(new NSFW(new BaseCommand.CommandSettings("nsfw", false, true, Category.NSFW)));
                 factory.registerCommand(new Asses(new BaseCommand.CommandSettings("ass", false, true, Category.NSFW)));
                 factory.registerCommand(new Tits(new BaseCommand.CommandSettings("tits", false, true, Category.NSFW)));
+                factory.registerCommand(new Feet(new BaseCommand.CommandSettings("feet", false, true, Category.NSFW)));
 
                 cleverBot = new ChatterBotFactory().create(ChatterBotType.PANDORABOTS, "f5d922d97e345aa1");
 

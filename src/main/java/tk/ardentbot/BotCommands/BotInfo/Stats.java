@@ -11,11 +11,14 @@ import tk.ardentbot.Core.CommandExecution.Subcommand;
 import tk.ardentbot.Core.Events.Join;
 import tk.ardentbot.Core.Events.Leave;
 import tk.ardentbot.Core.Translation.Language;
+import tk.ardentbot.Main.Shard;
+import tk.ardentbot.Main.ShardManager;
 import tk.ardentbot.Utils.Discord.MessageUtils;
 import tk.ardentbot.Utils.MapUtils;
 
 import java.awt.*;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.Map;
 
 public class Stats extends Command {
@@ -58,6 +61,21 @@ public class Stats extends Command {
         return layout.toString();
     }
 
+    private static Map getCommandData(Shard[] shards) {
+        HashMap<String, Long> finalized = new HashMap<>();
+        for (Shard shard : shards) {
+            HashMap<String, Long> localCmdUsage = shard.factory.getCommandUsages();
+            localCmdUsage.forEach((key, value) -> {
+                if (finalized.containsKey(key)) {
+                    long old = finalized.get(key);
+                    finalized.replace(key, old, (old + value));
+                }
+                else finalized.put(key, value);
+            });
+        }
+        return MapUtils.sortByValue(finalized);
+    }
+
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
             language) throws Exception {
@@ -72,7 +90,8 @@ public class Stats extends Command {
                                Language language) throws Exception {
                 StringBuilder commandBars = new StringBuilder();
 
-                Map<String, Long> commandsUsed = MapUtils.sortByValue(getShard().factory.getCommandUsages());
+                Map<String, Long> commandsUsed = getCommandData(ShardManager.getShards());
+
                 final int[] counter = {0};
                 final int[] totalCommandsReceived = {0};
                 commandsUsed.forEach((key, value) -> {

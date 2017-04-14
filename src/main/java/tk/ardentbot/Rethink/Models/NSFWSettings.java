@@ -17,7 +17,7 @@ public class NSFWSettings {
     public NSFWSettings(String guild_id) {
         this.guild_id = guild_id;
         this.nsfwChannels = new ArrayList<>();
-        this.global = true;
+        this.global = false;
         this.needNsfwRole = false;
     }
 }

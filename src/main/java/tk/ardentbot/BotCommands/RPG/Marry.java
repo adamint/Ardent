@@ -23,7 +23,7 @@ public class Marry extends Command {
         super(commandSettings);
     }
 
-    public static Marriage getMarriage(User user) {
+    private static Marriage getMarriage(User user) {
         Cursor<HashMap> marriagesForUser = r.db("data").table("marriages").filter(row -> row.g("user_one").eq(user.getId()).or(row.g
                 ("user_two").eq(user.getId()))).run(connection);
         if (marriagesForUser.hasNext()) return asPojo(marriagesForUser.next(), Marriage.class);
@@ -34,9 +34,9 @@ public class Marry extends Command {
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
         if (args.length == 1) {
             Marriage marriage = getMarriage(user);
-            if (marriage == null) sendRetrievedTranslation(channel, "marriage", language, "notmarried", user);
+            if (marriage == null) sendRetrievedTranslation(channel, "marry", language, "notmarried", user);
             else {
-                sendEditedTranslation("marriage", language, "marriedto", user, channel, UserUtils.getUserById(marriage.getUser_one())
+                sendEditedTranslation("marry", language, "marriedto", user, channel, UserUtils.getUserById(marriage.getUser_one())
                         .getName(), UserUtils.getUserById(marriage.getUser_two()).getName());
             }
         }
@@ -60,6 +60,10 @@ public class Marry extends Command {
                 sendEditedTranslation("marry", language, "thatpersonalreadymarried", user, channel, toMarryTo.getName());
                 return;
             }
+            if (toMarryTo.getId().equals(user.getId())) {
+                sendRetrievedTranslation(channel, "marry", language, "cantmarryyourself", user);
+                return;
+            }
             sendEditedTranslation("marry", language, "requesttomarry", user, channel, toMarryTo.getAsMention(), user.getName());
             longInteractiveOperation(language, channel, message, toMarryTo, 30, replyMessage -> {
                 String reply = replyMessage.getContent();
@@ -70,7 +74,7 @@ public class Marry extends Command {
                 }
                 else if (reply.equalsIgnoreCase("no")) {
                     try {
-                        sendEditedTranslation("marry", language, "holyfuckrejected", user, channel, user.getName(), toMarryTo.getName());
+                        sendEditedTranslation("marry", language, "rejected", user, channel, user.getName(), toMarryTo.getName());
                     }
                     catch (Exception e) {
                         new BotException(e);

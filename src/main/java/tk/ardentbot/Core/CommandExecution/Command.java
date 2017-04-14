@@ -43,7 +43,7 @@ public abstract class Command extends BaseCommand {
         if (channel instanceof TextChannel) {
             queuedInteractives.put(message.getId(), user.getId());
             Ardent.globalExecutorService.execute(() -> dispatchInteractiveEvent(message.getCreationTime(), (TextChannel) channel,
-                    message, user, function, language, seconds * 1000));
+                    message, user, function, language, seconds * 1000, false));
         }
     }
 
@@ -52,7 +52,7 @@ public abstract class Command extends BaseCommand {
         if (channel instanceof TextChannel) {
             queuedInteractives.put(message.getId(), message.getAuthor().getId());
             Ardent.globalExecutorService.execute(() -> dispatchInteractiveEvent(message.getCreationTime(), (TextChannel) channel,
-                    message, function, language, seconds * 1000));
+                    message, function, language, seconds * 1000, true));
         }
     }
 
@@ -60,13 +60,13 @@ public abstract class Command extends BaseCommand {
         if (channel instanceof TextChannel) {
             queuedInteractives.put(message.getId(), message.getAuthor().getId());
             Ardent.globalExecutorService.execute(() -> dispatchInteractiveEvent(message.getCreationTime(), (TextChannel) channel,
-                    message, function, language, 10000));
+                    message, function, language, 10000, true));
         }
     }
 
     private static void dispatchInteractiveEvent(OffsetDateTime creationTime, TextChannel channel, Message message, User user,
                                                  Consumer<Message>
-            function, Language language, int time) {
+                                                         function, Language language, int time, boolean sendMessage) {
         final int interval = 50;
 
         final int[] ranFor = {0};
@@ -75,13 +75,15 @@ public abstract class Command extends BaseCommand {
             public void run() {
                 if (ranFor[0] >= time) {
                     try {
-                        if (time == 10000) {
-                            GuildUtils.getShard(channel.getGuild()).help.sendRetrievedTranslation(channel, "other", language,
-                                    "cancelledinteractiveevent", message.getAuthor());
-                        }
-                        else {
-                            GuildUtils.getShard(channel.getGuild()).help.sendEditedTranslation("other", language, "cancelledlongint",
-                                    message.getAuthor(), channel, String.valueOf(time / 1000));
+                        if (sendMessage) {
+                            if (time == 10000) {
+                                GuildUtils.getShard(channel.getGuild()).help.sendRetrievedTranslation(channel, "other", language,
+                                        "cancelledinteractiveevent", message.getAuthor());
+                            }
+                            else {
+                                GuildUtils.getShard(channel.getGuild()).help.sendEditedTranslation("other", language, "cancelledlongint",
+                                        message.getAuthor(), channel, String.valueOf(time / 1000));
+                            }
                         }
                     }
                     catch (Exception e) {
@@ -107,8 +109,9 @@ public abstract class Command extends BaseCommand {
             }
         }, interval, interval);
     }
+
     private static void dispatchInteractiveEvent(OffsetDateTime creationTime, TextChannel channel, Message message, Consumer<Message>
-            function, Language language, int time) {
+            function, Language language, int time, boolean sendMessage) {
         final int interval = 50;
 
         final int[] ranFor = {0};
@@ -117,13 +120,15 @@ public abstract class Command extends BaseCommand {
             public void run() {
                 if (ranFor[0] >= time) {
                     try {
-                        if (time == 10000) {
-                            GuildUtils.getShard(channel.getGuild()).help.sendRetrievedTranslation(channel, "other", language,
-                                    "cancelledinteractiveevent", message.getAuthor());
-                        }
-                        else {
-                            GuildUtils.getShard(channel.getGuild()).help.sendEditedTranslation("other", language, "cancelledlongint",
-                                    message.getAuthor(), channel, String.valueOf(time / 1000));
+                        if (sendMessage) {
+                            if (time == 10000) {
+                                GuildUtils.getShard(channel.getGuild()).help.sendRetrievedTranslation(channel, "other", language,
+                                        "cancelledinteractiveevent", message.getAuthor());
+                            }
+                            else {
+                                GuildUtils.getShard(channel.getGuild()).help.sendEditedTranslation("other", language, "cancelledlongint",
+                                        message.getAuthor(), channel, String.valueOf(time / 1000));
+                            }
                         }
                     }
                     catch (Exception e) {
