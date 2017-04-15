@@ -1,6 +1,7 @@
 package tk.ardentbot.Core.CommandExecution;
 
 import com.rethinkdb.net.Cursor;
+import com.vdurmont.emoji.EmojiParser;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -49,6 +50,16 @@ public abstract class BaseCommand {
     public static <T> T asPojo(HashMap map, Class<T> tClass) {
         return globalGson.fromJson(JSONObject.toJSONString(map), tClass);
     }
+
+    public static <T> ArrayList<T> queryToArraylist(Class<T> t, Object o) {
+        Cursor<HashMap> cursor = (Cursor<HashMap>) o;
+        ArrayList<T> tS = new ArrayList<T>();
+        cursor.forEach(hashMap -> {
+            tS.add(asPojo(hashMap, t));
+        });
+        return tS;
+    }
+
 
     /**
      * Handles messages longer than 2000 characters
@@ -103,9 +114,13 @@ public abstract class BaseCommand {
         else new BotException("There wasn't a translation for " + translationId + " in " + translationCategory);
     }
 
-    public void sendEmbed(EmbedBuilder embedBuilder, MessageChannel channel, User user) {
+    public void sendEmbed(EmbedBuilder embedBuilder, MessageChannel channel, User user, String... reactions) {
         try {
-            channel.sendMessage(embedBuilder.build()).queue();
+            channel.sendMessage(embedBuilder.build()).queue(message -> {
+                for (String reaction : reactions) {
+                    message.addReaction(EmojiParser.parseToUnicode(reaction)).queue();
+                }
+            });
         }
         catch (PermissionException ex) {
             sendFailed(user, true);

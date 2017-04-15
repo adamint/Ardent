@@ -13,17 +13,16 @@ import tk.ardentbot.Utils.Models.TriviaQuestion;
 import tk.ardentbot.Utils.RPGUtils.TriviaGame;
 
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import static tk.ardentbot.Main.Ardent.triviaSheet;
-
 public class Trivia extends Command {
     public static final CopyOnWriteArrayList<TriviaGame> gamesInSession = new CopyOnWriteArrayList<>();
     public static final CopyOnWriteArrayList<String> gamesSettingUp = new CopyOnWriteArrayList<>();
+    public static ArrayList<TriviaQuestion> triviaQuestions = new ArrayList<>();
     public Trivia(CommandSettings commandSettings) {
         super(commandSettings);
     }
@@ -39,17 +38,7 @@ public class Trivia extends Command {
             }
             if (!gamesInSession.contains(currentGame)) return;
             channel.sendMessage(currentGame.displayScores(shard, shard.help).build()).queue();
-            List<List<Object>> values = triviaSheet.getValues();
-            List<Object> row = values.get(new SecureRandom().nextInt(values.size()));
-            String category = (String) row.get(0);
-            String q = (String) row.get(1);
-            String answerUnparsed = (String) row.get(2);
-            TriviaQuestion triviaQuestion = new TriviaQuestion();
-            triviaQuestion.setQuestion(q);
-            triviaQuestion.setCategory(category);
-            for (String answer : answerUnparsed.split("~")) {
-                triviaQuestion.withAnswer(answer);
-            }
+            TriviaQuestion triviaQuestion = triviaQuestions.get(new SecureRandom().nextInt(triviaQuestions.size()));
             currentGame.setCurrentTriviaQuestion(triviaQuestion);
             HashMap<Integer, TranslationResponse> translations = shard.help.getTranslations(language, new Translation
                     ("trivia", "trueorfalse"), new Translation("trivia", "multiplechoice"), new Translation("trivia",

@@ -25,10 +25,12 @@ import org.slf4j.LoggerFactory;
 import tk.ardentbot.BotCommands.Fun.GIF;
 import tk.ardentbot.BotCommands.Music.Music;
 import tk.ardentbot.BotCommands.Music.StuckVoiceConnection;
+import tk.ardentbot.BotCommands.RPG.Trivia;
 import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
 import tk.ardentbot.Core.Misc.WebServer.SparkServer;
 import tk.ardentbot.Core.Translation.LangFactory;
 import tk.ardentbot.Rethink.Database;
+import tk.ardentbot.Utils.Models.TriviaQuestion;
 import tk.ardentbot.Utils.Premium.CheckIfPremiumGuild;
 import tk.ardentbot.Utils.Premium.UpdatePremiumMembers;
 import tk.ardentbot.Utils.Searching.GoogleSearch;
@@ -243,6 +245,19 @@ public class Ardent {
             jsonFactory = JacksonFactory.getDefaultInstance();
             sheetsApi = getSheetsService();
             triviaSheet = sheetsApi.spreadsheets().values().get("1qm27kGVQ4BdYjvPSlF0zM64j7nkW4HXzALFNcan4fbs", "A2:C").execute();
+            List<List<Object>> values = triviaSheet.getValues();
+            values.forEach(row -> {
+                String category = (String) row.get(0);
+                String q = (String) row.get(1);
+                String answerUnparsed = (String) row.get(2);
+                TriviaQuestion triviaQuestion = new TriviaQuestion();
+                triviaQuestion.setQuestion(q);
+                triviaQuestion.setCategory(category);
+                for (String answer : answerUnparsed.split("~")) {
+                    triviaQuestion.withAnswer(answer);
+                }
+                Trivia.triviaQuestions.add(triviaQuestion);
+            });
         }
         catch (Exception e) {
             e.printStackTrace();

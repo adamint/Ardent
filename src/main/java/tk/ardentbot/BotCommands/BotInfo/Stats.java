@@ -13,6 +13,7 @@ import tk.ardentbot.Core.Events.Leave;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Main.Shard;
 import tk.ardentbot.Main.ShardManager;
+import tk.ardentbot.Utils.Discord.InternalStats;
 import tk.ardentbot.Utils.Discord.MessageUtils;
 import tk.ardentbot.Utils.MapUtils;
 
@@ -149,7 +150,7 @@ public class Stats extends Command {
                 builder.addField("Hourly", generateGuild(jPH, lPH), false);
                 builder.addField("Daily", generateGuild(jPD, lPD), false);
                 builder.addField("This Session", generateGuild(jPS, lPS), false);
-                builder.addField("Guilds", String.valueOf(getShard().jda.getGuilds().size()), false);
+                builder.addField("Guilds", String.valueOf(InternalStats.collect().getGuilds()), false);
                 sendEmbed(builder, channel, user);
             }
         });

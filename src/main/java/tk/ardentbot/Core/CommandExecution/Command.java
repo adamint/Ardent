@@ -2,6 +2,8 @@ package tk.ardentbot.Core.CommandExecution;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
+import tk.ardentbot.Core.Events.ReactionEvent;
 import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
 import tk.ardentbot.Core.Models.SubcommandTranslation;
 import tk.ardentbot.Core.Translation.LangFactory;
@@ -36,6 +38,37 @@ public abstract class Command extends BaseCommand {
         this.guildUsage = commandSettings.isGuildUsage();
         this.category = commandSettings.getCategory();
         this.botCommand = this;
+    }
+
+    public static void interactiveReaction(Language language, MessageChannel channel, Message message, User user, int seconds,
+                                           Consumer<MessageReaction> function) {
+        final int interval = 50;
+        final int[] ranFor = {0};
+        if (channel instanceof TextChannel) {
+            timer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    if (ranFor[0] > 10000) {
+                        GuildUtils.getShard(((TextChannel) channel).getGuild()).help.sendRetrievedTranslation(channel, "other", language,
+                                "cancelledreactionevent", message.getAuthor());
+                        this.cancel();
+                    }
+                    else {
+                        for (Map.Entry<String, MessageReactionAddEvent> current : ReactionEvent.reactionEvents.entrySet()) {
+                            String channelId = current.getKey();
+                            MessageReactionAddEvent event = current.getValue();
+                            if (channelId.equals(channel.getId())) {
+                                if (event.getMessageId().equals(message.getId()) && event.getUser().getId().equals(user.getId())) {
+                                    function.accept(event.getReaction());
+                                    this.cancel();
+                                }
+                            }
+
+                        }
+                    }
+                }
+            }, interval, interval);
+        }
     }
 
     public static void longInteractiveOperation(Language language, MessageChannel channel, Message message, User user, int seconds,

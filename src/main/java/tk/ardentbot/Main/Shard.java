@@ -278,6 +278,7 @@ public class Shard {
                 factory.registerCommand(new Badges(new BaseCommand.CommandSettings("badges", false, true, Category.RPG)));
                 factory.registerCommand(new Marry(new BaseCommand.CommandSettings("marry", false, true, Category.RPG)));
                 factory.registerCommand(new Divorce(new BaseCommand.CommandSettings("divorce", false, true, Category.RPG)));
+                factory.registerCommand(new Tinder(new BaseCommand.CommandSettings("tinder", false, true, Category.RPG)));
                 factory.registerCommand(new UserProfile(new BaseCommand.CommandSettings("profile", true, true, Category
                         .RPG)));
 
