@@ -43,14 +43,6 @@ public class Help extends Command {
         HashMap<Integer, TranslationResponse> responses = getTranslations(language, translations);
 
         StringBuilder description = new StringBuilder();
-        description.append("**" + responses.get(0).getTranslation() + "**");
-        description.append("\n > " + getShard().patreon.getName(language) + ": *" + getShard().patreon.getDescription
-                (language) + "*");
-        description.append("\n > " + getShard().translateForArdent.getName(language) + ": *" + getShard()
-                .translateForArdent.getDescription(language) + "*");
-        description.append("\n > " + getShard().request.getName(language) + ": *" + getShard()
-                .request.getDescription(language) + "*\n\n");
-
         for (Category category : Category.values()) {
             description.append("**" + WordUtils.capitalize(category.name().toLowerCase()) + "**\n");
             ArrayList<BaseCommand> commandsInCategory = getCommandsInCategory(category);

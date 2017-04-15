@@ -68,6 +68,11 @@ public class Marry extends Command {
             longInteractiveOperation(language, channel, message, toMarryTo, 90, replyMessage -> {
                 String reply = replyMessage.getContent();
                 if (reply.equalsIgnoreCase("yes")) {
+                    Marriage m = getMarriage(toMarryTo);
+                    if (m != null) {
+                        sendRetrievedTranslation(channel, "marry", language, "nopolygamy", user);
+                        return;
+                    }
                     sendRetrievedTranslation(channel, "marry", language, "nowmarried", user);
                     r.db("data").table("marriages").insert(r.json(globalGson.toJson(new Marriage(user.getId(), toMarryTo.getId())))).run
                             (connection);
