@@ -15,15 +15,19 @@ import tk.ardentbot.Utils.Discord.MessageUtils;
 
 import java.awt.*;
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import static tk.ardentbot.Core.Events.InteractiveOnMessage.lastMessages;
 import static tk.ardentbot.Core.Events.InteractiveOnMessage.queuedInteractives;
 
 public abstract class Command extends BaseCommand {
-    private static Timer timer = new Timer();
     public int usages = 0;
     public ArrayList<Subcommand> subcommands = new ArrayList<>();
 
@@ -42,34 +46,30 @@ public abstract class Command extends BaseCommand {
 
     public static void interactiveReaction(Language language, MessageChannel channel, Message message, User user, int seconds,
                                            Consumer<MessageReaction> function) {
+        ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
         final int interval = 50;
         final int[] ranFor = {0};
-        if (channel instanceof TextChannel) {
-            timer.scheduleAtFixedRate(new TimerTask() {
-                @Override
-                public void run() {
-                    if (ranFor[0] > 10000) {
-                        GuildUtils.getShard(((TextChannel) channel).getGuild()).help.sendRetrievedTranslation(channel, "other", language,
-                                "cancelledreactionevent", message.getAuthor());
-                        this.cancel();
-                    }
-                    else {
-                        ranFor[0] += interval;
-                        for (Map.Entry<String, MessageReactionAddEvent> current : ReactionEvent.reactionEvents.entrySet()) {
-                            String channelId = current.getKey();
-                            MessageReactionAddEvent event = current.getValue();
-                            if (channelId.equals(channel.getId())) {
-                                if (event.getMessageId().equals(message.getId()) && event.getUser().getId().equals(user.getId())) {
-                                    function.accept(event.getReaction());
-                                    this.cancel();
-                                }
-                            }
-
+        ex.scheduleAtFixedRate(() -> {
+            if (ranFor[0] > 10000) {
+                GuildUtils.getShard(((TextChannel) channel).getGuild()).help.sendRetrievedTranslation(channel, "other", language,
+                        "cancelledreactionevent", message.getAuthor());
+                ex.shutdown();
+            }
+            else {
+                ranFor[0] += interval;
+                for (Map.Entry<String, MessageReactionAddEvent> current : ReactionEvent.reactionEvents.entrySet()) {
+                    String channelId = current.getKey();
+                    MessageReactionAddEvent event = current.getValue();
+                    if (channelId.equals(channel.getId())) {
+                        if (event.getMessageId().equals(message.getId()) && event.getUser().getId().equals(user.getId())) {
+                            function.accept(event.getReaction());
+                            ex.shutdown();
                         }
                     }
+
                 }
-            }, interval, interval);
-        }
+            }
+        }, interval, interval, TimeUnit.MILLISECONDS);
     }
 
     public static void longInteractiveOperation(Language language, MessageChannel channel, Message message, User user, int seconds,
@@ -99,94 +99,87 @@ public abstract class Command extends BaseCommand {
     }
 
     private static void dispatchInteractiveEvent(OffsetDateTime creationTime, TextChannel channel, Message message, User user,
-                                                 Consumer<Message>
-                                                         function, Language language, int time, boolean sendMessage) {
+                                                 Consumer<Message> function, Language language, int time, boolean sendMessage) {
+        ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
         final int interval = 50;
-
         final int[] ranFor = {0};
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                if (ranFor[0] >= time) {
-                    try {
-                        if (sendMessage) {
-                            if (time == 10000) {
-                                GuildUtils.getShard(channel.getGuild()).help.sendRetrievedTranslation(channel, "other", language,
-                                        "cancelledinteractiveevent", message.getAuthor());
-                            }
-                            else {
-                                GuildUtils.getShard(channel.getGuild()).help.sendEditedTranslation("other", language, "cancelledlongint",
-                                        message.getAuthor(), channel, String.valueOf(time / 1000));
-                            }
+        ex.scheduleAtFixedRate(() -> {
+            if (ranFor[0] >= time) {
+                try {
+                    if (sendMessage) {
+                        if (time == 10000) {
+                            GuildUtils.getShard(channel.getGuild()).help.sendRetrievedTranslation(channel, "other", language,
+                                    "cancelledinteractiveevent", message.getAuthor());
                         }
-                    }
-                    catch (Exception e) {
-                        new BotException(e);
-                    }
-                    this.cancel();
-                    return;
-                }
-                Iterator<Message> iterator = lastMessages.keySet().iterator();
-                while (iterator.hasNext()) {
-                    Message m = iterator.next();
-                    if (m.getCreationTime().isAfter(creationTime)) {
-                        if (m.getAuthor().getId().equalsIgnoreCase(user.getId()) &&
-                                m.getChannel().getId().equalsIgnoreCase(channel.getId()))
-                        {
-                            function.accept(m);
-                            iterator.remove();
-                            this.cancel();
+                        else {
+                            GuildUtils.getShard(channel.getGuild()).help.sendEditedTranslation("other", language, "cancelledlongint",
+                                    message.getAuthor(), channel, String.valueOf(time / 1000));
                         }
                     }
                 }
-                ranFor[0] += interval;
+                catch (Exception e) {
+                    new BotException(e);
+                }
+                ex.shutdown();
+                return;
             }
-        }, interval, interval);
+            Iterator<Message> iterator = lastMessages.keySet().iterator();
+            while (iterator.hasNext()) {
+                Message m = iterator.next();
+                if (m.getCreationTime().isAfter(creationTime)) {
+                    if (m.getAuthor().getId().equalsIgnoreCase(user.getId()) &&
+                            m.getChannel().getId().equalsIgnoreCase(channel.getId()))
+                    {
+                        function.accept(m);
+                        iterator.remove();
+                        ex.shutdown();
+                    }
+                }
+            }
+            ranFor[0] += interval;
+        }, interval, interval, TimeUnit.MILLISECONDS);
     }
 
     private static void dispatchInteractiveEvent(OffsetDateTime creationTime, TextChannel channel, Message message, Consumer<Message>
             function, Language language, int time, boolean sendMessage) {
+        ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
         final int interval = 50;
-
         final int[] ranFor = {0};
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                if (ranFor[0] >= time) {
-                    try {
-                        if (sendMessage) {
-                            if (time == 10000) {
-                                GuildUtils.getShard(channel.getGuild()).help.sendRetrievedTranslation(channel, "other", language,
-                                        "cancelledinteractiveevent", message.getAuthor());
-                            }
-                            else {
-                                GuildUtils.getShard(channel.getGuild()).help.sendEditedTranslation("other", language, "cancelledlongint",
-                                        message.getAuthor(), channel, String.valueOf(time / 1000));
-                            }
+        ex.scheduleAtFixedRate(() -> {
+            if (ranFor[0] >= time) {
+                try {
+                    if (sendMessage) {
+                        if (time == 10000) {
+                            GuildUtils.getShard(channel.getGuild()).help.sendRetrievedTranslation(channel, "other", language,
+                                    "cancelledinteractiveevent", message.getAuthor());
                         }
-                    }
-                    catch (Exception e) {
-                        new BotException(e);
-                    }
-                    this.cancel();
-                    return;
-                }
-                Iterator<Message> iterator = lastMessages.keySet().iterator();
-                while (iterator.hasNext()) {
-                    Message m = iterator.next();
-                    if (m.getCreationTime().isAfter(creationTime)) {
-                        if (m.getAuthor().getId().equalsIgnoreCase(message.getAuthor().getId()) &&
-                                m.getChannel().getId().equalsIgnoreCase(channel.getId()))
-                        {
-                            function.accept(m);
-                            iterator.remove();
-                            this.cancel();
+                        else {
+                            GuildUtils.getShard(channel.getGuild()).help.sendEditedTranslation("other", language, "cancelledlongint",
+                                    message.getAuthor(), channel, String.valueOf(time / 1000));
                         }
                     }
                 }
-                ranFor[0] += interval;
+                catch (Exception e) {
+                    new BotException(e);
+                }
+                ex.shutdown();
+                return;
             }
-        }, interval, interval);
+            Iterator<Message> iterator = lastMessages.keySet().iterator();
+            while (iterator.hasNext()) {
+                Message m = iterator.next();
+                if (m.getCreationTime().isAfter(creationTime)) {
+                    if (m.getAuthor().getId().equalsIgnoreCase(message.getAuthor().getId()) &&
+                            m.getChannel().getId().equalsIgnoreCase(channel.getId()))
+                    {
+                        function.accept(m);
+                        iterator.remove();
+                        ex.shutdown();
+                    }
+                }
+            }
+            ranFor[0] += interval;
+        }, interval, interval, TimeUnit.MILLISECONDS);
     }
 
 

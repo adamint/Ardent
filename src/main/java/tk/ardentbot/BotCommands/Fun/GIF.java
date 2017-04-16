@@ -11,14 +11,14 @@ import tk.ardentbot.Core.Translation.Language;
 
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
+
+import static tk.ardentbot.Main.Ardent.globalExecutorService;
 
 
 public class GIF extends Command {
     public static Giphy giphy = new Giphy("dc6zaTOxFJmzC");
     public static ArrayList<String> categories = new ArrayList<>();
-    static Timer timer = new Timer();
     ArrayList<User> cooldown = new ArrayList<>();
 
     public GIF(CommandSettings commandSettings) {
@@ -55,13 +55,7 @@ public class GIF extends Command {
             }
         }
         cooldown.add(author);
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                cooldown.remove(author);
-            }
-        }, 4000);
-
+        globalExecutorService.schedule(() -> cooldown.remove(author), 4, TimeUnit.SECONDS);
     }
 
     @Override

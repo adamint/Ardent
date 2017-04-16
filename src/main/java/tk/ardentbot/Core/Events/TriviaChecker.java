@@ -35,7 +35,7 @@ class TriviaChecker {
                                         user.getName());
                                 if (triviaGame.getRound() != triviaGame.getTotalRounds()) {
                                     Trivia.dispatchRound(guild, channel, guild.getMemberById(triviaGame.getCreator()).getUser(), triviaGame,
-                                            triviaGame.getTimer());
+                                            triviaGame.getEx());
                                 }
                                 else triviaGame.finish(shard, shard.help);
                             }

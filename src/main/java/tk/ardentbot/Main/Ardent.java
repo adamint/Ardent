@@ -78,7 +78,7 @@ public class Ardent {
     public static ScheduledExecutorService globalExecutorService = Executors.newScheduledThreadPool(20);
     public static Shard shard0;
     public static Shard botLogsShard;
-    public static int shardCount = 2;
+    public static int shardCount = 4;
     public static ConcurrentHashMap<String, ChatterBotSession> cleverbots = new ConcurrentHashMap<>();
     public static String announcement;
     public static ConcurrentHashMap<String, Boolean> sentAnnouncement = new ConcurrentHashMap<>();

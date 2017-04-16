@@ -21,7 +21,7 @@ import tk.ardentbot.Utils.RPGUtils.Profiles.Profile;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Timer;
+import java.util.concurrent.ScheduledExecutorService;
 
 public class TriviaGame {
     @Getter
@@ -44,7 +44,7 @@ public class TriviaGame {
     private boolean answeredCurrentQuestion = false;
     @Getter
     @Setter
-    private Timer timer;
+    private ScheduledExecutorService ex;
 
     private HashMap<String, Integer> scores = new HashMap<>();
 

@@ -7,10 +7,10 @@ import tk.ardentbot.Utils.Discord.GuildUtils;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 import static tk.ardentbot.Main.Ardent.botLogsShard;
+import static tk.ardentbot.Main.Ardent.globalExecutorService;
 
 public class Request extends Command {
     private static ArrayList<RequestUtil> usersUnableToRequest = new ArrayList<>();
@@ -63,19 +63,14 @@ public class Request extends Command {
     }
 
     private class RequestUtil {
-        Timer timer = new Timer();
         private Instant ableToRequest;
         private String id;
 
         RequestUtil(Instant requestedAt, User user) {
             this.ableToRequest = requestedAt.plusSeconds(60 * 5);
             this.id = user.getId();
-            timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    usersUnableToRequest.remove(RequestUtil.this);
-                }
-            }, ableToRequest.getEpochSecond() - requestedAt.getEpochSecond());
+            globalExecutorService.schedule(() -> usersUnableToRequest.remove(RequestUtil.this), ableToRequest.getEpochSecond() -
+                    requestedAt.getEpochSecond(), TimeUnit.MILLISECONDS);
             usersUnableToRequest.add(this);
         }
     }

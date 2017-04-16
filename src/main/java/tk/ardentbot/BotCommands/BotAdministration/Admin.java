@@ -14,8 +14,8 @@ import tk.ardentbot.Utils.RPGUtils.Profiles.Profile;
 import tk.ardentbot.Utils.Updaters.ProfileUpdater;
 
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static tk.ardentbot.BotCommands.BotInfo.Status.getVoiceConnections;
@@ -89,23 +89,20 @@ public class Admin extends Command {
                     update(this, language, channel);
                 }
                 else if (args[1].equalsIgnoreCase("softupdate")) {
-                    Timer t = new Timer();
-                    t.scheduleAtFixedRate(new TimerTask() {
-                        @Override
-                        public void run() {
-                            if (getVoiceConnections() <= 1 || (secondsWaitedForRestart >= (60 * 60 * 3))) {
-                                if (getVoiceConnections() <= 3) {
-                                    try {
-                                        update(Admin.this, language, channel);
-                                    }
-                                    catch (Exception e) {
-                                        new BotException(e);
-                                    }
+                    ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
+                    ex.scheduleAtFixedRate(() -> {
+                        if (getVoiceConnections() <= 1 || (secondsWaitedForRestart >= (60 * 60 * 3))) {
+                            if (getVoiceConnections() <= 3) {
+                                try {
+                                    update(Admin.this, language, channel);
+                                }
+                                catch (Exception e) {
+                                    new BotException(e);
                                 }
                             }
-                            secondsWaitedForRestart += 5;
                         }
-                    }, 5000, 5000);
+                        secondsWaitedForRestart += 5;
+                    }, 5, 5, TimeUnit.SECONDS);
                 }
                 else if (args[1].equalsIgnoreCase("getloc")) {
                     sendTranslatedMessage(this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath

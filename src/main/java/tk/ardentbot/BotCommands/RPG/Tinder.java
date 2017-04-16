@@ -130,7 +130,7 @@ public class Tinder extends Command {
                     Exception {
                 HashMap<Integer, TranslationResponse> translations = getTranslations(language,
                         new Translation("tinder", "yourmatches"), new Translation("tinder", "swipedrightonyou"),
-                        new Translation("tinder", "usetindermessagenumber"));
+                        new Translation("tinder", "usetindermessagenumber"), new Translation("tinder", "noconnections"));
                 String yourMatches = translations.get(0).getTranslation();
                 String swipedRightOnYou = translations.get(1).getTranslation();
                 EmbedBuilder builder = MessageUtils.getDefaultEmbed(guild, user, Tinder.this);
@@ -140,14 +140,19 @@ public class Tinder extends Command {
                 description.append("**" + yourMatches + "**");
                 ArrayList<TinderMatch> matches = queryToArraylist(TinderMatch.class, r.table("tinder_matches").filter(r.hashMap("user_id",
                         user.getId()).with("swipedRight", true)).run(connection));
-                for (int i = 0; i < matches.size(); i++) {
-                    String swipedRightWithId = matches.get(i).getPerson_id();
-                    boolean mutual = swipedRightWith(user.getId(), swipedRightWithId);
-                    String yesNo;
-                    if (mutual) yesNo = EmojiParser.parseToUnicode(":white_check_mark:");
-                    else yesNo = EmojiParser.parseToAliases(":x:");
-                    description.append("\n#" + (i + 1) + ": " + UserUtils.getNameWithDiscriminator(swipedRightWithId) + " | " +
-                            swipedRightOnYou + ": " + yesNo);
+                if (matches.size() == 0) {
+                    description.append("\n" + translations.get(3).getTranslation());
+                }
+                else {
+                    for (int i = 0; i < matches.size(); i++) {
+                        String swipedRightWithId = matches.get(i).getPerson_id();
+                        boolean mutual = swipedRightWith(user.getId(), swipedRightWithId);
+                        String yesNo;
+                        if (mutual) yesNo = EmojiParser.parseToUnicode(":white_check_mark:");
+                        else yesNo = EmojiParser.parseToAliases(":x:");
+                        description.append("\n#" + (i + 1) + ": " + UserUtils.getNameWithDiscriminator(swipedRightWithId) + " | " +
+                                swipedRightOnYou + ": " + yesNo);
+                    }
                 }
                 description.append("\n\n" + translations.get(2).getTranslation());
                 sendEmbed(builder.setDescription(description), channel, user);

@@ -15,19 +15,21 @@ import tk.ardentbot.Utils.RPGUtils.TriviaGame;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class Trivia extends Command {
     public static final CopyOnWriteArrayList<TriviaGame> gamesInSession = new CopyOnWriteArrayList<>();
     public static final CopyOnWriteArrayList<String> gamesSettingUp = new CopyOnWriteArrayList<>();
     public static ArrayList<TriviaQuestion> triviaQuestions = new ArrayList<>();
+
     public Trivia(CommandSettings commandSettings) {
         super(commandSettings);
     }
 
-    public static void dispatchRound(Guild guild, TextChannel channel, User creator, TriviaGame currentGame, Timer timer) {
+    public static void dispatchRound(Guild guild, TextChannel channel, User creator, TriviaGame currentGame, ScheduledExecutorService ex) {
         try {
             Language language = GuildUtils.getLanguage(guild);
             Shard shard = GuildUtils.getShard(guild);
@@ -49,24 +51,22 @@ public class Trivia extends Command {
             shard.help.sendTranslatedMessage(question.toString(), channel, creator);
 
             int currentRound = currentGame.getRound();
-            timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    if (!currentGame.isAnsweredCurrentQuestion() && currentRound == currentGame.getRound() && !(currentRound ==
-                            currentGame.getTotalRounds())) {
-                        try {
-                            shard.help.sendEditedTranslation("trivia", language, "failed", creator, channel, triviaQuestion
-                                    .getAnswers().get(0));
-                            if (currentGame.getRound() + 1 < currentGame.getTotalRounds())
-                                dispatchRound(guild, channel, creator, currentGame, timer);
-                            else currentGame.finish(shard, shard.help);
-                        }
-                        catch (Exception e) {
-                            new BotException(e);
-                        }
+            ex.schedule(() -> {
+                if (!currentGame.isAnsweredCurrentQuestion() && currentRound == currentGame.getRound() && !(currentRound ==
+                        currentGame.getTotalRounds()))
+                {
+                    try {
+                        shard.help.sendEditedTranslation("trivia", language, "failed", creator, channel, triviaQuestion
+                                .getAnswers().get(0));
+                        if (currentGame.getRound() + 1 < currentGame.getTotalRounds())
+                            dispatchRound(guild, channel, creator, currentGame, ex);
+                        else currentGame.finish(shard, shard.help);
+                    }
+                    catch (Exception e) {
+                        new BotException(e);
                     }
                 }
-            }, 17000);
+            }, 17, TimeUnit.SECONDS);
         }
         catch (Exception ignored) {
         }
@@ -120,8 +120,7 @@ public class Trivia extends Command {
     }
 
     private void commenceRounds(Guild guild, TextChannel channel, User creator, TriviaGame currentGame) {
-        Timer gameTimer = new Timer();
-        currentGame.setTimer(gameTimer);
-        dispatchRound(guild, channel, creator, currentGame, gameTimer);
+        currentGame.setEx(Executors.newSingleThreadScheduledExecutor());
+        dispatchRound(guild, channel, creator, currentGame, currentGame.getEx());
     }
 }
