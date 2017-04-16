@@ -3,6 +3,7 @@ package tk.ardentbot.Core.CommandExecution;
 import com.rethinkdb.net.Cursor;
 import com.vdurmont.emoji.EmojiParser;
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
@@ -114,17 +115,18 @@ public abstract class BaseCommand {
         else new BotException("There wasn't a translation for " + translationId + " in " + translationCategory);
     }
 
-    public void sendEmbed(EmbedBuilder embedBuilder, MessageChannel channel, User user, String... reactions) {
+    public Message sendEmbed(EmbedBuilder embedBuilder, MessageChannel channel, User user, String... reactions) {
         try {
-            channel.sendMessage(embedBuilder.build()).queue(message -> {
-                for (String reaction : reactions) {
-                    message.addReaction(EmojiParser.parseToUnicode(reaction)).queue();
-                }
-            });
+            Message message = channel.sendMessage(embedBuilder.build()).complete();
+            for (String reaction : reactions) {
+                message.addReaction(EmojiParser.parseToUnicode(reaction)).queue();
+            }
+            return message;
         }
         catch (PermissionException ex) {
             sendFailed(user, true);
         }
+        return null;
     }
 
     /**
@@ -195,9 +197,14 @@ public abstract class BaseCommand {
      * @throws Exception SQLException when retrieving translation
      */
     public void sendEditedTranslation(String category, Language language, String identifier, User user, MessageChannel channel, String...
-            replacements) throws
-            Exception {
-        String translation = getTranslation(category, language, identifier).getTranslation();
+            replacements) {
+        String translation = null;
+        try {
+            translation = getTranslation(category, language, identifier).getTranslation();
+        }
+        catch (Exception e) {
+            new BotException(e);
+        }
         for (int i = 0; i < replacements.length; i++) {
             translation = translation.replace("{" + i + "}", replacements[i]);
         }

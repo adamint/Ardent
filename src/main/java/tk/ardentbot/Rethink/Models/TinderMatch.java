@@ -8,11 +8,11 @@ public class TinderMatch {
     @Getter
     private String person_id;
     @Getter
-    private boolean swipedLeft;
+    private boolean swipedRight;
 
-    public TinderMatch(String user_id, String person_id, boolean swipedLeft) {
+    public TinderMatch(String user_id, String person_id, boolean swipedRight) {
         this.user_id = user_id;
         this.person_id = person_id;
-        this.swipedLeft = swipedLeft;
+        this.swipedRight = swipedRight;
     }
 }

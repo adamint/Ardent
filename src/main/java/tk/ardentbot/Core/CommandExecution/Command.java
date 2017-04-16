@@ -54,6 +54,7 @@ public abstract class Command extends BaseCommand {
                         this.cancel();
                     }
                     else {
+                        ranFor[0] += interval;
                         for (Map.Entry<String, MessageReactionAddEvent> current : ReactionEvent.reactionEvents.entrySet()) {
                             String channelId = current.getKey();
                             MessageReactionAddEvent event = current.getValue();

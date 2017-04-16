@@ -134,6 +134,7 @@ public class Shard {
                 jda.addEventListener(new Join());
                 jda.addEventListener(new Leave());
                 jda.addEventListener(new VoiceLeaveEvent());
+                jda.addEventListener(new ReactionEvent());
 
                 crowdinLanguages.add(LangFactory.croatian);
                 crowdinLanguages.add(LangFactory.french);
