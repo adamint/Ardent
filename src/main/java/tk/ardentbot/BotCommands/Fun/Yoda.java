@@ -11,6 +11,8 @@ import tk.ardentbot.Core.CommandExecution.Command;
 import tk.ardentbot.Core.Translation.Language;
 import tk.ardentbot.Utils.Discord.GuildUtils;
 
+import java.net.URLEncoder;
+
 public class Yoda extends Command {
     public Yoda(CommandSettings commandSettings) {
         super(commandSettings);
@@ -24,7 +26,8 @@ public class Yoda extends Command {
         else {
             try {
                 channel.sendTyping().queue();
-                HttpResponse<String> response = Unirest.get("https://yoda.p.mashape.com/yoda?sentence=" + message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " ", "").replace(" ", "+"))
+                HttpResponse<String> response = Unirest.get("https://yoda.p.mashape.com/yoda?sentence=" + URLEncoder.encode(message
+                        .getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " ", "").replace(" ", "+")))
                         .header("X-Mashape-Key", "ReLLUaXvjImsh0IJ2pe3NoLknUMip1RW4fkjsn3ajtoFnaOCal")
                         .header("Accept", "text/plain")
                         .asString();
