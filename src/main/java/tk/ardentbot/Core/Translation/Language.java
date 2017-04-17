@@ -1,15 +1,15 @@
-package tk.ardentbot.Core.Translation;
+package tk.ardentbot.core.translation;
 
 import com.rethinkdb.net.Cursor;
 import org.json.simple.JSONObject;
-import tk.ardentbot.Core.CommandExecution.BaseCommand;
-import tk.ardentbot.Core.Models.CommandTranslation;
-import tk.ardentbot.Core.Models.PhraseTranslation;
-import tk.ardentbot.Core.Models.SubcommandTranslation;
-import tk.ardentbot.Main.Ardent;
-import tk.ardentbot.Rethink.Models.CommandModel;
-import tk.ardentbot.Rethink.Models.SubcommandModel;
-import tk.ardentbot.Rethink.Models.TranslationModel;
+import tk.ardentbot.core.commandExecutor.BaseCommand;
+import tk.ardentbot.core.models.CommandTranslation;
+import tk.ardentbot.core.models.PhraseTranslation;
+import tk.ardentbot.core.models.SubcommandTranslation;
+import tk.ardentbot.main.Ardent;
+import tk.ardentbot.rethink.models.CommandModel;
+import tk.ardentbot.rethink.models.SubcommandModel;
+import tk.ardentbot.rethink.models.TranslationModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,9 +18,9 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 
-import static tk.ardentbot.Main.Ardent.globalGson;
-import static tk.ardentbot.Rethink.Database.connection;
-import static tk.ardentbot.Rethink.Database.r;
+import static tk.ardentbot.main.Ardent.globalGson;
+import static tk.ardentbot.rethink.Database.connection;
+import static tk.ardentbot.rethink.Database.r;
 
 /**
  * Holds a language, with automatically updating phrases,

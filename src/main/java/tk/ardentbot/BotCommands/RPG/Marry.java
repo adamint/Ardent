@@ -1,22 +1,22 @@
-package tk.ardentbot.BotCommands.RPG;
+package tk.ardentbot.botCommands.rpg;
 
 import com.rethinkdb.net.Cursor;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.Core.CommandExecution.Command;
-import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
-import tk.ardentbot.Core.Translation.Language;
-import tk.ardentbot.Rethink.Models.Marriage;
-import tk.ardentbot.Utils.Discord.UserUtils;
+import tk.ardentbot.core.commandExecutor.Command;
+import tk.ardentbot.core.misc.loggingUtils.BotException;
+import tk.ardentbot.core.translation.Language;
+import tk.ardentbot.rethink.models.Marriage;
+import tk.ardentbot.utils.discord.UserUtils;
 
 import java.util.HashMap;
 import java.util.List;
 
-import static tk.ardentbot.Main.Ardent.globalGson;
-import static tk.ardentbot.Rethink.Database.connection;
-import static tk.ardentbot.Rethink.Database.r;
+import static tk.ardentbot.main.Ardent.globalGson;
+import static tk.ardentbot.rethink.Database.connection;
+import static tk.ardentbot.rethink.Database.r;
 
 public class Marry extends Command {
     public Marry(CommandSettings commandSettings) {

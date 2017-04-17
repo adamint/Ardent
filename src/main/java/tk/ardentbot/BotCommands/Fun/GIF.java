@@ -1,4 +1,4 @@
-package tk.ardentbot.BotCommands.Fun;
+package tk.ardentbot.botCommands.fun;
 
 import at.mukprojects.giphy4j.Giphy;
 import at.mukprojects.giphy4j.exception.GiphyException;
@@ -6,14 +6,14 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.Core.CommandExecution.Command;
-import tk.ardentbot.Core.Translation.Language;
+import tk.ardentbot.core.commandExecutor.Command;
+import tk.ardentbot.core.translation.Language;
 
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-import static tk.ardentbot.Main.Ardent.globalExecutorService;
+import static tk.ardentbot.main.Ardent.globalExecutorService;
 
 
 public class GIF extends Command {

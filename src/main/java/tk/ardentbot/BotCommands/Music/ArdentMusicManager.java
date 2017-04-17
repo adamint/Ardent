@@ -1,4 +1,4 @@
-package tk.ardentbot.BotCommands.Music;
+package tk.ardentbot.botCommands.music;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import net.dv8tion.jda.core.entities.MessageChannel;

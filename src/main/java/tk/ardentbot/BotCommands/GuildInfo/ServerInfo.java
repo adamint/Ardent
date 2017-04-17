@@ -1,4 +1,4 @@
-package tk.ardentbot.BotCommands.GuildInfo;
+package tk.ardentbot.botCommands.guildInfo;
 
 import com.rethinkdb.net.Cursor;
 import net.dv8tion.jda.core.Permission;
@@ -6,18 +6,18 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.Core.CommandExecution.Command;
-import tk.ardentbot.Core.CommandExecution.Subcommand;
-import tk.ardentbot.Core.Translation.Language;
-import tk.ardentbot.Rethink.Models.ServerInfoModel;
+import tk.ardentbot.core.commandExecutor.Command;
+import tk.ardentbot.core.commandExecutor.Subcommand;
+import tk.ardentbot.core.translation.Language;
+import tk.ardentbot.rethink.models.ServerInfoModel;
 
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 
-import static tk.ardentbot.Main.Ardent.globalGson;
-import static tk.ardentbot.Rethink.Database.connection;
-import static tk.ardentbot.Rethink.Database.r;
+import static tk.ardentbot.main.Ardent.globalGson;
+import static tk.ardentbot.rethink.Database.connection;
+import static tk.ardentbot.rethink.Database.r;
 
 public class ServerInfo extends Command {
     public ServerInfo(CommandSettings commandSettings) {

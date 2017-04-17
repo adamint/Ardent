@@ -1,16 +1,16 @@
-package tk.ardentbot.BotCommands.BotAdministration;
+package tk.ardentbot.botCommands.botAdministration;
 
 import net.dv8tion.jda.core.entities.*;
-import tk.ardentbot.Core.CommandExecution.Command;
-import tk.ardentbot.Core.Translation.Language;
-import tk.ardentbot.Utils.Discord.GuildUtils;
+import tk.ardentbot.core.commandExecutor.Command;
+import tk.ardentbot.core.translation.Language;
+import tk.ardentbot.utils.discord.GuildUtils;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-import static tk.ardentbot.Main.Ardent.botLogsShard;
-import static tk.ardentbot.Main.Ardent.globalExecutorService;
+import static tk.ardentbot.main.Ardent.botLogsShard;
+import static tk.ardentbot.main.Ardent.globalExecutorService;
 
 public class Request extends Command {
     private static ArrayList<RequestUtil> usersUnableToRequest = new ArrayList<>();

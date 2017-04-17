@@ -1,4 +1,4 @@
-package tk.ardentbot.Core.Translation;
+package tk.ardentbot.core.translation;
 
 /**
  * Wrapper for a phrase translation

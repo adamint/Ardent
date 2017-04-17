@@ -1,4 +1,4 @@
-package tk.ardentbot.BotCommands.GuildAdministration;
+package tk.ardentbot.botCommands.guildAdministration;
 
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
@@ -6,10 +6,10 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.PermissionException;
-import tk.ardentbot.Core.CommandExecution.Command;
-import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
-import tk.ardentbot.Core.Translation.Language;
-import tk.ardentbot.Utils.Discord.GuildUtils;
+import tk.ardentbot.core.commandExecutor.Command;
+import tk.ardentbot.core.misc.loggingUtils.BotException;
+import tk.ardentbot.core.translation.Language;
+import tk.ardentbot.utils.discord.GuildUtils;
 
 import java.util.List;
 
@@ -34,7 +34,7 @@ public class Setnickname extends Command {
             if (mentionedUsers.size() == 1) {
                 if (guild.getMember(user).hasPermission(Permission.MANAGE_SERVER)) {
                     User mentioned = mentionedUsers.get(0);
-                    String newNickname = tk.ardentbot.Utils.StringUtils.concantenate(2, message.getRawContent().split
+                    String newNickname = tk.ardentbot.utils.StringUtils.concantenate(2, message.getRawContent().split
                             (" "));
                     while (newNickname.startsWith(" ")) newNickname = newNickname.substring(1);
                     if (newNickname.length() > 32 && newNickname.length() < 2) {

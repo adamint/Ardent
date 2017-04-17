@@ -1,17 +1,17 @@
-package tk.ardentbot.BotCommands.Music;
+package tk.ardentbot.botCommands.music;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
-import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
-import tk.ardentbot.Main.Shard;
-import tk.ardentbot.Utils.Discord.GuildUtils;
+import tk.ardentbot.core.misc.loggingUtils.BotException;
+import tk.ardentbot.main.Shard;
+import tk.ardentbot.utils.discord.GuildUtils;
 
 import java.util.HashMap;
 import java.util.List;
 
-import static tk.ardentbot.Main.ShardManager.getShards;
+import static tk.ardentbot.main.ShardManager.getShards;
 
 public class StuckVoiceConnection implements Runnable {
     private static HashMap<String, String> voiceChannelsAtZeroDuration = new HashMap<>();

@@ -1,24 +1,24 @@
-package tk.ardentbot.BotCommands.BotAdministration;
+package tk.ardentbot.botCommands.botAdministration;
 
 import com.rethinkdb.net.Cursor;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.Core.CommandExecution.Command;
-import tk.ardentbot.Core.Translation.Language;
-import tk.ardentbot.Rethink.Models.CommandModel;
-import tk.ardentbot.Rethink.Models.SubcommandModel;
-import tk.ardentbot.Rethink.Models.TranslationModel;
-import tk.ardentbot.Utils.JLAdditions.Pair;
-import tk.ardentbot.Utils.JLAdditions.Quintet;
-import tk.ardentbot.Utils.JLAdditions.Triplet;
+import tk.ardentbot.core.commandExecutor.Command;
+import tk.ardentbot.core.translation.Language;
+import tk.ardentbot.rethink.models.CommandModel;
+import tk.ardentbot.rethink.models.SubcommandModel;
+import tk.ardentbot.rethink.models.TranslationModel;
+import tk.ardentbot.utils.javaAdditions.Pair;
+import tk.ardentbot.utils.javaAdditions.Quintet;
+import tk.ardentbot.utils.javaAdditions.Triplet;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static tk.ardentbot.Rethink.Database.connection;
-import static tk.ardentbot.Rethink.Database.r;
+import static tk.ardentbot.rethink.Database.connection;
+import static tk.ardentbot.rethink.Database.r;
 
 public class Translate extends Command {
     public String help;

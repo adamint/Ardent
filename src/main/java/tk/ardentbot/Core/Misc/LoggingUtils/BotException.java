@@ -1,8 +1,8 @@
-package tk.ardentbot.Core.Misc.LoggingUtils;
+package tk.ardentbot.core.misc.loggingUtils;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
-import static tk.ardentbot.Main.Ardent.botLogsShard;
+import static tk.ardentbot.main.Ardent.botLogsShard;
 
 /**
  * Sends exceptions to the error channel

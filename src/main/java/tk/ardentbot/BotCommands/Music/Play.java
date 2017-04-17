@@ -1,13 +1,13 @@
-package tk.ardentbot.BotCommands.Music;
+package tk.ardentbot.botCommands.music;
 
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.managers.AudioManager;
-import tk.ardentbot.Core.CommandExecution.Command;
-import tk.ardentbot.Core.Translation.Language;
-import tk.ardentbot.Utils.Discord.GuildUtils;
+import tk.ardentbot.core.commandExecutor.Command;
+import tk.ardentbot.core.translation.Language;
+import tk.ardentbot.utils.discord.GuildUtils;
 
-import static tk.ardentbot.BotCommands.Music.Music.*;
+import static tk.ardentbot.botCommands.music.Music.*;
 
 public class Play extends Command {
     public Play(CommandSettings commandSettings) {

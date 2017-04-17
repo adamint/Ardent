@@ -1,17 +1,17 @@
-package tk.ardentbot.BotCommands.RPG;
+package tk.ardentbot.botCommands.rpg;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.Core.CommandExecution.Command;
-import tk.ardentbot.Core.CommandExecution.Subcommand;
-import tk.ardentbot.Core.Translation.Language;
-import tk.ardentbot.Utils.Discord.MessageUtils;
-import tk.ardentbot.Utils.RPGUtils.BadgesList;
-import tk.ardentbot.Utils.RPGUtils.Profiles.Badge;
-import tk.ardentbot.Utils.RPGUtils.Profiles.Profile;
+import tk.ardentbot.core.commandExecutor.Command;
+import tk.ardentbot.core.commandExecutor.Subcommand;
+import tk.ardentbot.core.translation.Language;
+import tk.ardentbot.utils.discord.MessageUtils;
+import tk.ardentbot.utils.rpgUtils.BadgesList;
+import tk.ardentbot.utils.rpgUtils.profiles.Badge;
+import tk.ardentbot.utils.rpgUtils.profiles.Profile;
 
 public class Badges extends Command {
     public Badges(CommandSettings commandSettings) {

@@ -1,28 +1,28 @@
-package tk.ardentbot.BotCommands.BotInfo;
+package tk.ardentbot.botCommands.botInfo;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.BotCommands.Music.Music;
-import tk.ardentbot.Core.CommandExecution.Command;
-import tk.ardentbot.Core.Translation.Language;
-import tk.ardentbot.Core.Translation.Translation;
-import tk.ardentbot.Core.Translation.TranslationResponse;
-import tk.ardentbot.Main.Shard;
-import tk.ardentbot.Utils.Discord.GuildUtils;
-import tk.ardentbot.Utils.Discord.InternalStats;
-import tk.ardentbot.Utils.Discord.MessageUtils;
-import tk.ardentbot.Utils.Discord.UsageUtils;
-import tk.ardentbot.Utils.JLAdditions.Pair;
+import tk.ardentbot.botCommands.music.Music;
+import tk.ardentbot.core.commandExecutor.Command;
+import tk.ardentbot.core.translation.Language;
+import tk.ardentbot.core.translation.Translation;
+import tk.ardentbot.core.translation.TranslationResponse;
+import tk.ardentbot.main.Shard;
+import tk.ardentbot.utils.discord.GuildUtils;
+import tk.ardentbot.utils.discord.InternalStats;
+import tk.ardentbot.utils.discord.MessageUtils;
+import tk.ardentbot.utils.discord.UsageUtils;
+import tk.ardentbot.utils.javaAdditions.Pair;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static tk.ardentbot.Main.ShardManager.getShards;
+import static tk.ardentbot.main.ShardManager.getShards;
 
 public class Status extends Command {
     public static ConcurrentHashMap<String, Integer> commandsByGuild = new ConcurrentHashMap<>();

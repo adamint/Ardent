@@ -1,6 +1,6 @@
-package tk.ardentbot.Core.Misc.WebServer.Models;
+package tk.ardentbot.core.misc.webServer.models;
 
-import tk.ardentbot.Core.CommandExecution.Category;
+import tk.ardentbot.core.commandExecutor.Category;
 
 /**
  * SparkServer server wrapper for a command

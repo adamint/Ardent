@@ -1,8 +1,8 @@
-package tk.ardentbot.Rethink.Models;
+package tk.ardentbot.rethink.models;
 
 import lombok.Getter;
-import tk.ardentbot.Core.Translation.LangFactory;
-import tk.ardentbot.Core.Translation.Language;
+import tk.ardentbot.core.translation.LangFactory;
+import tk.ardentbot.core.translation.Language;
 
 public class SubcommandModel {
     @Getter

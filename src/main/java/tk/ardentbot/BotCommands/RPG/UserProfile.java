@@ -1,19 +1,19 @@
-package tk.ardentbot.BotCommands.RPG;
+package tk.ardentbot.botCommands.rpg;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.Core.CommandExecution.Command;
-import tk.ardentbot.Core.Translation.Language;
-import tk.ardentbot.Core.Translation.Translation;
-import tk.ardentbot.Core.Translation.TranslationResponse;
-import tk.ardentbot.Rethink.Models.Marriage;
-import tk.ardentbot.Utils.Discord.MessageUtils;
-import tk.ardentbot.Utils.Discord.UserUtils;
-import tk.ardentbot.Utils.RPGUtils.Profiles.Profile;
-import tk.ardentbot.Utils.RPGUtils.RPGUtils;
+import tk.ardentbot.core.commandExecutor.Command;
+import tk.ardentbot.core.translation.Language;
+import tk.ardentbot.core.translation.Translation;
+import tk.ardentbot.core.translation.TranslationResponse;
+import tk.ardentbot.rethink.models.Marriage;
+import tk.ardentbot.utils.discord.MessageUtils;
+import tk.ardentbot.utils.discord.UserUtils;
+import tk.ardentbot.utils.rpgUtils.RPGUtils;
+import tk.ardentbot.utils.rpgUtils.profiles.Profile;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -1,25 +1,25 @@
-package tk.ardentbot.BotCommands.GuildAdministration;
+package tk.ardentbot.botCommands.guildAdministration;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
-import tk.ardentbot.Core.CommandExecution.Command;
-import tk.ardentbot.Core.CommandExecution.Subcommand;
-import tk.ardentbot.Core.Translation.Language;
-import tk.ardentbot.Core.Translation.Translation;
-import tk.ardentbot.Core.Translation.TranslationResponse;
-import tk.ardentbot.Rethink.Models.RestrictedUserModel;
-import tk.ardentbot.Utils.Discord.MessageUtils;
-import tk.ardentbot.Utils.Models.RestrictedUser;
-import tk.ardentbot.Utils.RPGUtils.EntityGuild;
+import tk.ardentbot.core.commandExecutor.Command;
+import tk.ardentbot.core.commandExecutor.Subcommand;
+import tk.ardentbot.core.translation.Language;
+import tk.ardentbot.core.translation.Translation;
+import tk.ardentbot.core.translation.TranslationResponse;
+import tk.ardentbot.rethink.models.RestrictedUserModel;
+import tk.ardentbot.utils.discord.MessageUtils;
+import tk.ardentbot.utils.models.RestrictedUser;
+import tk.ardentbot.utils.rpgUtils.EntityGuild;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static tk.ardentbot.Main.Ardent.globalGson;
-import static tk.ardentbot.Rethink.Database.connection;
-import static tk.ardentbot.Rethink.Database.r;
+import static tk.ardentbot.main.Ardent.globalGson;
+import static tk.ardentbot.rethink.Database.connection;
+import static tk.ardentbot.rethink.Database.r;
 
 public class Restrict extends Command {
     public Restrict(CommandSettings commandSettings) {

@@ -1,4 +1,4 @@
-package tk.ardentbot.BotCommands.Music;
+package tk.ardentbot.botCommands.music;
 
 import com.rethinkdb.net.Cursor;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
@@ -18,21 +18,21 @@ import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.managers.AudioManager;
 import org.apache.commons.lang.WordUtils;
-import tk.ardentbot.Core.CommandExecution.Command;
-import tk.ardentbot.Core.CommandExecution.Subcommand;
-import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
-import tk.ardentbot.Core.Translation.Language;
-import tk.ardentbot.Core.Translation.Translation;
-import tk.ardentbot.Core.Translation.TranslationResponse;
-import tk.ardentbot.Main.Shard;
-import tk.ardentbot.Main.ShardManager;
-import tk.ardentbot.Rethink.Models.MusicSettingsModel;
-import tk.ardentbot.Utils.Discord.GuildUtils;
-import tk.ardentbot.Utils.Discord.MessageUtils;
-import tk.ardentbot.Utils.Discord.UserUtils;
-import tk.ardentbot.Utils.JLAdditions.Pair;
-import tk.ardentbot.Utils.RPGUtils.EntityGuild;
-import tk.ardentbot.Utils.StringUtils;
+import tk.ardentbot.core.commandExecutor.Command;
+import tk.ardentbot.core.commandExecutor.Subcommand;
+import tk.ardentbot.core.misc.loggingUtils.BotException;
+import tk.ardentbot.core.translation.Language;
+import tk.ardentbot.core.translation.Translation;
+import tk.ardentbot.core.translation.TranslationResponse;
+import tk.ardentbot.main.Shard;
+import tk.ardentbot.main.ShardManager;
+import tk.ardentbot.rethink.models.MusicSettingsModel;
+import tk.ardentbot.utils.StringUtils;
+import tk.ardentbot.utils.discord.GuildUtils;
+import tk.ardentbot.utils.discord.MessageUtils;
+import tk.ardentbot.utils.discord.UserUtils;
+import tk.ardentbot.utils.javaAdditions.Pair;
+import tk.ardentbot.utils.rpgUtils.EntityGuild;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -43,10 +43,10 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static tk.ardentbot.Main.Ardent.globalGson;
-import static tk.ardentbot.Main.Ardent.spotifyApi;
-import static tk.ardentbot.Rethink.Database.connection;
-import static tk.ardentbot.Rethink.Database.r;
+import static tk.ardentbot.main.Ardent.globalGson;
+import static tk.ardentbot.main.Ardent.spotifyApi;
+import static tk.ardentbot.rethink.Database.connection;
+import static tk.ardentbot.rethink.Database.r;
 
 @SuppressWarnings("Duplicates")
 public class Music extends Command {
@@ -544,7 +544,7 @@ public class Music extends Command {
                         (connection);
                 if (settings.hasNext()) {
                     MusicSettingsModel musicSettingsModel = asPojo(settings.next(), MusicSettingsModel.class);
-                    sendTranslatedMessage("**Music Settings**\n" + "Delete music play messages: " + musicSettingsModel
+                    sendTranslatedMessage("**music Settings**\n" + "Delete music play messages: " + musicSettingsModel
                             .isRemove_addition_messages(), channel, user);
 
                 }

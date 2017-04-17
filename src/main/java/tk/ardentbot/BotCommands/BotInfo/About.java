@@ -1,15 +1,15 @@
-package tk.ardentbot.BotCommands.BotInfo;
+package tk.ardentbot.botCommands.botInfo;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.Core.CommandExecution.Command;
-import tk.ardentbot.Core.Translation.Language;
-import tk.ardentbot.Main.Ardent;
-import tk.ardentbot.Utils.Discord.MessageUtils;
-import tk.ardentbot.Utils.Discord.UserUtils;
+import tk.ardentbot.core.commandExecutor.Command;
+import tk.ardentbot.core.translation.Language;
+import tk.ardentbot.main.Ardent;
+import tk.ardentbot.utils.discord.MessageUtils;
+import tk.ardentbot.utils.discord.UserUtils;
 
 import java.util.ArrayList;
 

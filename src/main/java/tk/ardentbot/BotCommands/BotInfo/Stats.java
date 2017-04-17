@@ -1,4 +1,4 @@
-package tk.ardentbot.BotCommands.BotInfo;
+package tk.ardentbot.botCommands.botInfo;
 
 
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -6,16 +6,16 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.Core.CommandExecution.Command;
-import tk.ardentbot.Core.CommandExecution.Subcommand;
-import tk.ardentbot.Core.Events.Join;
-import tk.ardentbot.Core.Events.Leave;
-import tk.ardentbot.Core.Translation.Language;
-import tk.ardentbot.Main.Shard;
-import tk.ardentbot.Main.ShardManager;
-import tk.ardentbot.Utils.Discord.InternalStats;
-import tk.ardentbot.Utils.Discord.MessageUtils;
-import tk.ardentbot.Utils.MapUtils;
+import tk.ardentbot.core.commandExecutor.Command;
+import tk.ardentbot.core.commandExecutor.Subcommand;
+import tk.ardentbot.core.events.Join;
+import tk.ardentbot.core.events.Leave;
+import tk.ardentbot.core.translation.Language;
+import tk.ardentbot.main.Shard;
+import tk.ardentbot.main.ShardManager;
+import tk.ardentbot.utils.MapUtils;
+import tk.ardentbot.utils.discord.InternalStats;
+import tk.ardentbot.utils.discord.MessageUtils;
 
 import java.awt.*;
 import java.time.Instant;

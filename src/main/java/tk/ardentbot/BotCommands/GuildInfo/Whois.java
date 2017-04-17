@@ -1,14 +1,14 @@
-package tk.ardentbot.BotCommands.GuildInfo;
+package tk.ardentbot.botCommands.guildInfo;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.*;
-import tk.ardentbot.Core.CommandExecution.Command;
-import tk.ardentbot.Core.Translation.Language;
-import tk.ardentbot.Core.Translation.Translation;
-import tk.ardentbot.Core.Translation.TranslationResponse;
-import tk.ardentbot.Main.Shard;
-import tk.ardentbot.Utils.Discord.GuildUtils;
-import tk.ardentbot.Utils.Discord.MessageUtils;
+import tk.ardentbot.core.commandExecutor.Command;
+import tk.ardentbot.core.translation.Language;
+import tk.ardentbot.core.translation.Translation;
+import tk.ardentbot.core.translation.TranslationResponse;
+import tk.ardentbot.main.Shard;
+import tk.ardentbot.utils.discord.GuildUtils;
+import tk.ardentbot.utils.discord.MessageUtils;
 
 import java.time.Instant;
 import java.time.ZoneOffset;

@@ -1,22 +1,22 @@
-package tk.ardentbot.BotCommands.NSFW;
+package tk.ardentbot.botCommands.nsfw;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
-import tk.ardentbot.Core.CommandExecution.Command;
-import tk.ardentbot.Core.CommandExecution.Subcommand;
-import tk.ardentbot.Core.Translation.Language;
-import tk.ardentbot.Core.Translation.Translation;
-import tk.ardentbot.Core.Translation.TranslationResponse;
-import tk.ardentbot.Rethink.Models.NSFWSettings;
-import tk.ardentbot.Utils.Discord.GuildUtils;
-import tk.ardentbot.Utils.Discord.MessageUtils;
+import tk.ardentbot.core.commandExecutor.Command;
+import tk.ardentbot.core.commandExecutor.Subcommand;
+import tk.ardentbot.core.translation.Language;
+import tk.ardentbot.core.translation.Translation;
+import tk.ardentbot.core.translation.TranslationResponse;
+import tk.ardentbot.rethink.models.NSFWSettings;
+import tk.ardentbot.utils.discord.GuildUtils;
+import tk.ardentbot.utils.discord.MessageUtils;
 
 import java.util.HashMap;
 
-import static tk.ardentbot.Main.Ardent.globalGson;
-import static tk.ardentbot.Rethink.Database.connection;
-import static tk.ardentbot.Rethink.Database.r;
+import static tk.ardentbot.main.Ardent.globalGson;
+import static tk.ardentbot.rethink.Database.connection;
+import static tk.ardentbot.rethink.Database.r;
 
 public class NSFW extends Command {
     public NSFW(CommandSettings commandSettings) {

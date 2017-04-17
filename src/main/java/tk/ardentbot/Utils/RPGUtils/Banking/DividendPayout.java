@@ -1,4 +1,4 @@
-package tk.ardentbot.Utils.RPGUtils.Banking;
+package tk.ardentbot.utils.rpgUtils.banking;
 
 public class DividendPayout implements Runnable {
     @Override

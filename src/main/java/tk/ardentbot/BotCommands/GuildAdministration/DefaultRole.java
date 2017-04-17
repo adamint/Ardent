@@ -1,21 +1,21 @@
-package tk.ardentbot.BotCommands.GuildAdministration;
+package tk.ardentbot.botCommands.guildAdministration;
 
 import com.rethinkdb.net.Cursor;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
-import tk.ardentbot.Core.CommandExecution.Command;
-import tk.ardentbot.Core.CommandExecution.Subcommand;
-import tk.ardentbot.Core.Translation.Language;
-import tk.ardentbot.Rethink.Models.DefaultRoleModel;
-import tk.ardentbot.Utils.Discord.GuildUtils;
+import tk.ardentbot.core.commandExecutor.Command;
+import tk.ardentbot.core.commandExecutor.Subcommand;
+import tk.ardentbot.core.translation.Language;
+import tk.ardentbot.rethink.models.DefaultRoleModel;
+import tk.ardentbot.utils.discord.GuildUtils;
 
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 
-import static tk.ardentbot.Main.Ardent.globalGson;
-import static tk.ardentbot.Rethink.Database.connection;
-import static tk.ardentbot.Rethink.Database.r;
+import static tk.ardentbot.main.Ardent.globalGson;
+import static tk.ardentbot.rethink.Database.connection;
+import static tk.ardentbot.rethink.Database.r;
 
 public class DefaultRole extends Command {
     public DefaultRole(CommandSettings commandSettings) {

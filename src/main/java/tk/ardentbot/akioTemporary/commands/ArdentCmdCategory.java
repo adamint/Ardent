@@ -4,10 +4,10 @@ public enum ArdentCmdCategory {
 
     BotAdmin("Bot Administration"),
     BotInfo("Bot Information"),
-    Fun("Fun"),
+    Fun("fun"),
     GuildAdmin("Guild Administration"),
     GuildInfo("Guild Information"),
-    Music("Music");
+    Music("music");
 
     private String name;
 

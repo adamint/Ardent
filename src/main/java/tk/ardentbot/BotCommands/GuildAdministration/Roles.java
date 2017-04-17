@@ -1,12 +1,12 @@
-package tk.ardentbot.BotCommands.GuildAdministration;
+package tk.ardentbot.botCommands.guildAdministration;
 
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.PermissionException;
-import tk.ardentbot.Core.CommandExecution.Command;
-import tk.ardentbot.Core.CommandExecution.Subcommand;
-import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
-import tk.ardentbot.Core.Translation.Language;
+import tk.ardentbot.core.commandExecutor.Command;
+import tk.ardentbot.core.commandExecutor.Subcommand;
+import tk.ardentbot.core.misc.loggingUtils.BotException;
+import tk.ardentbot.core.translation.Language;
 
 import java.util.List;
 

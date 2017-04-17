@@ -1,4 +1,4 @@
-package tk.ardentbot.BotCommands.GuildAdministration;
+package tk.ardentbot.botCommands.guildAdministration;
 
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
@@ -6,10 +6,10 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.PermissionException;
-import tk.ardentbot.Core.CommandExecution.Command;
-import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
-import tk.ardentbot.Core.Translation.Language;
-import tk.ardentbot.Utils.Discord.GuildUtils;
+import tk.ardentbot.core.commandExecutor.Command;
+import tk.ardentbot.core.misc.loggingUtils.BotException;
+import tk.ardentbot.core.translation.Language;
+import tk.ardentbot.utils.discord.GuildUtils;
 
 public class Prune extends Command {
     public Prune(CommandSettings commandSettings) {

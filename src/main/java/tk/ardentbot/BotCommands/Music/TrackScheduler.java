@@ -1,4 +1,4 @@
-package tk.ardentbot.BotCommands.Music;
+package tk.ardentbot.botCommands.music;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
@@ -7,10 +7,10 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.MessageChannel;
-import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
-import tk.ardentbot.Utils.Discord.GuildUtils;
+import tk.ardentbot.core.misc.loggingUtils.BotException;
+import tk.ardentbot.utils.discord.GuildUtils;
 
-import static tk.ardentbot.Utils.Discord.GuildUtils.getShard;
+import static tk.ardentbot.utils.discord.GuildUtils.getShard;
 
 public class TrackScheduler extends AudioEventAdapter {
     private final AudioPlayer player;

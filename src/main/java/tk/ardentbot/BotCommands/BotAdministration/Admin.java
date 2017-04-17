@@ -1,25 +1,25 @@
-package tk.ardentbot.BotCommands.BotAdministration;
+package tk.ardentbot.botCommands.botAdministration;
 
 import net.dv8tion.jda.core.entities.*;
-import tk.ardentbot.BotCommands.Music.GuildMusicManager;
-import tk.ardentbot.BotCommands.Music.Music;
-import tk.ardentbot.Core.CommandExecution.Command;
-import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
-import tk.ardentbot.Core.Translation.Language;
-import tk.ardentbot.Main.Ardent;
-import tk.ardentbot.Main.Shard;
-import tk.ardentbot.Utils.Discord.GuildUtils;
-import tk.ardentbot.Utils.Discord.UsageUtils;
-import tk.ardentbot.Utils.RPGUtils.Profiles.Profile;
-import tk.ardentbot.Utils.Updaters.ProfileUpdater;
+import tk.ardentbot.botCommands.music.GuildMusicManager;
+import tk.ardentbot.botCommands.music.Music;
+import tk.ardentbot.core.commandExecutor.Command;
+import tk.ardentbot.core.misc.loggingUtils.BotException;
+import tk.ardentbot.core.translation.Language;
+import tk.ardentbot.main.Ardent;
+import tk.ardentbot.main.Shard;
+import tk.ardentbot.utils.discord.GuildUtils;
+import tk.ardentbot.utils.discord.UsageUtils;
+import tk.ardentbot.utils.rpgUtils.profiles.Profile;
+import tk.ardentbot.utils.updaters.ProfileUpdater;
 
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static tk.ardentbot.BotCommands.BotInfo.Status.getVoiceConnections;
-import static tk.ardentbot.Main.ShardManager.getShards;
+import static tk.ardentbot.botCommands.botInfo.Status.getVoiceConnections;
+import static tk.ardentbot.main.ShardManager.getShards;
 
 public class Admin extends Command {
     private static int secondsWaitedForRestart = 0;

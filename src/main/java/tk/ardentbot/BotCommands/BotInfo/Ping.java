@@ -1,13 +1,13 @@
-package tk.ardentbot.BotCommands.BotInfo;
+package tk.ardentbot.botCommands.botInfo;
 
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.PermissionException;
-import tk.ardentbot.Core.CommandExecution.Command;
-import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
-import tk.ardentbot.Core.Translation.Language;
+import tk.ardentbot.core.commandExecutor.Command;
+import tk.ardentbot.core.misc.loggingUtils.BotException;
+import tk.ardentbot.core.translation.Language;
 
 public class Ping extends Command {
     public Ping(CommandSettings commandSettings) {

@@ -1,16 +1,16 @@
-package tk.ardentbot.BotCommands.RPG;
+package tk.ardentbot.botCommands.rpg;
 
 import net.dv8tion.jda.core.entities.*;
-import tk.ardentbot.Core.CommandExecution.Command;
-import tk.ardentbot.Core.CommandExecution.Subcommand;
-import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
-import tk.ardentbot.Core.Translation.Language;
-import tk.ardentbot.Core.Translation.Translation;
-import tk.ardentbot.Core.Translation.TranslationResponse;
-import tk.ardentbot.Main.Shard;
-import tk.ardentbot.Utils.Discord.GuildUtils;
-import tk.ardentbot.Utils.Models.TriviaQuestion;
-import tk.ardentbot.Utils.RPGUtils.TriviaGame;
+import tk.ardentbot.core.commandExecutor.Command;
+import tk.ardentbot.core.commandExecutor.Subcommand;
+import tk.ardentbot.core.misc.loggingUtils.BotException;
+import tk.ardentbot.core.translation.Language;
+import tk.ardentbot.core.translation.Translation;
+import tk.ardentbot.core.translation.TranslationResponse;
+import tk.ardentbot.main.Shard;
+import tk.ardentbot.utils.discord.GuildUtils;
+import tk.ardentbot.utils.models.TriviaQuestion;
+import tk.ardentbot.utils.rpgUtils.TriviaGame;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;

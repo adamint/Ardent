@@ -1,4 +1,4 @@
-package tk.ardentbot.BotCommands.BotAdministration;
+package tk.ardentbot.botCommands.botAdministration;
 
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Guild;
@@ -7,12 +7,12 @@ import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.requests.RestAction;
 import org.apache.commons.lang3.tuple.Triple;
-import tk.ardentbot.Core.CommandExecution.Command;
-import tk.ardentbot.Core.Translation.Language;
-import tk.ardentbot.Main.Ardent;
-import tk.ardentbot.Main.ShardManager;
-import tk.ardentbot.Utils.Discord.GuildUtils;
-import tk.ardentbot.Utils.Engine;
+import tk.ardentbot.core.commandExecutor.Command;
+import tk.ardentbot.core.translation.Language;
+import tk.ardentbot.main.Ardent;
+import tk.ardentbot.main.ShardManager;
+import tk.ardentbot.utils.Engine;
+import tk.ardentbot.utils.discord.GuildUtils;
 
 import java.util.Collections;
 import java.util.HashMap;

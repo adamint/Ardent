@@ -1,22 +1,22 @@
-package tk.ardentbot.Core.Misc.WebServer;
+package tk.ardentbot.core.misc.webServer;
 
 import com.rethinkdb.net.Cursor;
 import spark.Request;
 import spark.Response;
-import tk.ardentbot.Core.CommandExecution.CommandFactory;
-import tk.ardentbot.Core.Misc.LoggingUtils.BotException;
-import tk.ardentbot.Core.Misc.WebServer.Models.Command;
-import tk.ardentbot.Core.Misc.WebServer.Models.Status;
-import tk.ardentbot.Core.Misc.WebServer.Models.User;
-import tk.ardentbot.Core.Translation.LangFactory;
-import tk.ardentbot.Core.Translation.Language;
-import tk.ardentbot.Main.Ardent;
-import tk.ardentbot.Rethink.Models.CommandModel;
-import tk.ardentbot.Rethink.Models.SubcommandModel;
-import tk.ardentbot.Rethink.Models.TranslationModel;
-import tk.ardentbot.Utils.Discord.InternalStats;
-import tk.ardentbot.Utils.JLAdditions.Pair;
-import tk.ardentbot.Utils.JLAdditions.Quintet;
+import tk.ardentbot.core.commandExecutor.CommandFactory;
+import tk.ardentbot.core.misc.loggingUtils.BotException;
+import tk.ardentbot.core.misc.webServer.models.Command;
+import tk.ardentbot.core.misc.webServer.models.Status;
+import tk.ardentbot.core.misc.webServer.models.User;
+import tk.ardentbot.core.translation.LangFactory;
+import tk.ardentbot.core.translation.Language;
+import tk.ardentbot.main.Ardent;
+import tk.ardentbot.rethink.models.CommandModel;
+import tk.ardentbot.rethink.models.SubcommandModel;
+import tk.ardentbot.rethink.models.TranslationModel;
+import tk.ardentbot.utils.discord.InternalStats;
+import tk.ardentbot.utils.javaAdditions.Pair;
+import tk.ardentbot.utils.javaAdditions.Quintet;
 
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
@@ -25,11 +25,11 @@ import java.util.Random;
 
 import static spark.Spark.get;
 import static spark.Spark.port;
-import static tk.ardentbot.BotCommands.BotAdministration.Translate.*;
-import static tk.ardentbot.Main.Ardent.globalGson;
-import static tk.ardentbot.Main.Ardent.shard0;
-import static tk.ardentbot.Rethink.Database.connection;
-import static tk.ardentbot.Rethink.Database.r;
+import static tk.ardentbot.botCommands.botAdministration.Translate.*;
+import static tk.ardentbot.main.Ardent.globalGson;
+import static tk.ardentbot.main.Ardent.shard0;
+import static tk.ardentbot.rethink.Database.connection;
+import static tk.ardentbot.rethink.Database.r;
 
 public class SparkServer {
     /**
@@ -223,7 +223,7 @@ public class SparkServer {
                                     "type=\"hidden\" name=\"commandidentifier\" value=\"" + commandIdentifier
                                     + "\"><input type=\"hidden\" name=\"language\" value=\"" + LangFactory
                                     .getName(language) + "\"><input type=\"hidden\" name=\"type\" " +
-                                    "value=\"phrases\"><input type=\"submit\" value=\"Add Translation\">\n" +
+                                    "value=\"phrases\"><input type=\"submit\" value=\"Add translation\">\n" +
                                     "</form>\n" +
                                     "<br>\n" +
                                     "</body>\n" +
@@ -265,7 +265,7 @@ public class SparkServer {
                                 "<input type=\"hidden\" name=\"identifier\" value=\"" + discrepancy.getK() +
                                 "\">  <input type=\"hidden\" name=\"language\" value=\"" + LangFactory
                                 .getName(language) + "\"><input type=\"hidden\" name=\"type\" " +
-                                "value=\"commands\"><input type=\"submit\" value=\"Add Translation\">\n" +
+                                "value=\"commands\"><input type=\"submit\" value=\"Add translation\">\n" +
                                 "</form>\n" +
                                 "<br>\n" +
                                 "</body>\n" +
@@ -314,7 +314,7 @@ public class SparkServer {
                                 "type=\"hidden\" name=\"commandidentifier\" value=\"" + cmdId + "\"><input " +
                                 "type=\"hidden\" name=\"language\" value=\"" + LangFactory.getName(language)
                                 + "\"><input type=\"hidden\" name=\"type\" value=\"subcommands\"><input " +
-                                "type=\"submit\" value=\"Add Translation\">\n" +
+                                "type=\"submit\" value=\"Add translation\">\n" +
                                 "</form>\n" +
                                 "<br>\n" +
                                 "</body>\n" +

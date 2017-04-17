@@ -1,4 +1,4 @@
-package tk.ardentbot.BotCommands.Fun;
+package tk.ardentbot.botCommands.fun;
 
 import com.mashape.unirest.http.Unirest;
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -6,14 +6,14 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.Core.CommandExecution.Command;
-import tk.ardentbot.Core.Models.Definition;
-import tk.ardentbot.Core.Models.Dictionary;
-import tk.ardentbot.Core.Translation.Language;
-import tk.ardentbot.Main.Ardent;
-import tk.ardentbot.Main.Shard;
-import tk.ardentbot.Utils.Discord.GuildUtils;
-import tk.ardentbot.Utils.Discord.MessageUtils;
+import tk.ardentbot.core.commandExecutor.Command;
+import tk.ardentbot.core.models.Definition;
+import tk.ardentbot.core.models.Dictionary;
+import tk.ardentbot.core.translation.Language;
+import tk.ardentbot.main.Ardent;
+import tk.ardentbot.main.Shard;
+import tk.ardentbot.utils.discord.GuildUtils;
+import tk.ardentbot.utils.discord.MessageUtils;
 
 import java.util.Calendar;
 import java.util.List;

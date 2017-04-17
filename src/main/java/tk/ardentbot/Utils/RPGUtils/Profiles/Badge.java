@@ -1,7 +1,7 @@
-package tk.ardentbot.Utils.RPGUtils.Profiles;
+package tk.ardentbot.utils.rpgUtils.profiles;
 
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.Utils.Discord.UserUtils;
+import tk.ardentbot.utils.discord.UserUtils;
 
 public class Badge {
     private String userId;

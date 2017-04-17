@@ -1,20 +1,20 @@
-package tk.ardentbot.BotCommands.BotAdministration;
+package tk.ardentbot.botCommands.botAdministration;
 
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.Core.CommandExecution.Command;
-import tk.ardentbot.Core.CommandExecution.Subcommand;
-import tk.ardentbot.Main.Ardent;
-import tk.ardentbot.Rethink.Models.CommandModel;
-import tk.ardentbot.Rethink.Models.SubcommandModel;
-import tk.ardentbot.Rethink.Models.TranslationModel;
-import tk.ardentbot.Utils.Discord.GuildUtils;
+import tk.ardentbot.core.commandExecutor.Command;
+import tk.ardentbot.core.commandExecutor.Subcommand;
+import tk.ardentbot.main.Ardent;
+import tk.ardentbot.rethink.models.CommandModel;
+import tk.ardentbot.rethink.models.SubcommandModel;
+import tk.ardentbot.rethink.models.TranslationModel;
+import tk.ardentbot.utils.discord.GuildUtils;
 
-import static tk.ardentbot.Main.Ardent.globalGson;
-import static tk.ardentbot.Rethink.Database.connection;
-import static tk.ardentbot.Rethink.Database.r;
+import static tk.ardentbot.main.Ardent.globalGson;
+import static tk.ardentbot.rethink.Database.connection;
+import static tk.ardentbot.rethink.Database.r;
 
 public class AddEnglishBase extends Command {
     public AddEnglishBase(CommandSettings settings) {
@@ -23,7 +23,7 @@ public class AddEnglishBase extends Command {
 
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, tk.ardentbot
-            .Core.Translation.Language language) throws Exception {
+            .core.translation.Language language) throws Exception {
         sendHelp(language, channel, guild, user, this);
     }
 
@@ -32,7 +32,7 @@ public class AddEnglishBase extends Command {
         subcommands.add(new Subcommand(this, "basic") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, tk
-                    .ardentbot.Core.Translation.Language language) throws Exception {
+                    .ardentbot.core.translation.Language language) throws Exception {
                 if (Ardent.developers.contains(user.getId())) {
                     if (args.length >= 4) {
                         String commandID = args[2];
@@ -53,7 +53,7 @@ public class AddEnglishBase extends Command {
         subcommands.add(new Subcommand(this, "commands") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, tk
-                    .ardentbot.Core.Translation.Language language) throws Exception {
+                    .ardentbot.core.translation.Language language) throws Exception {
                 if (Ardent.developers.contains(user.getId())) {
                     if (args.length > 4) {
                         String commandID = args[2];
@@ -73,7 +73,7 @@ public class AddEnglishBase extends Command {
         subcommands.add(new Subcommand(this, "subcommands") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, tk
-                    .ardentbot.Core.Translation.Language language) throws Exception {
+                    .ardentbot.core.translation.Language language) throws Exception {
                 if (Ardent.developers.contains(user.getId())) {
                     if (args.length >= 6) {
                         String commandID = args[2];

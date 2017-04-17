@@ -1,11 +1,11 @@
-package tk.ardentbot.BotCommands.Fun;
+package tk.ardentbot.botCommands.fun;
 
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.Core.CommandExecution.Command;
-import tk.ardentbot.Core.Translation.Language;
+import tk.ardentbot.core.commandExecutor.Command;
+import tk.ardentbot.core.translation.Language;
 
 public class Deeplearning extends Command {
     public Deeplearning(CommandSettings commandSettings) {

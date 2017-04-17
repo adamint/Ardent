@@ -1,21 +1,21 @@
-package tk.ardentbot.Utils.RPGUtils.Profiles;
+package tk.ardentbot.utils.rpgUtils.profiles;
 
 import com.rethinkdb.net.Cursor;
 import lombok.Getter;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.Rethink.Models.OneTimeBadgeModel;
-import tk.ardentbot.Utils.Discord.UserUtils;
-import tk.ardentbot.Utils.RPGUtils.BadgesList;
+import tk.ardentbot.rethink.models.OneTimeBadgeModel;
+import tk.ardentbot.utils.discord.UserUtils;
+import tk.ardentbot.utils.rpgUtils.BadgesList;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static tk.ardentbot.Core.CommandExecution.BaseCommand.asPojo;
-import static tk.ardentbot.Main.Ardent.globalGson;
-import static tk.ardentbot.Rethink.Database.connection;
-import static tk.ardentbot.Rethink.Database.r;
+import static tk.ardentbot.core.commandExecutor.BaseCommand.asPojo;
+import static tk.ardentbot.main.Ardent.globalGson;
+import static tk.ardentbot.rethink.Database.connection;
+import static tk.ardentbot.rethink.Database.r;
 
 public class Profile {
     private List<Badge> badges = new ArrayList<>();

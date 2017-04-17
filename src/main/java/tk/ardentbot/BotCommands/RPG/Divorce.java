@@ -1,19 +1,19 @@
-package tk.ardentbot.BotCommands.RPG;
+package tk.ardentbot.botCommands.rpg;
 
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.Core.CommandExecution.Command;
-import tk.ardentbot.Core.Translation.Language;
-import tk.ardentbot.Rethink.Models.Marriage;
-import tk.ardentbot.Utils.Discord.UserUtils;
-import tk.ardentbot.Utils.RPGUtils.Profiles.Profile;
+import tk.ardentbot.core.commandExecutor.Command;
+import tk.ardentbot.core.translation.Language;
+import tk.ardentbot.rethink.models.Marriage;
+import tk.ardentbot.utils.discord.UserUtils;
+import tk.ardentbot.utils.rpgUtils.profiles.Profile;
 
 import java.security.SecureRandom;
 
-import static tk.ardentbot.Rethink.Database.connection;
-import static tk.ardentbot.Rethink.Database.r;
+import static tk.ardentbot.rethink.Database.connection;
+import static tk.ardentbot.rethink.Database.r;
 
 public class Divorce extends Command {
     public Divorce(CommandSettings commandSettings) {
