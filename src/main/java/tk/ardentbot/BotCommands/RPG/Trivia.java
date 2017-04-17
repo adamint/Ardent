@@ -15,14 +15,13 @@ import tk.ardentbot.utils.rpgUtils.TriviaGame;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class Trivia extends Command {
-    public static final CopyOnWriteArrayList<TriviaGame> gamesInSession = new CopyOnWriteArrayList<>();
-    public static final CopyOnWriteArrayList<String> gamesSettingUp = new CopyOnWriteArrayList<>();
+    public static final ArrayList<TriviaGame> gamesInSession = new ArrayList<>();
+    public static final ArrayList<String> gamesSettingUp = new ArrayList<>();
     public static ArrayList<TriviaQuestion> triviaQuestions = new ArrayList<>();
 
     public Trivia(CommandSettings commandSettings) {
@@ -115,6 +114,22 @@ public class Trivia extends Command {
                     commenceRounds(guild, (TextChannel) channel, user, currentGame);
                     gamesSettingUp.remove(guild.getId());
                 });
+            }
+        });
+
+        subcommands.add(new Subcommand(this, "stop") {
+            @Override
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws
+                    Exception {
+                if (gamesInSession.stream().filter(game -> game.getGuildId().equals(guild.getId())).count() > 0 || gamesSettingUp
+                        .contains(guild.getId())) {
+                    gamesSettingUp.remove(guild.getId());
+                    gamesInSession.removeIf(g -> g.getGuildId().equals(guild.getId()));
+                    sendRetrievedTranslation(channel, "trivia", language, "stoppedtrivia", user);
+                }
+                else {
+                    sendRetrievedTranslation(channel, "trivia", language, "notriviacurrently", user);
+                }
             }
         });
     }

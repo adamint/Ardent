@@ -31,11 +31,12 @@ public class Roleinfo extends Command {
                 sendEmbed(getRoleInformation(r, guild, language, user), channel, user);
             }
         }
-        String roleString = replace(message.getRawContent(), 1);
+        String roleString = replaceCommandIdAndPrefix(message.getRawContent());
         List<Role> retrievedRoles = guild.getRolesByName(roleString, true);
         if (retrievedRoles.size() == 0) {
             sendRetrievedTranslation(channel, "roleinfo", language, "mentionuserortyperolename", user);
         }
+
         else if (retrievedRoles.size() > 1) {
             sendRetrievedTranslation(channel, "roleinfo", language, "multiplerolesfound", user);
             sendEmbed(chooseFromList(getTranslation("roleinfo", language, "choosefromlist").getTranslation(), guild, language, user,
