@@ -18,6 +18,7 @@ repositories {
 }
 
 dependencies {
+    compile 'com.github.adamint:JavaTuples:da065b1f9b'
     compile 'com.sedmelluq:jda-nas:1.0.3'
     compile 'net.dv8tion:JDA:3.0.0_169'
     compile group: 'org.codehaus.groovy', name: 'groovy-jsr223', version: '2.4.9'

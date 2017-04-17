@@ -36,12 +36,7 @@ public class SparkServer {
      * Sets up the web server and the endpoints
      */
     public static void setup() {
-        if (Ardent.testingBot) {
-            port(666);
-        }
-        else {
-            port(666);
-        }
+        port(666);
         get("/api/commands", (rq, rs) -> {
             CommandFactory factory = shard0.factory;
             ArrayList<Command> commands = new ArrayList<>();

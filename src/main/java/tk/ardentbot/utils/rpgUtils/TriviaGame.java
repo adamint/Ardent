@@ -77,6 +77,7 @@ public class TriviaGame {
         final int bonus = 250;
         final int perQuestion = 50;
         Trivia.gamesInSession.remove(this);
+        Trivia.gamesSettingUp.remove(guildId);
         Guild guild = shard.jda.getGuildById(guildId);
         Language language = GuildUtils.getLanguage(guild);
         TextChannel channel = guild.getTextChannelById(textChannelId);

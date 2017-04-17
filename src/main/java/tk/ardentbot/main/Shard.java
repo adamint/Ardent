@@ -26,10 +26,7 @@ import tk.ardentbot.botCommands.botAdministration.*;
 import tk.ardentbot.botCommands.botInfo.*;
 import tk.ardentbot.botCommands.fun.*;
 import tk.ardentbot.botCommands.guildAdministration.*;
-import tk.ardentbot.botCommands.guildInfo.Botname;
-import tk.ardentbot.botCommands.guildInfo.GuildInfo;
-import tk.ardentbot.botCommands.guildInfo.ServerInfo;
-import tk.ardentbot.botCommands.guildInfo.Whois;
+import tk.ardentbot.botCommands.guildInfo.*;
 import tk.ardentbot.botCommands.music.GuildMusicManager;
 import tk.ardentbot.botCommands.music.Music;
 import tk.ardentbot.botCommands.music.Play;
@@ -265,6 +262,8 @@ public class Shard {
                         .GUILDINFO)));
                 factory.registerCommand(new Whois(new BaseCommand.CommandSettings("whois", true, true, Category
                         .GUILDINFO)));
+                factory.registerCommand(new Roleinfo(new BaseCommand.CommandSettings("roleinfo", false, true,
+                        Category.BOTADMINISTRATION)));
                 /*
                 factory.registerCommand(new Points(new BaseCommand.CommandSettings("points", false, true, Category
                         .GUILDINFO)));
