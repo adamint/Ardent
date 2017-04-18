@@ -22,34 +22,34 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.hooks.AnnotatedEventManager;
 import org.apache.commons.io.IOUtils;
-import tk.ardentbot.botCommands.botAdministration.*;
-import tk.ardentbot.botCommands.botInfo.*;
-import tk.ardentbot.botCommands.fun.*;
-import tk.ardentbot.botCommands.guildAdministration.*;
-import tk.ardentbot.botCommands.guildInfo.*;
-import tk.ardentbot.botCommands.music.GuildMusicManager;
-import tk.ardentbot.botCommands.music.Music;
-import tk.ardentbot.botCommands.music.Play;
-import tk.ardentbot.botCommands.nsfw.Asses;
-import tk.ardentbot.botCommands.nsfw.Feet;
-import tk.ardentbot.botCommands.nsfw.NSFW;
-import tk.ardentbot.botCommands.nsfw.Tits;
-import tk.ardentbot.botCommands.rpg.*;
-import tk.ardentbot.core.botData.BotLanguageData;
-import tk.ardentbot.core.botData.BotMuteData;
-import tk.ardentbot.core.botData.BotPrefixData;
-import tk.ardentbot.core.commandExecutor.BaseCommand;
-import tk.ardentbot.core.commandExecutor.Category;
-import tk.ardentbot.core.commandExecutor.Command;
-import tk.ardentbot.core.commandExecutor.CommandFactory;
+import tk.ardentbot.commands.administration.*;
+import tk.ardentbot.commands.botAdministration.*;
+import tk.ardentbot.commands.botinfo.*;
+import tk.ardentbot.commands.fun.*;
+import tk.ardentbot.commands.guildinfo.*;
+import tk.ardentbot.commands.music.GuildMusicManager;
+import tk.ardentbot.commands.music.Music;
+import tk.ardentbot.commands.music.Play;
+import tk.ardentbot.commands.nsfw.Asses;
+import tk.ardentbot.commands.nsfw.Feet;
+import tk.ardentbot.commands.nsfw.NSFW;
+import tk.ardentbot.commands.nsfw.Tits;
+import tk.ardentbot.commands.rpg.*;
+import tk.ardentbot.core.data.BotLanguageData;
+import tk.ardentbot.core.data.BotMuteData;
+import tk.ardentbot.core.data.BotPrefixData;
 import tk.ardentbot.core.events.*;
+import tk.ardentbot.core.executor.BaseCommand;
+import tk.ardentbot.core.executor.Category;
+import tk.ardentbot.core.executor.Command;
+import tk.ardentbot.core.executor.CommandFactory;
 import tk.ardentbot.core.misc.loggingUtils.BotException;
 import tk.ardentbot.core.translation.LangFactory;
 import tk.ardentbot.core.translation.Language;
 import tk.ardentbot.rethink.models.GuildModel;
 import tk.ardentbot.rethink.models.RestrictedUserModel;
 import tk.ardentbot.utils.models.RestrictedUser;
-import tk.ardentbot.utils.rpgUtils.EntityGuild;
+import tk.ardentbot.utils.rpg.EntityGuild;
 
 import java.io.File;
 import java.io.FileReader;
@@ -60,7 +60,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static tk.ardentbot.core.commandExecutor.BaseCommand.asPojo;
+import static tk.ardentbot.core.executor.BaseCommand.asPojo;
 import static tk.ardentbot.core.translation.LangFactory.languages;
 import static tk.ardentbot.rethink.Database.connection;
 import static tk.ardentbot.rethink.Database.r;
@@ -211,7 +211,7 @@ public class Shard {
                 factory.registerCommand(new EightBall(new BaseCommand.CommandSettings("8ball", true, true, Category
                         .FUN)));
                 factory.registerCommand(new Tags(new BaseCommand.CommandSettings("tag", false, true, Category.FUN)));
-                factory.registerCommand(new tk.ardentbot.botCommands.fun.Translate(new BaseCommand.CommandSettings
+                factory.registerCommand(new tk.ardentbot.commands.fun.Translate(new BaseCommand.CommandSettings
                         ("translate", true, true, Category.FUN)));
                 factory.registerCommand(new Define(new BaseCommand.CommandSettings("define", true, true, Category
                         .FUN)));
@@ -274,6 +274,7 @@ public class Shard {
                 factory.registerCommand(new RPGMoney(new BaseCommand.CommandSettings("money", false, true, Category.RPG)));
                 factory.registerCommand(new Pay(new BaseCommand.CommandSettings("pay", false, true, Category.RPG)));
                 factory.registerCommand(new Bet(new BaseCommand.CommandSettings("bet", false, true, Category.RPG)));
+                factory.registerCommand(new Loan(new BaseCommand.CommandSettings("loan", false, true, Category.RPG)));
                 factory.registerCommand(new Trivia(new BaseCommand.CommandSettings("trivia", false, true, Category.RPG)));
                 factory.registerCommand(new Badges(new BaseCommand.CommandSettings("badges", false, true, Category.RPG)));
                 factory.registerCommand(new Marry(new BaseCommand.CommandSettings("marry", false, true, Category.RPG)));

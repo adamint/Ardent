@@ -2,7 +2,7 @@ package tk.ardentbot.core.translation;
 
 import com.rethinkdb.net.Cursor;
 import org.json.simple.JSONObject;
-import tk.ardentbot.core.commandExecutor.BaseCommand;
+import tk.ardentbot.core.executor.BaseCommand;
 import tk.ardentbot.core.models.CommandTranslation;
 import tk.ardentbot.core.models.PhraseTranslation;
 import tk.ardentbot.core.models.SubcommandTranslation;
@@ -83,6 +83,42 @@ public class Language {
             subcommands.close();
             commands.close();
 
+            commandTranslations.forEach(ct -> {
+                switch (ct.getIdentifier()) {
+                    case "music":
+                        ct.with("m", "tunes");
+                        break;
+                    case "patreon":
+                        ct.with("donate");
+                        break;
+                    case "eval":
+                        ct.with("j");
+                        break;
+                    case "joinmessage":
+                        ct.with("join");
+                        break;
+                    case "random":
+                        ct.with("rand");
+                        break;
+                    case "automessage":
+                        ct.with("am");
+                        break;
+                    case "setnickname":
+                        ct.with("sn");
+                        break;
+                    case "roleinfo":
+                        ct.with("ri");
+                        break;
+                    case "guildinfo":
+                        ct.with("serverinfo", "ginfo", "gi");
+                        break;
+                    case "feet":
+                        ct.with("toes", "soles");
+                        break;
+                    default:
+                        break;
+                }
+            });
         }, 0, 15, TimeUnit.MINUTES);
     }
 

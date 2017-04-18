@@ -7,11 +7,15 @@ public class CommandTranslation {
     private String identifier;
     private String translation;
     private String description;
-
+    private String[] aliases = null;
     public CommandTranslation(String identifier, String translation, String description) {
         this.identifier = identifier;
         this.translation = translation;
         this.description = description;
+    }
+
+    public void with(String... aliases) {
+        this.aliases = aliases;
     }
 
     public String getIdentifier() {
@@ -22,5 +26,19 @@ public class CommandTranslation {
     }
     public String getDescription() {
         return description;
+    }
+
+    /**
+     * Check whether the queried command name includes an alias
+     *
+     * @param query the first argument of the message
+     * @return whether this command includes that alias
+     */
+    public boolean containsAlias(String query) {
+        if (aliases == null) return false;
+        for (String alias : aliases) {
+            if (alias.equalsIgnoreCase(query)) return true;
+        }
+        return false;
     }
 }

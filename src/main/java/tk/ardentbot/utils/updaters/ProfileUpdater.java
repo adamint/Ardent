@@ -3,14 +3,14 @@ package tk.ardentbot.utils.updaters;
 import com.rethinkdb.net.Cursor;
 import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.main.Ardent;
-import tk.ardentbot.utils.rpgUtils.profiles.Badge;
-import tk.ardentbot.utils.rpgUtils.profiles.Profile;
+import tk.ardentbot.utils.rpg.profiles.Badge;
+import tk.ardentbot.utils.rpg.profiles.Profile;
 
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import static tk.ardentbot.core.commandExecutor.BaseCommand.asPojo;
+import static tk.ardentbot.core.executor.BaseCommand.asPojo;
 import static tk.ardentbot.rethink.Database.connection;
 import static tk.ardentbot.rethink.Database.r;
 

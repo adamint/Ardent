@@ -5,10 +5,10 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import tk.ardentbot.botCommands.rpg.Trivia;
+import tk.ardentbot.commands.rpg.Trivia;
 import tk.ardentbot.main.Shard;
 import tk.ardentbot.utils.discord.GuildUtils;
-import tk.ardentbot.utils.rpgUtils.TriviaGame;
+import tk.ardentbot.utils.rpg.TriviaGame;
 
 class TriviaChecker {
     static void check(MessageReceivedEvent event) throws Exception {

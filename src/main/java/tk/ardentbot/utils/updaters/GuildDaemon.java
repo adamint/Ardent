@@ -11,7 +11,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static tk.ardentbot.core.commandExecutor.BaseCommand.asPojo;
+import static tk.ardentbot.core.executor.BaseCommand.asPojo;
 import static tk.ardentbot.main.Ardent.globalGson;
 import static tk.ardentbot.rethink.Database.connection;
 import static tk.ardentbot.rethink.Database.r;

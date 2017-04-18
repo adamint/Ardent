@@ -3,7 +3,7 @@ package tk.ardentbot.utils.discord;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.core.commandExecutor.BaseCommand;
+import tk.ardentbot.core.executor.BaseCommand;
 import tk.ardentbot.core.translation.Language;
 
 import java.awt.*;

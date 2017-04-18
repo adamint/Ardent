@@ -3,8 +3,8 @@ package tk.ardentbot.core.events;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.core.hooks.SubscribeEvent;
-import tk.ardentbot.botCommands.music.GuildMusicManager;
-import tk.ardentbot.botCommands.music.Music;
+import tk.ardentbot.commands.music.GuildMusicManager;
+import tk.ardentbot.commands.music.Music;
 
 public class VoiceLeaveEvent {
     @SubscribeEvent

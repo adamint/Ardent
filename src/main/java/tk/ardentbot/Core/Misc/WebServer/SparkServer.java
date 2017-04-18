@@ -3,7 +3,7 @@ package tk.ardentbot.core.misc.webServer;
 import com.rethinkdb.net.Cursor;
 import spark.Request;
 import spark.Response;
-import tk.ardentbot.core.commandExecutor.CommandFactory;
+import tk.ardentbot.core.executor.CommandFactory;
 import tk.ardentbot.core.misc.loggingUtils.BotException;
 import tk.ardentbot.core.misc.webServer.models.Command;
 import tk.ardentbot.core.misc.webServer.models.Status;
@@ -25,7 +25,7 @@ import java.util.Random;
 
 import static spark.Spark.get;
 import static spark.Spark.port;
-import static tk.ardentbot.botCommands.botAdministration.Translate.*;
+import static tk.ardentbot.commands.botAdministration.Translate.*;
 import static tk.ardentbot.main.Ardent.globalGson;
 import static tk.ardentbot.main.Ardent.shard0;
 import static tk.ardentbot.rethink.Database.connection;

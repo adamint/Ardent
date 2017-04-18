@@ -6,9 +6,9 @@ import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.main.Ardent;
 import tk.ardentbot.main.Shard;
 import tk.ardentbot.main.ShardManager;
-import tk.ardentbot.utils.rpgUtils.BadgesList;
-import tk.ardentbot.utils.rpgUtils.profiles.Badge;
-import tk.ardentbot.utils.rpgUtils.profiles.Profile;
+import tk.ardentbot.utils.rpg.BadgesList;
+import tk.ardentbot.utils.rpg.profiles.Badge;
+import tk.ardentbot.utils.rpg.profiles.Profile;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
