@@ -38,10 +38,10 @@ public class Tinder extends Command {
      */
     private static ArrayList<TinderMatch> getMutuallySwipedWith(String userId) {
         ArrayList<TinderMatch> mutuallySwipedWith = new ArrayList<>();
-        ArrayList<TinderMatch> matches = queryToArraylist(TinderMatch.class, r.table("tinder_matches").filter(r.hashMap
+        ArrayList<TinderMatch> matches = queryAsArrayList(TinderMatch.class, r.table("tinder_matches").filter(r.hashMap
                 ("user_id", userId).with("swipedRight", true)).run(connection));
         matches.forEach(potentialMatch -> {
-            ArrayList<TinderMatch> personMatches = queryToArraylist(TinderMatch.class, r.table("tinder_matches").filter(r.hashMap
+            ArrayList<TinderMatch> personMatches = queryAsArrayList(TinderMatch.class, r.table("tinder_matches").filter(r.hashMap
                     ("user_id", potentialMatch.getPerson_id()).with("swipedRight", true)).run(connection));
             personMatches.forEach(personMatch -> {
                 if (personMatch.getPerson_id().equals(userId)) mutuallySwipedWith.add(personMatch);
@@ -52,11 +52,11 @@ public class Tinder extends Command {
 
     private static boolean swipedRightWith(String userId, String toCheckWithId) {
         final boolean[] mutualSwipedWith = {false};
-        ArrayList<TinderMatch> matches = queryToArraylist(TinderMatch.class, r.table("tinder_matches").filter(r.hashMap("user_id",
+        ArrayList<TinderMatch> matches = queryAsArrayList(TinderMatch.class, r.table("tinder_matches").filter(r.hashMap("user_id",
                 userId).with("swipedRight", true)).run(connection));
         matches.forEach(tinderMatch -> {
             if (tinderMatch.getPerson_id().equals(toCheckWithId)) {
-                ArrayList<TinderMatch> personMatches = queryToArraylist(TinderMatch.class, r.table("tinder_matches").filter(r.hashMap
+                ArrayList<TinderMatch> personMatches = queryAsArrayList(TinderMatch.class, r.table("tinder_matches").filter(r.hashMap
                         ("user_id",
                                 toCheckWithId).with("swipedRight", true)).run(connection));
                 personMatches.forEach(personMatch -> {
@@ -87,7 +87,7 @@ public class Tinder extends Command {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws
                     Exception {
-                ArrayList<TinderMatch> matches = queryToArraylist(TinderMatch.class, r.table("tinder_matches").filter(row -> row.g
+                ArrayList<TinderMatch> matches = queryAsArrayList(TinderMatch.class, r.table("tinder_matches").filter(row -> row.g
                         ("user_id").eq(user.getId())).run(connection));
                 User potentialMatch = getPotentialMatch(user, guild, matches);
                 HashMap<Integer, TranslationResponse> translations = getTranslations(language,
@@ -139,7 +139,7 @@ public class Tinder extends Command {
                 builder.setThumbnail(user.getAvatarUrl());
                 StringBuilder description = new StringBuilder();
                 description.append("**" + yourMatches + "**");
-                ArrayList<TinderMatch> matches = queryToArraylist(TinderMatch.class, r.table("tinder_matches").filter(r.hashMap("user_id",
+                ArrayList<TinderMatch> matches = queryAsArrayList(TinderMatch.class, r.table("tinder_matches").filter(r.hashMap("user_id",
                         user.getId()).with("swipedRight", true)).run(connection));
                 if (matches.size() == 0) {
                     description.append("\n" + translations.get(3).getTranslation());
@@ -176,7 +176,7 @@ public class Tinder extends Command {
                     int number = Integer.parseInt(args[2]) - 1;
                     if (number < 0) sendRetrievedTranslation(channel, "tinder", language, "messagesyntax", user);
                     else {
-                        ArrayList<TinderMatch> matches = queryToArraylist(TinderMatch.class, r.table("tinder_matches").filter(r.hashMap
+                        ArrayList<TinderMatch> matches = queryAsArrayList(TinderMatch.class, r.table("tinder_matches").filter(r.hashMap
                                 ("user_id", user.getId()).with("swipedRight", true)).run(connection));
                         if (number >= matches.size()) {
                             sendRetrievedTranslation(channel, "tinder", language, "youdonthavethismanymatches", user);
@@ -228,7 +228,7 @@ public class Tinder extends Command {
                     int number = Integer.parseInt(args[2]) - 1;
                     if (number < 0) sendRetrievedTranslation(channel, "tinder", language, "removesyntax", user);
                     else {
-                        ArrayList<TinderMatch> matches = queryToArraylist(TinderMatch.class, r.table("tinder_matches").filter(r.hashMap
+                        ArrayList<TinderMatch> matches = queryAsArrayList(TinderMatch.class, r.table("tinder_matches").filter(r.hashMap
                                 ("user_id", user.getId()).with("swipedRight", true)).run(connection));
                         if (number >= matches.size()) {
                             sendRetrievedTranslation(channel, "tinder", language, "youdonthavethismanymatches", user);

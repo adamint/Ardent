@@ -65,7 +65,7 @@ public class Ardent {
     public static Process premiumProcess;
     public static boolean premiumBot = false;
     public static String premiumBotToken;
-    public static boolean testingBot = false;
+    public static boolean testingBot = true;
     public static Api spotifyApi;
     public static ArrayList<String> tierOnepatrons = new ArrayList<>();
     public static ArrayList<String> tierTwopatrons = new ArrayList<>();
@@ -282,8 +282,14 @@ public class Ardent {
                         transport, jsonFactory, clientSecrets, scopes)
                         .setDataStoreFactory(dataStoreFactory)
                         .build();
-        Credential credential = new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver.Builder().setHost("ardentbot.tk").setPort
+        Credential credential;
+        if (!testingBot)
+            credential = new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver.Builder().setHost("ardentbot.tk").setPort
                 (1337).build()).authorize("703818195441-no5nh31a0rfcogq8k9ggsvsvkq5ai0ih.apps.googleusercontent.com");
+        else {
+            credential = new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver.Builder().setHost("localhost").setPort
+                    (1337).build()).authorize("703818195441-no5nh31a0rfcogq8k9ggsvsvkq5ai0ih.apps.googleusercontent.com");
+        }
         //System.out.println(credential.refreshToken());
         return credential;
     }

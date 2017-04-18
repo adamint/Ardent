@@ -43,15 +43,15 @@ public class AdBlock extends Command {
                         , AntiAdvertisingSettings.class);
                 if (settings == null) {
                     settings = new AntiAdvertisingSettings(guild.getId(), true, false);
-                    r.table("anti_advertising_settings").insert(r.json(globalGson.toJson(settings)));
+                    r.table("anti_advertising_settings").insert(r.json(globalGson.toJson(settings))).run(connection);
                 }
                 EmbedBuilder builder = MessageUtils.getDefaultEmbed(guild, user, AdBlock.this);
                 String adblockSettings = translations.get(0).getTranslation();
                 builder.setAuthor(adblockSettings, guild.getIconUrl(), guild.getIconUrl());
                 StringBuilder description = new StringBuilder();
                 description.append("**" + adblockSettings + "**");
-                description.append("\n" + translations.get(2).getTranslation() + ": *" + settings.isAllow_discord_server_links() + "*");
-                description.append("\n" + translations.get(3).getTranslation() + ": *" + settings.isBan_after_two_infractions() + "*");
+                description.append("\n" + translations.get(1).getTranslation() + ": *" + settings.isAllow_discord_server_links() + "*");
+                description.append("\n" + translations.get(2).getTranslation() + ": *" + settings.isBan_after_two_infractions() + "*");
                 sendEmbed(builder.setDescription(description), channel, user);
             }
         });
@@ -67,7 +67,7 @@ public class AdBlock extends Command {
                     if (allow) {
                         if (settings == null)
                             r.table("anti_advertising_settings").insert(r.json(globalGson.toJson(new AntiAdvertisingSettings(guild.getId
-                                    (), true, false))));
+                                    (), true, false)))).run(connection);
                         else r.table("anti_advertising_settings").get(guild.getId()).update(r.hashMap("allow_discord_server_links", true))
                                 .run(connection);
                         sendRetrievedTranslation(channel, "adblock", language, "nowcanpostdiscordserverlinks", user);
@@ -75,7 +75,7 @@ public class AdBlock extends Command {
                     else {
                         if (settings == null)
                             r.table("anti_advertising_settings").insert(r.json(globalGson.toJson(new AntiAdvertisingSettings(guild.getId
-                                    (), true, false))));
+                                    (), false, false)))).run(connection);
                         else r.table("anti_advertising_settings").get(guild.getId()).update(r.hashMap("allow_discord_server_links", false))
                                 .run(connection);
                         sendRetrievedTranslation(channel, "adblock", language, "nowcannotpostdiscordserverlinks", user);
@@ -97,7 +97,7 @@ public class AdBlock extends Command {
                     if (yes) {
                         if (settings == null)
                             r.table("anti_advertising_settings").insert(r.json(globalGson.toJson(new AntiAdvertisingSettings(guild.getId
-                                    (), false, true))));
+                                    (), false, true)))).run(connection);
                         else r.table("anti_advertising_settings").get(guild.getId()).update(r.hashMap("ban_after_two_infractions", true))
                                 .run(connection);
                         sendRetrievedTranslation(channel, "adblock", language, "willbanafter2ads", user);
@@ -105,7 +105,7 @@ public class AdBlock extends Command {
                     else {
                         if (settings == null)
                             r.table("anti_advertising_settings").insert(r.json(globalGson.toJson(new AntiAdvertisingSettings(guild.getId
-                                    (), true, false))));
+                                    (), true, false)))).run(connection);
                         else r.table("anti_advertising_settings").get(guild.getId()).update(r.hashMap("ban_after_two_infractions", false))
                                 .run(connection);
                         sendRetrievedTranslation(channel, "adblock", language, "willnotbanusersafter2ads", user);

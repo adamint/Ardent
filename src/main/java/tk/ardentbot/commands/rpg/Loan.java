@@ -73,8 +73,9 @@ public class Loan extends Command {
                     return;
                 }
                 User loanTo = mentionedUsers.get(0);
-                ArrayList<LoanModel> loansBetween = queryToArraylist(r.table("loans").filter(row -> row.g("loaner_id").eq(user.getId())
-                        .and(row.g("receiver_id").eq(loanTo.getId()))).run(connection), LoanModel.class);
+                ArrayList<LoanModel> loansBetween = queryAsArrayList(LoanModel.class, r.table("loans").filter(row -> row.g("loaner_id")
+                        .eq(user.getId())
+                        .and(row.g("receiver_id").eq(loanTo.getId()))).run(connection));
                 if (loansBetween.size() > 0) {
                     sendRetrievedTranslation(channel, "loan", language, "alreadyloaningtothisperson", user);
                     return;

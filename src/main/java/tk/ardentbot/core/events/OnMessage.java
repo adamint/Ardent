@@ -46,31 +46,32 @@ public class OnMessage {
                             .getId()).run(connection), AntiAdvertisingSettings.class);
                     if (antiAdvertisingSettings != null && !antiAdvertisingSettings.isAllow_discord_server_links()) {
                         if (!event.getMember().hasPermission(Permission.MANAGE_SERVER)) {
-                            if (event.getMessage().getRawContent().contains("discordapp.com/invite")) {
+                            if (event.getMessage().getRawContent().contains("discordapp.com/invite") || event.getMessage().getRawContent
+                                    ().contains("discord.gg")) {
                                 event.getMessage().delete().queue();
-                                ArrayList<AdvertisingInfraction> infractions = BaseCommand.queryToArraylist(r.table
+                                ArrayList<AdvertisingInfraction> infractions = BaseCommand.queryAsArrayList(AdvertisingInfraction.class, r.table
                                         ("advertising_infractions").filter(row -> row.g("guild_id").eq(guild.getId())
-                                        .and(row.g("user_id").eq(event.getAuthor().getId()))).run(connection), AdvertisingInfraction.class);
+                                        .and(row.g("user_id").eq(event.getAuthor().getId()))).run(connection));
                                 if (infractions.size() > 2 && antiAdvertisingSettings.isBan_after_two_infractions()) {
                                     guild.getController().ban(event.getAuthor(), 1).queue();
                                     shard.help.sendEditedTranslation("adblock", language, "banned", event.getAuthor(), event.getChannel()
                                             , UserUtils.getNameWithDiscriminator(event.getAuthor().getId()));
                                     event.getAuthor().openPrivateChannel().queue(privateChannel -> {
                                         ShardManager.getShards()[0].help.sendEditedTranslation("adblock", language, "youwerebanned",
-                                                event.getAuthor(), event.getChannel(), guild.getName());
+                                                event.getAuthor(), privateChannel, guild.getName());
                                     });
                                     r.table("advertising_infractions").filter(row -> row.g("guild_id").eq(guild.getId())
                                             .and(row.g("user_id").eq(event.getAuthor().getId()))).delete().run(connection);
                                 }
                                 else {
                                     r.table("advertising_infractions").insert(r.json(globalGson.toJson(new AdvertisingInfraction(event
-                                            .getAuthor().getId(),
-                                            guild.getId())))).run(connection);
-                                    shard.help.sendRetrievedTranslation(event.getChannel(), "adblock", language, "cannotadvertiseservers",
-                                            event.getAuthor());
+                                            .getAuthor().getId(), guild.getId())))).run(connection);
+                                    shard.help.sendEditedTranslation("adblock", language, "cannotadvertise", event.getAuthor(), event
+                                            .getChannel(), event.getAuthor().getAsMention());
                                 }
                                 return;
                             }
+
                         }
                     }
 

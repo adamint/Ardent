@@ -23,6 +23,7 @@ import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.hooks.AnnotatedEventManager;
 import org.apache.commons.io.IOUtils;
 import tk.ardentbot.commands.administration.*;
+import tk.ardentbot.commands.antitroll.AdBlock;
 import tk.ardentbot.commands.botAdministration.*;
 import tk.ardentbot.commands.botinfo.*;
 import tk.ardentbot.commands.fun.*;
@@ -227,6 +228,8 @@ public class Shard {
                 // factory.registerCommand(new Deeplearning(new BaseCommand.CommandSettings("deeplearning", false, true, Category
                 //      .FUN)));
 
+                factory.registerCommand(new AdBlock(new BaseCommand.CommandSettings("adblock", false, true, Category
+                        .GUILDADMINISTRATION)));
                 factory.registerCommand(new Prefix(new BaseCommand.CommandSettings("prefix", false, true, Category
                         .GUILDADMINISTRATION)));
                 factory.registerCommand(new GuildLanguage(new BaseCommand.CommandSettings("language", false, true,
