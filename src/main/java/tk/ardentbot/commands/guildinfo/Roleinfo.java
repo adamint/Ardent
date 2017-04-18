@@ -19,7 +19,7 @@ public class Roleinfo extends Command {
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
         List<Role> mentionedRoles = message.getMentionedRoles();
-        if (args.length == 1 || mentionedRoles.size() == 0) {
+        if (args.length == 1 && mentionedRoles.size() == 0) {
             sendRetrievedTranslation(channel, "roleinfo", language, "mentionuserortyperolename", user);
             return;
         }
@@ -73,7 +73,7 @@ public class Roleinfo extends Command {
             }
             return found;
         }).count()), true);
-        builder.addField(translations.get(3).getTranslation(), role.getCreationTime().toString(), true);
+        builder.addField(translations.get(3).getTranslation(), role.getCreationTime().toLocalDate().toString(), true);
         builder.addField(translations.get(4).getTranslation(), "#" + Integer.toHexString(role.getColor().getRGB()).substring(2)
                 .toUpperCase(), true);
         return builder;

@@ -228,8 +228,6 @@ public class Shard {
                 // factory.registerCommand(new Deeplearning(new BaseCommand.CommandSettings("deeplearning", false, true, Category
                 //      .FUN)));
 
-                factory.registerCommand(new AdBlock(new BaseCommand.CommandSettings("adblock", false, true, Category
-                        .GUILDADMINISTRATION)));
                 factory.registerCommand(new Prefix(new BaseCommand.CommandSettings("prefix", false, true, Category
                         .GUILDADMINISTRATION)));
                 factory.registerCommand(new GuildLanguage(new BaseCommand.CommandSettings("language", false, true,
@@ -290,6 +288,9 @@ public class Shard {
                 factory.registerCommand(new Asses(new BaseCommand.CommandSettings("ass", false, true, Category.NSFW)));
                 factory.registerCommand(new Tits(new BaseCommand.CommandSettings("tits", false, true, Category.NSFW)));
                 factory.registerCommand(new Feet(new BaseCommand.CommandSettings("feet", false, true, Category.NSFW)));
+
+                factory.registerCommand(new AdBlock(new BaseCommand.CommandSettings("adblock", false, true, Category
+                        .ANTI_TROLL)));
 
                 cleverBot = new ChatterBotFactory().create(ChatterBotType.PANDORABOTS, "f5d922d97e345aa1");
 
