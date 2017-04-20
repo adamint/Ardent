@@ -1,4 +1,4 @@
-package tk.ardentbot.Core.data;
+package tk.ardentbot.core.data;
 
 import com.rethinkdb.net.Cursor;
 import net.dv8tion.jda.core.entities.Guild;
@@ -7,7 +7,7 @@ import tk.ardentbot.rethink.models.GuildModel;
 import java.sql.SQLException;
 import java.util.HashMap;
 
-import static tk.ardentbot.Core.executor.BaseCommand.asPojo;
+import static tk.ardentbot.core.executor.BaseCommand.asPojo;
 import static tk.ardentbot.rethink.Database.connection;
 import static tk.ardentbot.rethink.Database.r;
 

@@ -7,7 +7,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.MessageChannel;
-import tk.ardentbot.Core.misc.logging.BotException;
+import tk.ardentbot.core.misc.logging.BotException;
 import tk.ardentbot.utils.discord.GuildUtils;
 
 import static tk.ardentbot.utils.discord.GuildUtils.getShard;

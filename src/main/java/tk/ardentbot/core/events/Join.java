@@ -1,4 +1,4 @@
-package tk.ardentbot.Core.events;
+package tk.ardentbot.core.events;
 
 import com.rethinkdb.net.Cursor;
 import net.dv8tion.jda.core.entities.*;

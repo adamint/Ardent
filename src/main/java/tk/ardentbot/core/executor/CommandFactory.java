@@ -1,4 +1,4 @@
-package tk.ardentbot.Core.executor;
+package tk.ardentbot.core.executor;
 
 import com.google.code.chatterbotapi.ChatterBotSession;
 import com.mashape.unirest.http.Unirest;
@@ -11,10 +11,10 @@ import net.dv8tion.jda.core.exceptions.PermissionException;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.util.ConcurrentArrayQueue;
-import tk.ardentbot.Core.misc.logging.BotException;
-import tk.ardentbot.Core.models.CommandTranslation;
-import tk.ardentbot.Core.translate.LangFactory;
-import tk.ardentbot.Core.translate.Language;
+import tk.ardentbot.core.misc.logging.BotException;
+import tk.ardentbot.core.models.CommandTranslation;
+import tk.ardentbot.core.translate.LangFactory;
+import tk.ardentbot.core.translate.Language;
 import tk.ardentbot.main.Ardent;
 import tk.ardentbot.main.Shard;
 import tk.ardentbot.rethink.models.CommandModel;

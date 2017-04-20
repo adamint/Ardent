@@ -1,14 +1,14 @@
-package tk.ardentbot.Core.events;
+package tk.ardentbot.core.events;
 
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.SubscribeEvent;
-import tk.ardentbot.Core.executor.BaseCommand;
-import tk.ardentbot.Core.misc.logging.BotException;
-import tk.ardentbot.Core.translate.LangFactory;
-import tk.ardentbot.Core.translate.Language;
+import tk.ardentbot.core.executor.BaseCommand;
+import tk.ardentbot.core.misc.logging.BotException;
+import tk.ardentbot.core.translate.LangFactory;
+import tk.ardentbot.core.translate.Language;
 import tk.ardentbot.main.Ardent;
 import tk.ardentbot.main.Shard;
 import tk.ardentbot.main.ShardManager;

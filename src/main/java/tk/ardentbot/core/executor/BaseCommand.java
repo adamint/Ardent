@@ -1,4 +1,4 @@
-package tk.ardentbot.Core.executor;
+package tk.ardentbot.core.executor;
 
 import com.google.gson.Gson;
 import com.rethinkdb.net.Cursor;
@@ -8,13 +8,13 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import org.json.simple.JSONObject;
-import tk.ardentbot.Core.misc.logging.BotException;
-import tk.ardentbot.Core.models.CommandTranslation;
-import tk.ardentbot.Core.models.PhraseTranslation;
-import tk.ardentbot.Core.translate.LangFactory;
-import tk.ardentbot.Core.translate.Language;
-import tk.ardentbot.Core.translate.Translation;
-import tk.ardentbot.Core.translate.TranslationResponse;
+import tk.ardentbot.core.misc.logging.BotException;
+import tk.ardentbot.core.models.CommandTranslation;
+import tk.ardentbot.core.models.PhraseTranslation;
+import tk.ardentbot.core.translate.LangFactory;
+import tk.ardentbot.core.translate.Language;
+import tk.ardentbot.core.translate.Translation;
+import tk.ardentbot.core.translate.TranslationResponse;
 import tk.ardentbot.main.Ardent;
 import tk.ardentbot.main.Shard;
 import tk.ardentbot.rethink.models.TranslationModel;
@@ -24,7 +24,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import static tk.ardentbot.Core.translate.LangFactory.english;
+import static tk.ardentbot.core.translate.LangFactory.english;
 import static tk.ardentbot.rethink.Database.connection;
 import static tk.ardentbot.rethink.Database.r;
 

@@ -1,4 +1,4 @@
-package tk.ardentbot.Core.models;
+package tk.ardentbot.core.models;
 
 /**
  * Wraps subcommand translations into a convenient class

@@ -1,14 +1,14 @@
-package tk.ardentbot.Core.executor;
+package tk.ardentbot.core.executor;
 
 import lombok.NonNull;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
-import tk.ardentbot.Core.events.ReactionEvent;
-import tk.ardentbot.Core.misc.logging.BotException;
-import tk.ardentbot.Core.models.SubcommandTranslation;
-import tk.ardentbot.Core.translate.LangFactory;
-import tk.ardentbot.Core.translate.Language;
+import tk.ardentbot.core.events.ReactionEvent;
+import tk.ardentbot.core.misc.logging.BotException;
+import tk.ardentbot.core.models.SubcommandTranslation;
+import tk.ardentbot.core.translate.LangFactory;
+import tk.ardentbot.core.translate.Language;
 import tk.ardentbot.main.Ardent;
 import tk.ardentbot.main.Shard;
 import tk.ardentbot.utils.discord.GuildUtils;
@@ -25,8 +25,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import static tk.ardentbot.Core.events.InteractiveOnMessage.lastMessages;
-import static tk.ardentbot.Core.events.InteractiveOnMessage.queuedInteractives;
+import static tk.ardentbot.core.events.InteractiveOnMessage.lastMessages;
+import static tk.ardentbot.core.events.InteractiveOnMessage.queuedInteractives;
 
 public abstract class Command extends BaseCommand {
     public int usages = 0;

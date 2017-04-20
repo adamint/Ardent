@@ -1,16 +1,16 @@
-package tk.ardentbot.Core.executor;
+package tk.ardentbot.core.executor;
 
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.Core.models.SubcommandTranslation;
-import tk.ardentbot.Core.translate.Language;
+import tk.ardentbot.core.models.SubcommandTranslation;
+import tk.ardentbot.core.translate.Language;
 
 import java.util.List;
 import java.util.Optional;
 
-import static tk.ardentbot.Core.translate.LangFactory.english;
+import static tk.ardentbot.core.translate.LangFactory.english;
 
 public abstract class Subcommand {
     private String identifier;

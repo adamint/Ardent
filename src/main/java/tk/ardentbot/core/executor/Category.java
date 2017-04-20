@@ -1,4 +1,4 @@
-package tk.ardentbot.Core.executor;
+package tk.ardentbot.core.executor;
 
 /**
  * The main command categories

@@ -1,4 +1,4 @@
-package tk.ardentbot.Core.models;
+package tk.ardentbot.core.models;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

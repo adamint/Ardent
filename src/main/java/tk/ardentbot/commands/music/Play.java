@@ -3,8 +3,8 @@ package tk.ardentbot.commands.music;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.managers.AudioManager;
-import tk.ardentbot.Core.executor.Command;
-import tk.ardentbot.Core.translate.Language;
+import tk.ardentbot.core.executor.Command;
+import tk.ardentbot.core.translate.Language;
 import tk.ardentbot.utils.discord.GuildUtils;
 
 import static tk.ardentbot.commands.music.Music.*;

@@ -1,4 +1,4 @@
-package tk.ardentbot.Core.events;
+package tk.ardentbot.core.events;
 
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;

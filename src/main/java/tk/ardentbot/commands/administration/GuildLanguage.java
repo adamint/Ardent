@@ -1,11 +1,11 @@
 package tk.ardentbot.commands.administration;
 
 import net.dv8tion.jda.core.entities.*;
-import tk.ardentbot.Core.executor.Command;
-import tk.ardentbot.Core.executor.Subcommand;
-import tk.ardentbot.Core.misc.logging.BotException;
-import tk.ardentbot.Core.translate.LangFactory;
-import tk.ardentbot.Core.translate.Language;
+import tk.ardentbot.core.executor.Command;
+import tk.ardentbot.core.executor.Subcommand;
+import tk.ardentbot.core.misc.logging.BotException;
+import tk.ardentbot.core.translate.LangFactory;
+import tk.ardentbot.core.translate.Language;
 import tk.ardentbot.main.Shard;
 import tk.ardentbot.utils.discord.GuildUtils;
 
@@ -23,7 +23,7 @@ public class GuildLanguage extends Command {
 
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, tk.ardentbot
-            .Core.translate.Language language) throws Exception {
+            .core.translate.Language language) throws Exception {
         sendHelp(language, channel, guild, user, this);
     }
 

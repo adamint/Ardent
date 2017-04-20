@@ -48,9 +48,9 @@ public enum Engine {
 
     };
 
-    public static final Collection<String> DEFAULT_IMPORTS = Arrays.asList("net.dv8tion.jda.Core.entities.impl", "net.dv8tion.jda.Core" +
-                    ".managers", "net.dv8tion.jda.Core.entities",
-            "net.dv8tion.jda.Core", "java.lang", "java.io", "java.math", "java.util", "java.util.concurrent", "java.time");
+    public static final Collection<String> DEFAULT_IMPORTS = Arrays.asList("net.dv8tion.jda.core.entities.impl", "net.dv8tion.jda.core" +
+                    ".managers", "net.dv8tion.jda.core.entities",
+            "net.dv8tion.jda.core", "java.lang", "java.io", "java.math", "java.util", "java.util.concurrent", "java.time");
 
     private final static ScheduledExecutorService service = Executors.newScheduledThreadPool(1, r -> new Thread(r, "Eval-Thread"));
 
