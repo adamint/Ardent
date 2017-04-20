@@ -15,7 +15,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-import static tk.ardentbot.main.Ardent.globalGson;
 import static tk.ardentbot.rethink.Database.connection;
 import static tk.ardentbot.rethink.Database.r;
 
@@ -106,10 +105,9 @@ public class Loan extends Command {
                                             loanToProfile.addMoney(amount);
                                             sendEditedTranslation("loan", language, "loanstartsnow", user, channel, loanTo.getAsMention(),
                                                     String.valueOf(days), RPGUtils.formatMoney((amount * (1 + interestPercentage / 100))));
-                                            r.table("loans").insert(r.json(globalGson.toJson(new LoanModel(user.getId(), loanTo.getId(),
-                                                    amount, interestPercentage,
-                                                    Instant.now().plusSeconds((long) (days * 24 * 60 * 60)).getEpochSecond())))).run
-                                                    (connection);
+                                            r.table("loans").insert(r.json(gson.toJson(new LoanModel(user.getId(), loanTo.getId(),
+                                                    amount, interestPercentage, Instant.now().plusSeconds((long) (days * 24 * 60 * 60))
+                                                    .getEpochSecond())))).run(connection);
                                         }
                                         else {
                                             sendEditedTranslation("loan", language, "turneddownloan", user, channel, loanTo.getAsMention

@@ -21,7 +21,6 @@ import java.sql.Date;
 import java.time.Instant;
 import java.util.ArrayList;
 
-import static tk.ardentbot.main.Ardent.globalGson;
 import static tk.ardentbot.main.Ardent.shard0;
 import static tk.ardentbot.rethink.Database.connection;
 import static tk.ardentbot.rethink.Database.r;
@@ -47,9 +46,11 @@ public class OnMessage {
                     if (antiAdvertisingSettings != null && !antiAdvertisingSettings.isAllow_discord_server_links()) {
                         if (!event.getMember().hasPermission(Permission.MANAGE_SERVER)) {
                             if (event.getMessage().getRawContent().contains("discordapp.com/invite") || event.getMessage().getRawContent
-                                    ().contains("discord.gg")) {
+                                    ().contains("discord.gg"))
+                            {
                                 event.getMessage().delete().queue();
-                                ArrayList<AdvertisingInfraction> infractions = BaseCommand.queryAsArrayList(AdvertisingInfraction.class, r.table
+                                ArrayList<AdvertisingInfraction> infractions = BaseCommand.queryAsArrayList(AdvertisingInfraction.class,
+                                        r.table
                                         ("advertising_infractions").filter(row -> row.g("guild_id").eq(guild.getId())
                                         .and(row.g("user_id").eq(event.getAuthor().getId()))).run(connection));
                                 if (infractions.size() > 2 && antiAdvertisingSettings.isBan_after_two_infractions()) {
@@ -64,8 +65,8 @@ public class OnMessage {
                                             .and(row.g("user_id").eq(event.getAuthor().getId()))).delete().run(connection);
                                 }
                                 else {
-                                    r.table("advertising_infractions").insert(r.json(globalGson.toJson(new AdvertisingInfraction(event
-                                            .getAuthor().getId(), guild.getId())))).run(connection);
+                                    r.table("advertising_infractions").insert(r.json(BaseCommand.getStaticGson().toJson(new
+                                            AdvertisingInfraction(event.getAuthor().getId(), guild.getId())))).run(connection);
                                     shard.help.sendEditedTranslation("adblock", language, "cannotadvertise", event.getAuthor(), event
                                             .getChannel(), event.getAuthor().getAsMention());
                                 }

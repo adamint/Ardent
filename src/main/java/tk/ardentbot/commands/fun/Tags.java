@@ -16,7 +16,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static tk.ardentbot.main.Ardent.globalGson;
 import static tk.ardentbot.rethink.Database.connection;
 import static tk.ardentbot.rethink.Database.r;
 
@@ -110,7 +109,7 @@ public class Tags extends Command {
                         String result = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " +
                                 args[1] + " " + args[2] + " ", "");
                         if (!getTagsForGuild(guild).contains(name)) {
-                            r.db("data").table("tags").insert((r.json(globalGson.toJson(new Tag(guild.getId(), name, result, user.getId()
+                            r.db("data").table("tags").insert((r.json(gson.toJson(new Tag(guild.getId(), name, result, user.getId()
                             ))))).run
                                     (connection);
                             String reply = getTranslation("tag", language, "successfullyadded").getTranslation()

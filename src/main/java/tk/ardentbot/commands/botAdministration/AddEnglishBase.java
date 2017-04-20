@@ -12,7 +12,6 @@ import tk.ardentbot.rethink.models.SubcommandModel;
 import tk.ardentbot.rethink.models.TranslationModel;
 import tk.ardentbot.utils.discord.GuildUtils;
 
-import static tk.ardentbot.main.Ardent.globalGson;
 import static tk.ardentbot.rethink.Database.connection;
 import static tk.ardentbot.rethink.Database.r;
 
@@ -40,7 +39,7 @@ public class AddEnglishBase extends Command {
                         String lang = "english";
                         String translation = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " + args[1] + " "
                                 + args[2] + " " + args[3] + " ", "");
-                        r.db("data").table("translations").insert(r.json(globalGson.toJson(new TranslationModel(commandID, translation,
+                        r.db("data").table("translations").insert(r.json(gson.toJson(new TranslationModel(commandID, translation,
                                 id, lang, true)))).run
                                 (connection);
                         sendTranslatedMessage("Inserted new translation successfully.", channel, user);
@@ -62,7 +61,7 @@ public class AddEnglishBase extends Command {
                         String lang = "english";
                         String description = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " + args[1] + " "
                                 + args[2] + " " + args[3] + " ", "");
-                        r.db("data").table("commands").insert(r.json(globalGson.toJson(new CommandModel(commandID, lang, translation,
+                        r.db("data").table("commands").insert(r.json(gson.toJson(new CommandModel(commandID, lang, translation,
                                 description)))).run(connection);
                         sendTranslatedMessage("Inserted new command successfully.", channel, user);
                     }
@@ -87,7 +86,7 @@ public class AddEnglishBase extends Command {
                                 args[2] + " " + args[3] + " " + args[4] + " " + args[5] + " ", "");
                         String[] syntaxDescription = left.split("//");
                         if (syntaxDescription.length == 2) {
-                            r.db("data").table("subcommands").insert(r.json(globalGson.toJson(new SubcommandModel(commandID,
+                            r.db("data").table("subcommands").insert(r.json(gson.toJson(new SubcommandModel(commandID,
                                     syntaxDescription[1], identifier,
                                     lang, Boolean.parseBoolean(needsDb), syntaxDescription[0], translation)))).run(connection);
                             sendTranslatedMessage("Inserted new subcommand successfully.", channel, user);

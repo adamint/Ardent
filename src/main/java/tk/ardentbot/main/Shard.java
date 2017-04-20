@@ -292,8 +292,6 @@ public class Shard {
                 factory.registerCommand(new AdBlock(new BaseCommand.CommandSettings("adblock", false, true, Category
                         .ANTI_TROLL)));
 
-                cleverBot = new ChatterBotFactory().create(ChatterBotType.PANDORABOTS, "f5d922d97e345aa1");
-
                 musicManagers = new HashMap<>();
 
                 playerManager = new DefaultAudioPlayerManager();
@@ -363,6 +361,7 @@ public class Shard {
                 new BotException(ex);
             }
         }, 5, TimeUnit.SECONDS);
+        cleverBot = new ChatterBotFactory().create(ChatterBotType.PANDORABOTS, "f5d922d97e345aa1");
     }
 
     public int getId() {

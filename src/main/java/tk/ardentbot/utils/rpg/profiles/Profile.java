@@ -1,5 +1,6 @@
 package tk.ardentbot.utils.rpg.profiles;
 
+import com.google.gson.Gson;
 import com.rethinkdb.net.Cursor;
 import lombok.Getter;
 import net.dv8tion.jda.core.entities.User;
@@ -11,25 +12,20 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import static tk.ardentbot.core.executor.BaseCommand.asPojo;
-import static tk.ardentbot.main.Ardent.globalGson;
 import static tk.ardentbot.rethink.Database.connection;
 import static tk.ardentbot.rethink.Database.r;
 
 public class Profile {
-    private static ScheduledExecutorService executorService = Executors.newScheduledThreadPool(50);
-    private static ArrayList<Profile> cachedProfiles = new ArrayList<>();
+    private static final Gson gson = new Gson();
     private List<Badge> badges = new ArrayList<>();
     private double money;
     @Getter
     private double stocksOwned;
     private String user_id;
 
-    private Profile(User user) {
+    protected Profile(User user) {
         this.user_id = user.getId();
         Profile profile = asPojo(r.db("data").table("profiles").get(user.getId()).run(connection), Profile.class);
         if (profile != null) {
@@ -42,15 +38,10 @@ public class Profile {
         else {
             this.stocksOwned = 0;
             this.money = 25;
-            r.table("profiles").insert(r.json(globalGson.toJson(this))).run(connection);
+            r.table("profiles").insert(r.json(gson.toJson(this))).run(connection);
         }
-        cachedProfiles.add(this);
-        executorService.schedule(() -> {
-            r.table("profiles").get(user_id).update(r.hashMap("money", money)).run(connection);
-            cachedProfiles.remove(this);
-            r.table("profiles").get(user_id).update(r.hashMap("money", money)).run(connection);
-        }, 5, TimeUnit.MINUTES);
     }
+
 
     public Profile(List<Badge> badges, double money, double stocksOwned, String user_id) {
         this.user_id = user_id;
@@ -60,11 +51,10 @@ public class Profile {
     }
 
     public static Profile get(User user) {
-        for (Profile cachedProfile : cachedProfiles) {
-            if (cachedProfile.getUser().getId().equals(user.getId())) return cachedProfile;
-        }
         Profile profile = asPojo(r.db("data").table("profiles").get(user.getId()).run(connection), Profile.class);
-        if (profile != null) return profile;
+        if (profile != null) {
+            return profile;
+        }
         else return new Profile(user);
     }
 
@@ -79,11 +69,11 @@ public class Profile {
     public boolean addBadge(BadgesList badge) {
         boolean succeeded = true;
         if (badge.isOneTime()) {
-            if (badges.contains(badge)) {
+            if (badges.stream().filter(b -> b.getId().equals(badge.getId())).count() > 0) {
                 succeeded = false;
             }
             else {
-                r.db("data").table("one_time").insert(r.json(globalGson.toJson(new OneTimeBadgeModel(user_id, badge.getId())))).run
+                r.db("data").table("one_time").insert(r.json(gson.toJson(new OneTimeBadgeModel(user_id, badge.getId())))).run
                         (connection);
             }
         }
@@ -110,10 +100,11 @@ public class Profile {
 
     public void addMoney(double amount) {
         money += amount;
+        r.table("profiles").get(user_id).update(r.hashMap("money", money)).run(connection);
     }
 
     public void removeMoney(double amount) {
-        money -= amount;
+        addMoney(-amount);
     }
 
     public void addStock(double amountToAdd) {

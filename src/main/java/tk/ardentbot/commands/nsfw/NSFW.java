@@ -14,7 +14,6 @@ import tk.ardentbot.utils.discord.MessageUtils;
 
 import java.util.HashMap;
 
-import static tk.ardentbot.main.Ardent.globalGson;
 import static tk.ardentbot.rethink.Database.connection;
 import static tk.ardentbot.rethink.Database.r;
 
@@ -27,7 +26,7 @@ public class NSFW extends Command {
         NSFWSettings settings = asPojo(r.table("nsfw_settings").get(guild.getId()).run(connection), NSFWSettings.class);
         if (settings == null) {
             settings = new NSFWSettings(guild.getId());
-            r.table("nsfw_settings").insert(r.json(globalGson.toJson(settings))).run(connection);
+            r.table("nsfw_settings").insert(r.json(getStaticGson().toJson(settings))).run(connection);
         }
         return settings;
     }

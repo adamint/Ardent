@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static tk.ardentbot.main.Ardent.globalGson;
 import static tk.ardentbot.rethink.Database.connection;
 import static tk.ardentbot.rethink.Database.r;
 
@@ -155,7 +154,7 @@ public class Iam extends Command {
                                     List<Role> roleList = guild.getRolesByName(role, true);
                                     if (roleList.size() > 0) {
                                         Role toAdd = roleList.get(0);
-                                        r.table("autoroles").insert(r.json(globalGson.toJson(new AutoroleModel(guild.getId(),
+                                        r.table("autoroles").insert(r.json(gson.toJson(new AutoroleModel(guild.getId(),
                                                 name, toAdd.getId())))).run(connection);
                                         sendTranslatedMessage(getTranslation("iam", language, "addedautorole").getTranslation()
                                                 .replace("{0}", name).replace("{1}", role), channel, user);

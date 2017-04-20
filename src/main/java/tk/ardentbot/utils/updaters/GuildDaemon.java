@@ -2,6 +2,7 @@ package tk.ardentbot.utils.updaters;
 
 import com.rethinkdb.net.Cursor;
 import net.dv8tion.jda.core.entities.Guild;
+import tk.ardentbot.core.executor.BaseCommand;
 import tk.ardentbot.core.misc.loggingUtils.BotException;
 import tk.ardentbot.main.Shard;
 import tk.ardentbot.main.ShardManager;
@@ -12,7 +13,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import static tk.ardentbot.core.executor.BaseCommand.asPojo;
-import static tk.ardentbot.main.Ardent.globalGson;
 import static tk.ardentbot.rethink.Database.connection;
 import static tk.ardentbot.rethink.Database.r;
 
@@ -24,7 +24,8 @@ public class GuildDaemon implements Runnable {
                 ArrayList<String> guildIds = getAllGuildIds();
                 for (Guild guild : shard.jda.getGuilds()) {
                     if (!guildIds.contains(guild.getId())) {
-                        r.db("data").table("guilds").insert(r.json(globalGson.toJson(new GuildModel(guild.getId(), "english", "/"))));
+                        r.db("data").table("guilds").insert(r.json(BaseCommand.getStaticGson().toJson(new GuildModel(guild.getId(),
+                                "english", "/"))));
                         shard.botLanguageData.set(guild, "english");
                     }
                 }

@@ -18,7 +18,6 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 
-import static tk.ardentbot.main.Ardent.globalGson;
 import static tk.ardentbot.rethink.Database.connection;
 import static tk.ardentbot.rethink.Database.r;
 
@@ -42,7 +41,8 @@ public class Language {
             Cursor<HashMap> translations = r.db("data").table("translations").filter(row -> row.g("language").eq("english")).optArg
                     ("default", r.error()).run(connection);
             translations.forEach(tm -> {
-                TranslationModel translationModel = globalGson.fromJson(JSONObject.toJSONString(tm), TranslationModel.class);
+                TranslationModel translationModel = BaseCommand.getStaticGson().fromJson(JSONObject.toJSONString(tm), TranslationModel
+                        .class);
                 if (phraseTranslations.stream().filter(p -> p.getCommandIdentifier().equals(translationModel.getCommand_identifier()) &&
                         p.getTranslation().equals(translationModel.getTranslation()) && p.getId().equals(translationModel.getId())).count
                         () == 0)
@@ -55,7 +55,7 @@ public class Language {
 
             Cursor<HashMap> subcommands = r.db("data").table("subcommands").filter(r.hashMap("language", name)).run(connection);
             subcommands.forEach(sc -> {
-                SubcommandModel subcommandModel = globalGson.fromJson(JSONObject.toJSONString(sc), SubcommandModel.class);
+                SubcommandModel subcommandModel = BaseCommand.getStaticGson().fromJson(JSONObject.toJSONString(sc), SubcommandModel.class);
                 if (subcommandTranslations.stream().filter(st -> st.getCommandIdentifier().equals(subcommandModel.getCommand_identifier())
                         && st.getDescription().equals(subcommandModel.getDescription()) && st.getIdentifier().equals(subcommandModel
                         .getIdentifier())
@@ -70,7 +70,7 @@ public class Language {
 
             Cursor<HashMap> commands = r.db("data").table("commands").filter(r.hashMap("language", name)).run(connection);
             commands.forEach(cm -> {
-                CommandModel commandModel = globalGson.fromJson(JSONObject.toJSONString(cm), CommandModel.class);
+                CommandModel commandModel = BaseCommand.getStaticGson().fromJson(JSONObject.toJSONString(cm), CommandModel.class);
                 if (commandTranslations.stream().filter(ct -> ct.getDescription().equals(commandModel.getDescription()) &&
                         ct.getIdentifier().equals(commandModel.getIdentifier()) && ct.getTranslation().equals(commandModel.getTranslation())
                 ).count() == 0)

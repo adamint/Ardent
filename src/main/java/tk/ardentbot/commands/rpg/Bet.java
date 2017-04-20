@@ -11,6 +11,7 @@ import tk.ardentbot.utils.rpg.RPGUtils;
 import tk.ardentbot.utils.rpg.profiles.Profile;
 
 import java.security.SecureRandom;
+import java.util.Random;
 
 public class Bet extends Command {
     public Bet(CommandSettings commandSettings) {
@@ -48,7 +49,7 @@ public class Bet extends Command {
                                     int num = Integer.parseInt(numberInput.getContent());
                                     if (num > 0 && num <= 2) {
                                         int generated = new SecureRandom().nextInt(2) + 1;
-                                        if (num == generated) {
+                                        if (num == generated || new Random().nextInt(20) == 5) {
                                             profile.addMoney(amountToBet);
                                             sendEditedTranslation("bet", language, "youwon", user, channel, RPGUtils.formatMoney
                                                     (amountToBet));

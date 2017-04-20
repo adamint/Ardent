@@ -18,6 +18,7 @@ import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.managers.AudioManager;
 import org.apache.commons.lang.WordUtils;
+import tk.ardentbot.core.executor.BaseCommand;
 import tk.ardentbot.core.executor.Command;
 import tk.ardentbot.core.executor.Subcommand;
 import tk.ardentbot.core.misc.loggingUtils.BotException;
@@ -43,7 +44,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static tk.ardentbot.main.Ardent.globalGson;
 import static tk.ardentbot.main.Ardent.spotifyApi;
 import static tk.ardentbot.rethink.Database.connection;
 import static tk.ardentbot.rethink.Database.r;
@@ -92,7 +92,6 @@ public class Music extends Command {
     public static synchronized GuildMusicManager getGuildAudioPlayer(Guild guild, MessageChannel channel) {
         long guildId = Long.parseLong(guild.getId());
         GuildMusicManager musicManager = GuildUtils.getShard(guild).musicManagers.get(guildId);
-
         if (musicManager == null) {
             musicManager = new GuildMusicManager(GuildUtils.getShard(guild).playerManager, channel);
             guild.getAudioManager().setSendingHandler(musicManager.getSendHandler());
@@ -145,7 +144,7 @@ public class Music extends Command {
         else return true;
     }
 
-    static void loadAndPlay(User user, Command command, Language language, final TextChannel channel,
+    static void loadAndPlay(Message message, User user, Command command, Language language, final TextChannel channel,
                             String trackUrl, final VoiceChannel voiceChannel, boolean search) {
         if (trackUrl.contains("spotify.com")) {
             String[] parsed = trackUrl.split("/track/");
@@ -159,7 +158,6 @@ public class Music extends Command {
                 }
             }
         }
-
         Guild guild = channel.getGuild();
         GuildMusicManager musicManager = getGuildAudioPlayer(channel.getGuild(), channel);
         String finalTrackUrl = trackUrl;
@@ -191,29 +189,42 @@ public class Music extends Command {
             public void playlistLoaded(AudioPlaylist playlist) {
                 List<AudioTrack> tracks = playlist.getTracks();
                 if (playlist.isSearchResult()) {
-                    AudioTrack firstTrack = playlist.getSelectedTrack();
-                    if (firstTrack == null) {
-                        firstTrack = playlist.getTracks().get(0);
-                    }
-                    if (!UserUtils.hasTierTwoPermissions(user) && !EntityGuild.get(guild).isPremium()) {
-                        try {
-                            if (!shouldContinue(user, language, guild, channel, firstTrack)) {
-                                return;
-                            }
-                        }
-                        catch (Exception e) {
-                            new BotException(e);
-                        }
-                    }
                     try {
-                        command.sendTranslatedMessage(command.getTranslation("music", language, "addingsong")
-                                .getTranslation().replace("{0}", firstTrack.getInfo().title) + " " + getDuration
-                                (firstTrack), channel, user);
+                        AudioTrack[] possible = playlist.getTracks().subList(0, 5).toArray(new AudioTrack[5]);
+                        ArrayList<String> names = new ArrayList<>();
+                        for (AudioTrack audioTrack : possible) {
+                            names.add(audioTrack.getInfo().title);
+                        }
+                        command.sendEmbed(command.chooseFromList(command.getTranslation("music", language, "choosesong").getTranslation()
+                                , guild, language, user,
+                                command, names.toArray(new String[5])), channel, user);
+                        interactiveOperation(language, channel, message, selectionMessage -> {
+                            try {
+                                AudioTrack selected = possible[Integer.parseInt(selectionMessage.getContent()) - 1];
+                                if (!UserUtils.hasTierTwoPermissions(user) && !EntityGuild.get(guild).isPremium()) {
+                                    try {
+                                        if (!shouldContinue(user, language, guild, channel, selected)) {
+                                            return;
+                                        }
+                                    }
+                                    catch (Exception e) {
+                                        new BotException(e);
+                                    }
+                                }
+                                play(user, guild, voiceChannel, musicManager, selected, channel);
+                                command.sendTranslatedMessage(command.getTranslation("music", language, "addingsong")
+                                        .getTranslation().replace("{0}", selected.getInfo().title) + " " + getDuration
+                                        (selected), channel, user);
+
+                            }
+                            catch (Exception e) {
+                                command.sendRetrievedTranslation(channel, "tag", language, "invalidarguments", user);
+                            }
+                        });
                     }
                     catch (Exception e) {
                         new BotException(e);
                     }
-                    play(user, guild, voiceChannel, musicManager, firstTrack, channel);
                 }
                 else {
                     if (!UserUtils.hasTierTwoPermissions(user) && !EntityGuild.get(guild).isPremium()) {
@@ -242,7 +253,7 @@ public class Music extends Command {
             @Override
             public void noMatches() {
                 if (!search) {
-                    loadAndPlay(user, command, language, channel, "ytsearch: " + finalTrackUrl, voiceChannel, true);
+                    loadAndPlay(message, user, command, language, channel, "ytsearch: " + finalTrackUrl, voiceChannel, true);
                 }
                 else {
                     try {
@@ -385,27 +396,27 @@ public class Music extends Command {
 
     static boolean shouldDeleteMessages(Guild guild) throws SQLException {
         boolean returnValue = false;
-        Cursor<HashMap> settings = r.db("data").table("music_settings").filter(row -> row.g("guild_id").eq(guild.getId())).run(connection);
-        if (settings.hasNext()) {
-            MusicSettingsModel musicSettingsModel = asPojo(settings.next(), MusicSettingsModel.class);
+        MusicSettingsModel musicSettingsModel = asPojo(r.db("data").table("music_settings").get(guild.getId()).run(connection),
+                MusicSettingsModel.class);
+        if (musicSettingsModel != null) {
             if (musicSettingsModel.isRemove_addition_messages()) returnValue = true;
         }
-        settings.close();
         return returnValue;
     }
 
     private static TextChannel getOutputChannel(Guild guild) throws SQLException {
         String id;
-        List<HashMap> guildMusicSettings = ((Cursor<HashMap>) r.db("data").table("music_settings").filter(row -> row.g("guild_id")
-                .eq(guild.getId())).run(connection)).toList();
-        if (guildMusicSettings.size() > 0) {
-            String setId = asPojo(guildMusicSettings.get(0), MusicSettingsModel.class).getChannel_id();
+        MusicSettingsModel guildMusicSettings = BaseCommand.asPojo(r.db("data").table("music_settings").get(guild.getId()).run
+                (connection), MusicSettingsModel.class);
+        if (guildMusicSettings != null) {
+            String setId = guildMusicSettings.getChannel_id();
             if (setId.equalsIgnoreCase("none")) id = null;
             else id = setId;
         }
         else {
             id = null;
-            r.db("data").table("music_settings").insert(r.json(globalGson.toJson(new MusicSettingsModel(guild.getId(), false, "none"))))
+            r.db("data").table("music_settings").insert(r.json(getStaticGson().toJson(new MusicSettingsModel(guild.getId(), false,
+                    "none"))))
                     .run(connection);
         }
         if (id == null) return null;
@@ -446,12 +457,12 @@ public class Music extends Command {
                         VoiceChannel success = joinChannel(guild, guild.getMember(user), language, Music.this,
                                 audioManager, channel);
                         if (success != null) {
-                            loadAndPlay(user, Music.this, language, (TextChannel) channel, url, success, false);
+                            loadAndPlay(message, user, Music.this, language, (TextChannel) channel, url, success, false);
                             implement = true;
                         }
                     }
                     else {
-                        loadAndPlay(user, Music.this, language, (TextChannel) sendTo(channel, guild), url, audioManager
+                        loadAndPlay(message, user, Music.this, language, (TextChannel) sendTo(channel, guild), url, audioManager
                                 .getConnectedChannel(), false);
                         implement = true;
                     }
@@ -516,7 +527,7 @@ public class Music extends Command {
                                         .build();
                                 List<Track> recommendations = recommendationsRequest.get();
                                 for (int i = 0; i < amount; i++) {
-                                    loadAndPlay(user, Music.this, language, (TextChannel) sendTo(channel, guild), recommendations
+                                    loadAndPlay(message, user, Music.this, language, (TextChannel) sendTo(channel, guild), recommendations
                                             .get(i).getName(), connected, false);
                                 }
                             }

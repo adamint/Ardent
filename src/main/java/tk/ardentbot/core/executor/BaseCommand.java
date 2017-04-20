@@ -1,7 +1,9 @@
 package tk.ardentbot.core.executor;
 
+import com.google.gson.Gson;
 import com.rethinkdb.net.Cursor;
 import com.vdurmont.emoji.EmojiParser;
+import lombok.Getter;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.PermissionException;
@@ -23,7 +25,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static tk.ardentbot.core.translation.LangFactory.english;
-import static tk.ardentbot.main.Ardent.globalGson;
 import static tk.ardentbot.rethink.Database.connection;
 import static tk.ardentbot.rethink.Database.r;
 
@@ -31,6 +32,9 @@ import static tk.ardentbot.rethink.Database.r;
  * Abstracted from Command for possible future implementations (WebCommand)
  */
 public abstract class BaseCommand {
+    @Getter
+    private static final Gson staticGson = new Gson();
+    public final Gson gson = new Gson();
     Command botCommand;
     String commandIdentifier;
     boolean privateChannelUsage = true;
@@ -49,7 +53,7 @@ public abstract class BaseCommand {
      * @return an instance of tClass
      */
     public static <T> T asPojo(HashMap map, Class<T> tClass) {
-        return globalGson.fromJson(JSONObject.toJSONString(map), tClass);
+        return staticGson.fromJson(JSONObject.toJSONString(map), tClass);
     }
 
     public static <T> ArrayList<T> queryAsArrayList(Class<T> t, Object o) {
@@ -134,7 +138,7 @@ public abstract class BaseCommand {
         StringBuilder description = new StringBuilder();
         description.append("**" + title + "**");
         for (int i = 0; i < options.length; i++) {
-            description.append("\n#" + (i + 1) + " " + options[i]);
+            description.append("\n**#" + (i + 1) + "**: " + options[i]);
         }
         description.append("\n\n" + command.getTranslation("other", language, "selectoption").getTranslation());
         return builder.setDescription(description.toString());
@@ -322,14 +326,14 @@ public abstract class BaseCommand {
                     ("command_identifier",
                             cmdName).with("id", id)).run(connection);
             if (english.hasNext()) {
-                TranslationModel translationModel = globalGson.fromJson(JSONObject.toJSONString(english.next()), TranslationModel.class);
+                TranslationModel translationModel = gson.fromJson(JSONObject.toJSONString(english.next()), TranslationModel.class);
                 response = new TranslationResponse(translationModel.getTranslation(), lang, false, true, true);
             }
             else response = new TranslationResponse(null, lang, false, false, false);
             english.close();
         }
         else {
-            TranslationModel translationModel = globalGson.fromJson(JSONObject.toJSONString(translations.next()), TranslationModel.class);
+            TranslationModel translationModel = gson.fromJson(JSONObject.toJSONString(translations.next()), TranslationModel.class);
             response = new TranslationResponse(translationModel.getTranslation(), lang, true, true, true);
         }
         translations.close();

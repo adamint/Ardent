@@ -16,9 +16,9 @@ import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import com.google.code.chatterbotapi.ChatterBotSession;
-import com.google.gson.Gson;
 import com.mashape.unirest.http.Unirest;
 import com.rethinkdb.net.Cursor;
+import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.wrapper.spotify.Api;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.LoggerFactory;
@@ -39,7 +39,6 @@ import twitter4j.Twitter;
 import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
 
-import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,7 +55,6 @@ import static tk.ardentbot.rethink.Database.r;
 import static tk.ardentbot.utils.searching.GoogleSearch.GOOGLE_API_KEY;
 
 public class Ardent {
-    public static final Gson globalGson = new Gson();
     private static final java.io.File DATA_STORE_DIR = new java.io.File(System.getProperty("user.home"), ".credentials/sheets.googleapis" +
             ".com.json");
     public static ArrayList<String> disabledCommands = new ArrayList<>();
@@ -101,6 +99,8 @@ public class Ardent {
     private static String clientSecret;
 
     public static void main(String[] args) throws Exception {
+
+        new DefaultAudioPlayerManager();
         Logger root1 = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         root1.setLevel(Level.OFF);
 
@@ -285,7 +285,7 @@ public class Ardent {
         Credential credential;
         if (!testingBot)
             credential = new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver.Builder().setHost("ardentbot.tk").setPort
-                (1337).build()).authorize("703818195441-no5nh31a0rfcogq8k9ggsvsvkq5ai0ih.apps.googleusercontent.com");
+                    (1337).build()).authorize("703818195441-no5nh31a0rfcogq8k9ggsvsvkq5ai0ih.apps.googleusercontent.com");
         else {
             credential = new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver.Builder().setHost("localhost").setPort
                     (1337).build()).authorize("703818195441-no5nh31a0rfcogq8k9ggsvsvkq5ai0ih.apps.googleusercontent.com");
@@ -300,10 +300,4 @@ public class Ardent {
                 .setApplicationName("Ardent")
                 .build();
     }
-    /**
-     * Disables the SSL certificate checking for new instances of {@link HttpsURLConnection} This has been created to
-     * aid testing on a local box, not for use on production.
-     * <p>
-     * Credit to https://gist.github.com/aembleton/889392
-     */
 }

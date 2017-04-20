@@ -13,7 +13,6 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 
-import static tk.ardentbot.main.Ardent.globalGson;
 import static tk.ardentbot.rethink.Database.connection;
 import static tk.ardentbot.rethink.Database.r;
 
@@ -115,7 +114,7 @@ public class DefaultRole extends Command {
                     .getId())).run(connection);
         }
         else {
-            r.db("data").table("defaultroles").insert(r.json(globalGson.toJson(new DefaultRoleModel(guild.getId(), role.getId())))).run
+            r.db("data").table("defaultroles").insert(r.json(gson.toJson(new DefaultRoleModel(guild.getId(), role.getId())))).run
                     (connection);
         }
     }

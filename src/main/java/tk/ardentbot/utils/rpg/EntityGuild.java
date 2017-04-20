@@ -43,7 +43,7 @@ public class EntityGuild {
         if (retrieved.size() == 1) return retrieved.get(0);
         EntityGuild entityGuild = new EntityGuild(false, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), guild);
         cache.add(entityGuild);
-        globalExecutorService.schedule(() -> {
+        globalExecutorService.scheduleAtFixedRate(() -> {
             boolean isOwnerTierThree = UserUtils.hasTierThreePermissions(guild.getOwner().getUser()) || UserUtils.isStaff(guild
                     .getOwner()
                     .getUser());
@@ -58,7 +58,7 @@ public class EntityGuild {
                 else if (UserUtils.hasTierOnePermissions(user)) tierOne.add(id);
             });
             entityGuild.setTiers(isOwnerTierThree, tierOne, tierTwo, tierThree);
-        }, 100, TimeUnit.MILLISECONDS);
+        }, 0, 1, TimeUnit.MINUTES);
         return entityGuild;
     }
 

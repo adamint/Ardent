@@ -10,6 +10,8 @@ import tk.ardentbot.main.Shard;
 import tk.ardentbot.utils.discord.GuildUtils;
 import tk.ardentbot.utils.rpg.TriviaGame;
 
+import java.util.Iterator;
+
 class TriviaChecker {
     static void check(MessageReceivedEvent event) throws Exception {
         if (event.isFromType(ChannelType.TEXT)) {
@@ -17,7 +19,8 @@ class TriviaChecker {
             Guild guild = event.getGuild();
             Shard shard = GuildUtils.getShard(guild);
             TextChannel channel = event.getTextChannel();
-            for (TriviaGame triviaGame : Trivia.gamesInSession) {
+            for (Iterator<TriviaGame> iterator = Trivia.gamesInSession.iterator(); iterator.hasNext(); ) {
+                TriviaGame triviaGame = iterator.next();
                 if (triviaGame.getGuildId().equalsIgnoreCase(guild.getId()) && triviaGame.getTextChannelId().equalsIgnoreCase(channel
                         .getId()))
                 {

@@ -15,7 +15,6 @@ import tk.ardentbot.utils.discord.MessageUtils;
 
 import java.util.HashMap;
 
-import static tk.ardentbot.main.Ardent.globalGson;
 import static tk.ardentbot.rethink.Database.connection;
 import static tk.ardentbot.rethink.Database.r;
 
@@ -43,7 +42,7 @@ public class AdBlock extends Command {
                         , AntiAdvertisingSettings.class);
                 if (settings == null) {
                     settings = new AntiAdvertisingSettings(guild.getId(), true, false);
-                    r.table("anti_advertising_settings").insert(r.json(globalGson.toJson(settings))).run(connection);
+                    r.table("anti_advertising_settings").insert(r.json(gson.toJson(settings))).run(connection);
                 }
                 EmbedBuilder builder = MessageUtils.getDefaultEmbed(guild, user, AdBlock.this);
                 String adblockSettings = translations.get(0).getTranslation();
@@ -66,7 +65,7 @@ public class AdBlock extends Command {
                     boolean allow = Boolean.parseBoolean(args[2]);
                     if (allow) {
                         if (settings == null)
-                            r.table("anti_advertising_settings").insert(r.json(globalGson.toJson(new AntiAdvertisingSettings(guild.getId
+                            r.table("anti_advertising_settings").insert(r.json(gson.toJson(new AntiAdvertisingSettings(guild.getId
                                     (), true, false)))).run(connection);
                         else r.table("anti_advertising_settings").get(guild.getId()).update(r.hashMap("allow_discord_server_links", true))
                                 .run(connection);
@@ -74,7 +73,7 @@ public class AdBlock extends Command {
                     }
                     else {
                         if (settings == null)
-                            r.table("anti_advertising_settings").insert(r.json(globalGson.toJson(new AntiAdvertisingSettings(guild.getId
+                            r.table("anti_advertising_settings").insert(r.json(gson.toJson(new AntiAdvertisingSettings(guild.getId
                                     (), false, false)))).run(connection);
                         else r.table("anti_advertising_settings").get(guild.getId()).update(r.hashMap("allow_discord_server_links", false))
                                 .run(connection);
@@ -96,7 +95,7 @@ public class AdBlock extends Command {
                     boolean yes = Boolean.parseBoolean(args[2]);
                     if (yes) {
                         if (settings == null)
-                            r.table("anti_advertising_settings").insert(r.json(globalGson.toJson(new AntiAdvertisingSettings(guild.getId
+                            r.table("anti_advertising_settings").insert(r.json(gson.toJson(new AntiAdvertisingSettings(guild.getId
                                     (), false, true)))).run(connection);
                         else r.table("anti_advertising_settings").get(guild.getId()).update(r.hashMap("ban_after_two_infractions", true))
                                 .run(connection);
@@ -104,7 +103,7 @@ public class AdBlock extends Command {
                     }
                     else {
                         if (settings == null)
-                            r.table("anti_advertising_settings").insert(r.json(globalGson.toJson(new AntiAdvertisingSettings(guild.getId
+                            r.table("anti_advertising_settings").insert(r.json(gson.toJson(new AntiAdvertisingSettings(guild.getId
                                     (), true, false)))).run(connection);
                         else r.table("anti_advertising_settings").get(guild.getId()).update(r.hashMap("ban_after_two_infractions", false))
                                 .run(connection);

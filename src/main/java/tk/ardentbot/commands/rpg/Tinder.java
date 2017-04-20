@@ -19,7 +19,6 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static tk.ardentbot.main.Ardent.globalGson;
 import static tk.ardentbot.rethink.Database.connection;
 import static tk.ardentbot.rethink.Database.r;
 
@@ -108,13 +107,13 @@ public class Tinder extends Command {
                     String name = messageReaction.getEmote().getName();
                     if (name != null) {
                         if (name.equals("➡")) {
-                            r.table("tinder_matches").insert(r.json(globalGson.toJson(new TinderMatch(user.getId(), potentialMatch.getId
+                            r.table("tinder_matches").insert(r.json(gson.toJson(new TinderMatch(user.getId(), potentialMatch.getId
                                     (), true)))
                             ).run(connection);
                             sendEditedTranslation("tomder", language, "swipedright", user, channel, potentialMatch.getName());
                         }
                         else if (name.equals("⬅")) {
-                            r.table("tinder_matches").insert(r.json(globalGson.toJson(new TinderMatch(user.getId(), potentialMatch.getId
+                            r.table("tinder_matches").insert(r.json(gson.toJson(new TinderMatch(user.getId(), potentialMatch.getId
                                     (), false)))
                             ).run(connection);
                             sendEditedTranslation("tinder", language, "swipedleft", user, channel, potentialMatch.getName());

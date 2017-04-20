@@ -25,12 +25,12 @@ public class Play extends Command {
                 VoiceChannel success = joinChannel(guild, guild.getMember(user), language, this,
                         audioManager, channel);
                 if (success != null) {
-                    loadAndPlay(user, this, language, (TextChannel) channel, url, success, false);
+                    loadAndPlay(message, user, this, language, (TextChannel) channel, url, success, false);
                     implement = true;
                 }
             }
             else {
-                loadAndPlay(user, this, language, (TextChannel) sendTo(channel, guild), url, audioManager
+                loadAndPlay(message, user, this, language, (TextChannel) sendTo(channel, guild), url, audioManager
                         .getConnectedChannel(), false);
                 implement = true;
             }

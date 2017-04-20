@@ -14,7 +14,6 @@ import tk.ardentbot.utils.discord.UserUtils;
 import java.util.HashMap;
 import java.util.List;
 
-import static tk.ardentbot.main.Ardent.globalGson;
 import static tk.ardentbot.rethink.Database.connection;
 import static tk.ardentbot.rethink.Database.r;
 
@@ -74,7 +73,7 @@ public class Marry extends Command {
                         return;
                     }
                     sendRetrievedTranslation(channel, "marry", language, "nowmarried", user);
-                    r.db("data").table("marriages").insert(r.json(globalGson.toJson(new Marriage(user.getId(), toMarryTo.getId())))).run
+                    r.db("data").table("marriages").insert(r.json(gson.toJson(new Marriage(user.getId(), toMarryTo.getId())))).run
                             (connection);
                 }
                 else if (reply.equalsIgnoreCase("no")) {

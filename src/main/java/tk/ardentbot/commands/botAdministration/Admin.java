@@ -11,7 +11,6 @@ import tk.ardentbot.main.Shard;
 import tk.ardentbot.utils.discord.GuildUtils;
 import tk.ardentbot.utils.discord.UsageUtils;
 import tk.ardentbot.utils.rpg.profiles.Profile;
-import tk.ardentbot.utils.updaters.ProfileUpdater;
 
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -29,7 +28,7 @@ public class Admin extends Command {
     }
 
     public static void update(Command command, Language language, MessageChannel channel) throws Exception {
-        channel.sendMessage("Updating...").queue();
+        channel.sendMessage("Updating now!").queue();
         for (Shard shard : getShards()) {
             for (Guild g : shard.jda.getGuilds()) {
                 if (g.getAudioManager().isConnected()) {
@@ -65,7 +64,6 @@ public class Admin extends Command {
 
     private static void shutdown() {
         try {
-            ProfileUpdater.updateProfiles();
             Ardent.premiumProcess.destroy();
             System.exit(0);
             boolean useLoc1 = true;
