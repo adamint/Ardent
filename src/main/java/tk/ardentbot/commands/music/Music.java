@@ -21,10 +21,10 @@ import org.apache.commons.lang.WordUtils;
 import tk.ardentbot.core.executor.BaseCommand;
 import tk.ardentbot.core.executor.Command;
 import tk.ardentbot.core.executor.Subcommand;
-import tk.ardentbot.core.misc.loggingUtils.BotException;
-import tk.ardentbot.core.translation.Language;
-import tk.ardentbot.core.translation.Translation;
-import tk.ardentbot.core.translation.TranslationResponse;
+import tk.ardentbot.core.misc.logging.BotException;
+import tk.ardentbot.core.translate.Language;
+import tk.ardentbot.core.translate.Translation;
+import tk.ardentbot.core.translate.TranslationResponse;
 import tk.ardentbot.main.Shard;
 import tk.ardentbot.main.ShardManager;
 import tk.ardentbot.rethink.models.MusicSettingsModel;
@@ -190,7 +190,9 @@ public class Music extends Command {
                 List<AudioTrack> tracks = playlist.getTracks();
                 if (playlist.isSearchResult()) {
                     try {
-                        AudioTrack[] possible = playlist.getTracks().subList(0, 5).toArray(new AudioTrack[5]);
+                        AudioTrack[] possible;
+                        if (playlist.getTracks().size() >= 5) possible = playlist.getTracks().subList(0, 5).toArray(new AudioTrack[5]);
+                        else possible = playlist.getTracks().toArray(new AudioTrack[playlist.getTracks().size()]);
                         ArrayList<String> names = new ArrayList<>();
                         for (AudioTrack audioTrack : possible) {
                             names.add(audioTrack.getInfo().title);

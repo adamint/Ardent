@@ -5,7 +5,7 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.core.executor.Command;
-import tk.ardentbot.core.translation.Language;
+import tk.ardentbot.core.translate.Language;
 
 public class Points extends Command {
     public Points(CommandSettings commandSettings) {

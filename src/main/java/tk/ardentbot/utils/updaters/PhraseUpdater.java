@@ -16,7 +16,7 @@ public abstract class PhraseUpdater implements Runnable {
         ResultSet set = queryPhrases.request();
         while (set.next()) {
             phrases.add(new Phrase(set.getString("CommandIdentifier"), set.getString("ID"), set.getString
-                    ("translation")));
+                    ("translate")));
         }
         queryPhrases.close();
         return phrases;
@@ -43,7 +43,7 @@ public abstract class PhraseUpdater implements Runnable {
             CrowdinApiParametersBuilder parameters = new CrowdinApiParametersBuilder();
             parameters.json();
             parameters.type("csv");
-            parameters.scheme("identifier,source_phrase,translation");
+            parameters.scheme("identifier,source_phrase,translate");
             parameters.files(file.getAbsolutePath());
             crwdn.updateFile(credentials, parameters);
         }

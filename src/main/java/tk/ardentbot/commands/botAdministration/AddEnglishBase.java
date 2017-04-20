@@ -22,7 +22,7 @@ public class AddEnglishBase extends Command {
 
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, tk.ardentbot
-            .core.translation.Language language) throws Exception {
+            .core.translate.Language language) throws Exception {
         sendHelp(language, channel, guild, user, this);
     }
 
@@ -31,7 +31,7 @@ public class AddEnglishBase extends Command {
         subcommands.add(new Subcommand(this, "basic") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, tk
-                    .ardentbot.core.translation.Language language) throws Exception {
+                    .ardentbot.core.translate.Language language) throws Exception {
                 if (Ardent.developers.contains(user.getId())) {
                     if (args.length >= 4) {
                         String commandID = args[2];
@@ -42,7 +42,7 @@ public class AddEnglishBase extends Command {
                         r.db("data").table("translations").insert(r.json(gson.toJson(new TranslationModel(commandID, translation,
                                 id, lang, true)))).run
                                 (connection);
-                        sendTranslatedMessage("Inserted new translation successfully.", channel, user);
+                        sendTranslatedMessage("Inserted new translate successfully.", channel, user);
                     }
                     else sendTranslatedMessage("/shrug Incorrect arguments", channel, user);
                 }
@@ -53,7 +53,7 @@ public class AddEnglishBase extends Command {
         subcommands.add(new Subcommand(this, "commands") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, tk
-                    .ardentbot.core.translation.Language language) throws Exception {
+                    .ardentbot.core.translate.Language language) throws Exception {
                 if (Ardent.developers.contains(user.getId())) {
                     if (args.length > 4) {
                         String commandID = args[2];
@@ -74,7 +74,7 @@ public class AddEnglishBase extends Command {
         subcommands.add(new Subcommand(this, "subcommands") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, tk
-                    .ardentbot.core.translation.Language language) throws Exception {
+                    .ardentbot.core.translate.Language language) throws Exception {
                 if (Ardent.developers.contains(user.getId())) {
                     if (args.length >= 6) {
                         String commandID = args[2];

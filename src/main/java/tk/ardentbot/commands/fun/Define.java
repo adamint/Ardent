@@ -9,7 +9,7 @@ import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.core.executor.Command;
 import tk.ardentbot.core.models.Definition;
 import tk.ardentbot.core.models.Dictionary;
-import tk.ardentbot.core.translation.Language;
+import tk.ardentbot.core.translate.Language;
 import tk.ardentbot.main.Ardent;
 import tk.ardentbot.main.Shard;
 import tk.ardentbot.utils.discord.GuildUtils;

@@ -5,9 +5,9 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.core.executor.Command;
-import tk.ardentbot.core.translation.Language;
-import tk.ardentbot.core.translation.Translation;
-import tk.ardentbot.core.translation.TranslationResponse;
+import tk.ardentbot.core.translate.Language;
+import tk.ardentbot.core.translate.Translation;
+import tk.ardentbot.core.translate.TranslationResponse;
 import tk.ardentbot.utils.discord.GuildUtils;
 
 import java.util.ArrayList;

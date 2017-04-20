@@ -8,8 +8,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import tk.ardentbot.core.executor.Command;
-import tk.ardentbot.core.misc.loggingUtils.BotException;
-import tk.ardentbot.core.translation.Language;
+import tk.ardentbot.core.misc.logging.BotException;
+import tk.ardentbot.core.translate.Language;
 
 import java.io.IOException;
 import java.net.URL;
@@ -26,19 +26,10 @@ public class Asses extends Command {
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
         if (asses.size() == 0) {
-            try {
-                Document assList = Jsoup.parse(new URL("http://thechive" +
-                        ".com/2017/04/11/im-in-the-business-of-booty-scoops-and-business-is-a-boomin-33" +
-                        "-photos/"), 10000);
-                Elements links = assList.getElementsByTag("img");
-                links.forEach(img -> {
-                    String url = img.attr("src");
-                    if (url.contains(".jpeg")) asses.add(url);
-                });
-            }
-            catch (IOException e) {
-                new BotException(e);
-            }
+            addAsses("http://thechive.com/2017/04/11/im-in-the-business-of-booty-scoops-and-business-is-a-boomin-33-photos/");
+            addAsses("http://thechive.com/2017/04/19/congrats-on-making-it-to-hump-day-here-is-your-reward-36-photos-2/");
+            addAsses("http://thechive.com/2017/04/12/congrats-on-making-it-to-hump-day-here-is-your-reward-39-photos-3/");
+            addAsses("http://thechive.com/2012/12/04/its-that-special-time-of-year-again-when-yoga-pants-run-rampant-65-photos/");
         }
         if (NSFW.canSendNSFW(user, channel, guild, language, this)) {
             sendTranslatedMessage(asses.get(new SecureRandom().nextInt(asses.size())), channel, user);
@@ -47,5 +38,19 @@ public class Asses extends Command {
 
     @Override
     public void setupSubcommands() throws Exception {
+    }
+
+    private void addAsses(String site) {
+        try {
+            Document assList = Jsoup.parse(new URL(site), 10000);
+            Elements links = assList.getElementsByTag("img");
+            links.forEach(img -> {
+                String url = img.attr("src");
+                if (url.contains(".jpeg")) asses.add(url);
+            });
+        }
+        catch (IOException e) {
+            new BotException(e);
+        }
     }
 }

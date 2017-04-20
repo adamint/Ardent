@@ -8,7 +8,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import tk.ardentbot.core.executor.Command;
-import tk.ardentbot.core.translation.Language;
+import tk.ardentbot.core.translate.Language;
 
 import java.net.URL;
 import java.security.SecureRandom;

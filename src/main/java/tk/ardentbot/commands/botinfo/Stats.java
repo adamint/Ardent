@@ -10,7 +10,7 @@ import tk.ardentbot.core.events.Join;
 import tk.ardentbot.core.events.Leave;
 import tk.ardentbot.core.executor.Command;
 import tk.ardentbot.core.executor.Subcommand;
-import tk.ardentbot.core.translation.Language;
+import tk.ardentbot.core.translate.Language;
 import tk.ardentbot.main.Shard;
 import tk.ardentbot.main.ShardManager;
 import tk.ardentbot.utils.MapUtils;

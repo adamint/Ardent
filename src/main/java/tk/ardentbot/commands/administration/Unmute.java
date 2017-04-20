@@ -3,7 +3,7 @@ package tk.ardentbot.commands.administration;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 import tk.ardentbot.core.executor.Command;
-import tk.ardentbot.core.translation.Language;
+import tk.ardentbot.core.translate.Language;
 import tk.ardentbot.main.Shard;
 import tk.ardentbot.utils.discord.GuildUtils;
 

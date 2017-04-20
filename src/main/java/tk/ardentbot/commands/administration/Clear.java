@@ -2,8 +2,8 @@ package tk.ardentbot.commands.administration;
 
 import net.dv8tion.jda.core.entities.*;
 import tk.ardentbot.core.executor.Command;
-import tk.ardentbot.core.misc.loggingUtils.BotException;
-import tk.ardentbot.core.translation.Language;
+import tk.ardentbot.core.misc.logging.BotException;
+import tk.ardentbot.core.translate.Language;
 import tk.ardentbot.utils.discord.GuildUtils;
 
 import java.util.ArrayList;
