@@ -28,7 +28,7 @@ import tk.ardentbot.commands.music.StuckVoiceConnection;
 import tk.ardentbot.commands.rpg.Trivia;
 import tk.ardentbot.core.misc.logging.BotException;
 import tk.ardentbot.core.misc.web.SparkServer;
-import tk.ardentbot.core.translation.LangFactory;
+import tk.ardentbot.core.translate.LangFactory;
 import tk.ardentbot.rethink.Database;
 import tk.ardentbot.utils.models.TriviaQuestion;
 import tk.ardentbot.utils.premium.CheckIfPremiumGuild;
@@ -49,7 +49,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static tk.ardentbot.core.translation.LangFactory.languages;
+import static tk.ardentbot.core.translate.LangFactory.languages;
 import static tk.ardentbot.rethink.Database.connection;
 import static tk.ardentbot.rethink.Database.r;
 import static tk.ardentbot.utils.searching.GoogleSearch.GOOGLE_API_KEY;

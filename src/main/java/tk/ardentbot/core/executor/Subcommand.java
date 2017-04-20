@@ -5,12 +5,12 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.core.models.SubcommandTranslation;
-import tk.ardentbot.core.translation.Language;
+import tk.ardentbot.core.translate.Language;
 
 import java.util.List;
 import java.util.Optional;
 
-import static tk.ardentbot.core.translation.LangFactory.english;
+import static tk.ardentbot.core.translate.LangFactory.english;
 
 public abstract class Subcommand {
     private String identifier;
@@ -65,7 +65,7 @@ public abstract class Subcommand {
      * Retrieves the translated name of the subcommand
      *
      * @param language guild language
-     * @return a string representing the translation of the subcommand
+     * @return a string representing the translate of the subcommand
      * @throws Exception
      */
     public String getName(Language language) throws Exception {

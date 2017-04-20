@@ -5,7 +5,7 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.core.executor.Command;
-import tk.ardentbot.core.translation.Language;
+import tk.ardentbot.core.translate.Language;
 
 public class TranslateForArdent extends Command {
     public TranslateForArdent(CommandSettings commandSettings) {
@@ -16,7 +16,7 @@ public class TranslateForArdent extends Command {
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
         sendTranslatedMessage("Ardent is looking for translators! You must be **fluent** in both English and your native languages. " +
                 "Message Adam#9261 if you want " +
-                "to join our translation efforts or join our server @ https://discord.gg/rfGSxNA", channel, user);
+                "to join our translate efforts or join our server @ https://discord.gg/rfGSxNA", channel, user);
     }
 
     @Override

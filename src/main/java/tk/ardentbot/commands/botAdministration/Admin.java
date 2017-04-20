@@ -5,7 +5,7 @@ import tk.ardentbot.commands.music.GuildMusicManager;
 import tk.ardentbot.commands.music.Music;
 import tk.ardentbot.core.executor.Command;
 import tk.ardentbot.core.misc.logging.BotException;
-import tk.ardentbot.core.translation.Language;
+import tk.ardentbot.core.translate.Language;
 import tk.ardentbot.main.Ardent;
 import tk.ardentbot.main.Shard;
 import tk.ardentbot.utils.discord.GuildUtils;

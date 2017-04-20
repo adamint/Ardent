@@ -10,9 +10,9 @@ import tk.ardentbot.core.executor.BaseCommand;
 import tk.ardentbot.core.executor.Category;
 import tk.ardentbot.core.executor.Command;
 import tk.ardentbot.core.executor.Subcommand;
-import tk.ardentbot.core.translation.Language;
-import tk.ardentbot.core.translation.Translation;
-import tk.ardentbot.core.translation.TranslationResponse;
+import tk.ardentbot.core.translate.Language;
+import tk.ardentbot.core.translate.Translation;
+import tk.ardentbot.core.translate.TranslationResponse;
 import tk.ardentbot.utils.discord.GuildUtils;
 import tk.ardentbot.utils.discord.MessageUtils;
 

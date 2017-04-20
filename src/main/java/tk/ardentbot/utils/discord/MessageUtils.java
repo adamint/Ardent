@@ -4,7 +4,7 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.core.executor.BaseCommand;
-import tk.ardentbot.core.translation.Language;
+import tk.ardentbot.core.translate.Language;
 
 import java.awt.*;
 import java.util.List;

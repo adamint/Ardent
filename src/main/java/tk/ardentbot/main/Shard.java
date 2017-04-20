@@ -45,8 +45,8 @@ import tk.ardentbot.core.executor.Category;
 import tk.ardentbot.core.executor.Command;
 import tk.ardentbot.core.executor.CommandFactory;
 import tk.ardentbot.core.misc.logging.BotException;
-import tk.ardentbot.core.translation.LangFactory;
-import tk.ardentbot.core.translation.Language;
+import tk.ardentbot.core.translate.LangFactory;
+import tk.ardentbot.core.translate.Language;
 import tk.ardentbot.rethink.models.GuildModel;
 import tk.ardentbot.rethink.models.RestrictedUserModel;
 import tk.ardentbot.utils.models.RestrictedUser;
@@ -62,7 +62,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static tk.ardentbot.core.executor.BaseCommand.asPojo;
-import static tk.ardentbot.core.translation.LangFactory.languages;
+import static tk.ardentbot.core.translate.LangFactory.languages;
 import static tk.ardentbot.rethink.Database.connection;
 import static tk.ardentbot.rethink.Database.r;
 

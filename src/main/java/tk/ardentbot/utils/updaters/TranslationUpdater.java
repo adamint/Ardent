@@ -39,9 +39,9 @@ public abstract class TranslationUpdater implements Runnable {
                     String translationId = split[1];
 
                     String original = record.get(1);
-                    String translation = record.get(2);
+                    String translate = record.get(2);
 
-                    if (!original.equalsIgnoreCase(translation)) {
+                    if (!original.equalsIgnoreCase(translate)) {
                         try {
                             DatabaseAction queryTranslations = new DatabaseAction("SELECT * FROM Translations WHERE " +
                                     "CommandIdentifier=? AND ID=? AND Language=?").set(commandId).set(translationId)
@@ -49,10 +49,10 @@ public abstract class TranslationUpdater implements Runnable {
                             ResultSet set = queryTranslations.request();
                             if (!set.next()) {
                                 new DatabaseAction("INSERT INTO Translations VALUES (?,?,?,?,?").set(commandId)
-                                        .set(translation).set(translationId).set(l.getIdentifier()).set(0).update();
+                                        .set(translate).set(translationId).set(l.getIdentifier()).set(0).update();
                                 p("INSERTED VALUES: Language: " + l.getIdentifier() + " | BaseCommand ID: " +
                                         commandId +
-                                        " | TranslationModel ID: " + translationId + " | TranslationModel: " + translation);
+                                        " | TranslationModel ID: " + translationId + " | TranslationModel: " + translate);
                             }
                             queryTranslations.update();
                         }

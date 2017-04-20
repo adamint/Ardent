@@ -11,10 +11,10 @@ import org.json.simple.JSONObject;
 import tk.ardentbot.core.misc.logging.BotException;
 import tk.ardentbot.core.models.CommandTranslation;
 import tk.ardentbot.core.models.PhraseTranslation;
-import tk.ardentbot.core.translation.LangFactory;
-import tk.ardentbot.core.translation.Language;
-import tk.ardentbot.core.translation.Translation;
-import tk.ardentbot.core.translation.TranslationResponse;
+import tk.ardentbot.core.translate.LangFactory;
+import tk.ardentbot.core.translate.Language;
+import tk.ardentbot.core.translate.Translation;
+import tk.ardentbot.core.translate.TranslationResponse;
 import tk.ardentbot.main.Ardent;
 import tk.ardentbot.main.Shard;
 import tk.ardentbot.rethink.models.TranslationModel;
@@ -24,7 +24,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import static tk.ardentbot.core.translation.LangFactory.english;
+import static tk.ardentbot.core.translate.LangFactory.english;
 import static tk.ardentbot.rethink.Database.connection;
 import static tk.ardentbot.rethink.Database.r;
 
@@ -96,12 +96,12 @@ public abstract class BaseCommand {
     }
 
     /**
-     * Sends a translated message for the supplied translation parameter
+     * Sends a translated message for the supplied translate parameter
      *
      * @param channel             channel to send to
-     * @param translationCategory the command identifier of the translation
+     * @param translationCategory the command identifier of the translate
      * @param language            the current language of the guild
-     * @param translationId       the identifier of the translation
+     * @param translationId       the identifier of the translate
      * @throws Exception
      */
     public void sendRetrievedTranslation(MessageChannel channel, String translationCategory, Language language,
@@ -116,7 +116,7 @@ public abstract class BaseCommand {
         if (response.isTranslationAvailable()) {
             sendTranslatedMessage(response.getTranslation(), channel, user);
         }
-        else new BotException("There wasn't a translation for " + translationId + " in " + translationCategory);
+        else new BotException("There wasn't a translate for " + translationId + " in " + translationCategory);
     }
 
     public String replaceCommandIdAndPrefix(String message) {
@@ -216,14 +216,14 @@ public abstract class BaseCommand {
     }
 
     /**
-     * Replace {0}, {1}, etc.. easily in a translation
+     * Replace {0}, {1}, etc.. easily in a translate
      *
-     * @param category     Command category the translation is from
+     * @param category     Command category the translate is from
      * @param language     The guild's language
-     * @param identifier   The unique identifier of the translation
+     * @param identifier   The unique identifier of the translate
      * @param user         The user who sent the command
      * @param replacements An array of replacements to make
-     * @throws Exception SQLException when retrieving translation
+     * @throws Exception SQLException when retrieving translate
      */
     public void sendEditedTranslation(String category, Language language, String identifier, User user, MessageChannel channel, String...
             replacements) {
@@ -282,15 +282,15 @@ public abstract class BaseCommand {
     }
 
     /**
-     * Returns a translation response representing the given translation
+     * Returns a translate response representing the given translate
      * parameters. This tries to use the local cache instead of querying
      * the database, but queries the database if requested translations are
      * not found locally.
      *
-     * @param cmdName the command identifier of the translation
+     * @param cmdName the command identifier of the translate
      * @param lang    the current language of the guild
-     * @param id      the identifier of the translation
-     * @return the TranslationResponse representing this translation
+     * @param id      the identifier of the translate
+     * @return the TranslationResponse representing this translate
      * @throws Exception
      */
     public TranslationResponse getTranslation(String cmdName, Language lang, String id) throws Exception {
@@ -307,13 +307,13 @@ public abstract class BaseCommand {
     }
 
     /**
-     * Returns a translation response representing the given translation
+     * Returns a translate response representing the given translate
      * parameters. Queries the database.
      *
-     * @param cmdName the command identifier of the translation
+     * @param cmdName the command identifier of the translate
      * @param lang    the current language of the guild
-     * @param id      the identifier of the translation
-     * @return the TranslationResponse representing this translation
+     * @param id      the identifier of the translate
+     * @return the TranslationResponse representing this translate
      * @throws Exception
      */
     private TranslationResponse getTranslationDb(String cmdName, Language lang, String id) throws Exception {
@@ -355,14 +355,14 @@ public abstract class BaseCommand {
     }
 
     /**
-     * Returns the translation responses representing the given translations'
+     * Returns the translate responses representing the given translations'
      * parameters. This tries to use the local cache instead of querying
      * the database, but queries the database if requested translations are
      * not found locally.
      *
      * @param language     the current language of the guild
      * @param translations a list of translations to request
-     * @return the TranslationResponse representing this translation
+     * @return the TranslationResponse representing this translate
      * @throws Exception
      */
     public HashMap<Integer, TranslationResponse> getTranslations(Language language, List<Translation> translations)

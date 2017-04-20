@@ -2,8 +2,8 @@ package tk.ardentbot.core.data;
 
 import com.rethinkdb.net.Cursor;
 import net.dv8tion.jda.core.entities.Guild;
-import tk.ardentbot.core.translation.LangFactory;
-import tk.ardentbot.core.translation.Language;
+import tk.ardentbot.core.translate.LangFactory;
+import tk.ardentbot.core.translate.Language;
 import tk.ardentbot.rethink.models.GuildModel;
 
 import java.sql.SQLException;
