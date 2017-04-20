@@ -1,4 +1,4 @@
-package tk.ardentbot.Rethink.Models;
+package tk.ardentbot.rethink.models;
 
 import lombok.Getter;
 public class Patron {

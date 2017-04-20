@@ -1,4 +1,4 @@
-package tk.ardentbot.Core.Translation;
+package tk.ardentbot.core.translation;
 
 /**
  * Response from getTranslation or getTranslations

@@ -1,4 +1,4 @@
-package tk.ardentbot.Core.Misc.WebServer.Models;
+package tk.ardentbot.core.misc.webServer.models;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

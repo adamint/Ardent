@@ -10,23 +10,20 @@ repositories {
     jcenter()
     mavenCentral()
     maven {
-        url 'http://maven.sedmelluq.com'
-    }
-    maven {
         url 'https://jitpack.io'
     }
 }
 
 dependencies {
+    compile 'com.github.adamint:JavaTuples:da065b1f9b'
     compile 'com.sedmelluq:jda-nas:1.0.3'
-    compile 'net.dv8tion:JDA:3.0.0_169'
+    compile 'net.dv8tion:JDA:3.0.0_180'
     compile group: 'org.codehaus.groovy', name: 'groovy-jsr223', version: '2.4.9'
-    compile 'com.sedmelluq:lavaplayer:1.2.34'
+    compile 'com.sedmelluq:lavaplayer:1.2.36'
     compile "org.projectlombok:lombok:1.16.14"
     compile group: 'net.objecthunter', name: 'exp4j', version: '0.4.8'
     compile group: 'com.google.code.gson', name: 'gson', version: '2.8.0'
     compile group: 'at.mukprojects', name: 'giphy4j', version: '1.0.1'
-    compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.39'
     compile 'org.jsoup:jsoup:1.10.2'
     compile 'com.github.vbauer:yandex-translate-api:1.2.4'
     compile group: 'ca.pjer', name: 'chatter-bot-api', version: '2.0.0'

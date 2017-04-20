@@ -1,3 +1,41 @@
 Manifest-Version: 1.0
-Main-Class: tk.ardentbot.Main.Ardent
+Class-Path: jetty-security-9.3.6.v20151106.jar google-oauth-client-jet
+ ty-1.22.0.jar commons-logging-1.2.jar rethinkdb-driver-2.3.3.jar yand
+ ex-translate-api-1.2.4.jar chatter-bot-api-2.0.0.jar slf4j-api-1.7.22
+ .jar nv-websocket-client-1.31.jar trove4j-3.0.3.jar websocket-servlet
+ -9.3.6.v20151106.jar json-20160810.jar okhttp-3.6.0.jar commons-csv-1
+ .4.jar jsr305-3.0.1.jar jetty-util-9.3.6.v20151106.jar JavaTuples-da0
+ 65b1f9b.jar jcip-annotations-1.0.jar commons-codec-1.9.jar websocket-
+ common-9.3.6.v20151106.jar jaxb-api-2.2.2.jar spark-template-handleba
+ rs-2.5.5.jar stax-api-1.0-2.jar jersey-multipart-1.19.1.jar log4j-api
+ -2.5.jar jackson-core-2.8.6.jar hamcrest-core-1.1.jar logback-classic
+ -1.1.2.jar jersey-core-1.19.1.jar annotations-3.0.1.jar mysql-connect
+ or-java-5.1.39.jar javaslang-match-2.0.3.jar jackson-jaxrs-1.9.2.jar 
+ commons-io-2.5.jar jackson-databind-2.8.6.jar google-api-services-she
+ ets-v4-rev468-1.22.0.jar google-http-client-jackson2-1.22.0.jar lombo
+ k-1.16.14.jar javaslang-2.0.3.jar jackson-mapper-asl-1.9.2.jar google
+ -oauth-client-java6-1.22.0.jar google-api-client-1.22.0.jar handlebar
+ s-guava-cache-4.0.6.jar unirest-java-1.4.9.jar jda-nas-1.0.3.jar imgs
+ calr-lib-4.2.jar jsr311-api-1.1.1.jar handlebars-4.0.6.jar jetty-xml-
+ 9.3.6.v20151106.jar servlet-api-2.5-20081211.jar spotify-web-api-java
+ .jar exp4j-0.4.8.jar spark-core-2.5.5.jar httpasyncclient-4.1.1.jar w
+ ebsocket-api-9.3.6.v20151106.jar httpmime-4.5.2.jar antlr4-runtime-4.
+ 5.1-1.jar javax.servlet-api-3.1.0.jar okio-1.11.0.jar jetty-server-9.
+ 3.6.v20151106.jar groovy-2.4.9.jar jaxb-impl-2.2.3-1.jar httpcore-nio
+ -4.4.4.jar groovy-jsr223-2.4.9.jar jettison-1.1.jar jetty-io-9.3.6.v2
+ 0151106.jar jetty-6.1.26.jar giphy4j-1.0.1.jar jsoup-1.10.2.jar mimep
+ ull-1.9.3.jar jetty-webapp-9.3.6.v20151106.jar json-simple-1.1.1.jar 
+ google-http-client-1.22.0.jar jackson-xc-1.9.2.jar jackson-annotation
+ s-2.8.0.jar google-oauth-client-1.22.0.jar guava-19.0.jar log4j-core-
+ 2.5.jar jackson-core-asl-1.9.2.jar udp-queue-1.0.4.jar jersey-client-
+ 1.19.1.jar logback-core-1.1.2.jar httpcore-4.4.4.jar crowdin-java-sdk
+ -v1.0.1.jar jetty-servlet-9.3.6.v20151106.jar httpclient-4.5.2.jar tw
+ itter4j-core-4.0.6.jar rhino-1.7R4.jar base64-2.3.9.jar guava-jdk5-17
+ .0.jar jna-4.4.0.jar lavaplayer-common-1.0.4.jar commons-collections4
+ -4.1.jar jetty-util-6.1.26.jar lavaplayer-1.2.36.jar junit-4.10.jar m
+ ockito-all-1.10.19.jar jersey-json-1.19.1.jar JDA-3.0.0_180.jar activ
+ ation-1.1.jar commons-lang3-3.5.jar websocket-client-9.3.6.v20151106.
+ jar jetty-http-9.3.6.v20151106.jar emoji-java-3.2.0.jar websocket-ser
+ ver-9.3.6.v20151106.jar gson-2.8.0.jar commons-io-1.3.2.jar
+Main-Class: tk.ardentbot.main.Ardent
 

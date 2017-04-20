@@ -1,8 +1,8 @@
-package tk.ardentbot.Rethink.Models;
+package tk.ardentbot.rethink.models;
 
 import lombok.Getter;
-import tk.ardentbot.Core.Translation.LangFactory;
-import tk.ardentbot.Core.Translation.Language;
+import tk.ardentbot.core.translation.LangFactory;
+import tk.ardentbot.core.translation.Language;
 
 public class SubcommandModel {
     @Getter
@@ -18,12 +18,9 @@ public class SubcommandModel {
     private String syntax;
     @Getter
     private String translation;
-    @Getter
-    private String uuid;
 
     public SubcommandModel(String command_identifier, String description, String identifier, String language, boolean needsDb, String
-            syntax,
-                           String translation) {
+            syntax, String translation) {
         this.command_identifier = command_identifier;
         this.description = description;
         this.identifier = identifier;
