@@ -21,7 +21,7 @@ import org.apache.commons.lang.WordUtils;
 import tk.ardentbot.core.executor.BaseCommand;
 import tk.ardentbot.core.executor.Command;
 import tk.ardentbot.core.executor.Subcommand;
-import tk.ardentbot.core.misc.loggingUtils.BotException;
+import tk.ardentbot.core.misc.logging.BotException;
 import tk.ardentbot.core.translation.Language;
 import tk.ardentbot.core.translation.Translation;
 import tk.ardentbot.core.translation.TranslationResponse;

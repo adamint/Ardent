@@ -11,7 +11,7 @@ import net.dv8tion.jda.core.exceptions.PermissionException;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.util.ConcurrentArrayQueue;
-import tk.ardentbot.core.misc.loggingUtils.BotException;
+import tk.ardentbot.core.misc.logging.BotException;
 import tk.ardentbot.core.models.CommandTranslation;
 import tk.ardentbot.core.translation.LangFactory;
 import tk.ardentbot.core.translation.Language;

@@ -8,7 +8,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import tk.ardentbot.core.executor.Command;
-import tk.ardentbot.core.misc.loggingUtils.BotException;
+import tk.ardentbot.core.misc.logging.BotException;
 import tk.ardentbot.core.translation.Language;
 
 import java.io.IOException;

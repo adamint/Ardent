@@ -44,7 +44,7 @@ import tk.ardentbot.core.executor.BaseCommand;
 import tk.ardentbot.core.executor.Category;
 import tk.ardentbot.core.executor.Command;
 import tk.ardentbot.core.executor.CommandFactory;
-import tk.ardentbot.core.misc.loggingUtils.BotException;
+import tk.ardentbot.core.misc.logging.BotException;
 import tk.ardentbot.core.translation.LangFactory;
 import tk.ardentbot.core.translation.Language;
 import tk.ardentbot.rethink.models.GuildModel;

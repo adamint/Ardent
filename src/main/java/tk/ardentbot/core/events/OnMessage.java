@@ -6,7 +6,7 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.SubscribeEvent;
 import tk.ardentbot.core.executor.BaseCommand;
-import tk.ardentbot.core.misc.loggingUtils.BotException;
+import tk.ardentbot.core.misc.logging.BotException;
 import tk.ardentbot.core.translation.LangFactory;
 import tk.ardentbot.core.translation.Language;
 import tk.ardentbot.main.Ardent;

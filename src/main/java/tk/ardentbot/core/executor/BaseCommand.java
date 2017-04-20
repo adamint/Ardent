@@ -8,7 +8,7 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import org.json.simple.JSONObject;
-import tk.ardentbot.core.misc.loggingUtils.BotException;
+import tk.ardentbot.core.misc.logging.BotException;
 import tk.ardentbot.core.models.CommandTranslation;
 import tk.ardentbot.core.models.PhraseTranslation;
 import tk.ardentbot.core.translation.LangFactory;
