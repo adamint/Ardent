@@ -7,8 +7,8 @@ import net.dv8tion.jda.core.entities.User;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
-import tk.ardentbot.core.executor.Command;
-import tk.ardentbot.core.translate.Language;
+import tk.ardentbot.Core.executor.Command;
+import tk.ardentbot.Core.translate.Language;
 
 import java.io.IOException;
 

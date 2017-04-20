@@ -1,8 +1,8 @@
 package tk.ardentbot.rethink.models;
 
 import lombok.Getter;
-import tk.ardentbot.core.translate.LangFactory;
-import tk.ardentbot.core.translate.Language;
+import tk.ardentbot.Core.translate.LangFactory;
+import tk.ardentbot.Core.translate.Language;
 
 public class TranslationModel {
     @Getter

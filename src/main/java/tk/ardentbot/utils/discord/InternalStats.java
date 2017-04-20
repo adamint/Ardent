@@ -1,6 +1,6 @@
 package tk.ardentbot.utils.discord;
 
-import tk.ardentbot.core.executor.CommandFactory;
+import tk.ardentbot.Core.executor.CommandFactory;
 import tk.ardentbot.main.Shard;
 
 import static tk.ardentbot.main.ShardManager.getShards;

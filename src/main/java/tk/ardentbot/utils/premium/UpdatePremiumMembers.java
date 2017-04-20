@@ -4,7 +4,7 @@ import com.rethinkdb.net.Cursor;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
-import tk.ardentbot.core.misc.logging.BotException;
+import tk.ardentbot.Core.misc.logging.BotException;
 import tk.ardentbot.main.Ardent;
 
 import java.sql.SQLException;

@@ -2,10 +2,10 @@ package tk.ardentbot.commands.guildinfo;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.*;
-import tk.ardentbot.core.executor.Command;
-import tk.ardentbot.core.translate.Language;
-import tk.ardentbot.core.translate.Translation;
-import tk.ardentbot.core.translate.TranslationResponse;
+import tk.ardentbot.Core.executor.Command;
+import tk.ardentbot.Core.translate.Language;
+import tk.ardentbot.Core.translate.Translation;
+import tk.ardentbot.Core.translate.TranslationResponse;
 import tk.ardentbot.main.Shard;
 import tk.ardentbot.utils.discord.GuildUtils;
 import tk.ardentbot.utils.discord.MessageUtils;

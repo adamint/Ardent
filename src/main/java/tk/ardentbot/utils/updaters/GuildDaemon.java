@@ -2,8 +2,8 @@ package tk.ardentbot.utils.updaters;
 
 import com.rethinkdb.net.Cursor;
 import net.dv8tion.jda.core.entities.Guild;
-import tk.ardentbot.core.executor.BaseCommand;
-import tk.ardentbot.core.misc.logging.BotException;
+import tk.ardentbot.Core.executor.BaseCommand;
+import tk.ardentbot.Core.misc.logging.BotException;
 import tk.ardentbot.main.Shard;
 import tk.ardentbot.main.ShardManager;
 import tk.ardentbot.rethink.models.GuildModel;
@@ -12,7 +12,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static tk.ardentbot.core.executor.BaseCommand.asPojo;
+import static tk.ardentbot.Core.executor.BaseCommand.asPojo;
 import static tk.ardentbot.rethink.Database.connection;
 import static tk.ardentbot.rethink.Database.r;
 

@@ -5,9 +5,9 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.core.executor.Command;
-import tk.ardentbot.core.misc.logging.BotException;
-import tk.ardentbot.core.translate.Language;
+import tk.ardentbot.Core.executor.Command;
+import tk.ardentbot.Core.misc.logging.BotException;
+import tk.ardentbot.Core.translate.Language;
 import tk.ardentbot.rethink.models.Marriage;
 import tk.ardentbot.utils.discord.UserUtils;
 

@@ -10,7 +10,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import static tk.ardentbot.core.executor.BaseCommand.asPojo;
+import static tk.ardentbot.Core.executor.BaseCommand.asPojo;
 import static tk.ardentbot.rethink.Database.connection;
 import static tk.ardentbot.rethink.Database.r;
 

@@ -2,7 +2,7 @@ package tk.ardentbot.utils.updaters;
 
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
-import tk.ardentbot.core.misc.logging.BotException;
+import tk.ardentbot.Core.misc.logging.BotException;
 import tk.ardentbot.main.Shard;
 import tk.ardentbot.main.ShardManager;
 import tk.ardentbot.utils.discord.GuildUtils;

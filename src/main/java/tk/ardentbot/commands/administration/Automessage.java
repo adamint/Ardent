@@ -3,12 +3,12 @@ package tk.ardentbot.commands.administration;
 import com.rethinkdb.net.Cursor;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
-import tk.ardentbot.core.executor.Command;
-import tk.ardentbot.core.executor.Subcommand;
-import tk.ardentbot.core.misc.logging.BotException;
-import tk.ardentbot.core.translate.Language;
-import tk.ardentbot.core.translate.Translation;
-import tk.ardentbot.core.translate.TranslationResponse;
+import tk.ardentbot.Core.executor.Command;
+import tk.ardentbot.Core.executor.Subcommand;
+import tk.ardentbot.Core.misc.logging.BotException;
+import tk.ardentbot.Core.translate.Language;
+import tk.ardentbot.Core.translate.Translation;
+import tk.ardentbot.Core.translate.TranslationResponse;
 import tk.ardentbot.rethink.models.AutomessageModel;
 import tk.ardentbot.utils.javaAdditions.Triplet;
 
