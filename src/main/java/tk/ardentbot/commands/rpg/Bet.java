@@ -89,7 +89,7 @@ public class Bet extends Command {
                 }
                 sendEditedTranslation("bet", language, "areyousure", user, channel, RPGUtils.formatMoney(profile.getMoney()));
                 interactiveOperation(language, channel, message, (returnedMessage) -> {
-                    if (returnedMessage.getContent().equalsIgnoreCase("yes")) {
+                    if (eic(returnedMessage.getContent(), "yes", "yea", "ye")) {
                         sendRetrievedTranslation(channel, "bet", language, "numbetween1and2", user);
                         interactiveOperation(language, channel, message, (numberInput) -> {
                             try {

@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.rethinkdb.net.Cursor;
 import lombok.Getter;
 import net.dv8tion.jda.core.entities.User;
+import tk.ardentbot.core.misc.logging.BotException;
 import tk.ardentbot.rethink.models.OneTimeBadgeModel;
 import tk.ardentbot.utils.discord.UserUtils;
 import tk.ardentbot.utils.rpg.BadgesList;
@@ -101,6 +102,9 @@ public class Profile {
     public void addMoney(double amount) {
         money += amount;
         r.table("profiles").get(user_id).update(r.hashMap("money", money)).run(connection);
+        if (amount > 2 || amount < -2) {
+            new BotException(user_id, amount, money);
+        }
     }
 
     public void removeMoney(double amount) {

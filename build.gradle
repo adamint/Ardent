@@ -2,7 +2,6 @@ group 'tk.ardentbot'
 version '1.0-SNAPSHOT'
 
 apply plugin: 'java'
-apply plugin: 'kotlin'
 
 sourceCompatibility = 1.8
 
@@ -43,11 +42,4 @@ dependencies {
 
 }
 buildscript {
-    ext.kotlin_version = '1.0.7'
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
 }

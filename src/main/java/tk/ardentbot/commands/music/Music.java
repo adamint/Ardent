@@ -71,7 +71,7 @@ public class Music extends Command {
         return new Pair<>(playingGuilds, queueLength);
     }
 
-    public static synchronized GuildMusicManager getGuildAudioPlayer(Guild guild, MessageChannel channel, Shard shard) {
+    static synchronized GuildMusicManager getGuildAudioPlayer(Guild guild, MessageChannel channel, Shard shard) {
         long guildId = Long.parseLong(guild.getId());
         GuildMusicManager musicManager = shard.musicManagers.get(guildId);
 
@@ -197,7 +197,8 @@ public class Music extends Command {
                         for (AudioTrack audioTrack : possible) {
                             names.add(audioTrack.getInfo().title);
                         }
-                        command.sendEmbed(command.chooseFromList(command.getTranslation("music", language, "choosesong").getTranslation()
+                        Message embed = command.sendEmbed(command.chooseFromList(command.getTranslation("music", language, "choosesong")
+                                        .getTranslation()
                                 , guild, language, user,
                                 command, names.toArray(new String[5])), channel, user);
                         interactiveOperation(language, channel, message, selectionMessage -> {
@@ -212,6 +213,11 @@ public class Music extends Command {
                                     catch (Exception e) {
                                         new BotException(e);
                                     }
+                                }
+                                try {
+                                    embed.delete().queue();
+                                }
+                                catch (Exception ignored) {
                                 }
                                 play(user, guild, voiceChannel, musicManager, selected, channel);
                                 command.sendTranslatedMessage(command.getTranslation("music", language, "addingsong")
@@ -421,7 +427,7 @@ public class Music extends Command {
                     "none"))))
                     .run(connection);
         }
-        if (id == null) return null;
+        if (id == null || id.length() < 5) return null;
         else return guild.getTextChannelById(id);
     }
 

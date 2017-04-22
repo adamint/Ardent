@@ -65,6 +65,10 @@ public abstract class BaseCommand {
         return tS;
     }
 
+    public static boolean eic(String s, String... k) {
+        for (String kk : k) if (s.equalsIgnoreCase(kk)) return true;
+        return false;
+    }
 
     /**
      * Handles messages longer than 2000 characters

@@ -109,13 +109,14 @@ public class NSFW extends Command {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws
                     Exception {
+                MessageChannel toAdd = message.getMentionedChannels().size() > 0 ? message.getMentionedChannels().get(0) : channel;
                 if (guild.getMember(user).hasPermission(Permission.MANAGE_SERVER)) {
                     NSFWSettings settings = getSettings(guild);
                     if (settings.getNsfwChannels().contains(channel.getId())) {
                         sendRetrievedTranslation(channel, "nsfw", language, "channelalreadyadded", user);
                     }
                     else {
-                        settings.getNsfwChannels().add(channel.getId());
+                        settings.getNsfwChannels().add(toAdd.getId());
                         r.table("nsfw_settings").get(guild.getId()).update(r.hashMap("nsfwChannels", settings.getNsfwChannels())).run
                                 (connection);
                         sendRetrievedTranslation(channel, "nsfw", language, "addedchannel", user);

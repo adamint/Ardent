@@ -1,5 +1,6 @@
 package tk.ardentbot.core.executor;
 
+import lombok.Getter;
 import lombok.NonNull;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.*;
@@ -14,12 +15,8 @@ import tk.ardentbot.main.Shard;
 import tk.ardentbot.utils.discord.GuildUtils;
 import tk.ardentbot.utils.discord.MessageUtils;
 
-import java.awt.*;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -31,7 +28,8 @@ import static tk.ardentbot.core.events.InteractiveOnMessage.queuedInteractives;
 public abstract class Command extends BaseCommand {
     public int usages = 0;
     public ArrayList<Subcommand> subcommands = new ArrayList<>();
-
+    @Getter
+    private String[] aliases;
     /**
      * Instantiates a new Command
      *
@@ -43,6 +41,11 @@ public abstract class Command extends BaseCommand {
         this.guildUsage = commandSettings.isGuildUsage();
         this.category = commandSettings.getCategory();
         this.botCommand = this;
+        LangFactory.english.getCommandTranslations().forEach(ct -> {
+            if (ct.getIdentifier().equals(commandIdentifier)) {
+                aliases = ct.getAliases();
+            }
+        });
     }
 
     public static void interactiveReaction(Language language, MessageChannel channel, Message message, User user, int seconds,
@@ -108,7 +111,7 @@ public abstract class Command extends BaseCommand {
             if (ranFor[0] >= time) {
                 try {
                     if (sendMessage) {
-                        if (time == 10000) {
+                        if (time >= 15000) {
                             GuildUtils.getShard(channel.getGuild()).help.sendRetrievedTranslation(channel, "other", language,
                                     "cancelledinteractiveevent", message.getAuthor());
                         }
@@ -150,7 +153,7 @@ public abstract class Command extends BaseCommand {
             if (ranFor[0] >= time) {
                 try {
                     if (sendMessage) {
-                        if (time == 10000) {
+                        if (time >= 15000) {
                             GuildUtils.getShard(channel.getGuild()).help.sendRetrievedTranslation(channel, "other", language,
                                     "cancelledinteractiveevent", message.getAuthor());
                         }
@@ -210,19 +213,25 @@ public abstract class Command extends BaseCommand {
             Exception {
         Shard shard = GuildUtils.getShard(guild);
         EmbedBuilder embedBuilder = MessageUtils.getDefaultEmbed(guild, author, baseCommand);
-        embedBuilder.setColor(Color.ORANGE);
         String name = getName(language);
         name = name.substring(0, 1).toUpperCase() + name.substring(1);
         embedBuilder.setAuthor(name, shard.url, shard.bot.getAvatarUrl());
         StringBuilder description = new StringBuilder();
-        description.append("*" + getDescription(language) + "*");
+        description.append("" + getDescription(language) + "");
 
         if (subcommands.size() > 0) {
             description.append("\n\n**" + getTranslation("other", language, "subcommands").getTranslation() + "**\n");
             for (Subcommand subcommand : subcommands) {
-                description.append("- " + subcommand.getSyntax(language) + ": *" + subcommand.getDescription
+                description.append(" - /" + name.toLowerCase() + " " + subcommand.getSyntax(language) + ": *" + subcommand.getDescription
                         (language) + "*\n");
             }
+            description.append("\n**" + getTranslation("help", language, "example").getTranslation() + "**:");
+            description.append("\n/" + name.toLowerCase() + " " + subcommands.get(0).getSyntax(language));
+        }
+
+        if (aliases != null && aliases.length > 0) {
+            description.append("\n**" + getTranslation("help", language, "aliases").getTranslation() + "**:\n");
+            description.append(MessageUtils.listWithCommas(Arrays.asList(aliases)));
         }
         embedBuilder.setDescription(description.toString());
         return embedBuilder;
