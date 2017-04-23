@@ -27,6 +27,7 @@ import tk.ardentbot.commands.antitroll.AdBlock;
 import tk.ardentbot.commands.botAdministration.*;
 import tk.ardentbot.commands.botinfo.*;
 import tk.ardentbot.commands.fun.*;
+import tk.ardentbot.commands.games.Trivia;
 import tk.ardentbot.commands.guildinfo.*;
 import tk.ardentbot.commands.music.GuildMusicManager;
 import tk.ardentbot.commands.music.Music;

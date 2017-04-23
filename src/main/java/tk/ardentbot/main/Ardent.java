@@ -23,9 +23,9 @@ import com.wrapper.spotify.Api;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.LoggerFactory;
 import tk.ardentbot.commands.fun.GIF;
+import tk.ardentbot.commands.games.Trivia;
 import tk.ardentbot.commands.music.Music;
 import tk.ardentbot.commands.music.StuckVoiceConnection;
-import tk.ardentbot.commands.rpg.Trivia;
 import tk.ardentbot.core.misc.logging.BotException;
 import tk.ardentbot.core.misc.web.SparkServer;
 import tk.ardentbot.core.translate.LangFactory;
@@ -63,7 +63,7 @@ public class Ardent {
     public static Process premiumProcess;
     public static boolean premiumBot = false;
     public static String premiumBotToken;
-    public static boolean testingBot = false;
+    public static boolean testingBot = true;
     public static Api spotifyApi;
     public static ArrayList<String> tierOnepatrons = new ArrayList<>();
     public static ArrayList<String> tierTwopatrons = new ArrayList<>();
@@ -264,7 +264,7 @@ public class Ardent {
                     }
                     Trivia.triviaQuestions.add(triviaQuestion);
                 });
-            }, 60, TimeUnit.SECONDS);
+            }, 30, TimeUnit.SECONDS);
         }
         catch (Exception e) {
             e.printStackTrace();

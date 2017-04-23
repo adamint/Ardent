@@ -1,4 +1,4 @@
-package tk.ardentbot.commands.rpg;
+package tk.ardentbot.commands.games;
 
 import net.dv8tion.jda.core.entities.*;
 import tk.ardentbot.core.executor.Command;

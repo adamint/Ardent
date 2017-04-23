@@ -145,7 +145,7 @@ public class Music extends Command {
     }
 
     static void loadAndPlay(Message message, User user, Command command, Language language, final TextChannel channel,
-                            String trackUrl, final VoiceChannel voiceChannel, boolean search) {
+                            String trackUrl, final VoiceChannel voiceChannel, boolean search, boolean useEmbedSelect) {
         if (trackUrl.contains("spotify.com")) {
             String[] parsed = trackUrl.split("/track/");
             if (parsed.length == 2) {
@@ -190,46 +190,55 @@ public class Music extends Command {
                 List<AudioTrack> tracks = playlist.getTracks();
                 if (playlist.isSearchResult()) {
                     try {
-                        AudioTrack[] possible;
-                        if (playlist.getTracks().size() >= 5) possible = playlist.getTracks().subList(0, 5).toArray(new AudioTrack[5]);
-                        else possible = playlist.getTracks().toArray(new AudioTrack[playlist.getTracks().size()]);
-                        ArrayList<String> names = new ArrayList<>();
-                        for (AudioTrack audioTrack : possible) {
-                            names.add(audioTrack.getInfo().title);
-                        }
-                        Message embed = command.sendEmbed(command.chooseFromList(command.getTranslation("music", language, "choosesong")
-                                        .getTranslation()
-                                , guild, language, user,
-                                command, names.toArray(new String[5])), channel, user);
-                        interactiveOperation(language, channel, message, selectionMessage -> {
-                            try {
-                                AudioTrack selected = possible[Integer.parseInt(selectionMessage.getContent()) - 1];
-                                if (!UserUtils.hasTierTwoPermissions(user) && !EntityGuild.get(guild).isPremium()) {
-                                    try {
-                                        if (!shouldContinue(user, language, guild, channel, selected)) {
-                                            return;
+                        if (!useEmbedSelect) {
+                            AudioTrack[] possible;
+                            if (playlist.getTracks().size() >= 5) possible = playlist.getTracks().subList(0, 5).toArray(new AudioTrack[5]);
+                            else possible = playlist.getTracks().toArray(new AudioTrack[playlist.getTracks().size()]);
+                            ArrayList<String> names = new ArrayList<>();
+                            for (AudioTrack audioTrack : possible) {
+                                names.add(audioTrack.getInfo().title);
+                            }
+                            Message embed = command.sendEmbed(command.chooseFromList(command.getTranslation("music", language, "choosesong")
+                                            .getTranslation()
+                                    , guild, language, user,
+                                    command, names.toArray(new String[5])), channel, user);
+                            interactiveOperation(language, channel, message, selectionMessage -> {
+                                try {
+                                    AudioTrack selected = possible[Integer.parseInt(selectionMessage.getContent()) - 1];
+                                    if (!UserUtils.hasTierTwoPermissions(user) && !EntityGuild.get(guild).isPremium()) {
+                                        try {
+                                            if (!shouldContinue(user, language, guild, channel, selected)) {
+                                                return;
+                                            }
+                                        }
+                                        catch (Exception e) {
+                                            new BotException(e);
                                         }
                                     }
-                                    catch (Exception e) {
-                                        new BotException(e);
+                                    try {
+                                        embed.delete().queue();
+                                        selectionMessage.delete().queue();
                                     }
+                                    catch (Exception ignored) {
+                                    }
+                                    play(user, guild, voiceChannel, musicManager, selected, channel);
+                                    command.sendTranslatedMessage(command.getTranslation("music", language, "addingsong")
+                                            .getTranslation().replace("{0}", selected.getInfo().title) + " " + getDuration
+                                            (selected), channel, user);
                                 }
-                                try {
-                                    embed.delete().queue();
-                                    selectionMessage.delete().queue();
+                                catch (Exception e) {
+                                    command.sendRetrievedTranslation(channel, "tag", language, "invalidarguments", user);
                                 }
-                                catch (Exception ignored) {
-                                }
-                                play(user, guild, voiceChannel, musicManager, selected, channel);
-                                command.sendTranslatedMessage(command.getTranslation("music", language, "addingsong")
-                                        .getTranslation().replace("{0}", selected.getInfo().title) + " " + getDuration
-                                        (selected), channel, user);
+                            });
+                        }
+                        else {
+                            AudioTrack track = playlist.getTracks().get(0);
+                            play(user, guild, voiceChannel, musicManager, track, channel);
+                            command.sendTranslatedMessage(command.getTranslation("music", language, "addingsong")
+                                    .getTranslation().replace("{0}", track.getInfo().title) + " " + getDuration
+                                    (track), channel, user);
 
-                            }
-                            catch (Exception e) {
-                                command.sendRetrievedTranslation(channel, "tag", language, "invalidarguments", user);
-                            }
-                        });
+                        }
                     }
                     catch (Exception e) {
                         new BotException(e);
@@ -262,7 +271,8 @@ public class Music extends Command {
             @Override
             public void noMatches() {
                 if (!search) {
-                    loadAndPlay(message, user, command, language, channel, "ytsearch: " + finalTrackUrl, voiceChannel, true);
+                    loadAndPlay(message, user, command, language, channel, "ytsearch: " + finalTrackUrl, voiceChannel, true,
+                            useEmbedSelect);
                 }
                 else {
                     try {
@@ -466,13 +476,13 @@ public class Music extends Command {
                         VoiceChannel success = joinChannel(guild, guild.getMember(user), language, Music.this,
                                 audioManager, channel);
                         if (success != null) {
-                            loadAndPlay(message, user, Music.this, language, (TextChannel) channel, url, success, false);
+                            loadAndPlay(message, user, Music.this, language, (TextChannel) channel, url, success, false, false);
                             implement = true;
                         }
                     }
                     else {
                         loadAndPlay(message, user, Music.this, language, (TextChannel) sendTo(channel, guild), url, audioManager
-                                .getConnectedChannel(), false);
+                                .getConnectedChannel(), false, false);
                         implement = true;
                     }
                     if (implement) {
@@ -537,7 +547,7 @@ public class Music extends Command {
                                 List<Track> recommendations = recommendationsRequest.get();
                                 for (int i = 0; i < amount; i++) {
                                     loadAndPlay(message, user, Music.this, language, (TextChannel) sendTo(channel, guild), recommendations
-                                            .get(i).getName(), connected, false);
+                                            .get(i).getName(), connected, false, false);
                                 }
                             }
                             catch (Exception e) {

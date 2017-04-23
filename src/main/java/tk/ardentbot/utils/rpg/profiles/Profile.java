@@ -102,7 +102,9 @@ public class Profile {
     public void addMoney(double amount) {
         money += amount;
         r.table("profiles").get(user_id).update(r.hashMap("money", money)).run(connection);
-        new BotException(user_id, amount, money);
+        if (amount > 2 || amount < -2) {
+            new BotException(user_id, amount, money);
+        }
     }
 
     public void removeMoney(double amount) {
