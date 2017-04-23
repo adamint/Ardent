@@ -8,6 +8,7 @@ import tk.ardentbot.core.translate.Translation;
 import tk.ardentbot.core.translate.TranslationResponse;
 import tk.ardentbot.utils.discord.MessageUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -62,7 +63,8 @@ public class Roleinfo extends Command {
         EmbedBuilder builder = MessageUtils.getDefaultEmbed(guild, user, this);
         HashMap<Integer, TranslationResponse> translations = getTranslations(language, new Translation("roleinfo", "title"),
                 new Translation("roleinfo", "rolename"), new Translation("roleinfo", "memberswith"),
-                new Translation("roleinfo", "creationtime"), new Translation("roleinfo", "color"));
+                new Translation("roleinfo", "creationtime"), new Translation("roleinfo", "color"),
+                new Translation("roleinfo", "permissions"));
         String title = translations.get(0).getTranslation();
         builder.setAuthor(title, guild.getIconUrl(), guild.getIconUrl());
         builder.addField(translations.get(1).getTranslation(), role.getName(), true);
@@ -74,8 +76,20 @@ public class Roleinfo extends Command {
             return found;
         }).count()), true);
         builder.addField(translations.get(3).getTranslation(), role.getCreationTime().toLocalDate().toString(), true);
-        builder.addField(translations.get(4).getTranslation(), "#" + Integer.toHexString(role.getColor().getRGB()).substring(2)
-                .toUpperCase(), true);
+        try {
+            builder.addField(translations.get(4).getTranslation(), "#" + Integer.toHexString(role.getColor().getRGB()).substring(2)
+                    .toUpperCase(), true);
+        }
+        catch (NullPointerException npe) {
+            builder.addField(translations.get(4).getTranslation(), "#ffffff", true);
+        }
+        ArrayList<String> permissions = new ArrayList<>();
+        role.getPermissions().forEach(permission -> permissions.add(permission.getName()));
+        try {
+            builder.addField(translations.get(5).getTranslation(), MessageUtils.listWithCommas(permissions), true);
+        }
+        catch (Exception ignored) {
+        }
         return builder;
     }
 

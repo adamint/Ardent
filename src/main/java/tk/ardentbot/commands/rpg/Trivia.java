@@ -15,13 +15,14 @@ import tk.ardentbot.utils.rpg.TriviaGame;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class Trivia extends Command {
-    public static final ArrayList<TriviaGame> gamesInSession = new ArrayList<>();
-    public static final ArrayList<String> gamesSettingUp = new ArrayList<>();
+    public static final CopyOnWriteArrayList<TriviaGame> gamesInSession = new CopyOnWriteArrayList<>();
+    public static final CopyOnWriteArrayList<String> gamesSettingUp = new CopyOnWriteArrayList<>();
     public static ArrayList<TriviaQuestion> triviaQuestions = new ArrayList<>();
 
     public Trivia(CommandSettings commandSettings) {

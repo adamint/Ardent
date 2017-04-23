@@ -216,6 +216,7 @@ public class Music extends Command {
                                 }
                                 try {
                                     embed.delete().queue();
+                                    selectionMessage.delete().queue();
                                 }
                                 catch (Exception ignored) {
                                 }

@@ -5,11 +5,11 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.PermissionException;
-import tk.ardentbot.core.executor.Command;
+import tk.ardentbot.core.executor.Ratelimitable;
 import tk.ardentbot.core.misc.logging.BotException;
 import tk.ardentbot.core.translate.Language;
 
-public class Ping extends Command {
+public class Ping extends Ratelimitable {
     public Ping(CommandSettings commandSettings) {
         super(commandSettings);
     }

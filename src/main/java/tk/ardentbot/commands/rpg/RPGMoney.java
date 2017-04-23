@@ -5,7 +5,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.core.executor.Command;
+import tk.ardentbot.core.executor.Ratelimitable;
 import tk.ardentbot.core.executor.Subcommand;
 import tk.ardentbot.core.translate.Language;
 import tk.ardentbot.core.translate.Translation;
@@ -23,7 +23,7 @@ import java.util.Map;
 import static tk.ardentbot.rethink.Database.connection;
 import static tk.ardentbot.rethink.Database.r;
 
-public class RPGMoney extends Command {
+public class RPGMoney extends Ratelimitable {
     private ArrayList<String> generatedFirstTimeFor = new ArrayList<>();
 
     public RPGMoney(CommandSettings commandSettings) {

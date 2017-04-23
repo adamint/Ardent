@@ -194,7 +194,7 @@ public class Shard {
                 factory.registerCommand(new Status(new BaseCommand.CommandSettings("status", true, true, Category
                         .BOTINFO)));
                 factory.registerCommand(new Ping(new BaseCommand.CommandSettings("ping", true, true, Category
-                        .BOTINFO)));
+                        .BOTINFO)).with(15));
                 factory.registerCommand(help);
                 factory.registerCommand(new Stats(new BaseCommand.CommandSettings("stats", true, true, Category
                         .BOTINFO)));
@@ -272,7 +272,7 @@ public class Shard {
                 .GUILDINFO)));
                 */
 
-                factory.registerCommand(new RPGMoney(new BaseCommand.CommandSettings("money", false, true, Category.RPG)));
+                factory.registerCommand(new RPGMoney(new BaseCommand.CommandSettings("money", false, true, Category.RPG)).with(10));
                 factory.registerCommand(new Pay(new BaseCommand.CommandSettings("pay", false, true, Category.RPG)));
                 factory.registerCommand(new Bet(new BaseCommand.CommandSettings("bet", false, true, Category.RPG)));
                 factory.registerCommand(new Loan(new BaseCommand.CommandSettings("loan", false, true, Category.RPG)));
