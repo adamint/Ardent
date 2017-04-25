@@ -35,7 +35,6 @@ dependencies {
     compile 'com.github.crowdin:crowdin-java-sdk:v1.0.1'
     compile group: 'org.imgscalr', name: 'imgscalr-lib', version: '4.2'
     compile group: 'com.rethinkdb', name: 'rethinkdb-driver', version: '2.3.3'
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
     compile 'com.google.api-client:google-api-client:1.22.0'
     compile 'com.google.oauth-client:google-oauth-client-jetty:1.22.0'
     compile 'com.google.apis:google-api-services-sheets:v4-rev468-1.22.0'

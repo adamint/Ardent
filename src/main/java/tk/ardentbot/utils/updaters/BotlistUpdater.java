@@ -17,7 +17,7 @@ public class BotlistUpdater implements Runnable {
             }
             Unirest.post("https://bots.discord.pw/api/bots/247093143160356865/stats").header("Authorization",
                     Ardent.botsDiscordPwToken).header("Content-Type", "application/json")
-                    .body(new JSONObject().append("server_count", guilds))
+                    .body(new JSONObject().append("server_count", guilds).append("shard_count", Ardent.shardCount))
                     .asString();
             Unirest.post("https://discordbots.org/api/bots/247093143160356865/stats").header("Authorization",
                     Ardent.discordBotsOrgToken).header("Content-Type", "application/json")

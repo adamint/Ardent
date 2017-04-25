@@ -15,6 +15,7 @@ import tk.ardentbot.main.Shard;
 import tk.ardentbot.utils.discord.GuildUtils;
 import tk.ardentbot.utils.discord.MessageUtils;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.Executors;
@@ -286,5 +287,9 @@ public abstract class Command extends BaseCommand {
             }
             else if (!found[0]) onUsage(guild, channel, user, message, args, LangFactory.english, language);
         }
+    }
+
+    public String getDate() {
+        return new Date(Instant.now().getEpochSecond() * 1000).toLocaleString();
     }
 }

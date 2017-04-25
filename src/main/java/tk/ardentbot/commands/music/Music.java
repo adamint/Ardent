@@ -547,7 +547,7 @@ public class Music extends Command {
                                 List<Track> recommendations = recommendationsRequest.get();
                                 for (int i = 0; i < amount; i++) {
                                     loadAndPlay(message, user, Music.this, language, (TextChannel) sendTo(channel, guild), recommendations
-                                            .get(i).getName(), connected, false, false);
+                                            .get(i).getName(), connected, false, true);
                                 }
                             }
                             catch (Exception e) {

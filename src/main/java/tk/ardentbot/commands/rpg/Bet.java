@@ -50,9 +50,9 @@ public class Bet extends Command {
                                     if (num > 0 && num <= 2) {
                                         int generated = new SecureRandom().nextInt(2) + 1;
                                         if (num == generated || new Random().nextInt(20) == 5) {
-                                            profile.addMoney(amountToBet);
+                                            profile.addMoney(profile.afterCredit(amountToBet));
                                             sendEditedTranslation("bet", language, "youwon", user, channel, RPGUtils.formatMoney
-                                                    (amountToBet));
+                                                    (profile.afterCredit(amountToBet)));
                                         }
                                         else {
                                             sendEditedTranslation("bet", language, "youlost", user, channel, RPGUtils.formatMoney
@@ -97,9 +97,9 @@ public class Bet extends Command {
                                 if (num > 0 && num <= 2) {
                                     int generated = new SecureRandom().nextInt(2) + 1;
                                     if (num == generated) {
-                                        sendEditedTranslation("bet", language, "youwon", user, channel, RPGUtils.formatMoney(profile
-                                                .getMoney()));
-                                        profile.addMoney(profile.getMoney());
+                                        profile.addMoney(profile.afterCredit(profile.getMoney()));
+                                        sendEditedTranslation("bet", language, "youwon", user, channel, RPGUtils.formatMoney
+                                                (profile.afterCredit(profile.getMoney())));
                                     }
                                     else {
                                         sendEditedTranslation("bet", language, "youlost", user, channel, RPGUtils.formatMoney(profile

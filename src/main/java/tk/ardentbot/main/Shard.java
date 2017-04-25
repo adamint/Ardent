@@ -103,7 +103,15 @@ public class Shard {
                 token = Ardent.premiumBotToken;
             }
             else {
-                token = IOUtils.toString(new FileReader(new File("/root/Ardent/v2bottoken.key")));
+                try {
+                    token = IOUtils.toString(new FileReader(new File("/root/Ardent/v2bottoken.key")));
+                }
+                catch (Exception e) {
+                    token = IOUtils.toString(new
+                            FileReader(new File("C:\\Users\\AMR\\Desktop\\Ardent\\v2bottoken.key")));
+
+
+                }
             }
         }
 
@@ -164,7 +172,7 @@ public class Shard {
                 translateForArdent = new TranslateForArdent(new BaseCommand.CommandSettings("translateforardent", true,
                         true, Category.BOTINFO));
                 request = new Request(new BaseCommand.CommandSettings("request", true, true, Category
-                        .BOTADMINISTRATION));
+                        .BOTADMINISTRATION)).with(300);
 
                 factory.registerCommand(new AddEnglishBase(new BaseCommand.CommandSettings("addenglishbase", true, true,
                         Category.BOTADMINISTRATION)));
