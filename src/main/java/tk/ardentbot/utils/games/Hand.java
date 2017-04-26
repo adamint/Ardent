@@ -34,7 +34,9 @@ public class Hand {
 
     public Hand generate() {
         SecureRandom random = new SecureRandom();
-        cards.add(new Card(Suit.values()[random.nextInt(Suit.values().length)], Value.values()[random.nextInt(Value.values().length)]));
+        Value val = Value.values()[random.nextInt(Value.values().length)];
+        if (val.getValue() == 11 && val.getValue() + total() > 21) val.setValue(1);
+        cards.add(new Card(Suit.values()[random.nextInt(Suit.values().length)], val));
         return this;
     }
 

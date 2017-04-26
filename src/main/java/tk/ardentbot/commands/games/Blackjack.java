@@ -65,7 +65,7 @@ public class Blackjack extends Command {
         builder.addField(translations.get(2).getTranslation(), yourHand.readable(), true);
         builder.addField(translations.get(3).getTranslation(), dealerHand.readable(), true);
         sendEmbed(builder, channel, user);
-        interactiveOperation(language, channel, message, actionMessage -> {
+        boolean success = interactiveOperation(language, channel, message, actionMessage -> {
             String content = actionMessage.getContent();
             if (content.equalsIgnoreCase("hit")) {
                 yourHand.generate();
@@ -85,13 +85,13 @@ public class Blackjack extends Command {
                 dispatchRound(bet, yourHand, dealerHand, translations, guild, channel, user, message, args, language);
             }
         });
+        if (!success) sessions.remove(user.getId());
     }
 
     public void showResults(int bet, Hand yourHand, Hand dealerHand, HashMap<Integer, TranslationResponse> translations, Guild guild,
                             MessageChannel
                                     channel, User user, Message message, String[] args, Language language) {
         try {
-            while (dealerHand.total() < 17) dealerHand.generate();
             HashMap<Integer, TranslationResponse> tx = getTranslations(language, new Translation("blackjack", "gameover"),
                     new Translation("blackjack", "ibusted"), new Translation("blackjack", "youhadhigher"),
                     new Translation("blackjack", "youbusted"), new Translation("blackjack", "youhadlower"),
@@ -101,8 +101,10 @@ public class Blackjack extends Command {
             if (yourHand.total() > 21) {
                 builder.setDescription(tx.get(3).getTranslation().replace("{0}", RPGUtils.formatMoney(bet)));
                 Profile.get(user).removeMoney(bet);
+                return;
             }
-            else if (dealerHand.total() > 21 && yourHand.total() <= 21 || dealerHand.total() < yourHand.total()) {
+            while (dealerHand.total() < 17) dealerHand.generate();
+            if (dealerHand.total() > 21 && yourHand.total() <= 21 || dealerHand.total() < yourHand.total()) {
                 if (dealerHand.total() > 21) builder.setDescription(tx.get(1).getTranslation().replace("{0}", RPGUtils.formatMoney(bet)));
                 else builder.setDescription(tx.get(2).getTranslation().replace("{0}", RPGUtils.formatMoney(bet)));
                 Profile.get(user).addMoney(bet);

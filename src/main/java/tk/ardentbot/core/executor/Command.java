@@ -95,16 +95,22 @@ public abstract class Command extends BaseCommand {
         }
     }
 
-    public static void interactiveOperation(Language language, MessageChannel channel, Message message, Consumer<Message> function) {
+    public static boolean interactiveOperation(Language language, MessageChannel channel, Message message, Consumer<Message> function) {
+        final boolean[] succeeded = {false};
         if (channel instanceof TextChannel) {
             queuedInteractives.put(message.getId(), message.getAuthor().getId());
-            Ardent.globalExecutorService.execute(() -> dispatchInteractiveEvent(message.getCreationTime(), (TextChannel) channel,
-                    message, function, language, 10000, true));
+            Ardent.globalExecutorService.execute(() -> {
+                succeeded[0] = dispatchInteractiveEvent(message.getCreationTime(), (TextChannel) channel,
+                        message, function, language, 10000, true);
+            });
+            return succeeded[0];
         }
+        return false;
     }
 
-    private static void dispatchInteractiveEvent(OffsetDateTime creationTime, TextChannel channel, Message message, User user,
-                                                 Consumer<Message> function, Language language, int time, boolean sendMessage) {
+    private static boolean dispatchInteractiveEvent(OffsetDateTime creationTime, TextChannel channel, Message message, User user,
+                                                    Consumer<Message> function, Language language, int time, boolean sendMessage) {
+        final boolean[] success = {false};
         ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
         final int interval = 50;
         final int[] ranFor = {0};
@@ -135,6 +141,7 @@ public abstract class Command extends BaseCommand {
                     if (m.getAuthor().getId().equalsIgnoreCase(user.getId()) &&
                             m.getChannel().getId().equalsIgnoreCase(channel.getId()))
                     {
+                        success[0] = true;
                         function.accept(m);
                         iterator.remove();
                         ex.shutdown();
@@ -143,10 +150,12 @@ public abstract class Command extends BaseCommand {
             }
             ranFor[0] += interval;
         }, interval, interval, TimeUnit.MILLISECONDS);
+        return success[0];
     }
 
-    private static void dispatchInteractiveEvent(OffsetDateTime creationTime, TextChannel channel, Message message, Consumer<Message>
+    private static boolean dispatchInteractiveEvent(OffsetDateTime creationTime, TextChannel channel, Message message, Consumer<Message>
             function, Language language, int time, boolean sendMessage) {
+        final boolean[] success = {false};
         ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
         final int interval = 50;
         final int[] ranFor = {0};
@@ -177,6 +186,7 @@ public abstract class Command extends BaseCommand {
                     if (m.getAuthor().getId().equalsIgnoreCase(message.getAuthor().getId()) &&
                             m.getChannel().getId().equalsIgnoreCase(channel.getId()))
                     {
+                        success[0] = true;
                         function.accept(m);
                         iterator.remove();
                         ex.shutdown();
@@ -185,6 +195,7 @@ public abstract class Command extends BaseCommand {
             }
             ranFor[0] += interval;
         }, interval, interval, TimeUnit.MILLISECONDS);
+        return success[0];
     }
 
 
