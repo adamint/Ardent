@@ -142,7 +142,7 @@ public class CommandFactory {
                 if (toChange != null) {
                     if (GuildUtils.hasManageServerPermission(guild.getMember(event.getAuthor()))) {
                         r.db("data").table("guilds").filter(r.hashMap("guild_id", guild.getId())).update(r.hashMap("language", toChange
-                                .getIdentifier()));
+                                .getIdentifier())).run(connection);
                         command.sendRetrievedTranslation(channel, "language", LangFactory.getLanguage("english"),
                                 "changedlanguage", user);
                         getShard().botLanguageData.set(guild, toChange.getIdentifier());
