@@ -28,27 +28,35 @@ public class Blackjack extends Command {
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
         if (sessions.contains(user.getId())) return;
-        sendRetrievedTranslation(channel, "blackjack", language, "enterbet", user);
-        interactiveOperation(language, channel, message, betMessage -> {
-            try {
-                int amountToBet = Integer.parseInt(betMessage.getContent());
-                Profile profile = Profile.get(user);
-                if (amountToBet <= 0 || profile.getMoney() < amountToBet) {
-                    sendRetrievedTranslation(channel, "bet", language, "lulno", user);
+        final int[] amountToBet = new int[1];
+        try {
+            amountToBet[0] = Integer.parseInt(args[1]);
+        }
+        catch (NumberFormatException nfe) {
+            sendRetrievedTranslation(channel, "blackjack", language, "enterbet", user);
+            interactiveOperation(language, channel, message, betMessage -> {
+                try {
+                    amountToBet[0] = Integer.parseInt(betMessage.getContent());
+                }
+                catch (Exception e) {
+                    sendRetrievedTranslation(channel, "other", language, "enterwholenumber", user);
                     return;
                 }
-                HashMap<Integer, TranslationResponse> translations = getTranslations(language, new Translation("blackjack", "game"),
-                        new Translation("blackjack", "actions"), new Translation("blackjack", "yourhand"),
-                        new Translation("blackjack", "myhand"));
-                Hand yourHand = new Hand().generate().generate();
-                Hand dealerHand = new Hand().generate().generate();
-                sessions.add(user.getId());
-                dispatchRound(amountToBet, yourHand, dealerHand, translations, guild, channel, user, message, args, language);
-            }
-            catch (Exception nfe) {
-                sendRetrievedTranslation(channel, "other", language, "enterwholenumber", user);
-            }
-        });
+            });
+        }
+        Profile profile = Profile.get(user);
+        if (amountToBet[0] <= 0 || profile.getMoney() < amountToBet[0]) {
+            sendRetrievedTranslation(channel, "bet", language, "lulno", user);
+            return;
+        }
+        HashMap<Integer, TranslationResponse> translations = getTranslations(language, new Translation("blackjack", "game"),
+                new Translation("blackjack", "actions"), new Translation("blackjack", "yourhand"),
+                new Translation("blackjack", "myhand"));
+        Hand yourHand = new Hand().generate().generate();
+        Hand dealerHand = new Hand().generate().generate();
+        sessions.add(user.getId());
+        dispatchRound(amountToBet[0], yourHand, dealerHand, translations, guild, channel, user, message, args, language);
+
     }
 
     @Override
@@ -65,7 +73,7 @@ public class Blackjack extends Command {
         builder.addField(translations.get(2).getTranslation(), yourHand.readable(), true);
         builder.addField(translations.get(3).getTranslation(), dealerHand.readable(), true);
         sendEmbed(builder, channel, user);
-        boolean success = interactiveOperation(language, channel, message, actionMessage -> {
+        boolean success = longInteractiveOperation(language, channel, message, 25, actionMessage -> {
             String content = actionMessage.getContent();
             if (content.equalsIgnoreCase("hit")) {
                 yourHand.generate();
@@ -79,6 +87,7 @@ public class Blackjack extends Command {
             else if (content.equalsIgnoreCase("cancel")) {
                 sendRetrievedTranslation(channel, "blackjack", language, "cancelledgame", user);
                 sessions.remove(user.getId());
+                Profile.get(user).removeMoney(bet / 2);
             }
             else {
                 sendRetrievedTranslation(channel, "blackjack", language, "invalidinput", user);

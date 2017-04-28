@@ -1,5 +1,6 @@
 package tk.ardentbot.commands.rpg;
 
+import com.rethinkdb.net.Cursor;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
@@ -55,12 +56,13 @@ public class RPGMoney extends Ratelimitable {
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws
                     Exception {
                 HashMap<User, Double> moneyAmounts = new HashMap<>();
-                List<HashMap> top = r.db("data").table("profiles").orderBy(r.desc("money")).limit(15).run(connection);
+                Cursor<HashMap> top = r.db("data").table("profiles").orderBy()
+                        .optArg("index", r.desc("money")).limit(25).run(connection);
                 top.forEach(hashMap -> {
                     Profile profile = asPojo(hashMap, Profile.class);
+                    assert profile.getUser() != null;
                     moneyAmounts.put(profile.getUser(), profile.getMoney());
                 });
-
                 Map<User, Double> sortedAmounts = MapUtils.sortByValue(moneyAmounts);
                 HashMap<Integer, TranslationResponse> translations = getTranslations(language, new Translation("money", "topmoney"),
                         new Translation("money", "howtogetmoney"), new Translation("money", "seepeoplemoney"));

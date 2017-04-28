@@ -47,12 +47,6 @@ public class TrackScheduler extends AudioEventAdapter {
             Guild guild = manager.getChannel().getGuild();
             getShard(guild).help.sendRetrievedTranslation(manager.getChannel(), "music", GuildUtils.getLanguage(guild),
                     "notabletoplaytrack", null);
-            new BotException("Exception playing " + track.getInfo().uri + " in " + manager.getChannel().getName() + "" +
-                    " (" + guild.getId() + ")");
-            if (exception instanceof FriendlyException) {
-                FriendlyException exception1 = (FriendlyException) exception;
-                new BotException("^ " + exception1.getCause());
-            }
         }
         catch (Exception ex) {
             new BotException(ex);

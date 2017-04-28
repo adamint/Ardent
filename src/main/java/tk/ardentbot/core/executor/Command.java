@@ -86,13 +86,17 @@ public abstract class Command extends BaseCommand {
         }
     }
 
-    public static void longInteractiveOperation(Language language, MessageChannel channel, Message message, int seconds,
-                                                Consumer<Message> function) {
+    public static boolean longInteractiveOperation(Language language, MessageChannel channel, Message message, int seconds,
+                                                   Consumer<Message> function) {
+        final boolean[] succeeded = {false};
         if (channel instanceof TextChannel) {
             queuedInteractives.put(message.getId(), message.getAuthor().getId());
-            Ardent.globalExecutorService.execute(() -> dispatchInteractiveEvent(message.getCreationTime(), (TextChannel) channel,
+            Ardent.globalExecutorService.execute(() -> succeeded[0] = dispatchInteractiveEvent(message.getCreationTime(), (TextChannel)
+                            channel,
                     message, function, language, seconds * 1000, true));
+            return succeeded[0];
         }
+        return false;
     }
 
     public static boolean interactiveOperation(Language language, MessageChannel channel, Message message, Consumer<Message> function) {

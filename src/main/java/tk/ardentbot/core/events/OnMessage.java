@@ -41,7 +41,8 @@ public class OnMessage {
                         "no, fuck you",
                         "print(fucksGiven)\nInput: print(fucksGiven)\nOutput: Not a single fuck\n",
                         "wanna curse at someone? type fuck off @User",
-                        "no one cares {1}"
+                        "no one cares {0}...",
+                        "someone's getting a bit salty, hmm?"
                 };
             }
             else {
@@ -49,7 +50,8 @@ public class OnMessage {
                         "Hey {0}, if you run fast enough, you might catch the bus to FuckOffVille!",
                         "Hey {0}, go drive a van containing you and all the fucks I have off a cliff!",
                         "Hey, {0} You're going the wrong way, RetardVille is back the way you came",
-                        ":clap: congrats {0}, you even managed to make a bot angry. Fuck off"
+                        ":clap: congrats {0}, you even managed to make a bot angry. Fuck off",
+                        "{0}, shut the fuck up"
                 };
             }
             event.getChannel().sendMessage(fucks[new Random().nextInt(fucks.length)].replace("{0}", mentioned.size() == 0 ? "" :
