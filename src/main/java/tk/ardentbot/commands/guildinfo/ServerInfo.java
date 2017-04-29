@@ -8,7 +8,6 @@ import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.core.executor.Command;
 import tk.ardentbot.core.executor.Subcommand;
-import tk.ardentbot.core.translate.Language;
 import tk.ardentbot.rethink.models.ServerInfoModel;
 
 import java.sql.SQLException;
@@ -24,15 +23,15 @@ public class ServerInfo extends Command {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
-        sendHelp(language, channel, guild, user, this);
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
+        sendHelp(channel, guild, user, this);
     }
 
     @Override
     public void setupSubcommands() throws Exception {
-        subcommands.add(new Subcommand(this, "set") {
+        subcommands.add(new Subcommand("Set server info for new useres", "set", "set") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws
                     Exception {
                 String serverInfo = getServerInfo(guild);
                 if (serverInfo == null) {
@@ -40,45 +39,47 @@ public class ServerInfo extends Command {
                         if (args.length > 2) {
                             String parsed = replace(message.getContent(), 2);
                             setInfo(guild, parsed);
-                            sendRetrievedTranslation(channel, "info", language, "successfullyset", user);
+                            sendTranslatedMessage("Successfully set the server info message! Invoke it by doing /server info", channel,
+                                    user);
                         }
                         else {
-                            sendRetrievedTranslation(channel, "other", language, "includesometext", user);
+                            sendTranslatedMessage("You need to include some text in the info!", channel, user);
                         }
                     }
-                    else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
+                    else sendTranslatedMessage("You need the Manage Server permission to use this!", channel, user);
                 }
                 else {
-                    sendRetrievedTranslation(channel, "info", language, "alreadysetup", user);
+                    sendTranslatedMessage("Server info has already been added! Remove it before you can change it.", channel, user);
                 }
             }
         });
 
-        subcommands.add(new Subcommand(this, "remove") {
+        subcommands.add(new Subcommand("Remove the set server info", "remove", "remove") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws
                     Exception {
                 String serverInfo = getServerInfo(guild);
                 if (serverInfo != null) {
                     if (guild.getMember(user).hasPermission(Permission.MANAGE_CHANNEL)) {
                         setInfo(guild, null);
-                        sendRetrievedTranslation(channel, "info", language, "successfullyremoved", user);
+                        sendTranslatedMessage("Successfully removed server info.", channel, user);
                     }
-                    else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
+                    else sendTranslatedMessage("You need the Manage Server permission to use this!", channel, user);
                 }
                 else {
-                    sendRetrievedTranslation(channel, "info", language, "nonesetup", user);
+                    sendTranslatedMessage("Your server doesn't have a setup info message.", channel, user);
+
                 }
             }
         });
 
-        subcommands.add(new Subcommand(this, "view") {
+        subcommands.add(new Subcommand("View the server info settings", "view", "view") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws
                     Exception {
                 String serverInfo = getServerInfo(guild);
                 if (serverInfo == null) {
-                    sendRetrievedTranslation(channel, "info", language, "nonesetup", user);
+                    sendTranslatedMessage("Your server doesn't have a setup info message.", channel, user);
                 }
                 else {
                     sendTranslatedMessage("**" + guild.getName() + "**:\n" + serverInfo, channel, user);

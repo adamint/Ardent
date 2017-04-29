@@ -7,7 +7,6 @@ import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import tk.ardentbot.core.executor.Command;
 import tk.ardentbot.core.misc.logging.BotException;
-import tk.ardentbot.core.translate.Language;
 import tk.ardentbot.utils.discord.GuildUtils;
 
 public class Botname extends Command {
@@ -16,10 +15,9 @@ public class Botname extends Command {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
-            language) throws Exception {
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
         if (args.length == 1) {
-            sendRetrievedTranslation(channel, "botname", language, "entername", user);
+            sendTranslatedMessage("Enter what you want me to nickname myself", channel, user);
         }
         else {
             String name = message.getContent().replace(GuildUtils.getPrefix(guild) + args[0] + " ", "");
@@ -29,7 +27,7 @@ public class Botname extends Command {
             try {
                 guild.getController().setNickname(guild.getSelfMember(), name).queue(aVoid -> {
                     try {
-                        sendRetrievedTranslation(channel, "botname", language, "changed", user);
+                        sendTranslatedMessage("Changed my nickname!", channel, user);
                     }
                     catch (Exception e) {
                         new BotException(e);
@@ -37,7 +35,7 @@ public class Botname extends Command {
                 });
             }
             catch (PermissionException ex) {
-                sendRetrievedTranslation(channel, "botname", language, "failed", user);
+                sendTranslatedMessage("I couldn't change my nickname, make sure I have permission to do that", channel, user);
             }
         }
     }
