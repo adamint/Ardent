@@ -6,7 +6,6 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.core.executor.Command;
-import tk.ardentbot.core.translate.Language;
 import tk.ardentbot.main.Ardent;
 import tk.ardentbot.utils.discord.MessageUtils;
 import tk.ardentbot.utils.discord.UserUtils;
@@ -19,9 +18,8 @@ public class About extends Command {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
-            language) throws Exception {
-        EmbedBuilder builder = MessageUtils.getDefaultEmbed(guild, user, this);
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
+        EmbedBuilder builder = MessageUtils.getDefaultEmbed(user);
         builder.setAuthor("Ardent About", getShard().url, getShard().bot.getAvatarUrl());
         StringBuilder description = new StringBuilder();
         description.append("**What's this embed? ;O**\n\n")

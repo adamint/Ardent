@@ -10,7 +10,6 @@ import tk.ardentbot.core.events.Join;
 import tk.ardentbot.core.events.Leave;
 import tk.ardentbot.core.executor.Command;
 import tk.ardentbot.core.executor.Subcommand;
-import tk.ardentbot.core.translate.Language;
 import tk.ardentbot.main.Shard;
 import tk.ardentbot.main.ShardManager;
 import tk.ardentbot.utils.MapUtils;
@@ -78,17 +77,15 @@ public class Stats extends Command {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
-            language) throws Exception {
-        sendHelp(language, channel, guild, user, this);
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
+        sendHelp(channel, guild, user, this);
     }
 
     @Override
     public void setupSubcommands() throws Exception {
-        subcommands.add(new Subcommand(this, "commands") {
+        subcommands.add(new Subcommand("See what commands are being used", "commands", "commands") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
-                               Language language) throws Exception {
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
                 StringBuilder commandBars = new StringBuilder();
 
                 Map<String, Long> commandsUsed = getCommandData(ShardManager.getShards());
@@ -110,19 +107,18 @@ public class Stats extends Command {
                     }
                     counter[0]++;
                 });
-                EmbedBuilder builder = MessageUtils.getDefaultEmbed(guild, user, Stats.this);
+                EmbedBuilder builder = MessageUtils.getDefaultEmbed(user);
                 builder.setAuthor("Command Statistics", getShard().url, getShard().bot.getAvatarUrl());
                 builder.setColor(Color.GREEN);
                 builder.setDescription("Command Usage\n" + commandBars.toString());
                 sendEmbed(builder, channel, user);
             }
         });
-        subcommands.add(new Subcommand(this, "guilds") {
+        subcommands.add(new Subcommand("See how many server's I'm joining and leaving", "guilds") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
-                               Language language) throws Exception {
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
 
-                EmbedBuilder builder = MessageUtils.getDefaultEmbed(guild, user, Stats.this);
+                EmbedBuilder builder = MessageUtils.getDefaultEmbed(user);
                 builder.setAuthor("Guild Statistics", getShard().url, getShard().bot.getAvatarUrl());
                 builder.setColor(Color.GREEN);
 

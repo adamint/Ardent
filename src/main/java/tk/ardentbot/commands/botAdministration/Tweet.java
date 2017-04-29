@@ -5,7 +5,6 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.core.executor.Command;
-import tk.ardentbot.core.translate.Language;
 import tk.ardentbot.main.Ardent;
 import tk.ardentbot.utils.discord.GuildUtils;
 import twitter4j.Status;
@@ -18,7 +17,7 @@ public class Tweet extends Command {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
         if (Ardent.developers.contains(user.getId())) {
             if (args.length == 1) {
                 sendTranslatedMessage("Bro, you gotta include an actual tweet with that", channel, user);
@@ -38,7 +37,7 @@ public class Tweet extends Command {
                 botLogsShard.jda.getTextChannelById("272411413031419904").sendMessage(sb.toString()).queue();
             }
         }
-        else sendRetrievedTranslation(channel, "other", language, "needdeveloperpermission", user);
+        else sendTranslatedMessage("You need to be a developer to send a tweet lol", channel, user);
     }
 
     @Override

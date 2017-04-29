@@ -7,7 +7,6 @@ import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import tk.ardentbot.core.executor.Ratelimitable;
 import tk.ardentbot.core.misc.logging.BotException;
-import tk.ardentbot.core.translate.Language;
 
 public class Ping extends Ratelimitable {
     public Ping(CommandSettings commandSettings) {
@@ -15,13 +14,13 @@ public class Ping extends Ratelimitable {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
         long currentTime = System.currentTimeMillis();
         try {
-            channel.sendMessage("*" + getTranslation("ping", language, "calculating").getTranslation() + "*").queue(message1 -> {
+            channel.sendMessage("*Calculating ping now*").queue(message1 -> {
                 long responseTime = System.currentTimeMillis() - currentTime;
                 try {
-                    message1.editMessage(getTranslation("ping", language, "ping").getTranslation().replace("{0}", Long.toString
+                    message1.editMessage("Current ping: {0} ms".replace("{0}", Long.toString
                             (responseTime))).queue();
 
                 }

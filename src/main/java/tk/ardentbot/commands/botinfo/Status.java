@@ -7,9 +7,6 @@ import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.commands.music.Music;
 import tk.ardentbot.core.executor.Command;
-import tk.ardentbot.core.translate.Language;
-import tk.ardentbot.core.translate.Translation;
-import tk.ardentbot.core.translate.TranslationResponse;
 import tk.ardentbot.main.Shard;
 import tk.ardentbot.utils.discord.GuildUtils;
 import tk.ardentbot.utils.discord.InternalStats;
@@ -18,8 +15,6 @@ import tk.ardentbot.utils.discord.UsageUtils;
 import tk.ardentbot.utils.javaAdditions.Pair;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static tk.ardentbot.main.ShardManager.getShards;
@@ -50,8 +45,7 @@ public class Status extends Command {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
-            language) throws Exception {
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
         Shard shard = GuildUtils.getShard(guild);
         double totalRAM = Runtime.getRuntime().totalMemory() / 1024 / 1024;
         double usedRAM = totalRAM - Runtime.getRuntime().freeMemory() / 1024 / 1024;
@@ -59,66 +53,37 @@ public class Status extends Command {
         StringBuilder devUsernames = new StringBuilder();
         devUsernames.append("Adam#9261, Akio Nakao#7507");
 
-        Translation title = new Translation("status", "title");
-        Translation botstatus = new Translation("status", "botstatus");
-        Translation loadedcommands = new Translation("status", "loadedcommands");
-        Translation receivedmessages = new Translation("status", "receivedmessages");
-        Translation commandsreceived = new Translation("status", "commandsreceived");
-        Translation guilds = new Translation("status", "guilds");
-        Translation audioConnections = new Translation("status", "currentaudioconnections");
-        Translation cpu = new Translation("status", "cpu");
-        Translation ram = new Translation("status", "ram");
-        Translation developers = new Translation("status", "developers");
-        Translation site = new Translation("status", "site");
-        Translation botHelp = new Translation("help", "bothelp");
-        ArrayList<Translation> translationQueries = new ArrayList<>();
-        translationQueries.add(title);
-        translationQueries.add(botstatus);
-        translationQueries.add(loadedcommands);
-        translationQueries.add(receivedmessages);
-        translationQueries.add(commandsreceived);
-        translationQueries.add(guilds);
-        translationQueries.add(audioConnections);
-        translationQueries.add(cpu);
-        translationQueries.add(ram);
-        translationQueries.add(developers);
-        translationQueries.add(site);
-        translationQueries.add(botHelp);
-
         InternalStats internalStats = InternalStats.collect();
 
         DecimalFormat formatter = new DecimalFormat("#,###");
         String cmds = formatter.format(internalStats.getCommandsReceived());
 
         Pair<Integer, Integer> musicStats = Music.getMusicStats();
+        EmbedBuilder embedBuilder = MessageUtils.getDefaultEmbed(user);
 
-        HashMap<Integer, TranslationResponse> translations = getTranslations(language, translationQueries);
-
-        EmbedBuilder embedBuilder = MessageUtils.getDefaultEmbed(guild, user, this);
-
-        embedBuilder.setAuthor(translations.get(0).getTranslation(), "https://ardentbot.tk", shard.bot
+        embedBuilder.setAuthor("Ardent Status", "https://ardentbot.tk", shard.bot
                 .getAvatarUrl());
         embedBuilder.setThumbnail("https://a.dryicons.com/images/icon_sets/polygon_icons/png/256x256/computer.png");
 
-        embedBuilder.addField(translations.get(1).getTranslation(), ":thumbsup:", true);
-        embedBuilder.addField(translations.get(2).getTranslation(), String.valueOf(shard.factory
+        embedBuilder.addField("Bot Status", ":thumbsup:", true);
+        embedBuilder.addField("Loaded Commands", String.valueOf(shard.factory
                 .getLoadedCommandsAmount()), true);
 
-        embedBuilder.addField(translations.get(3).getTranslation(), String.valueOf(internalStats.getMessagesReceived
+        embedBuilder.addField("Received Messages", String.valueOf(internalStats.getMessagesReceived
                 ()), true);
-        embedBuilder.addField(translations.get(4).getTranslation(), cmds, true);
+        embedBuilder.addField("Commands Received", cmds, true);
 
-        embedBuilder.addField(translations.get(5).getTranslation(), String.valueOf(internalStats.getGuilds()), true);
-        embedBuilder.addField(translations.get(6).getTranslation(), String.valueOf(musicStats.getK()), true);
+        embedBuilder.addField("Servers", String.valueOf(internalStats.getGuilds()), true);
+        embedBuilder.addField("", String.valueOf(musicStats.getK()), true);
 
-        embedBuilder.addField("Queue", String.valueOf(musicStats.getV()), true);
-        embedBuilder.addField(translations.get(7).getTranslation(), UsageUtils.getProcessCpuLoad() + "%", true);
+        embedBuilder.addField("Queue Length", String.valueOf(musicStats.getV()), true);
+        embedBuilder.addField("CPU Usage", UsageUtils.getProcessCpuLoad() + "%", true);
 
-        embedBuilder.addField(translations.get(8).getTranslation(), usedRAM + " / " + totalRAM + " MB", true);
-        embedBuilder.addField(translations.get(9).getTranslation(), devUsernames.toString(), true);
+        embedBuilder.addField("RAM Usage", usedRAM + " / " + totalRAM + " MB", true);
+        embedBuilder.addField("Developers", devUsernames.toString(), true);
 
-        embedBuilder.addField(translations.get(10).getTranslation(), "https://ardentbot.tk", true);
-        embedBuilder.addField(translations.get(11).getTranslation(), "https://ardentbot.tk/guild", true);
+        embedBuilder.addField("Website", "https://ardentbot.tk", true);
+        embedBuilder.addField("Get Help", "https://ardentbot.tk/guild", true);
 
         sendEmbed(embedBuilder, channel, user);
     }

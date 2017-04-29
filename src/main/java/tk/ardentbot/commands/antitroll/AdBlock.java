@@ -7,13 +7,8 @@ import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.core.executor.Command;
 import tk.ardentbot.core.executor.Subcommand;
-import tk.ardentbot.core.translate.Language;
-import tk.ardentbot.core.translate.Translation;
-import tk.ardentbot.core.translate.TranslationResponse;
 import tk.ardentbot.rethink.models.AntiAdvertisingSettings;
 import tk.ardentbot.utils.discord.MessageUtils;
-
-import java.util.HashMap;
 
 import static tk.ardentbot.rethink.Database.connection;
 import static tk.ardentbot.rethink.Database.r;
@@ -25,39 +20,36 @@ public class AdBlock extends Command {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
-        sendHelp(language, channel, guild, user, this);
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
+        sendHelp(channel, guild, user, this);
     }
 
     @Override
     public void setupSubcommands() throws Exception {
-        subcommands.add(new Subcommand(this, "settings") {
+        subcommands.add(new Subcommand("View the Adblock settings for this server", "settings", "settings") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws
                     Exception {
-                HashMap<Integer, TranslationResponse> translations = getTranslations(language, new Translation("adblock",
-                                "adblocksettings"), new Translation("adblock", "allowpostingserverinvites"),
-                        new Translation("adblock", "banadvertisersafter2ads"));
                 AntiAdvertisingSettings settings = asPojo(r.table("anti_advertising_settings").get(guild.getId()).run(connection)
                         , AntiAdvertisingSettings.class);
                 if (settings == null) {
                     settings = new AntiAdvertisingSettings(guild.getId(), true, false);
                     r.table("anti_advertising_settings").insert(r.json(gson.toJson(settings))).run(connection);
                 }
-                EmbedBuilder builder = MessageUtils.getDefaultEmbed(guild, user, AdBlock.this);
-                String adblockSettings = translations.get(0).getTranslation();
+                EmbedBuilder builder = MessageUtils.getDefaultEmbed(user);
+                String adblockSettings = "Adblock Settings";
                 builder.setAuthor(adblockSettings, guild.getIconUrl(), guild.getIconUrl());
                 StringBuilder description = new StringBuilder();
                 description.append("**" + adblockSettings + "**");
-                description.append("\n" + translations.get(1).getTranslation() + ": *" + settings.isAllow_discord_server_links() + "*");
-                description.append("\n" + translations.get(2).getTranslation() + ": *" + settings.isBan_after_two_infractions() + "*");
+                description.append("\nAllow users to post server invites: *" + settings.isAllow_discord_server_links() + "*");
+                description.append("\nBan users after they advertise twice: *" + settings.isBan_after_two_infractions() + "*");
                 sendEmbed(builder.setDescription(description), channel, user);
             }
         });
 
-        subcommands.add(new Subcommand(this, "serverinvites") {
+        subcommands.add(new Subcommand("Allow or block users from sending server invites", "serverinvites [true/false]", "serverinvites") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws
                     Exception {
                 try {
                     AntiAdvertisingSettings settings = asPojo(r.table("anti_advertising_settings").get(guild.getId()).run(connection)
@@ -69,7 +61,7 @@ public class AdBlock extends Command {
                                     (), true, false)))).run(connection);
                         else r.table("anti_advertising_settings").get(guild.getId()).update(r.hashMap("allow_discord_server_links", true))
                                 .run(connection);
-                        sendRetrievedTranslation(channel, "adblock", language, "nowcanpostdiscordserverlinks", user);
+                        sendTranslatedMessage("People can now post Discord server invite links", channel, user);
                     }
                     else {
                         if (settings == null)
@@ -77,17 +69,17 @@ public class AdBlock extends Command {
                                     (), false, false)))).run(connection);
                         else r.table("anti_advertising_settings").get(guild.getId()).update(r.hashMap("allow_discord_server_links", false))
                                 .run(connection);
-                        sendRetrievedTranslation(channel, "adblock", language, "nowcannotpostdiscordserverlinks", user);
+                        sendTranslatedMessage("People now **cannot** post Discord server invite links", channel, user);
                     }
                 }
                 catch (Exception ex) {
-                    sendRetrievedTranslation(channel, "other", language, "needspecifytrueorfalse", user);
+                    sendTranslatedMessage("You need to specify true or false!", channel, user);
                 }
             }
         });
-        subcommands.add(new Subcommand(this, "banafter2ads") {
+        subcommands.add(new Subcommand("Ban users who advertise more than twice", "banafter2ads [true/false]", "banafter2ads") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws
                     Exception {
                 try {
                     AntiAdvertisingSettings settings = asPojo(r.table("anti_advertising_settings").get(guild.getId()).run(connection)
@@ -99,7 +91,7 @@ public class AdBlock extends Command {
                                     (), false, true)))).run(connection);
                         else r.table("anti_advertising_settings").get(guild.getId()).update(r.hashMap("ban_after_two_infractions", true))
                                 .run(connection);
-                        sendRetrievedTranslation(channel, "adblock", language, "willbanafter2ads", user);
+                        sendTranslatedMessage("I will now ban users if they advertise more than twice", channel, user);
                     }
                     else {
                         if (settings == null)
@@ -107,11 +99,11 @@ public class AdBlock extends Command {
                                     (), true, false)))).run(connection);
                         else r.table("anti_advertising_settings").get(guild.getId()).update(r.hashMap("ban_after_two_infractions", false))
                                 .run(connection);
-                        sendRetrievedTranslation(channel, "adblock", language, "willnotbanusersafter2ads", user);
+                        sendTranslatedMessage("I won't ban members after 2 advertising infractions", channel, user);
                     }
                 }
                 catch (Exception ex) {
-                    sendRetrievedTranslation(channel, "other", language, "needspecifytrueorfalse", user);
+                    sendTranslatedMessage("You need to specify true or false!", channel, user);
                 }
             }
         });

@@ -5,7 +5,6 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.core.executor.Command;
-import tk.ardentbot.core.translate.Language;
 
 public class Patreon extends Command {
     public Patreon(CommandSettings commandSettings) {
@@ -13,10 +12,8 @@ public class Patreon extends Command {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
-            language) throws Exception {
-        sendTranslatedMessage(getTranslation("patreon", language, "link").getTranslation() + "\n" + getTranslation
-                ("patreon", language, "atleast2").getTranslation(), channel, user);
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
+        sendTranslatedMessage("Want to support Ardent? Pledge at https://patreon.com/ardent and receive perks!", channel, user);
     }
 
     @Override

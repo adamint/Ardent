@@ -15,15 +15,14 @@ public class Request extends Ratelimitable {
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
         String prefix = GuildUtils.getPrefix(guild);
         if (args.length == 1) {
-            sendTranslatedMessage(getTranslation("request", language, "requesthelp").getTranslation().replace("{0}",
-                    prefix + args[0]), channel, user);
+            sendTranslatedMessage("Request a feature by typing /request and then your request", channel, user);
         }
         else {
             String request = message.getRawContent().replace(prefix + args[0] + " ", "");
             TextChannel ideasChannel = botLogsShard.jda.getTextChannelById("262810786186002432");
             ideasChannel.sendMessage("**Request** by " + user.getName() + "#" + user.getDiscriminator() + " (" +
                     user.getId() + "): " + request).queue();
-            sendRetrievedTranslation(channel, "request", language, "successfullyrequested", user);
+            sendTranslatedMessage("Sent your request to the developers!", channel, user);
         }
     }
 

@@ -8,7 +8,6 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.core.executor.Command;
-import tk.ardentbot.core.translate.Language;
 import tk.ardentbot.utils.discord.GuildUtils;
 
 import java.net.URLEncoder;
@@ -19,9 +18,9 @@ public class Yoda extends Command {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
         if (args.length == 1) {
-            sendRetrievedTranslation(channel, "yoda", language, "help", user);
+            sendTranslatedMessage("Type something to ask Yoda", channel, user);
         }
         else {
             try {
@@ -33,7 +32,7 @@ public class Yoda extends Command {
                         .asString();
                 String body = response.getBody();
                 if (body.contains("<html>")) {
-                    sendRetrievedTranslation(channel, "yoda", language, "unavailable", user);
+                    sendTranslatedMessage("Yoda is currently unavailable, sorry :frowning:", channel, user);
                 }
                 else {
                     sendTranslatedMessage(response.getBody(), channel, user);

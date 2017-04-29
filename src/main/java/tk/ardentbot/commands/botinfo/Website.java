@@ -5,7 +5,6 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.core.executor.Command;
-import tk.ardentbot.core.translate.Language;
 
 public class Website extends Command {
     public Website(CommandSettings commandSettings) {
@@ -13,9 +12,8 @@ public class Website extends Command {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
-        sendTranslatedMessage(getTranslation("website", language, "website").getTranslation().replace("{0}", "@ " +
-                "https://ardentbot.tk"), channel, user);
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
+        sendTranslatedMessage("Visit our website @ https://ardentbot.tk !", channel, user);
     }
 
     @Override
