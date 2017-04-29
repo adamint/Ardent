@@ -30,7 +30,6 @@ public class Leave {
         String id = guild.getId();
         Ardent.cleverbots.remove(id);
         shard.botPrefixData.remove(guild);
-        shard.botLanguageData.remove(guild);
     }
 
     @SubscribeEvent

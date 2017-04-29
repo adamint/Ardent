@@ -1,18 +1,15 @@
 package tk.ardentbot.utils.discord;
 
 import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.core.executor.BaseCommand;
 import tk.ardentbot.core.misc.logging.BotException;
-import tk.ardentbot.core.translate.Language;
 
 import java.awt.*;
 import java.util.List;
 import java.util.Random;
 
 public class MessageUtils {
-    public static EmbedBuilder getDefaultEmbed(Guild guild, User author, BaseCommand baseCommand) {
+    public static EmbedBuilder getDefaultEmbed(User author) {
         try {
             final Random random = new Random();
             final float hue = random.nextFloat();
@@ -20,10 +17,9 @@ public class MessageUtils {
             final float luminance = 2f;
             final Color color = Color.getHSBColor(hue, saturation, luminance);
 
-            Language language = GuildUtils.getLanguage(guild);
             EmbedBuilder builder = new EmbedBuilder();
             builder.setColor(color);
-            builder.setFooter(baseCommand.getTranslation("other", language, "requestedby").getTranslation().replace
+            builder.setFooter("Requested by {0}".replace
                     ("{0}", author.getName() + "#" + author.getDiscriminator()), author.getAvatarUrl());
             return builder;
         }

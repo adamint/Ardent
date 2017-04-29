@@ -9,24 +9,14 @@ import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import org.json.simple.JSONObject;
 import tk.ardentbot.core.misc.logging.BotException;
-import tk.ardentbot.core.models.CommandTranslation;
-import tk.ardentbot.core.models.PhraseTranslation;
-import tk.ardentbot.core.translate.LangFactory;
-import tk.ardentbot.core.translate.Language;
-import tk.ardentbot.core.translate.Translation;
-import tk.ardentbot.core.translate.TranslationResponse;
 import tk.ardentbot.main.Ardent;
 import tk.ardentbot.main.Shard;
-import tk.ardentbot.rethink.models.TranslationModel;
 import tk.ardentbot.utils.discord.MessageUtils;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.stream.Collectors;
-
-import static tk.ardentbot.core.translate.LangFactory.english;
-import static tk.ardentbot.rethink.Database.connection;
-import static tk.ardentbot.rethink.Database.r;
 
 /**
  * Abstracted from Command for possible future implementations (WebCommand)
@@ -36,13 +26,13 @@ public abstract class BaseCommand {
     private static final Gson staticGson = new Gson();
     public final Gson gson = new Gson();
     Command botCommand;
-    String commandIdentifier;
     boolean privateChannelUsage = true;
     boolean guildUsage = true;
     Category category;
+    @Getter
+    String description;
     private String[] aliases;
     private Shard shard;
-
 
     /**
      * Convert a HashMap into a POJO via GSON and Java's JSON library - use only with RethinkDB
@@ -99,30 +89,6 @@ public abstract class BaseCommand {
         }
     }
 
-    /**
-     * Sends a translated message for the supplied translate parameter
-     *
-     * @param channel             channel to send to
-     * @param translationCategory the command identifier of the translate
-     * @param language            the current language of the guild
-     * @param translationId       the identifier of the translate
-     * @throws Exception
-     */
-    public void sendRetrievedTranslation(MessageChannel channel, String translationCategory, Language language,
-                                         String translationId, User user) {
-        TranslationResponse response = null;
-        try {
-            response = getTranslation(translationCategory, language, translationId);
-        }
-        catch (Exception e) {
-            new BotException(e);
-        }
-        if (response.isTranslationAvailable()) {
-            sendTranslatedMessage(response.getTranslation(), channel, user);
-        }
-        else new BotException("There wasn't a translate for " + translationId + " in " + translationCategory);
-    }
-
     public String replaceCommandIdAndPrefix(String message) {
         return message.replace(message.split(" ")[0] + " ", "");
     }
@@ -135,7 +101,7 @@ public abstract class BaseCommand {
         return strings;
     }
 
-    public EmbedBuilder chooseFromList(String title, Guild guild, Language language, User user, BaseCommand command, String... options)
+    public EmbedBuilder chooseFromList(String title, Guild guild, User user, BaseCommand command, String... options)
             throws Exception {
         EmbedBuilder builder = MessageUtils.getDefaultEmbed(guild, user, command);
         builder.setAuthor(title, Ardent.gameUrl, user.getAvatarUrl());
@@ -144,7 +110,7 @@ public abstract class BaseCommand {
         for (int i = 0; i < options.length; i++) {
             description.append("\n**#" + (i + 1) + "**: " + options[i]);
         }
-        description.append("\n\n" + command.getTranslation("other", language, "selectoption").getTranslation());
+        description.append("\n\n" + "Select the number of the option you want");
         return builder.setDescription(description.toString());
     }
 
@@ -173,12 +139,10 @@ public abstract class BaseCommand {
             user.openPrivateChannel().queue(privateChannel -> {
                 try {
                     if (!embed) {
-                        privateChannel.sendMessage(getTranslation("other", LangFactory.english,
-                                "nopermissionstotype").getTranslation()).queue();
+                        privateChannel.sendMessage("I don't have permission to type in this channel!").queue();
                     }
                     else {
-                        privateChannel.sendMessage(getTranslation("other", LangFactory.english,
-                                "nopermissionstosendembeds").getTranslation()).queue();
+                        privateChannel.sendMessage("I don't have permission to send embeds in this channel!").queue();
                     }
                 }
                 catch (Exception e) {
@@ -192,8 +156,7 @@ public abstract class BaseCommand {
         if (user != null) {
             user.openPrivateChannel().queue(privateChannel -> {
                 try {
-                    privateChannel.sendMessage(getTranslation("restrict", LangFactory.english,
-                            "youareblocked").getTranslation()).queue();
+                    privateChannel.sendMessage("You're blocked from sending commands in that server!").queue();
                 }
                 catch (Exception e) {
                     new BotException(e);
@@ -219,185 +182,16 @@ public abstract class BaseCommand {
         return content.replace(toReplace.toString(), "");
     }
 
-    /**
-     * Replace {0}, {1}, etc.. easily in a translate
-     *
-     * @param category     Command category the translate is from
-     * @param language     The guild's language
-     * @param identifier   The unique identifier of the translate
-     * @param user         The user who sent the command
-     * @param replacements An array of replacements to make
-     * @throws Exception SQLException when retrieving translate
-     */
-    public void sendEditedTranslation(String category, Language language, String identifier, User user, MessageChannel channel, String...
+    public void sendEditedTranslation(String translation, User user, MessageChannel channel, String...
             replacements) {
-        String translation = null;
-        try {
-            translation = getTranslation(category, language, identifier).getTranslation();
-        }
-        catch (Exception e) {
-            new BotException(e);
-        }
         for (int i = 0; i < replacements.length; i++) {
             translation = translation.replace("{" + i + "}", replacements[i]);
         }
         sendTranslatedMessage(translation, channel, user);
     }
 
-
-    /**
-     * Retrieves the represented translations for this subcommand
-     *
-     * @param language specified language
-     * @return SubcommandTranslation object containing translations
-     * or null
-     */
-    private CommandTranslation getCmdTranslations(Language language) {
-        Queue<CommandTranslation> commandTranslations = language.getCommandTranslations();
-        Optional<CommandTranslation> currentSubcommand = commandTranslations.stream()
-                .filter(subcommandTranslation -> subcommandTranslation.getIdentifier()
-                        .equals(commandIdentifier)).distinct().findFirst();
-        return currentSubcommand.orElseGet(() -> (language != english) ? getCmdTranslations(english) : null);
-    }
-
-    /**
-     * Retrieves the description of the current command
-     * (needs reworking to not query the database each call)
-     *
-     * @param language the current language of the guild
-     * @return the description of the current command
-     * @throws Exception
-     */
-    public String getDescription(Language language) throws Exception {
-        CommandTranslation translations = getCmdTranslations(language);
-        return (translations != null) ? translations.getDescription() : "invalidcommand";
-    }
-
-    /**
-     * Retrieves the name of the current command
-     *
-     * @param language the current language of the guild
-     * @return the name of the current command
-     * @throws Exception
-     */
-    public String getName(Language language) throws Exception {
-        CommandTranslation translations = getCmdTranslations(language);
-        return (translations != null) ? translations.getTranslation() : "invalidcommand";
-    }
-
-    /**
-     * Returns a translate response representing the given translate
-     * parameters. This tries to use the local cache instead of querying
-     * the database, but queries the database if requested translations are
-     * not found locally.
-     *
-     * @param cmdName the command identifier of the translate
-     * @param lang    the current language of the guild
-     * @param id      the identifier of the translate
-     * @return the TranslationResponse representing this translate
-     * @throws Exception
-     */
-    public TranslationResponse getTranslation(String cmdName, Language lang, String id) throws Exception {
-        Queue<PhraseTranslation> phraseTranslations = lang.getPhraseTranslations();
-
-        for (PhraseTranslation phraseTranslation : phraseTranslations) {
-            if (phraseTranslation.getCommandIdentifier().equalsIgnoreCase(cmdName) && phraseTranslation.getId()
-                    .equalsIgnoreCase(id))
-            {
-                return new TranslationResponse(phraseTranslation.getTranslation(), lang, true, false, true);
-            }
-        }
-        return getTranslationDb(cmdName, lang, id);
-    }
-
-    /**
-     * Returns a translate response representing the given translate
-     * parameters. Queries the database.
-     *
-     * @param cmdName the command identifier of the translate
-     * @param lang    the current language of the guild
-     * @param id      the identifier of the translate
-     * @return the TranslationResponse representing this translate
-     * @throws Exception
-     */
-    private TranslationResponse getTranslationDb(String cmdName, Language lang, String id) throws Exception {
-        TranslationResponse response;
-        Cursor<HashMap> translations = r.db("data").table("translations").filter(r.hashMap("language", lang.getIdentifier())
-                .with("command_identifier",
-                        cmdName).with("id", id)).run(connection);
-        if (!translations.hasNext()) {
-            Cursor<HashMap> english = r.db("data").table("translations").filter(r.hashMap("language", "english").with
-                    ("command_identifier",
-                            cmdName).with("id", id)).run(connection);
-            if (english.hasNext()) {
-                TranslationModel translationModel = gson.fromJson(JSONObject.toJSONString(english.next()), TranslationModel.class);
-                response = new TranslationResponse(translationModel.getTranslation(), lang, false, true, true);
-            }
-            else response = new TranslationResponse(null, lang, false, false, false);
-            english.close();
-        }
-        else {
-            TranslationModel translationModel = gson.fromJson(JSONObject.toJSONString(translations.next()), TranslationModel.class);
-            response = new TranslationResponse(translationModel.getTranslation(), lang, true, true, true);
-        }
-        translations.close();
-        return response;
-    }
-
-    /**
-     * Get translations, via an array as compared to a list
-     *
-     * @param language
-     * @param translations
-     * @return
-     * @throws Exception
-     */
-    public HashMap<Integer, TranslationResponse> getTranslations(Language language, Translation... translations) throws Exception {
-        ArrayList<Translation> translationArrayList = new ArrayList<>();
-        translationArrayList.addAll(Arrays.asList(translations));
-        return getTranslations(language, translationArrayList);
-    }
-
-    /**
-     * Returns the translate responses representing the given translations'
-     * parameters. This tries to use the local cache instead of querying
-     * the database, but queries the database if requested translations are
-     * not found locally.
-     *
-     * @param language     the current language of the guild
-     * @param translations a list of translations to request
-     * @return the TranslationResponse representing this translate
-     * @throws Exception
-     */
-    public HashMap<Integer, TranslationResponse> getTranslations(Language language, List<Translation> translations)
-            throws Exception {
-        HashMap<Integer, TranslationResponse> translationResponses = new HashMap<>();
-        ConcurrentHashMap<Translation, Integer> originalPlaces = new ConcurrentHashMap<>();
-
-        for (int i = 0; i < translations.size(); i++) {
-            Translation translation = translations.get(i);
-            originalPlaces.put(translation, i);
-        }
-
-        Queue<PhraseTranslation> phraseTranslations = language.getPhraseTranslations();
-        Iterator<Translation> translationIterator = translations.iterator();
-        while (translationIterator.hasNext()) {
-            Translation translation = translationIterator.next();
-            for (PhraseTranslation phraseTranslation : phraseTranslations) {
-                if (phraseTranslation.getCommandIdentifier().equalsIgnoreCase(translation.getCommandId()) &&
-                        phraseTranslation.getId().equalsIgnoreCase(translation.getId()))
-                {
-                    translationResponses.put(originalPlaces.get(translation), new TranslationResponse
-                            (phraseTranslation.getTranslation(), language, true, true, true));
-                    translationIterator.remove();
-                }
-            }
-        }
-        return translationResponses;
-    }
-
-    public String getCommandIdentifier() {
-        return commandIdentifier;
+    public String getName() {
+        return aliases[0];
     }
 
     boolean isPrivateChannelUsage() {
@@ -425,11 +219,7 @@ public abstract class BaseCommand {
      */
     @Override
     public boolean equals(Object o) {
-        if (o instanceof BaseCommand) {
-            BaseCommand c = (BaseCommand) o;
-            return this.commandIdentifier.equalsIgnoreCase(c.getCommandIdentifier());
-        }
-        else return false;
+        return o instanceof BaseCommand && aliases[0].equals(((BaseCommand) o).aliases[0]);
     }
 
     public Shard getShard() {
@@ -444,33 +234,24 @@ public abstract class BaseCommand {
      * Holds settings for each command
      */
     public static class CommandSettings {
-        private String commandIdentifier;
+        @Getter
+        private String[] aliases;
+        @Getter
         private boolean privateChannelUsage;
+        @Getter
         private boolean guildUsage;
+        @Getter
         private Category category;
+        @Getter
+        private String description;
 
-        public CommandSettings(String commandIdentifier, boolean privateChannelUsage, boolean guildUsage, Category
-                category) {
-            this.commandIdentifier = commandIdentifier;
+        public CommandSettings(boolean privateChannelUsage, boolean guildUsage, Category
+                category, String d, String... aliases) {
+            this.aliases = aliases;
             this.privateChannelUsage = privateChannelUsage;
             this.guildUsage = guildUsage;
+            this.description = d;
             this.category = category;
-        }
-
-        String getCommandIdentifier() {
-            return commandIdentifier;
-        }
-
-        boolean isPrivateChannelUsage() {
-            return privateChannelUsage;
-        }
-
-        boolean isGuildUsage() {
-            return guildUsage;
-        }
-
-        Category getCategory() {
-            return category;
         }
     }
 }
