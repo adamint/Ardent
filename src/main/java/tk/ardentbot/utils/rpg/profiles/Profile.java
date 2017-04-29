@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.rethinkdb.net.Cursor;
 import lombok.Getter;
 import net.dv8tion.jda.core.entities.User;
+import tk.ardentbot.core.misc.logging.BotException;
 import tk.ardentbot.rethink.models.OneTimeBadgeModel;
 import tk.ardentbot.utils.discord.UserUtils;
 import tk.ardentbot.utils.rpg.BadgesList;
@@ -24,7 +25,8 @@ public class Profile {
     @Getter
     private double stocksOwned;
     private String user_id;
-
+    @Getter
+    private int credit;
     protected Profile(User user) {
         this.user_id = user.getId();
         Profile profile = asPojo(r.db("data").table("profiles").get(user.getId()).run(connection), Profile.class);
@@ -38,10 +40,10 @@ public class Profile {
         else {
             this.stocksOwned = 0;
             this.money = 25;
+            this.credit = 100;
             r.table("profiles").insert(r.json(gson.toJson(this))).run(connection);
         }
     }
-
 
     public Profile(List<Badge> badges, double money, double stocksOwned, String user_id) {
         this.user_id = user_id;
@@ -56,6 +58,15 @@ public class Profile {
             return profile;
         }
         else return new Profile(user);
+    }
+
+    public double afterCredit(double original) {
+        return original;
+    }
+
+    public Profile setZero() {
+        addMoney(-money);
+        return this;
     }
 
     public User getUser() {
@@ -98,9 +109,22 @@ public class Profile {
         return badges;
     }
 
+    public void setCredit(int newCredit) {
+        this.credit = newCredit;
+        r.table("profiles").get(user_id).update(r.hashMap("credit", newCredit)).run(connection);
+    }
+
+    public void updateCredit(int amount) {
+        setCredit(credit + amount);
+    }
+
+
     public void addMoney(double amount) {
         money += amount;
         r.table("profiles").get(user_id).update(r.hashMap("money", money)).run(connection);
+        if (amount > 2 || amount < -2) {
+            new BotException(user_id, amount, money);
+        }
     }
 
     public void removeMoney(double amount) {

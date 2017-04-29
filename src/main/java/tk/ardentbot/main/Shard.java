@@ -12,6 +12,8 @@ import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.source.soundcloud.SoundCloudAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
+import lombok.Getter;
+import lombok.Setter;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
@@ -27,6 +29,8 @@ import tk.ardentbot.commands.antitroll.AdBlock;
 import tk.ardentbot.commands.botAdministration.*;
 import tk.ardentbot.commands.botinfo.*;
 import tk.ardentbot.commands.fun.*;
+import tk.ardentbot.commands.games.Blackjack;
+import tk.ardentbot.commands.games.Trivia;
 import tk.ardentbot.commands.guildinfo.*;
 import tk.ardentbot.commands.music.GuildMusicManager;
 import tk.ardentbot.commands.music.Music;
@@ -86,6 +90,9 @@ public class Shard {
     public BaseCommand request;
     public String url = "https://ardentbot.tk";
     public Gson gson = new Gson();
+    @Getter
+    @Setter
+    private long LAST_EVENT;
     private int gameCounter = 0;
     private int matureLanguages = 0;
     private int id;
@@ -102,7 +109,15 @@ public class Shard {
                 token = Ardent.premiumBotToken;
             }
             else {
-                token = IOUtils.toString(new FileReader(new File("/root/Ardent/v2bottoken.key")));
+                try {
+                    token = IOUtils.toString(new FileReader(new File("/root/Ardent/v2bottoken.key")));
+                }
+                catch (Exception e) {
+                    token = IOUtils.toString(new
+                            FileReader(new File("C:\\Users\\AMR\\Desktop\\Ardent\\v2bottoken.key")));
+
+
+                }
             }
         }
 
@@ -163,7 +178,7 @@ public class Shard {
                 translateForArdent = new TranslateForArdent(new BaseCommand.CommandSettings("translateforardent", true,
                         true, Category.BOTINFO));
                 request = new Request(new BaseCommand.CommandSettings("request", true, true, Category
-                        .BOTADMINISTRATION));
+                        .BOTADMINISTRATION)).with(300);
 
                 factory.registerCommand(new AddEnglishBase(new BaseCommand.CommandSettings("addenglishbase", true, true,
                         Category.BOTADMINISTRATION)));
@@ -194,7 +209,7 @@ public class Shard {
                 factory.registerCommand(new Status(new BaseCommand.CommandSettings("status", true, true, Category
                         .BOTINFO)));
                 factory.registerCommand(new Ping(new BaseCommand.CommandSettings("ping", true, true, Category
-                        .BOTINFO)));
+                        .BOTINFO)).with(60));
                 factory.registerCommand(help);
                 factory.registerCommand(new Stats(new BaseCommand.CommandSettings("stats", true, true, Category
                         .BOTINFO)));
@@ -272,6 +287,7 @@ public class Shard {
                 .GUILDINFO)));
                 */
 
+                factory.registerCommand(new Blackjack(new BaseCommand.CommandSettings("blackjack", false, true, Category.RPG)));
                 factory.registerCommand(new RPGMoney(new BaseCommand.CommandSettings("money", false, true, Category.RPG)));
                 factory.registerCommand(new Pay(new BaseCommand.CommandSettings("pay", false, true, Category.RPG)));
                 factory.registerCommand(new Bet(new BaseCommand.CommandSettings("bet", false, true, Category.RPG)));

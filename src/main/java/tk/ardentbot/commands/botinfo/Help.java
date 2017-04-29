@@ -56,11 +56,6 @@ public class Help extends Command {
             }
             description.append("\n");
         }
-
-        description.append("\n**" + responses.get(1).getTranslation() + "**");
-        for (Category category : Category.values()) {
-            description.append("\n > *" + Category.getName(category) + "*");
-        }
         description.append("\n" + responses.get(2).getTranslation().replace("{0}", GuildUtils.getPrefix(guild) +
                 args[0]));
         description.append("\n" + responses.get(3).getTranslation().replace("{0}", GuildUtils.getPrefix(guild) +

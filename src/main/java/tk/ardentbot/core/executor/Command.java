@@ -1,5 +1,6 @@
 package tk.ardentbot.core.executor;
 
+import lombok.Getter;
 import lombok.NonNull;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.*;
@@ -14,12 +15,9 @@ import tk.ardentbot.main.Shard;
 import tk.ardentbot.utils.discord.GuildUtils;
 import tk.ardentbot.utils.discord.MessageUtils;
 
-import java.awt.*;
+import java.time.Instant;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -31,7 +29,8 @@ import static tk.ardentbot.core.events.InteractiveOnMessage.queuedInteractives;
 public abstract class Command extends BaseCommand {
     public int usages = 0;
     public ArrayList<Subcommand> subcommands = new ArrayList<>();
-
+    @Getter
+    private String[] aliases;
     /**
      * Instantiates a new Command
      *
@@ -43,6 +42,11 @@ public abstract class Command extends BaseCommand {
         this.guildUsage = commandSettings.isGuildUsage();
         this.category = commandSettings.getCategory();
         this.botCommand = this;
+        LangFactory.english.getCommandTranslations().forEach(ct -> {
+            if (ct.getIdentifier().equals(commandIdentifier)) {
+                aliases = ct.getAliases();
+            }
+        });
     }
 
     public static void interactiveReaction(Language language, MessageChannel channel, Message message, User user, int seconds,
@@ -82,25 +86,35 @@ public abstract class Command extends BaseCommand {
         }
     }
 
-    public static void longInteractiveOperation(Language language, MessageChannel channel, Message message, int seconds,
-                                                Consumer<Message> function) {
+    public static boolean longInteractiveOperation(Language language, MessageChannel channel, Message message, int seconds,
+                                                   Consumer<Message> function) {
+        final boolean[] succeeded = {false};
         if (channel instanceof TextChannel) {
             queuedInteractives.put(message.getId(), message.getAuthor().getId());
-            Ardent.globalExecutorService.execute(() -> dispatchInteractiveEvent(message.getCreationTime(), (TextChannel) channel,
+            Ardent.globalExecutorService.execute(() -> succeeded[0] = dispatchInteractiveEvent(message.getCreationTime(), (TextChannel)
+                            channel,
                     message, function, language, seconds * 1000, true));
+            return succeeded[0];
         }
+        return false;
     }
 
-    public static void interactiveOperation(Language language, MessageChannel channel, Message message, Consumer<Message> function) {
+    public static boolean interactiveOperation(Language language, MessageChannel channel, Message message, Consumer<Message> function) {
+        final boolean[] succeeded = {false};
         if (channel instanceof TextChannel) {
             queuedInteractives.put(message.getId(), message.getAuthor().getId());
-            Ardent.globalExecutorService.execute(() -> dispatchInteractiveEvent(message.getCreationTime(), (TextChannel) channel,
-                    message, function, language, 10000, true));
+            Ardent.globalExecutorService.execute(() -> {
+                succeeded[0] = dispatchInteractiveEvent(message.getCreationTime(), (TextChannel) channel,
+                        message, function, language, 10000, true);
+            });
+            return succeeded[0];
         }
+        return false;
     }
 
-    private static void dispatchInteractiveEvent(OffsetDateTime creationTime, TextChannel channel, Message message, User user,
-                                                 Consumer<Message> function, Language language, int time, boolean sendMessage) {
+    private static boolean dispatchInteractiveEvent(OffsetDateTime creationTime, TextChannel channel, Message message, User user,
+                                                    Consumer<Message> function, Language language, int time, boolean sendMessage) {
+        final boolean[] success = {false};
         ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
         final int interval = 50;
         final int[] ranFor = {0};
@@ -108,7 +122,7 @@ public abstract class Command extends BaseCommand {
             if (ranFor[0] >= time) {
                 try {
                     if (sendMessage) {
-                        if (time == 10000) {
+                        if (time >= 15000) {
                             GuildUtils.getShard(channel.getGuild()).help.sendRetrievedTranslation(channel, "other", language,
                                     "cancelledinteractiveevent", message.getAuthor());
                         }
@@ -131,6 +145,7 @@ public abstract class Command extends BaseCommand {
                     if (m.getAuthor().getId().equalsIgnoreCase(user.getId()) &&
                             m.getChannel().getId().equalsIgnoreCase(channel.getId()))
                     {
+                        success[0] = true;
                         function.accept(m);
                         iterator.remove();
                         ex.shutdown();
@@ -139,10 +154,12 @@ public abstract class Command extends BaseCommand {
             }
             ranFor[0] += interval;
         }, interval, interval, TimeUnit.MILLISECONDS);
+        return success[0];
     }
 
-    private static void dispatchInteractiveEvent(OffsetDateTime creationTime, TextChannel channel, Message message, Consumer<Message>
+    private static boolean dispatchInteractiveEvent(OffsetDateTime creationTime, TextChannel channel, Message message, Consumer<Message>
             function, Language language, int time, boolean sendMessage) {
+        final boolean[] success = {false};
         ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
         final int interval = 50;
         final int[] ranFor = {0};
@@ -150,7 +167,7 @@ public abstract class Command extends BaseCommand {
             if (ranFor[0] >= time) {
                 try {
                     if (sendMessage) {
-                        if (time == 10000) {
+                        if (time >= 15000) {
                             GuildUtils.getShard(channel.getGuild()).help.sendRetrievedTranslation(channel, "other", language,
                                     "cancelledinteractiveevent", message.getAuthor());
                         }
@@ -173,6 +190,7 @@ public abstract class Command extends BaseCommand {
                     if (m.getAuthor().getId().equalsIgnoreCase(message.getAuthor().getId()) &&
                             m.getChannel().getId().equalsIgnoreCase(channel.getId()))
                     {
+                        success[0] = true;
                         function.accept(m);
                         iterator.remove();
                         ex.shutdown();
@@ -181,6 +199,7 @@ public abstract class Command extends BaseCommand {
             }
             ranFor[0] += interval;
         }, interval, interval, TimeUnit.MILLISECONDS);
+        return success[0];
     }
 
 
@@ -210,19 +229,25 @@ public abstract class Command extends BaseCommand {
             Exception {
         Shard shard = GuildUtils.getShard(guild);
         EmbedBuilder embedBuilder = MessageUtils.getDefaultEmbed(guild, author, baseCommand);
-        embedBuilder.setColor(Color.ORANGE);
         String name = getName(language);
         name = name.substring(0, 1).toUpperCase() + name.substring(1);
         embedBuilder.setAuthor(name, shard.url, shard.bot.getAvatarUrl());
         StringBuilder description = new StringBuilder();
-        description.append("*" + getDescription(language) + "*");
+        description.append("" + getDescription(language) + "");
 
         if (subcommands.size() > 0) {
             description.append("\n\n**" + getTranslation("other", language, "subcommands").getTranslation() + "**\n");
             for (Subcommand subcommand : subcommands) {
-                description.append("- " + subcommand.getSyntax(language) + ": *" + subcommand.getDescription
+                description.append(" - /" + name.toLowerCase() + " " + subcommand.getSyntax(language) + ": *" + subcommand.getDescription
                         (language) + "*\n");
             }
+            description.append("\n**" + getTranslation("help", language, "example").getTranslation() + "**:");
+            description.append("\n/" + name.toLowerCase() + " " + subcommands.get(0).getSyntax(language));
+        }
+
+        if (aliases != null && aliases.length > 0) {
+            description.append("\n**" + getTranslation("help", language, "aliases").getTranslation() + "**:\n");
+            description.append(MessageUtils.listWithCommas(Arrays.asList(aliases)));
         }
         embedBuilder.setDescription(description.toString());
         return embedBuilder;
@@ -277,5 +302,9 @@ public abstract class Command extends BaseCommand {
             }
             else if (!found[0]) onUsage(guild, channel, user, message, args, LangFactory.english, language);
         }
+    }
+
+    public String getDate() {
+        return new Date(Instant.now().getEpochSecond() * 1000).toLocaleString();
     }
 }

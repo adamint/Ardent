@@ -21,4 +21,8 @@ public class LoanModel {
         this.interest_rate = interest_rate;
         this.payback_by_epoch_second = payback_by_epoch_second;
     }
+
+    public double getEffectiveAmount() {
+        return amount * (1 + (interest_rate / 100));
+    }
 }

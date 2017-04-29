@@ -23,9 +23,9 @@ import com.wrapper.spotify.Api;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.LoggerFactory;
 import tk.ardentbot.commands.fun.GIF;
+import tk.ardentbot.commands.games.Trivia;
 import tk.ardentbot.commands.music.Music;
 import tk.ardentbot.commands.music.StuckVoiceConnection;
-import tk.ardentbot.commands.rpg.Trivia;
 import tk.ardentbot.core.misc.logging.BotException;
 import tk.ardentbot.core.misc.web.SparkServer;
 import tk.ardentbot.core.translate.LangFactory;
@@ -40,6 +40,9 @@ import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
 
 import java.io.*;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -76,7 +79,7 @@ public class Ardent {
     public static ScheduledExecutorService globalExecutorService = Executors.newScheduledThreadPool(20);
     public static Shard shard0;
     public static Shard botLogsShard;
-    public static int shardCount = 2;
+    public static int shardCount = 3;
     public static ConcurrentHashMap<String, ChatterBotSession> cleverbots = new ConcurrentHashMap<>();
     public static String announcement;
     public static ConcurrentHashMap<String, Boolean> sentAnnouncement = new ConcurrentHashMap<>();
@@ -99,7 +102,7 @@ public class Ardent {
     private static String clientSecret;
 
     public static void main(String[] args) throws Exception {
-
+        disableSsl();
         new DefaultAudioPlayerManager();
         Logger root1 = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         root1.setLevel(Level.OFF);
@@ -129,6 +132,8 @@ public class Ardent {
             try {
                 dbPassword = IOUtils.toString(new
                         FileReader(new File("C:\\Users\\AMR\\Desktop\\Ardent\\dbpassword.key")));
+                discordBotsOrgToken =
+                        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjE2OTkwNDMyNDk4MDI0NDQ4MCIsImlhdCI6MTQ5MzMyNDM1OX0.LQ97UtslzaM5Qo__gkihOX5afaZA5z3TjMjSovMzDTI";
             }
             catch (Exception ex) {
                 dbPassword = IOUtils.toString(new FileReader(new File("/root/Ardent/v2password.key")));
@@ -172,7 +177,7 @@ public class Ardent {
         ShardManager.register(shardCount);
 
         BotlistUpdater updater = new BotlistUpdater();
-        globalExecutorService.scheduleAtFixedRate(updater, 1, 1, TimeUnit.HOURS);
+        globalExecutorService.scheduleAtFixedRate(updater, 0, 1, TimeUnit.HOURS);
 
         StuckVoiceConnection playerStuckDaemon = new StuckVoiceConnection();
         globalExecutorService.scheduleAtFixedRate(playerStuckDaemon, 10, 10, TimeUnit.SECONDS);
@@ -264,12 +269,16 @@ public class Ardent {
                     }
                     Trivia.triviaQuestions.add(triviaQuestion);
                 });
-            }, 60, TimeUnit.SECONDS);
+            }, 30, TimeUnit.SECONDS);
         }
         catch (Exception e) {
             e.printStackTrace();
         }
         started = true;
+    }
+
+    private static void disableSsl() throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException, IOException {
+        // TODO: 4/27/2017 implement because unirest is fucking stupid 
     }
 
     public static Credential authorize() throws IOException {

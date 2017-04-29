@@ -58,7 +58,38 @@ public class Loan extends Command {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws
                     Exception {
+                List<User> mentioned = message.getMentionedUsers();
+                if (mentioned.size() == 0) {
+                    sendRetrievedTranslation(channel, "other", language, "mentionuser", user);
+                    return;
+                }
+                User collectFrom = mentioned.get(0);
+                LoanModel loan = asPojo(r.table("loans").filter(row -> row.g("loaner_id")
+                        .eq(user.getId()).and(row.g("receiver_id").eq(collectFrom.getId()))).run(connection), LoanModel.class);
+                if (loan == null) {
+                    sendRetrievedTranslation(channel, "loan", language, "haventloanedtothisperson", user);
+                    return;
+                }
+                if (Instant.now().getEpochSecond() > loan.getPayback_by_epoch_second()) {
+                    Profile collecteeProfile = Profile.get(collectFrom);
+                    if (collecteeProfile.getMoney() >= loan.getEffectiveAmount()) {
+                        collecteeProfile.removeMoney(loan.getEffectiveAmount());
+                        Profile.get(user).addMoney(loan.getEffectiveAmount());
+                        sendEditedTranslation("loan", language, "collected", user, channel, String.valueOf(loan.getEffectiveAmount()),
+                                collectFrom.getAsMention());
+                    }
+                    else {
+                        Profile.get(user).addMoney(loan.getEffectiveAmount() / 2);
+                        collecteeProfile.setZero().removeMoney(loan.getEffectiveAmount() / 2);
+                        collecteeProfile.updateCredit(-25);
+                        sendEditedTranslation("loan", language, "defaulted", user, channel, collectFrom.getAsMention(), String.valueOf
+                                (loan.getEffectiveAmount() / 2));
+                        sendEditedTranslation("loan", language, "defaulted", user, channel, collectFrom.getAsMention(), String.valueOf
+                                (-25));
 
+                    }
+                }
+                else sendEditedTranslation("loan", language, "notyetpayback", user, channel, getDate());
             }
         });
 
@@ -73,8 +104,7 @@ public class Loan extends Command {
                 }
                 User loanTo = mentionedUsers.get(0);
                 ArrayList<LoanModel> loansBetween = queryAsArrayList(LoanModel.class, r.table("loans").filter(row -> row.g("loaner_id")
-                        .eq(user.getId())
-                        .and(row.g("receiver_id").eq(loanTo.getId()))).run(connection));
+                        .eq(user.getId()).and(row.g("receiver_id").eq(loanTo.getId()))).run(connection));
                 if (loansBetween.size() > 0) {
                     sendRetrievedTranslation(channel, "loan", language, "alreadyloaningtothisperson", user);
                     return;

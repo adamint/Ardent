@@ -6,7 +6,7 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.commands.rpg.Trivia;
+import tk.ardentbot.commands.games.Trivia;
 import tk.ardentbot.core.executor.Command;
 import tk.ardentbot.core.translate.Language;
 import tk.ardentbot.core.translate.Translation;

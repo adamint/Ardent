@@ -41,4 +41,8 @@ public class CommandTranslation {
         }
         return false;
     }
+
+    public String[] getAliases() {
+        return aliases;
+    }
 }
