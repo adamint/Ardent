@@ -17,13 +17,13 @@ public class Unmute extends Command {
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
         Shard shard = GuildUtils.getShard(guild);
         if (args.length == 1) {
-            sendTranslatedMessage(getTranslation("unmute", language, "help").getTranslation().replace("{0}",
+            sendTranslatedMessage("Type {0}unmute @User to unmute them".replace("{0}",
                     GuildUtils.getPrefix(guild) + args[0]), channel, user);
         }
         else {
             List<User> mentionedUsers = message.getMentionedUsers();
             if (mentionedUsers.size() == 0) {
-                sendRetrievedTranslation(channel, "other", language, "mentionuser", user);
+                sendTranslatedMessage("You need to mention a user to unmute!", channel, user);
             }
             else {
                 if (guild.getMember(user).hasPermission(Permission.MANAGE_SERVER)) {
@@ -32,14 +32,14 @@ public class Unmute extends Command {
 
                     if (shard.botMuteData.isMuted(m)) {
                         shard.botMuteData.unmute(m);
-                        sendRetrievedTranslation(channel, "unmute", language, "unmuteduser", user);
+                        sendTranslatedMessage("Unmuted that user.", channel, user);
                     }
                     else {
-                        sendRetrievedTranslation(channel, "unmute", language, "notmuted", user);
+                        sendTranslatedMessage("That person isn't muted!", channel, user);
                     }
 
                 }
-                else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
+                else sendTranslatedMessage("You need the Manage Server permission to use this command", channel, user);
             }
         }
     }

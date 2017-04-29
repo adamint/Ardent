@@ -8,7 +8,6 @@ import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import tk.ardentbot.core.executor.Command;
 import tk.ardentbot.core.misc.logging.BotException;
-import tk.ardentbot.core.translate.Language;
 import tk.ardentbot.utils.discord.GuildUtils;
 
 import java.util.List;
@@ -19,15 +18,14 @@ public class Setnickname extends Command {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
-            language) throws Exception {
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
         if (args.length == 1) {
-            sendTranslatedMessage(getTranslation("setnickname", language, "help").getTranslation().replace("{0}",
-                    GuildUtils.getPrefix(guild) + args[0]), channel, user);
-        }
-        else if (args.length == 2) {
-            sendTranslatedMessage(getTranslation("setnickname", language, "invalidarguments").getTranslation()
-                    .replace("{0}", GuildUtils.getPrefix(guild) + args[0]), channel, user);
+            sendTranslatedMessage("Set Nicknames\n" +
+                    "Use {0}setnickname @User then type the nickname you want to set\n" +
+                    "Example: {0}setnickname @TestUser this is your new nickname!\n" +
+                    "\n" +
+                    "Only people with `Manage Server` can use this command!".replace("{0}",
+                            GuildUtils.getPrefix(guild) + args[0]), channel, user);
         }
         else {
             List<User> mentionedUsers = message.getMentionedUsers();
@@ -38,7 +36,7 @@ public class Setnickname extends Command {
                             (" "));
                     while (newNickname.startsWith(" ")) newNickname = newNickname.substring(1);
                     if (newNickname.length() > 32 && newNickname.length() < 2) {
-                        sendRetrievedTranslation(channel, "setnickname", language, "between2and32", user);
+                        sendTranslatedMessage("The nickname must be between 2 and 32 characters!", channel, user);
                     }
                     else {
                         if (newNickname.equalsIgnoreCase("reset")) newNickname = "";
@@ -46,9 +44,8 @@ public class Setnickname extends Command {
                         try {
                             guild.getController().setNickname(guild.getMember(mentioned), newNickname).queue(aVoid -> {
                                 try {
-                                    sendTranslatedMessage(getTranslation("setnickname", language, "success")
-                                            .getTranslation().replace("{0}", mentioned.getName()).replace("{1}",
-                                                    finalNewNickname), channel, user);
+                                    sendTranslatedMessage("Great success! Changed **{0}**'s nickname to {1}".replace("{0}", mentioned
+                                            .getName()).replace("{1}", finalNewNickname), channel, user);
                                 }
                                 catch (Exception e) {
                                     new BotException(e);
@@ -56,15 +53,13 @@ public class Setnickname extends Command {
                             });
                         }
                         catch (PermissionException e) {
-                            sendRetrievedTranslation(channel, "setnickname", language, "failure", user);
+                            sendTranslatedMessage("Please make sure that I have permission to set members' nicknames", channel, user);
                         }
                     }
                 }
-                else {
-                    sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
-                }
+                else sendTranslatedMessage("You need the Manage Server permission to use this command", channel, user);
             }
-            else sendRetrievedTranslation(channel, "setnickname", language, "wrongmentionedusers", user);
+            else sendTranslatedMessage("You need to mention someone!", channel, user);
         }
     }
 
