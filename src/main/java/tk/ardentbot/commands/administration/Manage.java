@@ -5,7 +5,6 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.core.executor.Command;
-import tk.ardentbot.core.translate.Language;
 
 public class Manage extends Command {
     public Manage(CommandSettings commandSettings) {
@@ -13,8 +12,7 @@ public class Manage extends Command {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
-            language) throws Exception {
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
         /*/sendTranslatedMessage(getTranslation("manage", language, "manage").getTranslation().replace("{0}",
                 "https://ardentbot.tk/portal?id=" + guild.getId()), channel, user);*/
         channel.sendMessage("The portal is temporarily disabled due to our recent database change").queue();

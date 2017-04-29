@@ -6,13 +6,9 @@ import net.dv8tion.jda.core.entities.*;
 import tk.ardentbot.core.executor.Command;
 import tk.ardentbot.core.executor.Subcommand;
 import tk.ardentbot.core.misc.logging.BotException;
-import tk.ardentbot.core.translate.Language;
-import tk.ardentbot.core.translate.Translation;
-import tk.ardentbot.core.translate.TranslationResponse;
 import tk.ardentbot.rethink.models.AutomessageModel;
 import tk.ardentbot.utils.javaAdditions.Triplet;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -78,72 +74,66 @@ public class Automessage extends Command {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
-            language) throws Exception {
-        sendHelp(language, channel, guild, user, this);
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
+        sendHelp(channel, guild, user, this);
     }
 
     @Override
     public void setupSubcommands() throws Exception {
-        subcommands.add(new Subcommand(this, "setup") {
+        subcommands.add(new Subcommand("Prompt the automessage setup", "setup") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws
-                    Exception {
-                sendRetrievedTranslation(channel, "automessage", language, "automessagesetup", user);
-                interactiveOperation(language, channel, message, selectType -> {
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) {
+                sendTranslatedMessage("Type **join** to set this server's join message, **leave** to set this server's leave message, or " +
+                        "**channel** to set the channel I'll send join & leave messages to", channel, user);
+                interactiveOperation(channel, message, selectType -> {
                     String type;
                     String content = selectType.getContent();
                     if (content.equalsIgnoreCase("join")) {
                         type = "join";
-                        sendRetrievedTranslation(channel, "automessage", language, "typecontent", user);
+                        sendTranslatedMessage("Type the message you want to send below", channel, user);
                     }
                     else if (content.equalsIgnoreCase("leave")) {
                         type = "leave";
-                        sendRetrievedTranslation(channel, "automessage", language, "typecontent", user);
+                        sendTranslatedMessage("Type the message you want to send below", channel, user);
                     }
                     else if (content.equalsIgnoreCase("channel")) {
                         type = "channel";
-                        sendRetrievedTranslation(channel, "automessage", language, "mentionachannel", user);
+                        sendTranslatedMessage("Mention a channel to send the automessages to", channel, user);
                     }
                     else {
-                        sendRetrievedTranslation(channel, "automessage", language, "invalidcategorytype", user);
+                        sendTranslatedMessage("You specified an invalid category type! Please redo setup", channel, user);
                         return;
                     }
-                    longInteractiveOperation(language, channel, message, 60, inputMessage -> {
+                    longInteractiveOperation(channel, message, 60, inputMessage -> {
                         try {
                             if (type.equals("channel")) {
                                 List<TextChannel> mentionedChannels = inputMessage.getMentionedChannels();
                                 if (mentionedChannels.size() > 0) {
                                     TextChannel mentioned = mentionedChannels.get(0);
                                     set(guild, mentioned.getId(), 0);
-                                    sendTranslatedMessage(getTranslation("automessage", language, "successfullyset")
-                                            .getTranslation()
-                                            .replace("{0}", getTranslation("automessage", language, "channelword")
-                                                    .getTranslation()).replace("{1}", mentioned.getName()), channel, user);
+                                    sendTranslatedMessage("Successfully set {0} as the automessage sending channel".replace("{0}",
+                                            mentioned.getAsMention()), channel, user);
 
                                 }
-                                else sendRetrievedTranslation(channel, "automessage", language, "mentionchannel", user);
+                                else sendTranslatedMessage("You needed to mention a channel!", channel, user);
                             }
                             else {
                                 String toPut = inputMessage.getRawContent();
                                 if (type.equals("join")) {
                                     set(guild, toPut, 1);
-                                    sendTranslatedMessage(getTranslation("automessage", language, "successfullyset")
-                                            .getTranslation()
-                                            .replace("{0}", getTranslation("automessage", language, "joinword")
-                                                    .getTranslation()).replace("{1}", toPut), channel, user);
+                                    sendTranslatedMessage("Successfully set {0} as the join message".replace("{0}",
+                                            toPut), channel, user);
                                 }
                                 else {
                                     set(guild, toPut, 2);
-                                    sendTranslatedMessage(getTranslation("automessage", language, "successfullyset")
-                                            .getTranslation()
-                                            .replace("{0}", getTranslation("automessage", language, "leaveword")
-                                                    .getTranslation()).replace("{1}", toPut), channel, user);
+                                    sendTranslatedMessage("Successfully set {0} as the leave message".replace("{0}",
+                                            toPut), channel, user);
                                 }
 
                                 String textChannel = getMessagesAndChannel(guild).getA();
                                 if (textChannel == null || guild.getTextChannelById(textChannel) == null) {
-                                    sendRetrievedTranslation(channel, "automessage", language, "youneedtosetachannel", user);
+                                    sendTranslatedMessage("Warning: you need a set a channel to send messages to, or else nothing " +
+                                            "will happen", channel, user);
                                 }
                             }
                         }
@@ -155,97 +145,84 @@ public class Automessage extends Command {
             }
         });
 
-        subcommands.add(new Subcommand(this, "arguments") {
+        subcommands.add(new Subcommand("View special arguments you can add to your messages", "arguments") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
-                               Language language) throws Exception {
-                StringBuilder sb = new StringBuilder();
-                sb.append(getTranslation("automessage", language, "availablearguments").getTranslation());
-                sendTranslatedMessage(sb.toString(), channel, user);
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) {
+                sendTranslatedMessage("The available arguments are listed here:\n" +
+                        "{user}: mentions the user involved\n" +
+                        "{servername}: replaced with the name of your server\n" +
+                        "{amtusers}: replaced with the amount of users in your server", channel, user);
             }
         });
 
-        subcommands.add(new Subcommand(this, "remove") {
+        subcommands.add(new Subcommand("Remove a setting", "remove") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
-                               Language language) throws Exception {
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) {
                 if (guild.getMember(user).hasPermission(Permission.MANAGE_SERVER)) {
                     if (args.length == 2) {
-                        sendRetrievedTranslation(channel, "automessage", language, "specifytype", user);
+                        sendTranslatedMessage("Type **join** to remove this server's join message, **leave** to remove this server's " +
+                                "leave message, or " +
+                                "**channel** to remove the set channel", channel, user);
                     }
                     else {
                         String type = args[2];
                         Triplet<String, String, String> settings = getMessagesAndChannel(guild);
                         if (type.equalsIgnoreCase("channel")) {
                             if (settings.getA() == null) {
-                                sendRetrievedTranslation(channel, "automessage", language, "nochannelset", user);
+                                sendTranslatedMessage("There isn't a channel set!", channel, user);
                             }
                             else {
                                 remove(guild, 0);
-                                sendTranslatedMessage(getTranslation("automessage", language,
-                                        "successfullyremovedchannel").getTranslation(), channel, user);
+                                sendTranslatedMessage("Successfully removed the automessage channel", channel, user);
                             }
                         }
                         else if (type.equalsIgnoreCase("join")) {
                             if (settings.getB() == null) {
-                                sendRetrievedTranslation(channel, "automessage", language, "nowelcomeset", user);
+                                sendTranslatedMessage("There's no welcome message set!", channel, user);
                             }
                             else {
                                 remove(guild, 1);
-                                sendTranslatedMessage(getTranslation("automessage", language,
-                                        "successfullyremovedwelcome").getTranslation(), channel, user);
+                                sendTranslatedMessage("Successfully removed the welcome message", channel, user);
                             }
                         }
                         else if (type.equalsIgnoreCase("leave")) {
                             if (settings.getC() == null) {
-                                sendRetrievedTranslation(channel, "automessage", language, "nogoodbyeset", user);
+                                sendTranslatedMessage("There's no goodbye message set!", channel, user);
                             }
                             else {
                                 remove(guild, 2);
-                                sendTranslatedMessage(getTranslation("automessage", language,
-                                        "successfullyremovedgoodbye").getTranslation(), channel, user);
+                                sendTranslatedMessage("The goodbye message has been successfully removed", channel, user);
                             }
                         }
-                        else sendRetrievedTranslation(channel, "tag", language, "invalidarguments", user);
+                        else sendTranslatedMessage("Cancelling removal, you specified an invalid category", channel, user);
                     }
                 }
-                else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
+                else sendTranslatedMessage("You need the `Manage Server` permission to use this command", channel, user);
             }
         });
 
-        subcommands.add(new Subcommand(this, "view") {
+        subcommands.add(new Subcommand("View the current automessage settings", "view", "settings") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
-                               Language language) throws Exception {
-                ArrayList<Translation> translations = new ArrayList<>();
-                translations.add(new Translation("automessage", "settings"));
-                translations.add(new Translation("automessage", "nochannel"));
-                translations.add(new Translation("automessage", "nowelcome"));
-                translations.add(new Translation("automessage", "nogoodbye"));
-                translations.add(new Translation("automessage", "channel"));
-                translations.add(new Translation("automessage", "welcome"));
-                translations.add(new Translation("automessage", "goodbye"));
-
-                HashMap<Integer, TranslationResponse> responses = getTranslations(language, translations);
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) {
                 Triplet<String, String, String> messages = getMessagesAndChannel(guild);
                 StringBuilder sb = new StringBuilder();
-                sb.append(responses.get(0).getTranslation() + "\n=============\n");
-                if (messages.getA() == null) sb.append(responses.get(1).getTranslation() + "\n\n");
+                sb.append("**Automessage Settings**\n=============\n");
+                if (messages.getA() == null) sb.append("There isn't a set automessage channel" + "\n\n");
                 else {
                     TextChannel textChannel = guild.getTextChannelById(messages.getA());
                     if (textChannel != null) {
-                        sb.append(responses.get(4).getTranslation().replace("{0}", textChannel.getName() + "\n\n"));
+                        sb.append("The set channel for messages is {0}".replace("{0}", textChannel.getName() + "\n\n"));
                     }
-                    else sb.append(responses.get(1).getTranslation() + "\n\n");
+                    else sb.append("There isn't a set automessage channel" + "\n\n");
                 }
 
                 if (messages.getB() != null)
-                    sb.append(responses.get(5).getTranslation().replace("{0}", messages.getB()) + "\n\n");
-                else sb.append(responses.get(2).getTranslation() + "\n\n");
+                    sb.append("The set join message is {0}".replace("{0}", messages.getB()) + "\n\n");
+                else sb.append("There isn't a set join message" + "\n\n");
 
                 if (messages.getC() != null)
-                    sb.append(responses.get(6).getTranslation().replace("{0}", messages.getC()) + "\n");
-                else sb.append(responses.get(3).getTranslation());
+                    sb.append("The set join message is {0}".replace("{0}", messages.getC()) + "\n");
+                else sb.append("There isn't a set goodbye message");
 
                 sendTranslatedMessage(sb.toString(), channel, user);
             }

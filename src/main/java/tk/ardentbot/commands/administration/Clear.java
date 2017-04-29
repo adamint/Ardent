@@ -3,7 +3,6 @@ package tk.ardentbot.commands.administration;
 import net.dv8tion.jda.core.entities.*;
 import tk.ardentbot.core.executor.Command;
 import tk.ardentbot.core.misc.logging.BotException;
-import tk.ardentbot.core.translate.Language;
 import tk.ardentbot.utils.discord.GuildUtils;
 
 import java.util.ArrayList;
@@ -15,10 +14,12 @@ public class Clear extends Command {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
-            language) throws Exception {
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
         if (args.length == 1) {
-            sendRetrievedTranslation(channel, "clear", language, "help", user);
+            sendTranslatedMessage("**Clearing Messages**\n" +
+                    "/clear 10: removes the last 10 messages\n" +
+                    "/clear [2-100] removes the specified amount\n" +
+                    "/clear @User [2-100]: removes the specified messages from the user mentioned", channel, user);
         }
         else {
             if (GuildUtils.hasManageServerPermission(guild.getMember(user))) {
@@ -28,32 +29,23 @@ public class Clear extends Command {
                         if (num > 1 && num <= 100) {
                             TextChannel textChannel = (TextChannel) channel;
                             textChannel.getHistory().retrievePast(num).queue(messages -> {
-                                textChannel.deleteMessages(messages).queue(aVoid -> {
-                                    try {
-                                        sendTranslatedMessage(getTranslation("clear", language, "deletemessages")
-                                                .getTranslation().replace("{0}", num + ""), channel, user);
-                                    }
-                                    catch (Exception e) {
-                                        try {
-                                            sendTranslatedMessage(getTranslation("clear", language, "2weeksorexists")
-                                                    .getTranslation(), channel, user);
-                                            new BotException(e);
-                                        }
-                                        catch (Exception e1) {
-                                            new BotException(e1);
-                                        }
-                                    }
-                                });
+                                try {
+                                    textChannel.deleteMessages(messages).queue(aVoid -> {
+                                        sendTranslatedMessage("Successfully deleted " + num + " messages", channel, user);
+                                    });
+                                }
+                                catch (Exception e) {
+                                    sendTranslatedMessage("Make sure the requested messages aren't over 2 weeks old and that I have " +
+                                            "permission " +
+                                            "to delete messages.", channel, user);
+                                }
                             });
 
                         }
-                        else sendRetrievedTranslation(channel, "clear", language, "incorrectnumber", user);
+                        else sendTranslatedMessage("You need to specify a number between 1 and 100", channel, user);
                     }
                     catch (NumberFormatException ex) {
-                        sendRetrievedTranslation(channel, "prune", language, "notanumber", user);
-                    }
-                    catch (Exception ex) {
-                        sendRetrievedTranslation(channel, "other", language, "needproperpermissions", user);
+                        sendTranslatedMessage("That wasn't a number!", channel, user);
                     }
                 }
                 else {
@@ -73,9 +65,8 @@ public class Clear extends Command {
                                     }
                                     textChannel.deleteMessages(messagesToDelete).queue(aVoid -> {
                                         try {
-                                            sendTranslatedMessage(getTranslation("clear", language, "deleteduser")
-                                                    .getTranslation().replace("{0}", messagesToDelete.size() + "")
-                                                    .replace("{1}", 100 + ""), channel, user);
+                                            sendTranslatedMessage("Deleted " + messagesToDelete.size() + " messages from that user",
+                                                    channel, user);
                                         }
                                         catch (Exception e) {
                                             new BotException(e);
@@ -83,20 +74,16 @@ public class Clear extends Command {
                                     });
                                 });
                             }
-                            else sendRetrievedTranslation(channel, "clear", language, "incorrectnumber", user);
+                            else sendTranslatedMessage("You need to specify a number between 1 and 100", channel, user);
                         }
                         catch (NumberFormatException ex) {
-                            sendRetrievedTranslation(channel, "prune", language, "notanumber", user);
-                        }
-
-                        catch (Exception ex) {
-                            sendRetrievedTranslation(channel, "other", language, "needproperpermissions", user);
+                            sendTranslatedMessage("That's not a number!", channel, user);
                         }
                     }
-                    else sendRetrievedTranslation(channel, "other", language, "mentionuser", user);
+                    else sendTranslatedMessage("You need to mention a user", channel, user);
                 }
             }
-            else sendRetrievedTranslation(channel, "other", language, "needmessagemanage", user);
+            else sendTranslatedMessage("You need the Manage Server permission to use this command", channel, user);
         }
     }
 

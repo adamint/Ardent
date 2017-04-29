@@ -30,7 +30,7 @@ public abstract class Subcommand {
      * @param args     Message#getContent, split by spaces
      * @throws Exception
      */
-    public abstract void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args);
+    public abstract void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception;
 
     public boolean containsAlias(String query) {
         for (String s : aliases) if (s.equalsIgnoreCase(query)) return true;

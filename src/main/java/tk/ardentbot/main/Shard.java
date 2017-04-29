@@ -40,7 +40,6 @@ import tk.ardentbot.commands.nsfw.Feet;
 import tk.ardentbot.commands.nsfw.NSFW;
 import tk.ardentbot.commands.nsfw.Tits;
 import tk.ardentbot.commands.rpg.*;
-import tk.ardentbot.core.data.BotLanguageData;
 import tk.ardentbot.core.data.BotMuteData;
 import tk.ardentbot.core.data.BotPrefixData;
 import tk.ardentbot.core.events.*;
@@ -49,8 +48,6 @@ import tk.ardentbot.core.executor.Category;
 import tk.ardentbot.core.executor.Command;
 import tk.ardentbot.core.executor.CommandFactory;
 import tk.ardentbot.core.misc.logging.BotException;
-import tk.ardentbot.core.translate.LangFactory;
-import tk.ardentbot.core.translate.Language;
 import tk.ardentbot.rethink.models.GuildModel;
 import tk.ardentbot.rethink.models.RestrictedUserModel;
 import tk.ardentbot.utils.models.RestrictedUser;
@@ -58,7 +55,6 @@ import tk.ardentbot.utils.rpg.EntityGuild;
 
 import java.io.File;
 import java.io.FileReader;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -66,7 +62,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static tk.ardentbot.core.executor.BaseCommand.asPojo;
-import static tk.ardentbot.core.translate.LangFactory.languages;
 import static tk.ardentbot.rethink.Database.connection;
 import static tk.ardentbot.rethink.Database.r;
 
@@ -75,8 +70,6 @@ public class Shard {
     public ScheduledExecutorService executorService = Executors.newScheduledThreadPool(10);
     public BotMuteData botMuteData;
     public BotPrefixData botPrefixData;
-    public BotLanguageData botLanguageData;
-    public ArrayList<Language> crowdinLanguages = new ArrayList<>();
     public TextChannel botLogs;
     public AudioPlayerManager playerManager;
     public Map<Long, GuildMusicManager> musicManagers;
@@ -94,7 +87,6 @@ public class Shard {
     @Setter
     private long LAST_EVENT;
     private int gameCounter = 0;
-    private int matureLanguages = 0;
     private int id;
 
     public Shard(boolean testingBot, int shardNumber, int totalShardCount) throws Exception {
@@ -149,16 +141,6 @@ public class Shard {
                 jda.addEventListener(new VoiceLeaveEvent());
                 jda.addEventListener(new ReactionEvent());
 
-                crowdinLanguages.add(LangFactory.croatian);
-                crowdinLanguages.add(LangFactory.french);
-                crowdinLanguages.add(LangFactory.turkish);
-                crowdinLanguages.add(LangFactory.german);
-                crowdinLanguages.add(LangFactory.cyrillicserbian);
-                crowdinLanguages.add(LangFactory.spanish);
-                crowdinLanguages.add(LangFactory.dutch);
-                crowdinLanguages.add(LangFactory.arabic);
-                crowdinLanguages.add(LangFactory.hindi);
-
                 // Adding the "handler" for mutes
                 botMuteData = new BotMuteData();
 
@@ -166,10 +148,6 @@ public class Shard {
                 botPrefixData = new BotPrefixData();
 
                 // Adding the handler for languages
-                botLanguageData = new BotLanguageData();
-
-                languages.stream().filter(lang -> lang.getLanguageStatus() == Language.Status.MATURE).forEach(lang ->
-                        matureLanguages++);
 
                 factory = new CommandFactory(this);
 
@@ -329,7 +307,6 @@ public class Shard {
                 Cursor<HashMap> guildData = r.db("data").table("guilds").run(connection);
                 guildData.forEach(hashMap -> {
                     GuildModel g = asPojo(hashMap, GuildModel.class);
-                    botLanguageData.set(g.getGuild_id(), g.getLanguage());
                     botPrefixData.set(g.getGuild_id(), g.getPrefix());
                 });
                 guildData.close();

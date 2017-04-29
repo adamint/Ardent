@@ -61,7 +61,6 @@ public class Join {
             String language = "english";
 
             shard.botPrefixData.set(guild, prefix);
-            shard.botLanguageData.set(guild, language);
 
             botJoinEvents.add(Instant.now());
             Status.commandsByGuild.put(guild.getId(), 0);

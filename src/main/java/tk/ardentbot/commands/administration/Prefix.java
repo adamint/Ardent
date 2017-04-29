@@ -7,7 +7,6 @@ import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.core.executor.Command;
 import tk.ardentbot.core.executor.Subcommand;
-import tk.ardentbot.core.translate.Language;
 import tk.ardentbot.utils.discord.GuildUtils;
 
 import static tk.ardentbot.rethink.Database.connection;
@@ -19,8 +18,7 @@ public class Prefix extends Command {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
-            language) throws Exception {
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
         sendHelp(language, channel, guild, user, this);
     }
 
@@ -28,16 +26,14 @@ public class Prefix extends Command {
     public void setupSubcommands() {
         subcommands.add(new Subcommand(this, "view") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
-                               Language language) throws Exception {
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
                 sendTranslatedMessage(getTranslation("prefix", language, "viewprefix").getTranslation().replace
                         ("{0}", GuildUtils.getPrefix(guild)), channel, user);
             }
         });
         subcommands.add(new Subcommand(this, "change") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
-                               Language language) throws Exception {
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
                 if (args.length > 2) {
                     if (guild.getMember(user).hasPermission(Permission.MANAGE_SERVER)) {
                         String newPrefix = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " +

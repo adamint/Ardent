@@ -28,7 +28,6 @@ import tk.ardentbot.commands.music.Music;
 import tk.ardentbot.commands.music.StuckVoiceConnection;
 import tk.ardentbot.core.misc.logging.BotException;
 import tk.ardentbot.core.misc.web.SparkServer;
-import tk.ardentbot.core.translate.LangFactory;
 import tk.ardentbot.rethink.Database;
 import tk.ardentbot.utils.models.TriviaQuestion;
 import tk.ardentbot.utils.premium.CheckIfPremiumGuild;
@@ -52,7 +51,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static tk.ardentbot.core.translate.LangFactory.languages;
 import static tk.ardentbot.rethink.Database.connection;
 import static tk.ardentbot.rethink.Database.r;
 import static tk.ardentbot.utils.searching.GoogleSearch.GOOGLE_API_KEY;
@@ -157,22 +155,6 @@ public class Ardent {
                 else if (id.equalsIgnoreCase("googlesecret")) clientSecret = value;
             });
         });
-
-        languages = new ArrayList<>();
-        languages.add(LangFactory.english);
-        languages.add(LangFactory.french);
-        languages.add(LangFactory.turkish);
-        languages.add(LangFactory.croatian);
-        languages.add(LangFactory.romanian);
-        languages.add(LangFactory.portugese);
-        languages.add(LangFactory.german);
-        languages.add(LangFactory.cyrillicserbian);
-        languages.add(LangFactory.dutch);
-        languages.add(LangFactory.emoji);
-        languages.add(LangFactory.arabic);
-        languages.add(LangFactory.hindi);
-        languages.add(LangFactory.spanish);
-        languages.add(LangFactory.polish);
 
         ShardManager.register(shardCount);
 

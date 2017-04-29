@@ -5,7 +5,6 @@ import net.dv8tion.jda.core.entities.*;
 import tk.ardentbot.core.executor.Command;
 import tk.ardentbot.core.executor.Subcommand;
 import tk.ardentbot.core.misc.logging.BotException;
-import tk.ardentbot.core.translate.Language;
 import tk.ardentbot.main.Shard;
 import tk.ardentbot.utils.StringUtils;
 import tk.ardentbot.utils.discord.GuildUtils;
@@ -18,8 +17,7 @@ public class Mute extends Command {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
-            language) throws Exception {
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
         sendHelp(language, channel, guild, user, this);
     }
 
@@ -27,8 +25,7 @@ public class Mute extends Command {
     public void setupSubcommands() throws Exception {
         subcommands.add(new Subcommand(this, "list") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
-                               Language language) throws Exception {
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
                 Shard shard = GuildUtils.getShard(guild);
                 String until = getTranslation("mute", language, "until").getTranslation();
                 StringBuilder sb = new StringBuilder();
@@ -48,8 +45,7 @@ public class Mute extends Command {
         });
         subcommands.add(new Subcommand(this, "person") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
-                               Language language) throws Exception {
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
                 Member author = guild.getMember(message.getAuthor());
                 if (author.hasPermission(Permission.MANAGE_SERVER)) {
                     if (message.getMentionedUsers().size() > 0) {
@@ -91,7 +87,7 @@ public class Mute extends Command {
                     }
                     else sendRetrievedTranslation(channel, "other", language, "mentionuser", user);
                 }
-                else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
+                else sendTranslatedMessage("You need the Manage Server permission to use this command", channel, user);
             }
         });
     }

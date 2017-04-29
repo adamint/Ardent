@@ -6,7 +6,6 @@ import net.dv8tion.jda.core.entities.*;
 import tk.ardentbot.core.executor.Command;
 import tk.ardentbot.core.executor.Subcommand;
 import tk.ardentbot.core.misc.logging.BotException;
-import tk.ardentbot.core.translate.Language;
 import tk.ardentbot.core.translate.Translation;
 import tk.ardentbot.core.translate.TranslationResponse;
 import tk.ardentbot.main.Shard;
@@ -29,17 +28,15 @@ public class Iam extends Command {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
-            language) throws Exception {
-        sendHelp(language, channel, guild, user, this);
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
+        sendHelp(channel, guild, user, this);
     }
 
     @Override
     public void setupSubcommands() throws Exception {
         subcommands.add(new Subcommand(this, "view") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
-                               Language language) throws Exception {
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
                 Shard shard = GuildUtils.getShard(guild);
                 ArrayList<Translation> translations = new ArrayList<>();
                 translations.add(new Translation("iam", "autoroleslist"));
@@ -51,7 +48,7 @@ public class Iam extends Command {
                 String title = responses.get(0).getTranslation();
                 String givesYouRole = responses.get(1).getTranslation();
 
-                EmbedBuilder builder = MessageUtils.getDefaultEmbed(guild, user, Iam.this);
+                EmbedBuilder builder = MessageUtils.getDefaultEmbed(user);
                 builder.setAuthor(title, shard.url, shard.bot.getAvatarUrl());
                 StringBuilder msg = new StringBuilder();
                 msg.append("**" + title + "**");
@@ -71,8 +68,7 @@ public class Iam extends Command {
         });
         subcommands.add(new Subcommand(this, "role") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
-                               Language language) throws Exception {
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
                 if (args.length > 2) {
                     String query = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " +
                             args[1] + " ", "");
@@ -107,8 +103,7 @@ public class Iam extends Command {
 
         subcommands.add(new Subcommand(this, "remove") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
-                               Language language) throws Exception {
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
                 if (UserUtils.hasManageServerOrStaff(guild.getMember(user))) {
                     String query = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " +
                             args[1] + " ", "");
@@ -125,14 +120,13 @@ public class Iam extends Command {
                     }
                     if (!found) sendRetrievedTranslation(channel, "iam", language, "namenotfound", user);
                 }
-                else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
+                else sendTranslatedMessage("You need the Manage Server permission to use this command", channel, user);
             }
         });
 
         subcommands.add(new Subcommand(this, "add") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
-                               Language language) throws Exception {
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) {
                 if (UserUtils.hasManageServerOrStaff(guild.getMember(user))) {
                     sendRetrievedTranslation(channel, "iam", language, "typenameofiam", user);
                     interactiveOperation(language, channel, message, nameMessage -> {
@@ -168,7 +162,7 @@ public class Iam extends Command {
                         });
                     });
                 }
-                else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
+                else sendTranslatedMessage("You need the Manage Server permission to use this command", channel, user);
             }
         });
     }
