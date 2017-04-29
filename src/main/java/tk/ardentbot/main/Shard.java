@@ -53,6 +53,7 @@ import tk.ardentbot.core.executor.CommandFactory;
 import tk.ardentbot.core.misc.logging.BotException;
 import tk.ardentbot.rethink.models.GuildModel;
 import tk.ardentbot.rethink.models.RestrictedUserModel;
+import tk.ardentbot.utils.games.Hand;
 import tk.ardentbot.utils.models.RestrictedUser;
 import tk.ardentbot.utils.rpg.EntityGuild;
 
@@ -152,11 +153,10 @@ public class Shard {
                 factory = new CommandFactory(this);
 
                 help = new Help(new BaseCommand.CommandSettings(true, true, Category.BOTINFO, "See command help", "help", "wat"));
-                patreon = new Patreon(new BaseCommand.CommandSettings("patreon", true, true, Category.GUILDINFO));
+                patreon = new Patreon(new BaseCommand.CommandSettings(true, true, Category.BOTINFO, "View Ardent's patreon", "patreon"));
+                request = new Request(new BaseCommand.CommandSettings(true, true, Category.BOTADMINISTRATION, "Request a feature for Ardent", "request"));
                 translateForArdent = new TranslateForArdent(new BaseCommand.CommandSettings("translateforardent", true,
                         true, Category.BOTINFO));
-                request = new Request(new BaseCommand.CommandSettings("request", true, true, Category
-                        .BOTADMINISTRATION)).with(300);
 
                 factory.registerCommand(new AddEnglishBase(new BaseCommand.CommandSettings("addenglishbase", true, true,
                         Category.BOTADMINISTRATION)));
@@ -209,7 +209,6 @@ public class Shard {
                         ("translate", true, true, Category.FUN)));
                 factory.registerCommand(new Define(new BaseCommand.CommandSettings("define", true, true, Category
                         .FUN)));
-                factory.registerCommand(new Roll(new BaseCommand.CommandSettings("roll", true, true, Category.FUN)));
                 factory.registerCommand(new Coinflip(new BaseCommand.CommandSettings("coinflip", true, true, Category
                         .FUN)));
                 factory.registerCommand(new RandomNum(new BaseCommand.CommandSettings("random", true, true, Category

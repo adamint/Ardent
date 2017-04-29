@@ -109,7 +109,7 @@ public class Restrict extends Command {
                             .getUser().getName() + ", " + restrictedBy + " " + guild.getMemberById(restrictedUser.getRestrictedById())
                             .getUser().getName()));
                 }
-                EmbedBuilder builder = MessageUtils.getDefaultEmbed(guild, user, Restrict.this);
+                EmbedBuilder builder = MessageUtils.getDefaultEmbed(user);
                 builder.setAuthor(title, getShard().url, guild.getSelfMember().getUser().getAvatarUrl());
                 builder.setDescription(response.toString());
                 sendEmbed(builder, channel, user);
