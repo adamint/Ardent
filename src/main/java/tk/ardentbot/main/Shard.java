@@ -151,7 +151,7 @@ public class Shard {
 
                 factory = new CommandFactory(this);
 
-                help = new Help(new BaseCommand.CommandSettings("help", true, true, Category.BOTINFO));
+                help = new Help(new BaseCommand.CommandSettings(true, true, Category.BOTINFO, "See command help", "help", "wat"));
                 patreon = new Patreon(new BaseCommand.CommandSettings("patreon", true, true, Category.GUILDINFO));
                 translateForArdent = new TranslateForArdent(new BaseCommand.CommandSettings("translateforardent", true,
                         true, Category.BOTINFO));
