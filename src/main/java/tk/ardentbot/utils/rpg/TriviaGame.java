@@ -8,12 +8,8 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.commands.games.Trivia;
 import tk.ardentbot.core.executor.Command;
-import tk.ardentbot.core.translate.Language;
-import tk.ardentbot.core.translate.Translation;
-import tk.ardentbot.core.translate.TranslationResponse;
 import tk.ardentbot.main.Shard;
 import tk.ardentbot.utils.MapUtils;
-import tk.ardentbot.utils.discord.GuildUtils;
 import tk.ardentbot.utils.discord.MessageUtils;
 import tk.ardentbot.utils.models.TriviaQuestion;
 import tk.ardentbot.utils.rpg.profiles.Profile;
@@ -79,11 +75,9 @@ public class TriviaGame {
         Trivia.gamesInSession.remove(this);
         Trivia.gamesSettingUp.remove(guildId);
         Guild guild = shard.jda.getGuildById(guildId);
-        Language language = GuildUtils.getLanguage(guild);
         TextChannel channel = guild.getTextChannelById(textChannelId);
         channel.sendMessage(displayScores(shard, command).build()).queue();
-        command.sendEditedTranslation("trivia", language, "thxforplayingpayout", guild.getSelfMember().getUser(), channel, String.valueOf
-                (perQuestion), String.valueOf(bonus));
+        channel.sendMessage("Thanks for playing! You'll receive **$50** for every correct answer").queue();
         Map<String, Integer> sorted = MapUtils.sortByValue(scores);
         Iterator<Map.Entry<String, Integer>> iterator = sorted.entrySet().iterator();
         int current = 0;
@@ -94,8 +88,7 @@ public class TriviaGame {
             profile.addMoney(perQuestion * entry.getValue());
             if (current == 0 && !isSolo() && scores.size() > 1) {
                 profile.addMoney(bonus);
-                command.sendEditedTranslation("trivia", language, "youwonbonus", user, channel, user.getName(),
-                        String.valueOf(bonus));
+                channel.sendMessage(user.getAsMention() + ", you won a **$250** bonus for being so smart!").queue();
             }
             current++;
         }
@@ -104,12 +97,8 @@ public class TriviaGame {
     public EmbedBuilder displayScores(Shard shard, Command command) throws Exception {
         Map<String, Integer> sorted = MapUtils.sortByValue(scores);
         Guild guild = shard.jda.getGuildById(guildId);
-        Language language = GuildUtils.getLanguage(guild);
-        EmbedBuilder builder = MessageUtils.getDefaultEmbed(guild, guild.getSelfMember().getUser(), command);
-        HashMap<Integer, TranslationResponse> translations = command.getTranslations(language, new Translation("trivia", "currentscores"),
-                new Translation("trivia", "currentround"), new Translation("trivia", "points"), new Translation("trivia",
-                        "noscoredyet"), new Translation("trivia", "currentround"));
-        String currentScores = translations.get(0).getTranslation();
+        EmbedBuilder builder = MessageUtils.getDefaultEmbed(guild.getSelfMember().getUser());
+        String currentScores = "Current Scores";
         if (solo) builder.setAuthor(currentScores + " | Solo Game", shard.url, guild.getIconUrl());
         else builder.setAuthor(currentScores + " | Everyone can play", shard.url, guild.getIconUrl());
         StringBuilder description = new StringBuilder();
@@ -119,13 +108,13 @@ public class TriviaGame {
         while (iterator.hasNext()) {
             Map.Entry<String, Integer> entry = iterator.next();
             description.append("\n#" + currentPlace + ": **" + shard.jda.getUserById(entry.getKey()).getName() + "** " + entry.getValue()
-                    + " " + translations.get(2).getTranslation());
+                    + " points");
             currentPlace++;
         }
         if (currentPlace == 1) {
-            description.append("\n" + translations.get(3).getTranslation());
+            description.append("\nNo one has gotten a question right so far!");
         }
-        description.append("\n\n" + translations.get(4).getTranslation() + ": " + round);
+        description.append("\n\nCurrent Round: " + round);
         return builder.setDescription(description.toString());
     }
 
