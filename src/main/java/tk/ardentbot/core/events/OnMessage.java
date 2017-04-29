@@ -8,11 +8,8 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.SubscribeEvent;
 import tk.ardentbot.core.executor.BaseCommand;
 import tk.ardentbot.core.misc.logging.BotException;
-import tk.ardentbot.core.translate.LangFactory;
-import tk.ardentbot.core.translate.Language;
 import tk.ardentbot.main.Ardent;
 import tk.ardentbot.main.Shard;
-import tk.ardentbot.main.ShardManager;
 import tk.ardentbot.rethink.models.AdvertisingInfraction;
 import tk.ardentbot.rethink.models.AntiAdvertisingSettings;
 import tk.ardentbot.utils.discord.GuildUtils;
@@ -63,7 +60,6 @@ public class OnMessage {
                     InteractiveOnMessage.onMessage(event);
                     TriviaChecker.check(event);
                     Guild guild = event.getGuild();
-                    Language language = GuildUtils.getLanguage(guild);
                     Shard shard = GuildUtils.getShard(guild);
                     shard.factory.incrementMessagesReceived();
                     if (event.getGuild() == null)
@@ -82,11 +78,10 @@ public class OnMessage {
                                                 .and(row.g("user_id").eq(event.getAuthor().getId()))).run(connection));
                                 if (infractions.size() > 2 && antiAdvertisingSettings.isBan_after_two_infractions()) {
                                     guild.getController().ban(event.getAuthor(), 1).queue();
-                                    shard.help.sendEditedTranslation("adblock", language, "banned", event.getAuthor(), event.getChannel()
+                                    shard.help.sendEditedTranslation("Banned {0} for advertising.", event.getAuthor(), event.getChannel()
                                             , UserUtils.getNameWithDiscriminator(event.getAuthor().getId()));
                                     event.getAuthor().openPrivateChannel().queue(privateChannel -> {
-                                        ShardManager.getShards()[0].help.sendEditedTranslation("adblock", language, "youwerebanned",
-                                                event.getAuthor(), privateChannel, guild.getName());
+                                        privateChannel.sendMessage("You were banned from " + guild.getName() + " for advertising.").queue();
                                     });
                                     r.table("advertising_infractions").filter(row -> row.g("guild_id").eq(guild.getId())
                                             .and(row.g("user_id").eq(event.getAuthor().getId()))).delete().run(connection);
@@ -94,7 +89,8 @@ public class OnMessage {
                                 else {
                                     r.table("advertising_infractions").insert(r.json(BaseCommand.getStaticGson().toJson(new
                                             AdvertisingInfraction(event.getAuthor().getId(), guild.getId())))).run(connection);
-                                    shard.help.sendEditedTranslation("adblock", language, "cannotadvertise", event.getAuthor(), event
+                                    shard.help.sendEditedTranslation("{0}, you can't advertise Discord servers here!", event.getAuthor(),
+                                            event
                                             .getChannel(), event.getAuthor().getAsMention());
                                 }
                                 return;
@@ -113,26 +109,25 @@ public class OnMessage {
                     if (ardentMember == null || userMember == null || userMember.hasPermission(Permission
                             .MANAGE_SERVER) || !ardentMember.hasPermission(Permission.MESSAGE_MANAGE))
                     {
-                        shard.factory.pass(event, language, GuildUtils.getPrefix(guild));
+                        shard.factory.pass(event, GuildUtils.getPrefix(guild));
                         return; // The event will be handled and musn't be resumed here.
                     }
 
                     if (!shard.botMuteData.isMuted(event.getMember())) {
-                        shard.factory.pass(event, language, GuildUtils.getPrefix(guild));
+                        shard.factory.pass(event, GuildUtils.getPrefix(guild));
                         return; // The event will be handled and musn't be resumed here.
                     }
 
                     event.getMessage().delete().queue();
-                    String reply = shard.help.getTranslation("mute", GuildUtils.getLanguage(event.getGuild()),
-                            "youremuted").getTranslation()
-                            .replace("{0}", event.getGuild().getName()).replace("{1}", Date.from(Instant
+                    String reply = "Sorry, but you're muted in {0} until {1}".replace("{0}", event.getGuild().getName()).replace("{1}",
+                            Date.from(Instant
                                     .ofEpochSecond(shard.botMuteData.getUnmuteTime(event.getMember()) / 1000))
                                     .toLocaleString());
                     event.getAuthor().openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage(reply)
                             .queue());
                     break;
                 case PRIVATE:
-                    shard0.factory.pass(event, LangFactory.english, "/");
+                    shard0.factory.pass(event, "/");
                     shard0.factory.incrementMessagesReceived();
                     break;
             }

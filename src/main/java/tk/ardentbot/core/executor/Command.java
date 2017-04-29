@@ -7,9 +7,6 @@ import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import tk.ardentbot.core.events.ReactionEvent;
 import tk.ardentbot.core.misc.logging.BotException;
-import tk.ardentbot.core.models.SubcommandTranslation;
-import tk.ardentbot.core.translate.LangFactory;
-import tk.ardentbot.core.translate.Language;
 import tk.ardentbot.main.Ardent;
 import tk.ardentbot.main.Shard;
 import tk.ardentbot.utils.discord.GuildUtils;
@@ -201,15 +198,14 @@ public abstract class Command extends BaseCommand {
     /**
      * Called when a user runs a command with only one argument
      *
-     * @param guild    The guild of the sent command
-     * @param channel  Channel of the sent command
-     * @param user     BaseCommand author
-     * @param message  BaseCommand message
-     * @param args     Message#getContent, split by spaces
-     * @param language The current language of the guild
+     * @param guild   The guild of the sent command
+     * @param channel Channel of the sent command
+     * @param user    BaseCommand author
+     * @param message BaseCommand message
+     * @param args    Message#getContent, split by spaces
      * @throws Exception this shouldn't happen
      */
-    public abstract void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws
+    public abstract void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws
             Exception;
 
     public abstract void setupSubcommands() throws Exception;
@@ -248,55 +244,28 @@ public abstract class Command extends BaseCommand {
         return embedBuilder;
     }
 
-    /**
-     * Called when the CommandFactory identifies the queried
-     * command. Will either call a subcommand from the list
-     * or Command#noArgs
-     *
-     * @param guild    The guild of the sent command
-     * @param channel  Channel of the sent command
-     * @param user     BaseCommand author
-     * @param message  BaseCommand message
-     * @param args     Message#getContent, split by spaces
-     * @param language The current language of the guild
-     * @throws Exception
-     */
+
     void onUsage(Guild guild, MessageChannel channel, User user, Message message, String[] args)
             throws Exception {
         if (args.length == 1 || subcommands.size() == 0) noArgs(guild, channel, user, message, args);
         else {
-
-            List<SubcommandTranslation> subcommandTranslations = language.getSubcommands(this);
             final boolean[] found = {false};
-            subcommandTranslations.forEach(subcommandTranslation -> {
-                if (subcommandTranslation.getTranslation().equalsIgnoreCase(args[1])) {
-                    found[0] = true;
-                    subcommands.forEach(subcommand -> {
-                        if (subcommand.getIdentifier().equalsIgnoreCase(subcommandTranslation.getIdentifier())) {
-                            try {
-                                if (oldLang == null) {
-                                    subcommand.onCall(guild, channel, user, message, args, language);
-                                }
-                                else {
-                                    subcommand.onCall(guild, channel, user, message, args, oldLang);
-                                }
-                            }
-                            catch (Exception e) {
-                                new BotException(e);
-                            }
-                        }
-                    });
-                }
+            subcommands.forEach(subcommand -> {
+                if (subcommand.containsAlias(args[1])) subcommand.onCall(guild, channel, user, message, args);
             });
             if (message.getRawContent().split(" ").length == 2 && (message.getMentionedUsers().size() > 0)) {
-                noArgs(guild, channel, user, message, args, language);
+                noArgs(guild, channel, user, message, args);
                 return;
             }
-            if (!found[0] && language == LangFactory.english) {
-                sendRetrievedTranslation(channel, "other", language, "subcommandnotfound", user);
+            if (!found[0]) {
+                sendTranslatedMessage("Sorry, you provided invalid arguments!", channel, user);
             }
-            else if (!found[0]) onUsage(guild, channel, user, message, args, LangFactory.english, language);
         }
+    }
+
+    public boolean containsAlias(String query) {
+        for (String s : aliases) if (s.equalsIgnoreCase(query)) return true;
+        return false;
     }
 
     public String getDate() {

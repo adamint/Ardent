@@ -10,7 +10,6 @@ import tk.ardentbot.utils.rpg.BadgesList;
 import tk.ardentbot.utils.rpg.profiles.Badge;
 import tk.ardentbot.utils.rpg.profiles.Profile;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -98,7 +97,7 @@ public class UserUtils {
         return null;
     }
 
-    public static void addMoney(User user, double amount) throws SQLException {
+    public static void addMoney(User user, double amount) {
         double finalAmount;
         if (UserUtils.hasTierThreePermissions(user)) finalAmount = amount * 1.6;
         else if (UserUtils.hasTierTwoPermissions(user)) finalAmount = amount * 1.4;

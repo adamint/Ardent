@@ -2,41 +2,24 @@ package tk.ardentbot.core.executor;
 
 import com.google.code.chatterbotapi.ChatterBotSession;
 import com.mashape.unirest.http.Unirest;
-import com.rethinkdb.net.Cursor;
-import com.vdurmont.emoji.Emoji;
-import com.vdurmont.emoji.EmojiManager;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.util.ConcurrentArrayQueue;
 import tk.ardentbot.core.misc.logging.BotException;
-import tk.ardentbot.core.models.CommandTranslation;
-import tk.ardentbot.core.translate.LangFactory;
-import tk.ardentbot.core.translate.Language;
 import tk.ardentbot.main.Ardent;
 import tk.ardentbot.main.Shard;
-import tk.ardentbot.rethink.models.CommandModel;
-import tk.ardentbot.utils.discord.GuildUtils;
 import tk.ardentbot.utils.discord.UserUtils;
 import tk.ardentbot.utils.models.RestrictedUser;
 import tk.ardentbot.utils.rpg.EntityGuild;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Queue;
-import java.util.concurrent.TimeUnit;
-
-import static tk.ardentbot.rethink.Database.connection;
-import static tk.ardentbot.rethink.Database.r;
 
 public class CommandFactory {
     private Shard shard;
 
     private HashMap<String, Long> commandUsages = new HashMap<>();
-
-    private ArrayList<String> emojiCommandTags = new ArrayList<>();
 
     private ConcurrentArrayQueue<BaseCommand> baseCommands = new ConcurrentArrayQueue<>();
     private long messagesReceived = 0;
@@ -48,7 +31,6 @@ public class CommandFactory {
      */
     public CommandFactory(Shard shard) {
         this.shard = shard;
-        shard.executorService.scheduleAtFixedRate(new EmojiCommandUpdater(), 1, 300, TimeUnit.SECONDS);
     }
 
     public static ChatterBotSession getBotSession(Guild guild) {
@@ -93,20 +75,9 @@ public class CommandFactory {
     public void registerCommand(BaseCommand baseCommand) throws Exception {
         baseCommand.setShard(shard);
         Command botCommand = baseCommand.botCommand;
-        for (BaseCommand cmd : baseCommands) {
-            if (StringUtils.stripAccents(cmd.getCommandIdentifier()).equalsIgnoreCase(StringUtils.stripAccents
-                    (botCommand.getCommandIdentifier())))
-            {
-                System.out.println("Multiple baseCommands cannot be registered under the same name. Ignoring new " +
-                        "instance" +
-                        ".\n" +
-                        "Name: " + baseCommand.toString());
-                return;
-            }
-        }
         botCommand.setupSubcommands();
         baseCommands.add(baseCommand);
-        commandUsages.put(baseCommand.commandIdentifier, (long) 0);
+        commandUsages.put(baseCommand.getName(), (long) 0);
     }
 
     /**
@@ -116,7 +87,7 @@ public class CommandFactory {
      * @param event the MessageReceivedEvent to be handled
      * @throws Exception this will create a BotException
      */
-    public void pass(MessageReceivedEvent event, Language language, String prefix) throws
+    public void pass(MessageReceivedEvent event, String prefix) throws
             Exception {
         try {
             User user = event.getAuthor();
@@ -134,43 +105,22 @@ public class CommandFactory {
             }
             if (mentionedContent != null) {
                 mentionedContent = mentionedContent.replace(" ", "");
-                Language toChange = null;
-                Command command = shard.help.botCommand;
-                for (Language l : LangFactory.languages) {
-                    if (l.getIdentifier().equalsIgnoreCase(mentionedContent)) toChange = l;
-                }
-                if (toChange != null) {
-                    if (GuildUtils.hasManageServerPermission(guild.getMember(event.getAuthor()))) {
-                        r.db("data").table("guilds").filter(r.hashMap("guild_id", guild.getId())).update(r.hashMap("language", toChange
-                                .getIdentifier())).run(connection);
-                        command.sendRetrievedTranslation(channel, "language", LangFactory.getLanguage("english"),
-                                "changedlanguage", user);
-                        getShard().botLanguageData.set(guild, toChange.getIdentifier());
-                    }
-                    else command.sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
+                if (mentionedContent.length() == 0) {
+                    channel.sendMessage("Type @Ardent [msg] to talk to the bot\n" +
+                            "FYI: The help command name is /help in your server").queue();
                 }
                 else {
-                    if (mentionedContent.length() == 0) {
-                        command.sendTranslatedMessage(command.getTranslation("other", language, "mentionedhelp")
-                                .getTranslation()
-                                .replace("{0}", GuildUtils.getPrefix(guild) +
-                                        command.getName(language)), channel, user);
+                    if (!Ardent.disabledCommands.contains("cleverbot")) {
+                        channel.sendMessage(Unirest.post("https://cleverbot.io/1.0/ask").field("user", Ardent.cleverbotUser)
+                                .field("key", Ardent.cleverbotKey).field("nick", "ardent").field("text", mentionedContent).asJson()
+                                .getBody().getObject().getString("response")).queue();
                     }
                     else {
-                        if (!Ardent.disabledCommands.contains("cleverbot")) {
-                            command.sendTranslatedMessage(Unirest.post("https://cleverbot.io/1.0/ask").field("user", Ardent.cleverbotUser)
-                                    .field("key", Ardent.cleverbotKey).field("nick", "ardent").field("text", mentionedContent).asJson()
-                                    .getBody().getObject().getString("response"), channel, user);
-                        }
-                        else {
-                            command.sendRetrievedTranslation(channel, "other", language, "disabledfeature", user);
-                        }
+                        channel.sendMessage("Cleverbot is currently disabled, sorry.").queue();
                     }
                 }
             }
             else {
-                Queue<CommandTranslation> commandNames = language.getCommandTranslations();
-
                 if (event.getAuthor().isBot()) return;
                 if (channel instanceof PrivateChannel) {
                     channel.sendMessage("Private channel integration will be re-added soon, please type this command in a guild!").queue();
@@ -180,70 +130,35 @@ public class CommandFactory {
                     String pre = StringEscapeUtils.escapeJava(prefix);
                     if (args[0].startsWith(pre)) {
                         args[0] = args[0].replaceFirst(pre, "");
-                        Emoji emoji = EmojiManager.getByUnicode(args[0]);
-                        if (emoji != null) {
-                            emoji.getAliases().forEach(alias -> {
-                                emojiCommandTags.forEach(f -> {
-                                    String converted = f.replace(":", "").replace(" ", "");
-                                    if (converted.equals(alias)) {
-                                        args[0] = alias;
-                                    }
-                                });
-                            });
-                        }
-                        commandNames.forEach(commandTranslation -> {
-                            String translation = StringUtils.stripAccents(commandTranslation.getTranslation().replace
-                                    (" ", "").replace(":", ""));
-                            String identifier = commandTranslation.getIdentifier();
-                            if (translation.equalsIgnoreCase(StringUtils.stripAccents(args[0])) || commandTranslation.containsAlias
-                                    (args[0])) {
-                                baseCommands.stream().filter(command -> command.getCommandIdentifier().equalsIgnoreCase
-                                        (identifier)).forEach(command -> {
-                                    try {
-                                        command.botCommand.usages++;
-                                        /*boolean beforeCmdFirst = false;
-                                        int oldCommandAmount = Status.commandsByGuild.get(guild.getId());
-                                        Status.commandsByGuild.replace(guild.getId(), oldCommandAmount,
-                                                oldCommandAmount + 1);
-                                        boolean afterCmdFirst = UsageUtils.isGuildFirstInCommands(guild);
-
-                                        if (!beforeCmdFirst && afterCmdFirst) {
-                                            command.botCommand.sendRetrievedTranslation(channel, "other",
-                                                    language, "firstincommands", user);
-                                        }*/
-                                        if (!Ardent.disabledCommands.contains(command.getCommandIdentifier())) {
-                                            EntityGuild entityGuild = EntityGuild.get(guild);
-                                            for (RestrictedUser u : entityGuild.getRestrictedUsers()) {
-                                                if (u.getUserId().equalsIgnoreCase(user.getId())) {
-                                                    command.sendRestricted(user);
-                                                    return;
-                                                }
-                                            }
-                                            shard.executorService.execute(new AsyncCommandExecutor(command.botCommand,
-                                                    guild, channel,
-                                                    event.getAuthor(), message, args, GuildUtils.getLanguage(guild), user));
-                                            commandsReceived++;
-                                            ranCommand[0] = true;
-                                            UserUtils.addMoney(user, 1);
-                                        }
-                                        else {
-                                            command.sendRetrievedTranslation(channel, "other", language, "disabledfeature", user);
-                                            ranCommand[0] = true;
+                        baseCommands.forEach(command -> {
+                            if (command.getBotCommand().containsAlias(args[0])) {
+                                command.botCommand.usages++;
+                                if (!Ardent.disabledCommands.contains(command.getName())) {
+                                    EntityGuild entityGuild = EntityGuild.get(guild);
+                                    for (RestrictedUser u : entityGuild.getRestrictedUsers()) {
+                                        if (u.getUserId().equalsIgnoreCase(user.getId())) {
+                                            command.sendRestricted(user);
+                                            return;
                                         }
                                     }
-                                    catch (Exception e) {
-                                        new BotException(e);
-                                    }
-                                });
+                                    shard.executorService.execute(new AsyncCommandExecutor(command.botCommand,
+                                            guild, channel,
+                                            event.getAuthor(), message, args, user));
+                                    commandsReceived++;
+                                    ranCommand[0] = true;
+                                    UserUtils.addMoney(user, 1);
+                                }
+                                else {
+                                    command.sendTranslatedMessage("Sorry, this command is currently disabled and will be re-enabled soon."
+                                            , channel, user);
+                                    ranCommand[0] = true;
+                                }
                             }
                         });
                     }
                     if (!ranCommand[0]) {
-                        if (language != LangFactory.english) {
-                            pass(event, LangFactory.english, prefix);
-                        }
-                        else if (!prefix.equalsIgnoreCase("/")) {
-                            pass(event, language, "/");
+                        if (!prefix.equalsIgnoreCase("/")) {
+                            pass(event, "/");
                         }
                     }
                 }
@@ -264,19 +179,5 @@ public class CommandFactory {
 
     public void incrementMessagesReceived() {
         messagesReceived += 1;
-    }
-
-    /**
-     * Simple Runnable to update command names for emojis
-     */
-    private class EmojiCommandUpdater implements Runnable {
-        @Override
-        public void run() {
-            emojiCommandTags.clear();
-            Cursor<CommandModel> emojiCommands = r.db("data").table("commands").filter(r.hashMap("language", "emoji")).run(connection);
-            emojiCommands.forEach(commandModel -> {
-                emojiCommandTags.add(commandModel.getTranslation().replace("\\:", ""));
-            });
-        }
     }
 }

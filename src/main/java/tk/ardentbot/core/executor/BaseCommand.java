@@ -103,7 +103,7 @@ public abstract class BaseCommand {
 
     public EmbedBuilder chooseFromList(String title, Guild guild, User user, BaseCommand command, String... options)
             throws Exception {
-        EmbedBuilder builder = MessageUtils.getDefaultEmbed(guild, user, command);
+        EmbedBuilder builder = MessageUtils.getDefaultEmbed(user);
         builder.setAuthor(title, Ardent.gameUrl, user.getAvatarUrl());
         StringBuilder description = new StringBuilder();
         description.append("**" + title + "**");
