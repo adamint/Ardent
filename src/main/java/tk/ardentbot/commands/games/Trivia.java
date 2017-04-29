@@ -31,7 +31,6 @@ public class Trivia extends Command {
 
     public static void dispatchRound(Guild guild, TextChannel channel, User creator, TriviaGame currentGame, ScheduledExecutorService ex) {
         try {
-            Language language = GuildUtils.getLanguage(guild);
             Shard shard = GuildUtils.getShard(guild);
             currentGame.incrementRounds();
             if (currentGame.getRound() >= currentGame.getTotalRounds()) {
@@ -74,7 +73,7 @@ public class Trivia extends Command {
 
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
-        sendHelp(language, channel, guild, user, this);
+        sendHelp(channel, guild, user, this);
     }
 
     @Override

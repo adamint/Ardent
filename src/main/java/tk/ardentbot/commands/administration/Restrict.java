@@ -5,7 +5,6 @@ import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 import tk.ardentbot.core.executor.Command;
 import tk.ardentbot.core.executor.Subcommand;
-import tk.ardentbot.core.translate.Language;
 import tk.ardentbot.core.translate.Translation;
 import tk.ardentbot.core.translate.TranslationResponse;
 import tk.ardentbot.rethink.models.RestrictedUserModel;
@@ -26,15 +25,15 @@ public class Restrict extends Command {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
-        sendHelp(language, channel, guild, user, this);
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
+        sendHelp(channel, guild, user, this);
     }
 
     @Override
     public void setupSubcommands() throws Exception {
         subcommands.add(new Subcommand(this, "block") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws
                     Exception {
                 Member member = guild.getMember(user);
                 if (member.hasPermission(Permission.MANAGE_SERVER)) {
@@ -44,17 +43,15 @@ public class Restrict extends Command {
                             Member mentionedMember = guild.getMember(mentioned);
                             if (mentionedMember.hasPermission(member.getPermissions()) || mentionedMember.hasPermission(Permission
                                     .MANAGE_SERVER) || mentionedMember.getUser().getId().equalsIgnoreCase(guild.getSelfMember().getUser()
-                                    .getId()))
-                            {
-                                sendRetrievedTranslation(channel, "roles", language, "cannotmodify", user);
+                                    .getId())) {
+                                sendTranslatedMessage("You cannot modify this user because they have the same or higher permissions than you.", channel, user);
                                 return;
                             }
                             EntityGuild entityGuild = EntityGuild.get(guild);
                             boolean isRestricted = entityGuild.isRestricted(mentioned);
                             if (isRestricted) {
-                                sendRetrievedTranslation(channel, "restrict", language, "alreadyrestricted", user);
-                            }
-                            else {
+                                sendTranslatedMessage("This user has already been blocked from using commands!", channel, user);
+                            } else {
                                 RestrictedUser restrictedUser = new RestrictedUser(mentioned.getId(), user.getId(), guild);
                                 entityGuild.addRestricted(restrictedUser);
                                 r.db("data").table("restricted").insert(r.json(gson.toJson(new RestrictedUserModel(guild.getId(),
@@ -63,16 +60,14 @@ public class Restrict extends Command {
                                         .getName());
                             }
                         }
-                    }
-                    else sendRetrievedTranslation(channel, "other", language, "mentionuserorusers", user);
-                }
-                else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
+                    } else sendRetrievedTranslation(channel, "other", language, "mentionuserorusers", user);
+                } else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
             }
         });
 
         subcommands.add(new Subcommand(this, "unblock") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws
                     Exception {
                 if (guild.getMember(user).hasPermission(Permission.MANAGE_SERVER)) {
                     List<User> mentionedUsers = message.getMentionedUsers();
@@ -82,8 +77,7 @@ public class Restrict extends Command {
                             boolean isRestricted = entityGuild.isRestricted(mentioned);
                             if (!isRestricted) {
                                 sendEditedTranslation("restrict", language, "usernotrestricted", user, channel, mentioned.getName());
-                            }
-                            else {
+                            } else {
                                 entityGuild.removeRestricted(mentioned.getId());
                                 r.db("data").table("restricted").filter(row -> row.g("user_id").eq(mentioned.getId())
                                         .and(row.g("guild_id").eq(guild.getId()))).delete().run(connection);
@@ -91,16 +85,14 @@ public class Restrict extends Command {
                                         .getName());
                             }
                         }
-                    }
-                    else sendRetrievedTranslation(channel, "other", language, "mentionuserorusers", user);
-                }
-                else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
+                    } else sendRetrievedTranslation(channel, "other", language, "mentionuserorusers", user);
+                } else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
             }
         });
 
         subcommands.add(new Subcommand(this, "view") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws
                     Exception {
                 EntityGuild entityGuild = EntityGuild.get(guild);
                 ArrayList<RestrictedUser> restrictedUsers = entityGuild.getRestrictedUsers();
@@ -112,8 +104,7 @@ public class Restrict extends Command {
                 response.append("**" + title + "**");
                 if (restrictedUsers.size() == 0) {
                     response.append("\n" + translations.get(2).getTranslation());
-                }
-                else {
+                } else {
                     restrictedUsers.forEach(restrictedUser -> response.append("\n - " + guild.getMemberById(restrictedUser.getUserId())
                             .getUser().getName() + ", " + restrictedBy + " " + guild.getMemberById(restrictedUser.getRestrictedById())
                             .getUser().getName()));
