@@ -69,6 +69,10 @@ public class UserUtils {
         else return true;
     }
 
+    public static boolean isBotCommander(Member member) {
+        return member.getRoles().stream().filter(r -> r.getName().equalsIgnoreCase("bot commander")).count() > 0;
+    }
+
     public static boolean hasManageServerOrStaff(Member member) {
         return member.hasPermission(Permission.MANAGE_SERVER) || Ardent.developers.contains(member.getUser().getId())
                 || Ardent.moderators.contains(member.getUser().getId());

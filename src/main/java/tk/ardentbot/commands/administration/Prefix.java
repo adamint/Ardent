@@ -41,7 +41,7 @@ public class Prefix extends Command {
                 if (args.length > 2) {
                     if (guild.getMember(user).hasPermission(Permission.MANAGE_SERVER)) {
                         String newPrefix = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " +
-                                "" + args[1] + " ", "");
+                                "" + args[1] + " ", "").replace(" ", "");
                         if (newPrefix.length() == message.getRawContent().length()) {
                             newPrefix = message.getRawContent().replace("/" + args[0] + " " + args[1] + " ", "");
                         }

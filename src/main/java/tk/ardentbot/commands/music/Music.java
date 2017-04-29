@@ -14,6 +14,7 @@ import com.wrapper.spotify.models.Page;
 import com.wrapper.spotify.models.Track;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.Region;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.managers.AudioManager;
@@ -303,6 +304,10 @@ public class Music extends Command {
             VoiceChannel voiceChannel = voiceState.getChannel();
             Member bot = guild.getMember(GuildUtils.getShard(guild).bot);
             if (bot.hasPermission(voiceChannel, Permission.VOICE_CONNECT)) {
+                if (guild.getRegion() == Region.SINGAPORE) {
+                    channel.sendMessage("Singapore is currently disabled. Blame OVH.").queue();
+                    return null;
+                }
                 try {
                     audioManager.openAudioConnection(voiceChannel);
                     command.sendTranslatedMessage(command.getTranslation("music", language, "connectedto").getTranslation()
@@ -632,7 +637,8 @@ public class Music extends Command {
                     if (track != null) {
                         String ownerId = track.getAuthor();
                         if (ownerId == null) ownerId = "";
-                        if (UserUtils.hasManageServerOrStaff(member) || (user.getId().equalsIgnoreCase(ownerId))) {
+                        if (UserUtils.hasManageServerOrStaff(member) || UserUtils.isBotCommander(member) || user.getId().equalsIgnoreCase
+                                (ownerId)) {
                             ardentMusicManager.nextTrack();
                             sendRetrievedTranslation(sendTo(channel, guild), "music", language, "skippedcurrent", user);
                         }
@@ -666,7 +672,7 @@ public class Music extends Command {
                                     String name = track.getInfo().title;
                                     if (current == numberToRemove) {
                                         if (UserUtils.hasManageServerOrStaff(member) || ardentTrack.getAuthor()
-                                                .equalsIgnoreCase(user.getId()))
+                                                .equalsIgnoreCase(user.getId()) || UserUtils.isBotCommander(member))
                                         {
                                             queue.remove(ardentTrack);
                                             sendTranslatedMessage(getTranslation("music", language, "removedfromqueue")
@@ -697,7 +703,7 @@ public class Music extends Command {
                                Language language) throws Exception {
                 AudioManager audioManager = guild.getAudioManager();
                 Member member = guild.getMember(user);
-                if (UserUtils.hasManageServerOrStaff(member)) {
+                if (UserUtils.hasManageServerOrStaff(member) || UserUtils.isBotCommander(member)) {
                     if (audioManager.isConnected()) {
                         String name = audioManager.getConnectedChannel().getName();
                         audioManager.closeAudioConnection();
@@ -716,7 +722,7 @@ public class Music extends Command {
                                Language language) throws Exception {
                 AudioManager audioManager = guild.getAudioManager();
                 Member member = guild.getMember(user);
-                if (UserUtils.hasManageServerOrStaff(member)) {
+                if (UserUtils.hasManageServerOrStaff(member) || UserUtils.isBotCommander(member)) {
                     if (audioManager.isConnected()) {
                         GuildMusicManager manager = getGuildAudioPlayer(guild, channel);
                         if (manager.player.isPaused()) {
@@ -739,7 +745,7 @@ public class Music extends Command {
                                Language language) throws Exception {
                 AudioManager audioManager = guild.getAudioManager();
                 Member member = guild.getMember(user);
-                if (UserUtils.hasManageServerOrStaff(member)) {
+                if (UserUtils.hasManageServerOrStaff(member) || UserUtils.isBotCommander(member)) {
                     if (audioManager.isConnected()) {
                         GuildMusicManager manager = getGuildAudioPlayer(guild, channel);
                         if (manager.player.getPlayingTrack() != null) manager.player.stopTrack();
@@ -830,7 +836,7 @@ public class Music extends Command {
                                Language language) throws Exception {
                 AudioManager audioManager = guild.getAudioManager();
                 Member member = guild.getMember(user);
-                if (UserUtils.hasManageServerOrStaff(member)) {
+                if (UserUtils.hasManageServerOrStaff(member) || UserUtils.isBotCommander(member)) {
                     if (audioManager.isConnected()) {
                         GuildMusicManager manager = getGuildAudioPlayer(guild, channel);
                         manager.scheduler.manager.shuffle();

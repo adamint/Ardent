@@ -160,8 +160,7 @@ public class CommandFactory {
                         if (!Ardent.disabledCommands.contains("cleverbot")) {
                             command.sendTranslatedMessage(Unirest.post("https://cleverbot.io/1.0/ask").field("user", Ardent.cleverbotUser)
                                     .field("key", Ardent.cleverbotKey).field("nick", "ardent").field("text", mentionedContent).asJson()
-                                    .getBody()
-                                    .getObject().getString("response"), channel, user);
+                                    .getBody().getObject().getString("response"), channel, user);
                         }
                         else {
                             command.sendRetrievedTranslation(channel, "other", language, "disabledfeature", user);

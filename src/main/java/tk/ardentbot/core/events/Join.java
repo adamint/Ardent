@@ -71,20 +71,20 @@ public class Join {
 
             Ardent.cleverbots.put(guild.getId(), shard.cleverBot.createSession());
             Ardent.sentAnnouncement.put(guild.getId(), false);
-            TextChannel channel = guild.getPublicChannel();
             Status.commandsByGuild.put(guild.getId(), 0);
             shard.executorService.schedule(() -> {
-                channel.sendMessage(welcomeText).queue();
                 guild.getOwner().getUser().openPrivateChannel().queue(privateChannel -> privateChannel
                         .sendMessage
-                                ("Hey! Thanks for adding Ardent. If you have **any** " +
-                                        "questions, comments, concerns, or bug reports, please join our support " +
-                                        "guild at " +
-                                        "https://discordapp.com/invite/rfGSxNA\n" +
-                                        "Also, please don't hesitate to contact Adam#9261 or join our guild.")
-                        .queue());
+                                ("Thanks for adding Ardent. If you have questions or something isn't working, join over 300 people on our" +
+                                        " support server @ https://discordapp.com/invite/rfGSxNA").queue());
             }, 3, TimeUnit.SECONDS);
         }
+        TextChannel channel = guild.getPublicChannel();
+        channel.sendMessage("Thanks for adding **Ardent**. This server's prefix is `/`, and you can use `/help` to see a list of commands" +
+                ". " +
+                "If you don't speak english, use `/language` to change Ardent's language - Reset Ardent to english by typing @Ardent " +
+                "english.\n" +
+                "Enjoy, and if you have questions, join our support server @ https://ardentbot.tk/guild!").queue();
     }
 
     @SubscribeEvent
