@@ -16,7 +16,8 @@ public abstract class Subcommand {
     public Subcommand(String description, String syntax, String... aliases) {
         this.syntax = syntax;
         this.description = description;
-        this.aliases = aliases;
+        if (aliases.length > 0) this.aliases = aliases;
+        else this.aliases = new String[]{syntax};
     }
 
     /**
