@@ -7,7 +7,6 @@ import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.core.executor.Command;
 import tk.ardentbot.core.executor.Subcommand;
-import tk.ardentbot.core.translate.Language;
 import tk.ardentbot.utils.discord.GuildUtils;
 
 import java.util.ArrayList;
@@ -41,22 +40,19 @@ public class Translate extends Command {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
-            language) throws Exception {
-        sendHelp(language, channel, guild, user, this);
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
+        sendHelp(channel, guild, user, this);
     }
 
     @Override
     public void setupSubcommands() {
         languages.forEach(language -> {
-            subcommands.add(new Subcommand(this, language) {
+            subcommands.add(new Subcommand("Translate a message to this language!", language, language) {
                 @Override
-                public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args,
-                                   Language language) throws Exception {
+                public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
                     if (args.length == 2) {
-                        sendRetrievedTranslation(channel, "translate", language, "includetext", user);
-                    }
-                    else {
+                        sendTranslatedMessage("You need to include some text to translate!", channel, user);
+                    } else {
                         String query = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " " +
                                 args[1] + " ", "");
                         sendTranslatedMessage(translateApi.translationApi().translate(query, com.github.vbauer.yta

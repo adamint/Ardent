@@ -7,7 +7,6 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.core.executor.Command;
-import tk.ardentbot.core.translate.Language;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -42,15 +41,14 @@ public class GIF extends Command {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
         User author = message.getAuthor();
         if (cooldown.contains(author))
-            sendRetrievedTranslation(channel, "other", language, "waitafewseconds", user);
+            sendTranslatedMessage("Please wait a few seconds to send this command again.", channel, user);
         else {
             try {
                 channel.sendMessage(giphy.searchRandom(randomMemeCategory()).getData().getImageUrl()).queue();
-            }
-            catch (GiphyException e) {
+            } catch (GiphyException e) {
                 e.printStackTrace();
             }
         }

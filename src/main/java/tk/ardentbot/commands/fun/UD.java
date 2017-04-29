@@ -11,16 +11,11 @@ import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.core.executor.Command;
 import tk.ardentbot.core.models.UDList;
 import tk.ardentbot.core.models.UrbanDictionary;
-import tk.ardentbot.core.translate.Language;
-import tk.ardentbot.core.translate.Translation;
-import tk.ardentbot.core.translate.TranslationResponse;
 import tk.ardentbot.main.Shard;
 import tk.ardentbot.utils.discord.GuildUtils;
 import tk.ardentbot.utils.discord.MessageUtils;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 public class UD extends Command {
     public UD(CommandSettings commandSettings) {
@@ -28,56 +23,35 @@ public class UD extends Command {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
-            language) throws Exception {
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
         Shard shard = GuildUtils.getShard(guild);
         if (args.length == 1) {
-            sendTranslatedMessage(getTranslation("ud", language, "help").getTranslation().replace("{0}", GuildUtils
+            sendTranslatedMessage("Search a word's definition from Urban Dictionary. Example: {0}ud test".replace("{0}", GuildUtils
                     .getPrefix(guild) + args[0]), channel, user);
-        }
-        else {
+        } else {
             GetRequest getRequest = Unirest.get("http://api.urbandictionary.com/v0/define?term=" + message
                     .getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " ", "").replaceAll(" ", "%20"));
             String json = "";
             try {
                 json = getRequest.asJson().getBody().toString();
-            }
-            catch (UnirestException e) {
+            } catch (UnirestException e) {
                 e.printStackTrace();
             }
             UrbanDictionary definition = shard.gson.fromJson(json, UrbanDictionary.class);
             if (definition.getList().size() == 0) {
-                sendRetrievedTranslation(channel, "ud", language, "notranslations", user);
-            }
-            else {
-                EmbedBuilder builder = MessageUtils.getDefaultEmbed(guild, message.getAuthor(), this);
+                sendTranslatedMessage("There aren't any definitions for this word!", channel, user);
+            } else {
+                EmbedBuilder builder = MessageUtils.getDefaultEmbed(message.getAuthor());
                 UDList list = definition.getList().get(0);
 
-                Translation defTranslation = new Translation("ud", "def");
-                Translation authorTranslation = new Translation("ud", "author");
-                Translation exampleTranslation = new Translation("ud", "example");
-                Translation linkTranslation = new Translation("ud", "link");
-                Translation thumbsUpTranslation = new Translation("ud", "thumbsup");
-                Translation thumbsDownTranslation = new Translation("ud", "thumbsdown");
-                Translation urbanDictionaryTranslation = new Translation("ud", "urbandictionary");
-                ArrayList<Translation> translationQueries = new ArrayList<>();
-                translationQueries.add(defTranslation);
-                translationQueries.add(authorTranslation);
-                translationQueries.add(exampleTranslation);
-                translationQueries.add(linkTranslation);
-                translationQueries.add(thumbsUpTranslation);
-                translationQueries.add(thumbsDownTranslation);
-                translationQueries.add(urbanDictionaryTranslation);
 
-                HashMap<Integer, TranslationResponse> translations = getTranslations(language, translationQueries);
-
-                String def = translations.get(0).getTranslation();
-                String author = translations.get(1).getTranslation();
-                String example = translations.get(2).getTranslation();
-                String link = translations.get(3).getTranslation();
-                String thumbsUp = translations.get(4).getTranslation();
-                String thumbsDown = translations.get(5).getTranslation();
-                String urbanDictionary = translations.get(6).getTranslation();
+                String def = "Definition";
+                String author = "Author";
+                String example = "Example";
+                String link = "Link";
+                String thumbsUp = "Thumbs Up";
+                String thumbsDown = "Thumbs Down";
+                String urbanDictionary = "Urban Dictionary";
 
                 builder.setAuthor(urbanDictionary, shard.bot.getAvatarUrl(), shard.bot.getAvatarUrl());
                 builder.setThumbnail("https://i.gyazo.com/6a40e32928743e68e9006396ee7c2a14.jpg");

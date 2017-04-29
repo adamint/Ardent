@@ -9,7 +9,6 @@ import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.core.executor.Command;
 import tk.ardentbot.core.models.Definition;
 import tk.ardentbot.core.models.Dictionary;
-import tk.ardentbot.core.translate.Language;
 import tk.ardentbot.main.Ardent;
 import tk.ardentbot.main.Shard;
 import tk.ardentbot.utils.discord.GuildUtils;
@@ -26,12 +25,10 @@ public class Define extends Command {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
-            language) throws Exception {
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
         if (args.length == 1) {
-            sendRetrievedTranslation(channel, "define", language, "includeword", user);
-        }
-        else {
+            sendTranslatedMessage("You need to include a word to define ^_^", channel, user);
+        } else {
             Calendar myCal = Calendar.getInstance();
             myCal.setTimeInMillis(System.currentTimeMillis());
             boolean isMidnight = myCal.get(Calendar.HOUR_OF_DAY) == 0
@@ -51,7 +48,7 @@ public class Define extends Command {
                                 .header("X-Mashape-Key", Ardent.mashapeKey)
                                 .header("Accept", "application/json")
                                 .asString().getBody(), Dictionary.class);
-                        EmbedBuilder builder = MessageUtils.getDefaultEmbed(guild, user, this);
+                        EmbedBuilder builder = MessageUtils.getDefaultEmbed(user);
                         builder.setAuthor("English Dictionary", "https://ardentbot.tk", shard.bot.getAvatarUrl());
                         List<Definition> definitions = dictionary.getDefinitions();
                         StringBuilder description = new StringBuilder();
@@ -64,12 +61,11 @@ public class Define extends Command {
                         }
                         builder.setDescription(description.toString());
                         sendEmbed(builder, channel, user);
+                    } catch (Exception ex) {
+                        sendTranslatedMessage("There were no definitions for this word!", channel, user);
                     }
-                    catch (Exception ex) {
-                        sendRetrievedTranslation(channel, "define", language, "nodefinitions", user);
-                    }
-                }
-                else sendRetrievedTranslation(channel, "define", language, "hitapilimit", user);
+                } else
+                    sendTranslatedMessage("We have hit the daily API limit for the dictionary, sorry!", channel, user);
             }
         }
     }

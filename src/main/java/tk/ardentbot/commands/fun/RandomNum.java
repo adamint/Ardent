@@ -6,7 +6,6 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.core.executor.Command;
-import tk.ardentbot.core.translate.Language;
 
 import java.util.Random;
 
@@ -16,7 +15,7 @@ public class RandomNum extends Command {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
         boolean failed = false;
         if (args.length > 1) {
             try {
@@ -24,16 +23,14 @@ public class RandomNum extends Command {
                 if (bound <= 0) failed = true;
                 else {
                     int generated = new Random().nextInt(bound) + 1;
-                    sendTranslatedMessage(getTranslation("random", language, "returned").getTranslation().replace("{0}", String.valueOf
+                    sendTranslatedMessage("Generated: **{0}**".replace("{0}", String.valueOf
                             (generated)), channel, user);
                 }
-            }
-            catch (NumberFormatException ex) {
+            } catch (NumberFormatException ex) {
                 failed = true;
             }
-        }
-        else failed = true;
-        if (failed) sendRetrievedTranslation(channel, "prune", language, "notanumber", user);
+        } else failed = true;
+        if (failed) sendTranslatedMessage("The argument you provided was not a number!", channel, user);
     }
 
     @Override
