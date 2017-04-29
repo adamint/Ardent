@@ -4,7 +4,6 @@ import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.managers.AudioManager;
 import tk.ardentbot.core.executor.Command;
-import tk.ardentbot.core.translate.Language;
 import tk.ardentbot.utils.discord.GuildUtils;
 
 import static tk.ardentbot.commands.music.Music.*;
@@ -15,22 +14,22 @@ public class Play extends Command {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
         if (args.length > 1) {
             AudioManager audioManager = guild.getAudioManager();
             String url = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " ", "");
             boolean shouldDeleteMessage = shouldDeleteMessages(guild);
             boolean implement = false;
             if (!audioManager.isConnected()) {
-                VoiceChannel success = joinChannel(guild, guild.getMember(user), language, this,
+                VoiceChannel success = joinChannel(guild, guild.getMember(user), this,
                         audioManager, channel);
                 if (success != null) {
-                    loadAndPlay(message, user, this, language, (TextChannel) channel, url, success, false, true);
+                    loadAndPlay(message, user, this, (TextChannel) channel, url, success, false, true);
                     implement = true;
                 }
             }
             else {
-                loadAndPlay(message, user, this, language, (TextChannel) sendTo(channel, guild), url, audioManager
+                loadAndPlay(message, user, this, (TextChannel) sendTo(channel, guild), url, audioManager
                         .getConnectedChannel(), false, true);
                 implement = true;
             }
@@ -49,7 +48,7 @@ public class Play extends Command {
                 }
             }
         }
-        else sendRetrievedTranslation(channel, "tag", language, "invalidarguments", user);
+        else sendTranslatedMessage("You need to include a song name or URL", channel, user);
     }
 
     @Override

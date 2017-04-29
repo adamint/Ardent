@@ -9,7 +9,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import tk.ardentbot.core.executor.Command;
 import tk.ardentbot.core.misc.logging.BotException;
-import tk.ardentbot.core.translate.Language;
 
 import java.io.IOException;
 import java.net.URL;
@@ -24,14 +23,14 @@ public class Asses extends Command {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
         if (asses.size() == 0) {
             addAsses("http://thechive.com/2017/04/11/im-in-the-business-of-booty-scoops-and-business-is-a-boomin-33-photos/");
             addAsses("http://thechive.com/2017/04/19/congrats-on-making-it-to-hump-day-here-is-your-reward-36-photos-2/");
             addAsses("http://thechive.com/2017/04/12/congrats-on-making-it-to-hump-day-here-is-your-reward-39-photos-3/");
             addAsses("http://thechive.com/2012/12/04/its-that-special-time-of-year-again-when-yoga-pants-run-rampant-65-photos/");
         }
-        if (NSFW.canSendNSFW(user, channel, guild, language, this)) {
+        if (NSFW.canSendNSFW(user, channel, guild, this)) {
             sendTranslatedMessage(asses.get(new SecureRandom().nextInt(asses.size())), channel, user);
         }
     }

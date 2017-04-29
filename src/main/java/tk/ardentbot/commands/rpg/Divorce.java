@@ -5,7 +5,6 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.core.executor.Command;
-import tk.ardentbot.core.translate.Language;
 import tk.ardentbot.rethink.models.Marriage;
 import tk.ardentbot.utils.discord.UserUtils;
 import tk.ardentbot.utils.rpg.profiles.Profile;
@@ -21,16 +20,17 @@ public class Divorce extends Command {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
         Marriage marriage = Marry.getMarriage(user);
-        if (marriage == null) sendRetrievedTranslation(channel, "divorce", language, "notmarried", user);
+        if (marriage == null) sendTranslatedMessage("You're not married!", channel, user);
         else {
-            sendRetrievedTranslation(channel, "divorce", language, "areyousure", user);
-            interactiveOperation(language, channel, message, responseMessage -> {
+            sendTranslatedMessage("Are you sure you want to divorce this person? There's a 50% chance that half of your assets will be " +
+                    "transferred to them. Respond **yes** if you want to go through with the divorce, or **no** if not.", channel, user);
+            interactiveOperation(channel, message, responseMessage -> {
                 if (responseMessage.getContent().equalsIgnoreCase("yes")) {
                     r.db("data").table("marriages").filter(row -> row.g("user_one").eq(user.getId()).or(row.g
                             ("user_two").eq(user.getId()))).delete().run(connection);
-                    sendRetrievedTranslation(channel, "divorce", language, "divorced", user);
+                    sendTranslatedMessage("You're now single", channel, user);
                     boolean takeAllMoney = !new SecureRandom().nextBoolean();
                     if (takeAllMoney) {
                         Profile userProfile = Profile.get(user);
@@ -38,10 +38,10 @@ public class Divorce extends Command {
                                 marriage.getUser_two() : marriage.getUser_one()));
                         divorceeProfile.addMoney(userProfile.getMoney() / 2);
                         userProfile.removeMoney(userProfile.getMoney() / 2);
-                        sendRetrievedTranslation(channel, "divorce", language, "divorcesettlement", user);
+                        sendTranslatedMessage("Unlucky! Half of your assets were transferred to your ex.", channel, user);
                     }
                 }
-                else sendRetrievedTranslation(channel, "divorce", language, "okcancelling", user);
+                else sendTranslatedMessage("Ok, cancelling the divorce, but you should probably go to couples' therapy.", channel, user);
             });
         }
     }

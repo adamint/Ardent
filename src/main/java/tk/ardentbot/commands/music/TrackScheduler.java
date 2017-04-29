@@ -8,9 +8,6 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import tk.ardentbot.core.misc.logging.BotException;
-import tk.ardentbot.utils.discord.GuildUtils;
-
-import static tk.ardentbot.utils.discord.GuildUtils.getShard;
 
 public class TrackScheduler extends AudioEventAdapter {
     private final AudioPlayer player;
@@ -45,8 +42,7 @@ public class TrackScheduler extends AudioEventAdapter {
         manager.nextTrack();
         try {
             Guild guild = manager.getChannel().getGuild();
-            getShard(guild).help.sendRetrievedTranslation(manager.getChannel(), "music", GuildUtils.getLanguage(guild),
-                    "notabletoplaytrack", null);
+            manager.getChannel().sendMessage("I wasn't able to play that track, skipping...").queue();
         }
         catch (Exception ex) {
             new BotException(ex);

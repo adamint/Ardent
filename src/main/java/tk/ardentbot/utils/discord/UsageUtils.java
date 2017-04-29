@@ -26,17 +26,17 @@ public class UsageUtils {
         ConcurrentArrayQueue<BaseCommand> unsorted = shard0.factory.getBaseCommands();
         ArrayList<BaseCommand> baseCommands = new ArrayList<>();
         for (BaseCommand c : unsorted) {
-            if (!c.getCommandIdentifier().equalsIgnoreCase("patreon") && !c.getCommandIdentifier().equalsIgnoreCase
-                    ("translateforardent") && !c.getCommandIdentifier().equalsIgnoreCase("tweet") && !c
-                    .getCommandIdentifier().equalsIgnoreCase("eval") && !c.getCommandIdentifier().equalsIgnoreCase
-                    ("addenglishbase") && !c.getCommandIdentifier().equalsIgnoreCase("help") && !c
-                    .getCommandIdentifier().equalsIgnoreCase("manage") && !c.getCommandIdentifier().equalsIgnoreCase
+            if (!c.getName().equalsIgnoreCase("patreon") && !c.getName().equalsIgnoreCase
+                    ("translateforardent") && !c.getName().equalsIgnoreCase("tweet") && !c
+                    .getName().equalsIgnoreCase("eval") && !c.getName().equalsIgnoreCase
+                    ("addenglishbase") && !c.getName().equalsIgnoreCase("help") && !c
+                    .getName().equalsIgnoreCase("manage") && !c.getName().equalsIgnoreCase
                     ("admin"))
             {
                 baseCommands.add(c);
             }
         }
-        Collections.sort(baseCommands, SORT_BY_USAGE);
+        baseCommands.sort(SORT_BY_USAGE);
         return baseCommands;
     }
 

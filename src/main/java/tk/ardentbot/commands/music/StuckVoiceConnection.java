@@ -6,7 +6,6 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import tk.ardentbot.core.misc.logging.BotException;
 import tk.ardentbot.main.Shard;
-import tk.ardentbot.utils.discord.GuildUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -51,8 +50,8 @@ public class StuckVoiceConnection implements Runnable {
 
                                 if (channel == null) channel = guild.getPublicChannel();
                                 try {
-                                    shard.help.sendRetrievedTranslation(channel, "music", GuildUtils.getLanguage(guild),
-                                            "autoresetplayer", null);
+                                    channel.sendMessage("I detected that my audio connection was stuck and reset my player. #BlameDiscord")
+                                            .queue();
                                 }
                                 catch (Exception e) {
                                     new BotException(e);

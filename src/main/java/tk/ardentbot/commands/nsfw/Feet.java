@@ -8,7 +8,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import tk.ardentbot.core.executor.Command;
-import tk.ardentbot.core.translate.Language;
 
 import java.net.URL;
 import java.security.SecureRandom;
@@ -39,8 +38,8 @@ public class Feet extends Command {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
-        if (NSFW.canSendNSFW(user, channel, guild, language, this)) {
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
+        if (NSFW.canSendNSFW(user, channel, guild, this)) {
             Document document = Jsoup.parse(new URL("https://www.google" +
                     ".com/search?q=hot+feet&rlz=1C1CHBF_enUS724US724&espv=2&source=lnms&tbm=isch&sa=X&ved" +
                     "=0ahUKEwijkYfj06LTAhXl8YMKHUS9AL0Q_AUIBygC&biw=1536&bih=759&dpr=1.25#tbm=isch&q=hot+feet"), 10000);

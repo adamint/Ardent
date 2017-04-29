@@ -4,15 +4,10 @@ import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.TextChannel;
-import tk.ardentbot.core.translate.LangFactory;
-import tk.ardentbot.core.translate.Language;
 import tk.ardentbot.main.Ardent;
 import tk.ardentbot.main.Shard;
-import tk.ardentbot.utils.MapUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import static tk.ardentbot.main.ShardManager.getShards;
 
@@ -60,31 +55,6 @@ public class GuildUtils {
         else return "/";
     }
 
-    public static Map<String, Integer> getLanguageUsages() throws Exception {
-        HashMap<String, Integer> languageUses = new HashMap<>();
-
-        // TODO: 3/4/2017 fix this 
-        // TODO: 3/19/2017 still waiting 
-
-        return MapUtils.sortByValue(languageUses);
-    }
-
-    public static Language getLanguage(Guild guild) throws Exception {
-        try {
-            Language language = getShard(guild).botLanguageData.getLanguage(guild);
-            if (language != null) return language;
-            else return LangFactory.english;
-        }
-        catch (Exception ex) {
-            try {
-                getShard(guild).botLanguageData.set(guild, "english");
-            }
-            catch (Exception e) {
-                return LangFactory.english;
-            }
-            return LangFactory.english;
-        }
-    }
 
     public static boolean hasManageServerPermission(Member member) {
         return member.hasPermission(Permission.MANAGE_SERVER) || Ardent.developers.contains(member.getUser().getId());

@@ -26,7 +26,10 @@ import net.dv8tion.jda.core.hooks.AnnotatedEventManager;
 import org.apache.commons.io.IOUtils;
 import tk.ardentbot.commands.administration.*;
 import tk.ardentbot.commands.antitroll.AdBlock;
-import tk.ardentbot.commands.botAdministration.*;
+import tk.ardentbot.commands.botAdministration.Admin;
+import tk.ardentbot.commands.botAdministration.Eval;
+import tk.ardentbot.commands.botAdministration.Request;
+import tk.ardentbot.commands.botAdministration.Tweet;
 import tk.ardentbot.commands.botinfo.*;
 import tk.ardentbot.commands.fun.*;
 import tk.ardentbot.commands.games.Blackjack;
@@ -107,12 +110,9 @@ public class Shard {
                 catch (Exception e) {
                     token = IOUtils.toString(new
                             FileReader(new File("C:\\Users\\AMR\\Desktop\\Ardent\\v2bottoken.key")));
-
-
                 }
             }
         }
-
         jda = new JDABuilder(AccountType.BOT)
                 .setEventManager(new AnnotatedEventManager())
                 .setToken(token)
@@ -223,8 +223,6 @@ public class Shard {
 
                 factory.registerCommand(new Prefix(new BaseCommand.CommandSettings("prefix", false, true, Category
                         .GUILDADMINISTRATION)));
-                factory.registerCommand(new GuildLanguage(new BaseCommand.CommandSettings("language", false, true,
-                        Category.GUILDADMINISTRATION)));
                 factory.registerCommand(new Restrict(new BaseCommand.CommandSettings("restrict", false, true, Category
                         .GUILDADMINISTRATION)));
                 factory.registerCommand(new Iam(new BaseCommand.CommandSettings("iam", false, true,
@@ -271,7 +269,6 @@ public class Shard {
                 factory.registerCommand(new Bet(new BaseCommand.CommandSettings("bet", false, true, Category.RPG)));
                 factory.registerCommand(new Loan(new BaseCommand.CommandSettings("loan", false, true, Category.RPG)));
                 factory.registerCommand(new Trivia(new BaseCommand.CommandSettings("trivia", false, true, Category.RPG)));
-                factory.registerCommand(new Badges(new BaseCommand.CommandSettings("badges", false, true, Category.RPG)));
                 factory.registerCommand(new Marry(new BaseCommand.CommandSettings("marry", false, true, Category.RPG)));
                 factory.registerCommand(new Divorce(new BaseCommand.CommandSettings("divorce", false, true, Category.RPG)));
                 factory.registerCommand(new Tinder(new BaseCommand.CommandSettings("tinder", false, true, Category.RPG)));

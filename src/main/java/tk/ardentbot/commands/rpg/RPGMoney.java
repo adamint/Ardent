@@ -8,9 +8,6 @@ import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.core.executor.Ratelimitable;
 import tk.ardentbot.core.executor.Subcommand;
-import tk.ardentbot.core.translate.Language;
-import tk.ardentbot.core.translate.Translation;
-import tk.ardentbot.core.translate.TranslationResponse;
 import tk.ardentbot.utils.MapUtils;
 import tk.ardentbot.utils.discord.MessageUtils;
 import tk.ardentbot.utils.rpg.RPGUtils;
@@ -32,28 +29,26 @@ public class RPGMoney extends Ratelimitable {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
         List<User> mentionedUsers = message.getMentionedUsers();
         if (mentionedUsers.size() > 0) {
             User mentioned = mentionedUsers.get(0);
-            sendTranslatedMessage(getTranslation("money", language, "theirbalance").getTranslation().replace("{0}", mentioned.getName())
+            sendTranslatedMessage("{0}'s balance: {1}".replace("{0}", mentioned.getName())
                     .replace("{1}", RPGUtils.formatMoney(Profile.get(mentioned).getMoney())), channel, user);
         }
         else {
             StringBuilder sb = new StringBuilder();
-            HashMap<Integer, TranslationResponse> translations = getTranslations(language, new Translation("money", "yourbalance"),
-                    new Translation("money", "checktop"));
-            sb.append(translations.get(0).getTranslation().replace("{0}", RPGUtils.formatMoney(Profile.get(user).getMoney())));
-            sb.append("\n\n" + translations.get(1).getTranslation());
+            sb.append("Your balance: ".replace("{0}", RPGUtils.formatMoney(Profile.get(user).getMoney())));
+            sb.append("\n\nWho's the richest in your guild? In the entire Ardent database? Check with */money server* and */money top*");
             sendTranslatedMessage(sb.toString(), channel, user);
         }
     }
 
     @Override
     public void setupSubcommands() throws Exception {
-        subcommands.add(new Subcommand(this, "top") {
+        subcommands.add(new Subcommand("See who has the most money - globally!", "top", "top") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws
                     Exception {
                 HashMap<User, Double> moneyAmounts = new HashMap<>();
                 Cursor<HashMap> top = r.db("data").table("profiles").orderBy()
@@ -64,11 +59,8 @@ public class RPGMoney extends Ratelimitable {
                     moneyAmounts.put(profile.getUser(), profile.getMoney());
                 });
                 Map<User, Double> sortedAmounts = MapUtils.sortByValue(moneyAmounts);
-                HashMap<Integer, TranslationResponse> translations = getTranslations(language, new Translation("money", "topmoney"),
-                        new Translation("money", "howtogetmoney"), new Translation("money", "seepeoplemoney"));
-                String topMoney = translations.get(0).getTranslation();
-
-                EmbedBuilder builder = MessageUtils.getDefaultEmbed(guild, user, RPGMoney.this);
+                String topMoney = "Global Richest Users";
+                EmbedBuilder builder = MessageUtils.getDefaultEmbed(user);
                 builder.setAuthor(topMoney, getShard().url, guild.getIconUrl());
                 StringBuilder description = new StringBuilder();
                 description.append("**" + topMoney + "**");
@@ -79,17 +71,18 @@ public class RPGMoney extends Ratelimitable {
                         current[0]++;
                     }
                 });
-                description.append("\n\n" + translations.get(1).getTranslation() + "\n\n" + translations.get(2).getTranslation());
+                description.append("\n\nGet money by sending commands or asking questions on our support server ( https://ardentbot" +
+                        ".tk/guild )\n\nSee people's money by doing /money @User or see yours by just using /money");
                 sendEmbed(builder.setDescription(description.toString()), channel, user);
             }
         });
 
-        subcommands.add(new Subcommand(this, "topguild") {
+        subcommands.add(new Subcommand("See who has the most money in your server", "server", "server", "guild", "topguild") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws
                     Exception {
                 if (!generatedFirstTimeFor.contains(guild.getId())) {
-                    sendRetrievedTranslation(channel, "money", language, "retrievingguildstats", user);
+                    sendTranslatedMessage("Please wait a second, generating and caching your server's statistics", channel, user);
                     generatedFirstTimeFor.add(guild.getId());
                 }
                 HashMap<User, Double> moneyAmounts = new HashMap<>();
@@ -98,15 +91,10 @@ public class RPGMoney extends Ratelimitable {
                     moneyAmounts.put(u, Profile.get(u).getMoney());
                 });
                 Map<User, Double> sortedAmounts = MapUtils.sortByValue(moneyAmounts);
-
-                HashMap<Integer, TranslationResponse> translations = getTranslations(language, new Translation("money", "topguildmoney"),
-                        new Translation("money", "howtogetmoney"), new Translation("money", "seepeoplemoney"));
-                String topGuildMoney = translations.get(0).getTranslation();
-
-                EmbedBuilder builder = MessageUtils.getDefaultEmbed(guild, user, RPGMoney.this);
-                builder.setAuthor(topGuildMoney, getShard().url, guild.getIconUrl());
+                EmbedBuilder builder = MessageUtils.getDefaultEmbed(user);
+                builder.setAuthor("Richest Users | This Server", getShard().url, guild.getIconUrl());
                 StringBuilder description = new StringBuilder();
-                description.append("**" + topGuildMoney + "**");
+                description.append("**Richest Users in this Server**");
                 final int[] current = {0};
                 sortedAmounts.forEach((u, money) -> {
                     if (current[0] < 10) {
@@ -114,7 +102,8 @@ public class RPGMoney extends Ratelimitable {
                         current[0]++;
                     }
                 });
-                description.append("\n\n" + translations.get(1).getTranslation() + "\n\n" + translations.get(2).getTranslation());
+                description.append("\n\nGet money by sending commands or asking questions on our support server ( https://ardentbot" +
+                        ".tk/guild )\n\nSee people's money by doing /money @User or see yours by just using /money");
                 sendEmbed(builder.setDescription(description.toString()), channel, user);
             }
         });
