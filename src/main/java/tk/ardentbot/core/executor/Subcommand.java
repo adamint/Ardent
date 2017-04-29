@@ -13,7 +13,7 @@ public abstract class Subcommand {
     private String description;
     private String[] aliases;
 
-    public Subcommand(String syntax, String description, String... aliases) {
+    public Subcommand(String description, String syntax, String... aliases) {
         this.syntax = syntax;
         this.description = description;
         this.aliases = aliases;

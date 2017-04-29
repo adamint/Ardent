@@ -6,8 +6,6 @@ import net.dv8tion.jda.core.entities.*;
 import tk.ardentbot.core.executor.Command;
 import tk.ardentbot.core.executor.Subcommand;
 import tk.ardentbot.core.misc.logging.BotException;
-import tk.ardentbot.core.translate.Translation;
-import tk.ardentbot.core.translate.TranslationResponse;
 import tk.ardentbot.main.Shard;
 import tk.ardentbot.rethink.models.AutoroleModel;
 import tk.ardentbot.utils.discord.GuildUtils;
@@ -34,19 +32,12 @@ public class Iam extends Command {
 
     @Override
     public void setupSubcommands() throws Exception {
-        subcommands.add(new Subcommand(this, "view") {
+        subcommands.add(new Subcommand("See a list of setup Iams", "view", "view") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
                 Shard shard = GuildUtils.getShard(guild);
-                ArrayList<Translation> translations = new ArrayList<>();
-                translations.add(new Translation("iam", "autoroleslist"));
-                translations.add(new Translation("iam", "givesyou"));
-                translations.add(new Translation("iam", "howtouse"));
-
-                HashMap<Integer, TranslationResponse> responses = getTranslations(language, translations);
-
-                String title = responses.get(0).getTranslation();
-                String givesYouRole = responses.get(1).getTranslation();
+                String title = "Auto Roles | /iam";
+                String givesYouRole = "will give you the role";
 
                 EmbedBuilder builder = MessageUtils.getDefaultEmbed(user);
                 builder.setAuthor(title, shard.url, shard.bot.getAvatarUrl());
@@ -61,12 +52,12 @@ public class Iam extends Command {
 
                     msg.append("\n**" + autorole.getK() + "** " + givesYouRole + " **" + roleName + "**");
                 }
-                msg.append("\n\n" + responses.get(2).getTranslation());
+                msg.append("\n\nAdd an autorole by doing /iam role and going through the setup wizard");
                 builder.setDescription(msg.toString());
                 sendEmbed(builder, channel, user);
             }
         });
-        subcommands.add(new Subcommand(this, "role") {
+        subcommands.add(new Subcommand("Give yourself an autorole", "role", "role") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
                 if (args.length > 2) {
@@ -79,7 +70,7 @@ public class Iam extends Command {
                             found = true;
                             Role role = rolePair.getV();
                             if (role == null)
-                                sendRetrievedTranslation(channel, "iam", language, "thereisnoroleforthis", user);
+                                sendTranslatedMessage("Hmm.. there's no role for this", channel, user);
                             else {
                                 boolean failure = false;
                                 try {
@@ -87,21 +78,21 @@ public class Iam extends Command {
                                 }
                                 catch (Exception ex) {
                                     failure = true;
-                                    sendRetrievedTranslation(channel, "iam", language, "makesureicanaddroles", user);
+                                    sendTranslatedMessage("Please make sure I can add roles", channel, user);
                                 }
                                 if (!failure)
-                                    sendTranslatedMessage(getTranslation("iam", language, "gaverole").getTranslation()
-                                            .replace("{0}", role.getName()), channel, user);
+                                    sendTranslatedMessage("Successfully gave you the role {0}".replace("{0}", role.getName()), channel,
+                                            user);
                             }
                         }
                     }
-                    if (!found) sendRetrievedTranslation(channel, "iam", language, "namenotfound", user);
+                    if (!found) sendTranslatedMessage("An autorole with that name wasn't found", channel, user);
                 }
-                else sendRetrievedTranslation(channel, "iam", language, "includeautorolename", user);
+                else sendTranslatedMessage("You need to include an autorole name", channel, user);
             }
         });
 
-        subcommands.add(new Subcommand(this, "remove") {
+        subcommands.add(new Subcommand("Remove autoroles", "remove", "remove") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
                 if (UserUtils.hasManageServerOrStaff(guild.getMember(user))) {
@@ -114,25 +105,24 @@ public class Iam extends Command {
                             found = true;
                             r.db("data").table("autoroles").filter(row -> row.g("name").eq(query).and(row.g("guild_id").eq(guild.getId())
                             )).delete().run(connection);
-                            sendTranslatedMessage(getTranslation("iam", language, "deletedautorole").getTranslation()
-                                    .replace("{0}", rolePair.getK()), channel, user);
+                            sendTranslatedMessage("Deleted the autorole **{0}**".replace("{0}", rolePair.getK()), channel, user);
                         }
                     }
-                    if (!found) sendRetrievedTranslation(channel, "iam", language, "namenotfound", user);
+                    if (!found) sendTranslatedMessage("An autorole with that name wasn't found", channel, user);
                 }
                 else sendTranslatedMessage("You need the Manage Server permission to use this command", channel, user);
             }
         });
 
-        subcommands.add(new Subcommand(this, "add") {
+        subcommands.add(new Subcommand("Add an autorole", "add", "add") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) {
                 if (UserUtils.hasManageServerOrStaff(guild.getMember(user))) {
-                    sendRetrievedTranslation(channel, "iam", language, "typenameofiam", user);
-                    interactiveOperation(language, channel, message, nameMessage -> {
+                    sendTranslatedMessage("Type the name of the autorole you want to add", channel, user);
+                    interactiveOperation(channel, message, nameMessage -> {
                         String name = nameMessage.getContent();
-                        sendRetrievedTranslation(channel, "iam", language, "typerolenamenow", user);
-                        interactiveOperation(language, channel, message, roleMessage -> {
+                        sendTranslatedMessage("Type the name of the **discord role** you want this set to", channel, user);
+                        interactiveOperation(channel, message, roleMessage -> {
                             try {
                                 String role = roleMessage.getRawContent();
                                 boolean found = false;
@@ -142,18 +132,17 @@ public class Iam extends Command {
                                         found = true;
                                     }
                                 }
-                                if (found)
-                                    sendRetrievedTranslation(channel, "iam", language, "autorolewithnamealreadyfound", user);
+                                if (found) sendTranslatedMessage("An autorole with that name is already setup", channel, user);
                                 else {
                                     List<Role> roleList = guild.getRolesByName(role, true);
                                     if (roleList.size() > 0) {
                                         Role toAdd = roleList.get(0);
                                         r.table("autoroles").insert(r.json(gson.toJson(new AutoroleModel(guild.getId(),
                                                 name, toAdd.getId())))).run(connection);
-                                        sendTranslatedMessage(getTranslation("iam", language, "addedautorole").getTranslation()
-                                                .replace("{0}", name).replace("{1}", role), channel, user);
+                                        sendTranslatedMessage("Successfully added autorole **{0}** which gives the role **{1}**".replace
+                                                ("{0}", name).replace("{1}", role), channel, user);
                                     }
-                                    else sendRetrievedTranslation(channel, "iam", language, "namenotfound", user);
+                                    else sendTranslatedMessage("An role with that name wasn't found", channel, user);
                                 }
                             }
                             catch (Exception e) {

@@ -80,7 +80,7 @@ public class Automessage extends Command {
 
     @Override
     public void setupSubcommands() throws Exception {
-        subcommands.add(new Subcommand("Prompt the automessage setup", "setup") {
+        subcommands.add(new Subcommand("Prompt the automessage setup", "setup", "setup") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) {
                 sendTranslatedMessage("Type **join** to set this server's join message, **leave** to set this server's leave message, or " +
@@ -155,7 +155,7 @@ public class Automessage extends Command {
             }
         });
 
-        subcommands.add(new Subcommand("Remove a setting", "remove") {
+        subcommands.add(new Subcommand("Remove a setting", "remove", "remove") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) {
                 if (guild.getMember(user).hasPermission(Permission.MANAGE_SERVER)) {
@@ -201,7 +201,7 @@ public class Automessage extends Command {
             }
         });
 
-        subcommands.add(new Subcommand("View the current automessage settings", "view", "settings") {
+        subcommands.add(new Subcommand("View the current automessage settings", "view", "view", "settings") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) {
                 Triplet<String, String, String> messages = getMessagesAndChannel(guild);

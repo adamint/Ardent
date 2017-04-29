@@ -40,7 +40,7 @@ public class DefaultRole extends Command {
 
     @Override
     public void setupSubcommands() throws Exception {
-        subcommands.add(new Subcommand(this, "view") {
+        subcommands.add(new Subcommand("View the current default role in this server", "view", "view") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) {
                 Role role = getDefaultRole(guild);
@@ -54,39 +54,37 @@ public class DefaultRole extends Command {
             }
         });
 
-        subcommands.add(new Subcommand(this, "remove") {
+        subcommands.add(new Subcommand("Remove the default role", "remove", "remove") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) {
                 Role role = getDefaultRole(guild);
                 if (role == null) {
-                    sendRetrievedTranslation(channel, "defaultrole", language, "nodefaultrole", user);
+                    sendTranslatedMessage("There's no default role set up in this server!", channel, user);
                 }
                 else {
                     if (guild.getMember(user).hasPermission(Permission.MANAGE_SERVER)) {
                         removeDefaultRole(guild);
-                        sendRetrievedTranslation(channel, "defaultrole", language, "removeddefaultrole", user);
+                        sendTranslatedMessage("Removed the set default role!", channel, user);
                     }
                     else sendTranslatedMessage("You need the Manage Server permission to use this command", channel, user);
                 }
             }
         });
 
-        subcommands.add(new Subcommand(this, "set") {
+        subcommands.add(new Subcommand("Set the default role", "set", "set") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) {
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
                 if (GuildUtils.hasManageServerPermission(guild.getMember(user))) {
                     String roleName = message.getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " "
                             + args[1] + " ", "");
                     List<Role> roles = guild.getRolesByName(roleName, true);
                     if (roles.size() == 0) {
-                        sendRetrievedTranslation(channel, "defaultrole", language, "needtotyperole", user);
+                        sendTranslatedMessage("You need to type a role name!", channel, user);
                     }
                     else {
                         Role role = roles.get(0);
                         setDefaultRole(role, guild);
-                        String reply = getTranslation("defaultrole", language, "setdefaultrole").getTranslation()
-                                .replace("{0}", role.getName());
-                        sendTranslatedMessage(reply, channel, user);
+                        sendTranslatedMessage("Successfully set the default role as " + role.getName() + "!", channel, user);
                     }
                 }
                 else sendTranslatedMessage("You need the Manage Server permission to use this command", channel, user);
