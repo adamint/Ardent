@@ -19,19 +19,19 @@ public class Prefix extends Command {
 
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
-        sendHelp(language, channel, guild, user, this);
+        sendHelp(channel, guild, user, this);
     }
 
     @Override
     public void setupSubcommands() {
-        subcommands.add(new Subcommand(this, "view") {
+        subcommands.add(new Subcommand("View the prefix of your server!", "view", "view") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
-                sendTranslatedMessage(getTranslation("prefix", language, "viewprefix").getTranslation().replace
+                sendTranslatedMessage("The prefix for this server is {0}.".replace
                         ("{0}", GuildUtils.getPrefix(guild)), channel, user);
             }
         });
-        subcommands.add(new Subcommand(this, "change") {
+        subcommands.add(new Subcommand("Change the prefix of your server.", "change", "change") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
                 if (args.length > 2) {
@@ -45,17 +45,14 @@ public class Prefix extends Command {
                             GuildUtils.updatePrefix(newPrefix, guild);
                             r.db("data").table("guilds").filter(row -> row.g("guild_id").eq(guild.getId())).update(r.hashMap("prefix",
                                     newPrefix)).run(connection);
-                            sendTranslatedMessage(getTranslation("prefix", language, "successfullyupdated")
-                                    .getTranslation().replace("{0}", newPrefix), channel, user);
-                        }
-                        else sendRetrievedTranslation(channel, "prefix", language, "invalidcharacters", user);
+                            sendTranslatedMessage("Successfully updated the prefix,  {0}!".replace("{0}", newPrefix), channel, user);
+                        } else
+                            sendTranslatedMessage("Your supplied prefix contained invalid characters!", channel, user);
+                    } else {
+                        sendTranslatedMessage("You need ```Manage Server``` permissions.", channel, user);
                     }
-                    else {
-                        sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
-                    }
-                }
-                else {
-                    sendRetrievedTranslation(channel, "prefix", language, "mustincludeargument", user);
+                } else {
+                    sendTranslatedMessage("You must include a prefix as your third argument!", channel, user);
                 }
             }
         });

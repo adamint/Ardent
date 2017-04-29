@@ -41,14 +41,11 @@ public class ServerInfo extends Command {
                             setInfo(guild, parsed);
                             sendTranslatedMessage("Successfully set the server info message! Invoke it by doing /server info", channel,
                                     user);
-                        }
-                        else {
+                        } else {
                             sendTranslatedMessage("You need to include some text in the info!", channel, user);
                         }
-                    }
-                    else sendTranslatedMessage("You need the Manage Server permission to use this!", channel, user);
-                }
-                else {
+                    } else sendTranslatedMessage("You need the Manage Server permission to use this!", channel, user);
+                } else {
                     sendTranslatedMessage("Server info has already been added! Remove it before you can change it.", channel, user);
                 }
             }
@@ -63,10 +60,8 @@ public class ServerInfo extends Command {
                     if (guild.getMember(user).hasPermission(Permission.MANAGE_CHANNEL)) {
                         setInfo(guild, null);
                         sendTranslatedMessage("Successfully removed server info.", channel, user);
-                    }
-                    else sendTranslatedMessage("You need the Manage Server permission to use this!", channel, user);
-                }
-                else {
+                    } else sendTranslatedMessage("You need the Manage Server permission to use this!", channel, user);
+                } else {
                     sendTranslatedMessage("Your server doesn't have a setup info message.", channel, user);
 
                 }
@@ -80,8 +75,7 @@ public class ServerInfo extends Command {
                 String serverInfo = getServerInfo(guild);
                 if (serverInfo == null) {
                     sendTranslatedMessage("Your server doesn't have a setup info message.", channel, user);
-                }
-                else {
+                } else {
                     sendTranslatedMessage("**" + guild.getName() + "**:\n" + serverInfo, channel, user);
                 }
             }
@@ -101,8 +95,7 @@ public class ServerInfo extends Command {
         if (serverinfo.size() > 0) {
             String info = asPojo(serverinfo.get(0), ServerInfoModel.class).getMessage();
             if (!info.equalsIgnoreCase("none")) toReturn = info;
-        }
-        else {
+        } else {
             r.db("data").table("serverinfo").insert(r.json(gson.toJson(new ServerInfoModel(guild.getId(), "none")))).run(connection);
         }
         return toReturn;
