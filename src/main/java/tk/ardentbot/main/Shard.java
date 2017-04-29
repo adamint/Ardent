@@ -20,7 +20,6 @@ import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.hooks.AnnotatedEventManager;
 import org.apache.commons.io.IOUtils;
@@ -53,7 +52,6 @@ import tk.ardentbot.core.executor.CommandFactory;
 import tk.ardentbot.core.misc.logging.BotException;
 import tk.ardentbot.rethink.models.GuildModel;
 import tk.ardentbot.rethink.models.RestrictedUserModel;
-import tk.ardentbot.utils.games.Hand;
 import tk.ardentbot.utils.models.RestrictedUser;
 import tk.ardentbot.utils.rpg.EntityGuild;
 
@@ -74,7 +72,6 @@ public class Shard {
     public ScheduledExecutorService executorService = Executors.newScheduledThreadPool(10);
     public BotMuteData botMuteData;
     public BotPrefixData botPrefixData;
-    public TextChannel botLogs;
     public AudioPlayerManager playerManager;
     public Map<Long, GuildMusicManager> musicManagers;
     public ChatterBot cleverBot;
@@ -83,7 +80,6 @@ public class Shard {
     public User bot;
     public Command help;
     public BaseCommand patreon;
-    public BaseCommand translateForArdent;
     public BaseCommand request;
     public String url = "https://ardentbot.tk";
     public Gson gson = new Gson();
@@ -152,135 +148,135 @@ public class Shard {
 
                 factory = new CommandFactory(this);
 
-                help = new Help(new BaseCommand.CommandSettings(true, true, Category.BOTINFO, "See command help", "help", "wat"));
+                help = new Help(new BaseCommand.CommandSettings(true, true, Category.BOTINFO, "See command help", "help", "watH"));
                 patreon = new Patreon(new BaseCommand.CommandSettings(true, true, Category.BOTINFO, "View Ardent's patreon", "patreon"));
-                request = new Request(new BaseCommand.CommandSettings(true, true, Category.BOTADMINISTRATION, "Request a feature for Ardent", "request"));
-                translateForArdent = new TranslateForArdent(new BaseCommand.CommandSettings("translateforardent", true,
-                        true, Category.BOTINFO));
+                request = new Request(new BaseCommand.CommandSettings(true, true, Category.BOTADMINISTRATION, "Request a feature for " +
+                        "Ardent", "request"));
 
-                factory.registerCommand(new AddEnglishBase(new BaseCommand.CommandSettings("addenglishbase", true, true,
-                        Category.BOTADMINISTRATION)));
-                factory.registerCommand(new Tweet(new BaseCommand.CommandSettings("tweet", true, true, Category
-                        .BOTADMINISTRATION)));
-                factory.registerCommand(new Admin(new BaseCommand.CommandSettings("admin", true, true, Category
-                        .BOTADMINISTRATION)));
-                factory.registerCommand(new Eval(new BaseCommand.CommandSettings("eval", true, true, Category
-                        .BOTADMINISTRATION)));
-                factory.registerCommand(new Manage(new BaseCommand.CommandSettings("manage", false, true, Category.BOTADMINISTRATION)));
-                factory.registerCommand(new Botname(new BaseCommand.CommandSettings("botname", false, true, Category
-                        .BOTADMINISTRATION)));
+                factory.registerCommand(new Tweet(new BaseCommand.CommandSettings(true, true, Category
+                        .BOTADMINISTRATION, "Send tweets to the Ardent twitter", "tweet")));
+                factory.registerCommand(new Admin(new BaseCommand.CommandSettings(true, true, Category
+                        .BOTADMINISTRATION, "admin stuff", "admin")));
+                factory.registerCommand(new Eval(new BaseCommand.CommandSettings(true, true, Category
+                        .BOTADMINISTRATION, "moar admin stuff", "eval", "j")));
+                factory.registerCommand(new Manage(new BaseCommand.CommandSettings(true, true, Category
+                        .BOTADMINISTRATION, "Send tweets to the Ardent twitter", "manage")));
+                factory.registerCommand(new Botname(new BaseCommand.CommandSettings(true, true, Category
+                        .BOTADMINISTRATION, "Set Ardent's nickname", "botname")));
                 factory.registerCommand(request);
-                factory.registerCommand(new About(new BaseCommand.CommandSettings("about", true, true, Category
-                        .BOTINFO)));
-                factory.registerCommand(new HelpMe(new BaseCommand.CommandSettings("helpme", true, true, Category
-                        .BOTINFO)));
-                factory.registerCommand(new Support(new BaseCommand.CommandSettings("support", true, true, Category
-                        .BOTINFO)));
-                factory.registerCommand(new Website(new BaseCommand.CommandSettings("website", true, true, Category
-                        .BOTINFO)));
-                factory.registerCommand(new Invite(new BaseCommand.CommandSettings("invite", true, true, Category
-                        .BOTINFO)));
-                factory.registerCommand(translateForArdent);
+                factory.registerCommand(new About(new BaseCommand.CommandSettings(true, true, Category
+                        .BOTINFO, "See why Ardent was started and the awesome people who make it run", "about")));
+                factory.registerCommand(new Website(new BaseCommand.CommandSettings(true, true, Category
+                        .BOTINFO, "See our website", "website")));
+                factory.registerCommand(new Invite(new BaseCommand.CommandSettings(true, true, Category
+                        .BOTINFO, "Invite Ardent to your server", "invite", "inv")));
                 factory.registerCommand(patreon);
-                factory.registerCommand(new Joinmessage(new BaseCommand.CommandSettings("joinmessage", true, true,
-                        Category.BOTINFO)));
-                factory.registerCommand(new Status(new BaseCommand.CommandSettings("status", true, true, Category
-                        .BOTINFO)));
-                factory.registerCommand(new Ping(new BaseCommand.CommandSettings("ping", true, true, Category
-                        .BOTINFO)).with(60));
+                factory.registerCommand(new Status(new BaseCommand.CommandSettings(true, true, Category
+                        .BOTINFO, "View the current status of Ardent", "status", "statut")));
+                factory.registerCommand(new Ping(new BaseCommand.CommandSettings(true, true, Category
+                        .BOTINFO, "Checks and displays the bot response time", "status", "statut")).with(30));
                 factory.registerCommand(help);
-                factory.registerCommand(new Stats(new BaseCommand.CommandSettings("stats", true, true, Category
-                        .BOTINFO)));
+                factory.registerCommand(new Stats(new BaseCommand.CommandSettings(true, true, Category
+                        .BOTINFO, "View interesting stats about Ardent", "status", "statut")));
 
-                factory.registerCommand(new Music(new BaseCommand.CommandSettings("music", false, true, Category.FUN)
-                        , this));
-                factory.registerCommand(new Play(new BaseCommand.CommandSettings("play", false, true, Category
-                        .FUN)));
-                factory.registerCommand(new UD(new BaseCommand.CommandSettings("ud", true, true, Category.FUN)));
-                factory.registerCommand(new GIF(new BaseCommand.CommandSettings("gif", true, true, Category.FUN)));
-                factory.registerCommand(new FML(new BaseCommand.CommandSettings("fml", true, true, Category.FUN)));
-                factory.registerCommand(new Fortune(new BaseCommand.CommandSettings("fortune", true, true, Category
-                        .FUN)));
-                factory.registerCommand(new Yoda(new BaseCommand.CommandSettings("yoda", true, true, Category.FUN)));
-                factory.registerCommand(new EightBall(new BaseCommand.CommandSettings("8ball", true, true, Category
-                        .FUN)));
-                factory.registerCommand(new Tags(new BaseCommand.CommandSettings("tag", false, true, Category.FUN)));
-                factory.registerCommand(new tk.ardentbot.commands.fun.Translate(new BaseCommand.CommandSettings
-                        ("translate", true, true, Category.FUN)));
-                factory.registerCommand(new Define(new BaseCommand.CommandSettings("define", true, true, Category
-                        .FUN)));
-                factory.registerCommand(new Coinflip(new BaseCommand.CommandSettings("coinflip", true, true, Category
-                        .FUN)));
-                factory.registerCommand(new RandomNum(new BaseCommand.CommandSettings("random", true, true, Category
-                        .FUN)));
-                factory.registerCommand(new GSearch(new BaseCommand.CommandSettings("google", true, true, Category
-                        .FUN)));
-                factory.registerCommand(new Wiki(new BaseCommand.CommandSettings("wiki", true, true, Category
-                        .FUN)));
-                // factory.registerCommand(new Deeplearning(new BaseCommand.CommandSettings("deeplearning", false, true, Category
-                //      .FUN)));
+                factory.registerCommand(new Music(new BaseCommand.CommandSettings(false, true, Category.FUN,
+                        "Play music from youtube, soundcloud, or even search for songs!", "music", "m", "moosic"), this));
+                factory.registerCommand(new Play(new BaseCommand.CommandSettings(false, true, Category.FUN,
+                        "Shortcut for /music play", "play", "p")));
+                factory.registerCommand(new UD(new BaseCommand.CommandSettings(false, true, Category.FUN,
+                        "Retrieves the urban dictionary definition for a word", "ud", "urban")));
+                factory.registerCommand(new GIF(new BaseCommand.CommandSettings(false, true, Category.FUN,
+                        "Sends funny gifs!", "gif")));
+                factory.registerCommand(new FML(new BaseCommand.CommandSettings(false, true, Category.FUN,
+                        "Feeling down? Someone's having a worse day. View a FML here!", "fml")));
+                factory.registerCommand(new Fortune(new BaseCommand.CommandSettings(false, true, Category.FUN,
+                        "Displays a random Unix fortune ^_^ good luck!", "fortune")));
+                factory.registerCommand(new Yoda(new BaseCommand.CommandSettings(true, true, Category.FUN,
+                        "Type something and make yourself sound like yoda!", "yoda")));
+                factory.registerCommand(new EightBall(new BaseCommand.CommandSettings(true, true, Category
+                        .FUN, "Get responses from the omnipotent 8ball", "8ball")));
+                factory.registerCommand(new Translate(new BaseCommand.CommandSettings
+                        (true, true, Category.FUN, "Translate a sentence from the given language to a target language", "translate")));
+                factory.registerCommand(new Define(new BaseCommand.CommandSettings(true, true, Category
+                        .FUN, "Get the definition of a word", "define")));
+                factory.registerCommand(new Coinflip(new BaseCommand.CommandSettings(true, true, Category
+                        .FUN, "Flip a coin", "coinflip")));
+                factory.registerCommand(new Roll(new BaseCommand.CommandSettings(true, true, Category
+                        .FUN, "Roll a die", "roll", "dice")));
+                factory.registerCommand(new RandomNum(new BaseCommand.CommandSettings(true, true, Category
+                        .FUN, "Generate a random number", "randomnum")));
+                factory.registerCommand(new GSearch(new BaseCommand.CommandSettings(true, true, Category
+                        .FUN, "Search google!", "google", "g")));
+                factory.registerCommand(new Wiki(new BaseCommand.CommandSettings(true, true, Category
+                        .FUN, "Search wikipedia", "wiki")));
 
-                factory.registerCommand(new Prefix(new BaseCommand.CommandSettings("prefix", false, true, Category
-                        .GUILDADMINISTRATION)));
-                factory.registerCommand(new Restrict(new BaseCommand.CommandSettings("restrict", false, true, Category
-                        .GUILDADMINISTRATION)));
-                factory.registerCommand(new Iam(new BaseCommand.CommandSettings("iam", false, true,
-                        Category.GUILDADMINISTRATION)));
-                factory.registerCommand(new Setnickname(new BaseCommand.CommandSettings("setnickname", false, true,
-                        Category.GUILDADMINISTRATION)));
-                factory.registerCommand(new Prune(new BaseCommand.CommandSettings("prune", false, true, Category
-                        .GUILDADMINISTRATION)));
-                factory.registerCommand(new Kick(new BaseCommand.CommandSettings("kick", false, true, Category
-                        .GUILDADMINISTRATION)));
-                factory.registerCommand(new Ban(new BaseCommand.CommandSettings("ban", false, true, Category
-                        .GUILDADMINISTRATION)));
-                factory.registerCommand(new Clear(new BaseCommand.CommandSettings("clear", false, true, Category
-                        .GUILDADMINISTRATION)));
-                factory.registerCommand(new Roles(new BaseCommand.CommandSettings("roles", false, true, Category
-                        .GUILDADMINISTRATION)));
-                factory.registerCommand(new DefaultRole(new BaseCommand.CommandSettings("defaultrole", false, true,
-                        Category.GUILDADMINISTRATION)));
-                factory.registerCommand(new Unmute(new BaseCommand.CommandSettings("unmute", false, true, Category
-                        .GUILDADMINISTRATION)));
-                factory.registerCommand(new Mute(new BaseCommand.CommandSettings("mute", false, true, Category
-                        .GUILDADMINISTRATION)));
-                factory.registerCommand(new Automessage(new BaseCommand.CommandSettings("automessage", false, true,
-                        Category.GUILDADMINISTRATION)));
+                factory.registerCommand(new Prefix(new BaseCommand.CommandSettings(false, true, Category
+                        .GUILDADMINISTRATION, "View and change the bot prefix for your server!", "prefix")));
+                factory.registerCommand(new Restrict(new BaseCommand.CommandSettings(false, true, Category
+                        .GUILDADMINISTRATION, "Prevent a user from using Ardent commands through this command.", "restrict")));
+                factory.registerCommand(new Iam(new BaseCommand.CommandSettings(false, true,
+                        Category.GUILDADMINISTRATION, "Automatically gives users a set role when they type /iam role [set autorole name " +
+                        "here]", "iam")));
+                factory.registerCommand(new Setnickname(new BaseCommand.CommandSettings(false, true,
+                        Category.GUILDADMINISTRATION, "Set peoples' nicknames!", "setnickname")));
+                factory.registerCommand(new Prune(new BaseCommand.CommandSettings(false, true, Category
+                        .GUILDADMINISTRATION, "Kicks users who haven't been active for the specified amount of days", "prune")));
+                factory.registerCommand(new Kick(new BaseCommand.CommandSettings(false, true, Category
+                        .GUILDADMINISTRATION, "Kick one or multiple users with just one command", "kick")));
+                factory.registerCommand(new Ban(new BaseCommand.CommandSettings(false, true, Category
+                        .GUILDADMINISTRATION, "Ban one or multiple users with just one command", "ban")));
+                factory.registerCommand(new Clear(new BaseCommand.CommandSettings(false, true, Category
+                        .GUILDADMINISTRATION, "Clear messages from the current channel you're in", "clear")));
+                factory.registerCommand(new Roles(new BaseCommand.CommandSettings(false, true, Category
+                        .GUILDADMINISTRATION, "Add or remove roles to & from users", "roles", "role")));
+                factory.registerCommand(new DefaultRole(new BaseCommand.CommandSettings(false, true,
+                        Category.GUILDADMINISTRATION, "Add a role that all users will be given when they join your server",
+                        "defaultrole")));
+                factory.registerCommand(new Unmute(new BaseCommand.CommandSettings(false, true, Category
+                        .GUILDADMINISTRATION, "Unmute users who have been muted!", "unmute")));
+                factory.registerCommand(new Mute(new BaseCommand.CommandSettings(false, true, Category
+                        .GUILDADMINISTRATION, "Stop users from speaking", "mute")));
+                factory.registerCommand(new Automessage(new BaseCommand.CommandSettings(false, true,
+                        Category.GUILDADMINISTRATION, "Set an automated join & leave message for your server!", "automessage")));
 
-                factory.registerCommand(new GuildInfo(new BaseCommand.CommandSettings("guildinfo", false, true, Category
-                        .GUILDINFO)));
-                factory.registerCommand(new ServerInfo(new BaseCommand.CommandSettings("info", false, true, Category
-                        .GUILDINFO)));
-                factory.registerCommand(new Whois(new BaseCommand.CommandSettings("whois", true, true, Category
-                        .GUILDINFO)));
-                factory.registerCommand(new Roleinfo(new BaseCommand.CommandSettings("roleinfo", false, true,
-                        Category.BOTADMINISTRATION)));
-                /*
-                factory.registerCommand(new Points(new BaseCommand.CommandSettings("points", false, true, Category
-                        .GUILDINFO)));
-                factory.registerCommand(new Emojis(new BaseCommand.CommandSettings("emojis", true, true, Category
-                .GUILDINFO)));
-                */
+                factory.registerCommand(new GuildInfo(new BaseCommand.CommandSettings(false, true, Category
+                        .GUILDINFO, "Displays server-specific settings and information", "serverinfo", "guildinfo")));
+                factory.registerCommand(new ServerInfo(new BaseCommand.CommandSettings(false, true, Category
+                        .GUILDINFO, "View server-specific information that your administrators have written!", "info")));
+                factory.registerCommand(new Whois(new BaseCommand.CommandSettings(true, true, Category
+                        .GUILDINFO, "Displays information about a user", "whois")));
+                factory.registerCommand(new Roleinfo(new BaseCommand.CommandSettings(false, true,
+                        Category.GUILDINFO, "View information about specific roles", "roleinfo", "ri")));
 
-                factory.registerCommand(new Blackjack(new BaseCommand.CommandSettings("blackjack", false, true, Category.RPG)));
-                factory.registerCommand(new RPGMoney(new BaseCommand.CommandSettings("money", false, true, Category.RPG)));
-                factory.registerCommand(new Pay(new BaseCommand.CommandSettings("pay", false, true, Category.RPG)));
-                factory.registerCommand(new Bet(new BaseCommand.CommandSettings("bet", false, true, Category.RPG)));
-                factory.registerCommand(new Loan(new BaseCommand.CommandSettings("loan", false, true, Category.RPG)));
-                factory.registerCommand(new Trivia(new BaseCommand.CommandSettings("trivia", false, true, Category.RPG)));
-                factory.registerCommand(new Marry(new BaseCommand.CommandSettings("marry", false, true, Category.RPG)));
-                factory.registerCommand(new Divorce(new BaseCommand.CommandSettings("divorce", false, true, Category.RPG)));
-                factory.registerCommand(new Tinder(new BaseCommand.CommandSettings("tinder", false, true, Category.RPG)));
-                factory.registerCommand(new UserProfile(new BaseCommand.CommandSettings("profile", true, true, Category
-                        .RPG)));
+                factory.registerCommand(new Blackjack(new BaseCommand.CommandSettings(false, true, Category.RPG, "Play a game of " +
+                        "blackjack, betting money!", "blackjack")));
+                factory.registerCommand(new RPGMoney(new BaseCommand.CommandSettings(false, true, Category.RPG, "See how much money you " +
+                        "have, or compare to your server and friends!", "money", "balance", "bal")));
+                factory.registerCommand(new Pay(new BaseCommand.CommandSettings(false, true, Category.RPG, "Give some of your hard-earned" +
+                        " money to someone else", "pay", "givemoney")));
+                factory.registerCommand(new Bet(new BaseCommand.CommandSettings(false, true, Category.RPG, "Bet money in the hopes of " +
+                        "winning more! 55% chance of winning", "bet")));
+                factory.registerCommand(new Trivia(new BaseCommand.CommandSettings(false, true, Category.RPG, "Play trivia games and win" +
+                        " money", "trivia")));
+                factory.registerCommand(new Marry(new BaseCommand.CommandSettings(false, true, Category.RPG, "Found that special someone?" +
+                        " Marry them and you'll both get money multiplier boosts and have a nice life ^_^", "marry", "propose")));
+                factory.registerCommand(new Divorce(new BaseCommand.CommandSettings(false, true, Category.RPG, "Want a divorce? Get one " +
+                        "using this command", "divorce")));
+                factory.registerCommand(new Tinder(new BaseCommand.CommandSettings(false, true, Category.RPG, "Get matched with people " +
+                        "you like :wink:", "tinder")));
+                factory.registerCommand(new UserProfile(new BaseCommand.CommandSettings(true, true, Category
+                        .RPG, "View your Ardent profile using this!", "profile")));
 
-                factory.registerCommand(new NSFW(new BaseCommand.CommandSettings("nsfw", false, true, Category.NSFW)));
-                factory.registerCommand(new Asses(new BaseCommand.CommandSettings("ass", false, true, Category.NSFW)));
-                factory.registerCommand(new Tits(new BaseCommand.CommandSettings("tits", false, true, Category.NSFW)));
-                factory.registerCommand(new Feet(new BaseCommand.CommandSettings("feet", false, true, Category.NSFW)));
+                factory.registerCommand(new NSFW(new BaseCommand.CommandSettings(false, true, Category.NSFW, "See and set the " +
+                        "NSFW settings for your server :wink: ", "nsfw")));
+                factory.registerCommand(new Asses(new BaseCommand.CommandSettings(false, true, Category.NSFW, "See some nice asses " +
+                        ":kissing_heart: - NSFW", "ass")));
+                factory.registerCommand(new Tits(new BaseCommand.CommandSettings(false, true, Category.NSFW, "See some bosoms - NSFW!",
+                        "tits", "boobs")));
+                factory.registerCommand(new Feet(new BaseCommand.CommandSettings(false, true, Category.NSFW, "Feet o.o", "feet")));
 
-                factory.registerCommand(new AdBlock(new BaseCommand.CommandSettings("adblock", false, true, Category
-                        .ANTI_TROLL)));
+                factory.registerCommand(new AdBlock(new BaseCommand.CommandSettings(false, true, Category
+                        .ANTI_TROLL, "Prevent users from advertising other servers", "adblock")));
 
                 musicManagers = new HashMap<>();
 
