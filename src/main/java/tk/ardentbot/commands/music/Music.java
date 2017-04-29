@@ -23,8 +23,6 @@ import tk.ardentbot.core.executor.BaseCommand;
 import tk.ardentbot.core.executor.Command;
 import tk.ardentbot.core.executor.Subcommand;
 import tk.ardentbot.core.misc.logging.BotException;
-import tk.ardentbot.core.translate.Translation;
-import tk.ardentbot.core.translate.TranslationResponse;
 import tk.ardentbot.main.Shard;
 import tk.ardentbot.main.ShardManager;
 import tk.ardentbot.rethink.models.MusicSettingsModel;
@@ -457,7 +455,7 @@ public class Music extends Command {
 
     @Override
     public void setupSubcommands() throws Exception {
-        subcommands.add(new Subcommand(this, "play") {
+        subcommands.add(new Subcommand("Play a song by its name or url", "play") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
                 if (args.length > 2) {
@@ -498,7 +496,8 @@ public class Music extends Command {
             }
         });
 
-        subcommands.add(new Subcommand(this, "recommend") {
+        subcommands.add(new Subcommand("Ardent will add recommended tracks based on currently playing songs", "recommend [amt of songs]",
+                "recommend") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
                 if (args.length > 2) {
@@ -559,7 +558,7 @@ public class Music extends Command {
             }
         });
 
-        subcommands.add(new Subcommand(this, "config") {
+        subcommands.add(new Subcommand("View set music settings for the current guild", "config") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
                 Cursor<HashMap> settings = r.db("data").table("music_settings").filter(row -> row.g("guild_id").eq(guild.getId())).run
@@ -576,19 +575,12 @@ public class Music extends Command {
             }
         });
 
-        subcommands.add(new Subcommand(this, "queue") {
+        subcommands.add(new Subcommand("View the currently queued songs", "queue") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
-                ArrayList<Translation> translations = new ArrayList<>();
-                translations.add(new Translation("music", "songsinqueue"));
-                translations.add(new Translation("music", "queuedby"));
-                translations.add(new Translation("music", "nosongsinqueue"));
-                translations.add(new Translation("music", "totalqueuetime"));
-
-                HashMap<Integer, TranslationResponse> response = getTranslations(language, translations);
                 StringBuilder sb = new StringBuilder();
-                String queuedBy = response.get(1).getTranslation();
-                sb.append("__" + response.get(0).getTranslation() + "__\n");
+                String queuedBy = "queued by";
+                sb.append("__Music Queue__\n");
                 BlockingQueue<ArdentTrack> queue = getGuildAudioPlayer(guild, channel).scheduler.manager.getQueue();
                 Iterator<ArdentTrack> iterator = queue.iterator();
                 int current = 1;
@@ -604,13 +596,13 @@ public class Music extends Command {
                     current++;
                 }
                 if (current == 1) {
-                    sb.append(response.get(2).getTranslation());
+                    sb.append("There aren't any songs in the queue!");
                 }
                 sendTranslatedMessage(sb.toString(), sendTo(channel, guild), user);
             }
         });
 
-        subcommands.add(new Subcommand(this, "skip") {
+        subcommands.add(new Subcommand("Skip the currently playing song (must have queued it or have permissions)", "skip") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
                 AudioManager audioManager = guild.getAudioManager();
@@ -626,16 +618,19 @@ public class Music extends Command {
                                 (ownerId))
                         {
                             ardentMusicManager.nextTrack();
-                            sendRetrievedTranslation(sendTo(channel, guild), "music", language, "skippedcurrent", user);
+                            sendTranslatedMessage("Skipped the playing song", sendTo(channel, guild), user);
                         }
-                        else sendRetrievedTranslation(channel, "music", language, "queuedorhavepermissions", user);
+                        else {
+                            sendTranslatedMessage("You need to have queued the song or have the Manage Server permission", sendTo
+                                    (channel, guild), user);
+                        }
                     }
                 }
-                else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel", user);
+                else sendTranslatedMessage("I'm not in a voice channel!", channel, user);
             }
         });
 
-        subcommands.add(new Subcommand(this, "remove") {
+        subcommands.add(new Subcommand("Remove a song from the queue by its number", "remove [number in queue]", "remove") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
                 if (args.length > 2) {
@@ -660,12 +655,13 @@ public class Music extends Command {
                                                 .equalsIgnoreCase(user.getId()) || UserUtils.isBotCommander(member))
                                         {
                                             queue.remove(ardentTrack);
-                                            sendTranslatedMessage(getTranslation("music", language, "removedfromqueue")
-                                                    .getTranslation().replace("{0}", name), sendTo(channel, guild), user);
+                                            sendTranslatedMessage("Removed {0} from the queue".replace("{0}", name), sendTo(channel,
+                                                    guild), user);
                                         }
                                         else {
-                                            sendRetrievedTranslation(channel, "music", language,
-                                                    "queuedorhavepermissions", user);
+                                            sendTranslatedMessage("You need to have queued the song or have the Manage Server " +
+                                                    "permission", sendTo
+                                                    (channel, guild), user);
                                         }
                                     }
                                     current++;
@@ -676,14 +672,14 @@ public class Music extends Command {
                             sendTranslatedMessage("Invalid arguments", channel, user);
                         }
                     }
-                    else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel", user);
+                    else sendTranslatedMessage("I'm not in a voice channel!", channel, user);
                 }
                 else sendTranslatedMessage("That's not a number!", channel, user);
 
             }
         });
 
-        subcommands.add(new Subcommand(this, "leave") {
+        subcommands.add(new Subcommand("Makes me leave the voice channel I'm currently in", "leave") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
                 AudioManager audioManager = guild.getAudioManager();
@@ -692,16 +688,15 @@ public class Music extends Command {
                     if (audioManager.isConnected()) {
                         String name = audioManager.getConnectedChannel().getName();
                         audioManager.closeAudioConnection();
-                        sendTranslatedMessage(getTranslation("music", language, "disconnected").getTranslation()
-                                .replace("{0}", name), channel, user);
+                        sendTranslatedMessage("Disconnected from {0}".replace("{0}", name), channel, user);
                     }
-                    else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel", user);
+                    else sendTranslatedMessage("I'm not in a voice channel!", channel, user);
                 }
-                else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
+                else sendTranslatedMessage("You need the Manage Server permission to do this", channel, user);
             }
         });
 
-        subcommands.add(new Subcommand(this, "resume") {
+        subcommands.add(new Subcommand("Resumes music playback if it has been paused", "resume") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
                 AudioManager audioManager = guild.getAudioManager();
@@ -710,20 +705,20 @@ public class Music extends Command {
                     if (audioManager.isConnected()) {
                         GuildMusicManager manager = getGuildAudioPlayer(guild, channel);
                         if (manager.player.isPaused()) {
-                            sendRetrievedTranslation(sendTo(channel, guild), "music", language, "resumedplayback", user);
+                            sendTranslatedMessage("Resumed music playback", sendTo(channel, guild), user);
                             manager.player.setPaused(false);
                         }
                         else {
-                            sendRetrievedTranslation(channel, "music", language, "notpaused", user);
+                            sendTranslatedMessage("The player isn't paused", channel, user);
                         }
                     }
-                    else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel", user);
+                    else sendTranslatedMessage("I'm not in a voice channel!", channel, user);
                 }
-                else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
+                else sendTranslatedMessage("You need the Manage Server permission to do this", channel, user);
             }
         });
 
-        subcommands.add(new Subcommand(this, "stop") {
+        subcommands.add(new Subcommand("Stops playback and clears the queue", "stop") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
                 AudioManager audioManager = guild.getAudioManager();
@@ -734,15 +729,15 @@ public class Music extends Command {
                         if (manager.player.getPlayingTrack() != null) manager.player.stopTrack();
                         manager.scheduler.manager.resetQueue();
                         getShard().musicManagers.remove(Long.parseLong(guild.getId()));
-                        sendRetrievedTranslation(sendTo(channel, guild), "music", language, "stoppedandcleared", user);
+                        sendTranslatedMessage("Stopped playback and cleared songs in the queue", sendTo(channel, guild), user);
                     }
-                    else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel", user);
+                    else sendTranslatedMessage("I'm not in a voice channel!", channel, user);
                 }
-                else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
+                else sendTranslatedMessage("You need the Manage Server permission to do this", channel, user);
             }
         });
 
-        subcommands.add(new Subcommand(this, "votetoskip") {
+        subcommands.add(new Subcommand("Vote to skip the current song", "votetoskip") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws
                     Exception {
@@ -758,21 +753,24 @@ public class Music extends Command {
                         return;
                     }
                     if (track.getVotedToSkip().contains(user.getId())) {
-                        sendRetrievedTranslation(channel, "music", language, "alreadyvotedtoskip", user);
+                        sendTranslatedMessage("You already voted to skip >.>", channel, user);
                         return;
                     }
                     track.addSkipVote(user);
                     if (track.getVotedToSkip().size() >= Math.round(connected.getMembers().size() / 2)) {
-                        sendRetrievedTranslation(channel, "music", language, "skippedtrack", user);
+                        sendTranslatedMessage("Half of the people in the channel voted to skip the current song", channel, user);
                         guildMusicManager.scheduler.manager.nextTrack();
                     }
-                    else sendRetrievedTranslation(channel, "music", language, "skipvoteadded", user);
+                    else
+                        sendTranslatedMessage("Your vote to skip has been recorded. You need half of the users in the channel to force a " +
+                                "skip", channel, user);
+
                 }
-                else sendRetrievedTranslation(channel, "music", language, "notinoryourenotin", user);
+                else sendTranslatedMessage("Either I or you aren't in a voice channel", channel, user);
             }
         });
 
-        subcommands.add(new Subcommand(this, "clear") {
+        subcommands.add(new Subcommand("Clear all songs from the queue", "clear") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
                 AudioManager audioManager = guild.getAudioManager();
@@ -781,15 +779,15 @@ public class Music extends Command {
                     if (audioManager.isConnected()) {
                         GuildMusicManager manager = getGuildAudioPlayer(guild, channel);
                         manager.scheduler.manager.resetQueue();
-                        sendRetrievedTranslation(sendTo(channel, guild), "music", language, "clearedallsongs", user);
+                        sendTranslatedMessage("Cleared all songs from the queue", channel, user);
                     }
-                    else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel", user);
+                    else sendTranslatedMessage("I'm not in a voice channel!", channel, user);
                 }
-                else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
+                else sendTranslatedMessage("You need the Manage Server permission to do this", channel, user);
             }
         });
 
-        subcommands.add(new Subcommand(this, "playing") {
+        subcommands.add(new Subcommand("View information about the currently playing song", "playing") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
                 GuildMusicManager manager = getGuildAudioPlayer(guild, channel);
@@ -799,12 +797,12 @@ public class Music extends Command {
                     AudioTrack track = nowPlaying.getTrack();
                     AudioTrackInfo info = track.getInfo();
                     StringBuilder sb = new StringBuilder();
-                    String queuedBy = getTranslation("music", language, "queuedby").getTranslation();
+                    String queuedBy = "queued by";
                     sb.append(info.title + ": " + info.author + " " + getCurrentTime
                             (track) +
                             "\n     *" + queuedBy + " " + UserUtils.getUserById(nowPlaying.getAuthor()).getName() +
                             "* - [" + nowPlaying.getVotedToSkip().size() + " / " + Math.round(guild.getAudioManager().getConnectedChannel
-                            ().getMembers().size() / 2) + "] " + getTranslation("music", language, "votestoskip").getTranslation());
+                            ().getMembers().size() / 2) + "] votes to skip");
                     sendTranslatedMessage(sb.toString(), sendTo(channel, guild), user);
                 }
                 else sendTranslatedMessage("I'm not playing anything right now!", channel, user);
@@ -812,7 +810,7 @@ public class Music extends Command {
             }
         });
 
-        subcommands.add(new Subcommand(this, "shuffle") {
+        subcommands.add(new Subcommand("Shuffle the songs in the queue", "shuffle") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
                 AudioManager audioManager = guild.getAudioManager();
@@ -823,13 +821,13 @@ public class Music extends Command {
                         manager.scheduler.manager.shuffle();
                         sendTranslatedMessage("Shuffled the queue!", sendTo(channel, guild), user);
                     }
-                    else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel", user);
+                    else sendTranslatedMessage("I'm not in a voice channel!", channel, user);
                 }
-                else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
+                else sendTranslatedMessage("You need the Manage Server permission to do this", channel, user);
             }
         });
 
-        subcommands.add(new Subcommand(this, "pause") {
+        subcommands.add(new Subcommand("Pause music playback", "pause") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
                 AudioManager audioManager = guild.getAudioManager();
@@ -838,25 +836,27 @@ public class Music extends Command {
                     if (audioManager.isConnected()) {
                         GuildMusicManager manager = getGuildAudioPlayer(guild, channel);
                         if (!manager.player.isPaused()) {
-                            sendRetrievedTranslation(sendTo(channel, guild), "music", language, "pausedplayback", user);
+                            sendTranslatedMessage("Paused music playback", channel, user);
                             manager.player.setPaused(true);
                         }
                         else {
-                            sendRetrievedTranslation(channel, "music", language, "alreadypaused", user);
+                            sendTranslatedMessage("Can't pause an already-paused player!", channel, user);
                         }
                     }
-                    else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel", user);
+                    else sendTranslatedMessage("I'm not in a voice channel!", channel, user);
                 }
-                else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
+                else sendTranslatedMessage("You need the Manage Server permission to do this", channel, user);
             }
         });
 
-        subcommands.add(new Subcommand(this, "setoutput") {
+        subcommands.add(new Subcommand("Set a channel to send all music output to", "setoutput #mentionchannel", "setoutput") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws
                     Exception {
                 if (args.length == 2) {
-                    sendRetrievedTranslation(channel, "music", language, "setoutputhelp", user);
+                    sendTranslatedMessage("Mention a channel to set the music output to it. Type `/music setoutput none` to remove any " +
+                            "set " +
+                            "output channel.", channel, user);
                 }
                 else {
                     if (guild.getMember(user).hasPermission(Permission.MANAGE_SERVER)) {
@@ -865,25 +865,26 @@ public class Music extends Command {
                             getOutputChannel(guild);
                             r.db("data").table("music_settings").filter(row -> row.g("guild_id").eq(guild.getId()))
                                     .update(r.hashMap("channel_id", mentionedChannels.get(0).getId())).run(connection);
-                            sendRetrievedTranslation(channel, "music", language, "setoutputchannel", user);
+                            sendTranslatedMessage("Successfully set the output channel", channel, user);
                         }
                         else {
                             if (getOutputChannel(guild) != null) {
                                 r.db("data").table("music_settings").filter(row -> row.g("guild_id").eq(guild.getId()))
                                         .update(r.hashMap("channel_id", "none")).run(connection);
-                                sendRetrievedTranslation(channel, "music", language, "removedoutputchannel", user);
+                                sendTranslatedMessage("Successfully removed the output channel", channel, user);
                             }
                             else {
-                                sendRetrievedTranslation(channel, "music", language, "nochannelset", user);
+                                sendTranslatedMessage("No output channel has been set for this server", channel, user);
                             }
                         }
                     }
-                    else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
+                    else sendTranslatedMessage("You need the Manage Server permission to do this", channel, user);
                 }
             }
         });
 
-        subcommands.add(new Subcommand(this, "loop") {
+        subcommands.add(new Subcommand("This will loop the given amount of songs, starting at the first song in the queue, for the amount" +
+                " of times given", "loop [amount of songs starting at first in the queue] [amount of times to loop]", "loop") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
                 if (args.length == 4) {
@@ -898,11 +899,11 @@ public class Music extends Command {
                             int amountOfTracks = queue.size();
 
                             if (songsToLoop < 0 || songsToLoop > amountOfTracks) {
-                                sendRetrievedTranslation(channel, "music", language, "impossibletoloop", user);
+                                sendTranslatedMessage("Impossible to loop", channel, user);
                             }
                             else {
                                 if (amountOfTimes < 0 || amountOfTimes > 3) {
-                                    sendRetrievedTranslation(channel, "music", language, "onlycanloopsongs", user);
+                                    sendTranslatedMessage("You can't loop more than 3 times", channel, user);
                                 }
                                 else {
                                     ArrayList<AudioTrack> tracksToLoop = new ArrayList<>();
@@ -917,9 +918,10 @@ public class Music extends Command {
                                                     (TextChannel) channel, track.makeClone()));
                                         });
                                     }
-                                    sendTranslatedMessage(getTranslation("music", language, "addedtheloop")
-                                            .getTranslation().replace("{0}", String.valueOf(songsToLoop)).replace
-                                                    ("{1}", String.valueOf(amountOfTimes)), sendTo(channel, guild), user);
+                                    sendTranslatedMessage("Added a loop for {0} songs in the queue{1} times".replace("{0}", String
+                                                    .valueOf(songsToLoop)).replace("{1}", String.valueOf(amountOfTimes)), sendTo(channel,
+                                            guild),
+                                            user);
                                 }
                             }
                         }
@@ -927,13 +929,14 @@ public class Music extends Command {
                             sendTranslatedMessage("That's not a number!", channel, user);
                         }
                     }
-                    else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
+                    else sendTranslatedMessage("You need the Manage Server permission to do this", channel, user);
                 }
-                else sendRetrievedTranslation(channel, "music", language, "loopsyntaxhelp", user);
+                else sendTranslatedMessage("Use /music loop [# in queue] [# of times to loop]", channel, user);
             }
         });
 
-        subcommands.add(new Subcommand(this, "removeallfrom") {
+        subcommands.add(new Subcommand("Removes all the tracks of the mentioned user from the queue", "removeallfrom @User",
+                "removeallfrom") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
                 Member member = guild.getMember(user);
@@ -942,16 +945,15 @@ public class Music extends Command {
                     if (mentionedUsers.size() == 1) {
                         User deleteFrom = mentionedUsers.get(0);
                         getGuildAudioPlayer(guild, channel).scheduler.manager.removeFrom(deleteFrom);
-                        sendTranslatedMessage(getTranslation("music", language, "deletealltracksfrom").getTranslation()
-                                .replace("{0}", deleteFrom.getName()), channel, user);
+                        sendTranslatedMessage("I removed all tracks from {0}".replace("{0}", deleteFrom.getName()), channel, user);
                     }
-                    else sendRetrievedTranslation(channel, "other", language, "mentionuser", user);
+                    else sendTranslatedMessage("You need to mention a user", channel, user);
                 }
-                else sendRetrievedTranslation(channel, "other", language, "needmanageserver", user);
+                else sendTranslatedMessage("You need the Manage Server permission to do this", channel, user);
             }
         });
 
-        subcommands.add(new Subcommand(this, "restart") {
+        subcommands.add(new Subcommand("Restarts the currently playing song", "restart") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
                 GuildMusicManager musicManager = getGuildAudioPlayer(guild, channel);
@@ -963,17 +965,20 @@ public class Music extends Command {
                     {
                         AudioTrack track = current.getTrack();
                         track.setPosition(0);
-                        sendTranslatedMessage(getTranslation("music", language, "restartedtrack").getTranslation()
-                                .replace("{0}", track.getInfo().title), channel, user);
+                        sendTranslatedMessage("Restarted the current track", channel, user);
                     }
-                    else sendRetrievedTranslation(channel, "music", language, "queuedorhavepermissions", user);
+                    else {
+                        sendTranslatedMessage("You need to have queued the song or have the Manage Server permission", sendTo
+                                (channel, guild), user);
+                    }
                 }
                 else sendTranslatedMessage("I'm not playing anything right now!", channel, user);
 
             }
         });
 
-        subcommands.add(new Subcommand(this, "geturl") {
+        subcommands.add(new Subcommand("Want to know the link of that cool song you're playing now? This subcommand will display it!",
+                "geturl [number in queue (optional)]", "geturl") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws
                     Exception {
@@ -995,8 +1000,9 @@ public class Music extends Command {
                                     AudioTrackInfo info = track.getInfo();
                                     String name = info.title;
                                     if (current == numberToRemove) {
-                                        sendTranslatedMessage(getTranslation("music", language, "urlof").getTranslation()
-                                                .replace("{0}", name).replace("{1}", info.uri), channel, user);
+                                        sendTranslatedMessage("The streaming link for {0} is {1}".replace("{0}", info.title).replace
+                                                ("{1}", info
+                                                        .uri), channel, user);
                                         return;
                                     }
                                     current++;
@@ -1008,8 +1014,8 @@ public class Music extends Command {
                             ArdentTrack track = musicManager.getCurrentlyPlaying();
                             if (track != null) {
                                 AudioTrackInfo info = track.getTrack().getInfo();
-                                sendTranslatedMessage(getTranslation("music", language, "urlof").getTranslation()
-                                        .replace("{0}", info.title).replace("{1}", info.uri), channel, user);
+                                sendTranslatedMessage("The streaming link for {0} is {1}".replace("{0}", info.title).replace("{1}", info
+                                        .uri), channel, user);
                             }
                             else {
                                 sendTranslatedMessage("I'm not playing anything right now!", channel, user);
@@ -1020,11 +1026,12 @@ public class Music extends Command {
                         sendTranslatedMessage("Invalid arguments", channel, user);
                     }
                 }
-                else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel", user);
+                else sendTranslatedMessage("I'm not in a voice channel!", channel, user);
             }
         });
 
-        subcommands.add(new Subcommand(this, "volume") {
+        subcommands.add(new Subcommand("volume [number between 1 and 100]", "Sets the volume of the music player to the specified value -" +
+                " Staff and Patrons only!", "volume") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
                 AudioManager audioManager = guild.getAudioManager();
@@ -1032,26 +1039,24 @@ public class Music extends Command {
                     GuildMusicManager guildMusicManager = getGuildAudioPlayer(guild, channel);
                     AudioPlayer player = guildMusicManager.player;
                     if (args.length == 2) {
-                        sendTranslatedMessage(getTranslation("music", language, "currentplayervolume").getTranslation
-                                ().replace("{0}", String.valueOf(player.getVolume())), channel, user);
+                        sendTranslatedMessage("The current player volume is " + player.getVolume(), sendTo(channel, guild), user);
                     }
                     else {
                         if (UserUtils.hasTierOnePermissions(user) || EntityGuild.get(guild).isPremium()) {
                             try {
                                 int volume = Integer.parseInt(args[2]);
                                 player.setVolume(volume);
-                                sendTranslatedMessage(getTranslation("music", language, "setplayervolume")
-                                        .getTranslation()
-                                        .replace("{0}", String.valueOf(volume)), sendTo(channel, guild), user);
+                                sendTranslatedMessage("Set player volume to " + volume, sendTo(channel, guild), user);
                             }
                             catch (NumberFormatException ex) {
                                 sendTranslatedMessage("That's not a number!", channel, user);
                             }
                         }
-                        else sendRetrievedTranslation(channel, "other", language, "mustbestafforpatron", user);
+                        else sendTranslatedMessage("You must be a patron to do this! To help us out and get this perk, pledge even " +
+                                "a dollar a month at https://patreon.com/ardent", channel, user);
                     }
                 }
-                else sendRetrievedTranslation(channel, "music", language, "notinmusicchannel", user);
+                else sendTranslatedMessage("I'm not in a voice channel!", channel, user);
             }
         });
     }
