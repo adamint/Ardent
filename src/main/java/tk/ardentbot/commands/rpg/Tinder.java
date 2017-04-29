@@ -8,16 +8,12 @@ import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.core.executor.Command;
 import tk.ardentbot.core.executor.Subcommand;
-import tk.ardentbot.core.translate.Language;
-import tk.ardentbot.core.translate.Translation;
-import tk.ardentbot.core.translate.TranslationResponse;
 import tk.ardentbot.rethink.models.TinderMatch;
 import tk.ardentbot.utils.discord.MessageUtils;
 import tk.ardentbot.utils.discord.UserUtils;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import static tk.ardentbot.rethink.Database.connection;
 import static tk.ardentbot.rethink.Database.r;
@@ -76,64 +72,61 @@ public class Tinder extends Command {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
-        sendHelp(language, channel, guild, user, this);
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
+        sendHelp(channel, guild, user, this);
     }
 
     @Override
     public void setupSubcommands() throws Exception {
-        subcommands.add(new Subcommand(this, "matchme") {
+        subcommands.add(new Subcommand("Match yourself with someone in the server!", "matchme", "matchme") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws
                     Exception {
                 ArrayList<TinderMatch> matches = queryAsArrayList(TinderMatch.class, r.table("tinder_matches").filter(row -> row.g
                         ("user_id").eq(user.getId())).run(connection));
                 User potentialMatch = getPotentialMatch(user, guild, matches);
-                HashMap<Integer, TranslationResponse> translations = getTranslations(language,
-                        new Translation("tinder", "tindermatchme"), new Translation("tinder", "swipeleftorright"),
-                        new Translation("tinder", "usetindermessagetostartmessage"), new Translation("tinder", "theirpicture"),
-                        new Translation("tinder", "theirname"));
-                EmbedBuilder builder = MessageUtils.getDefaultEmbed(guild, user, Tinder.this);
-                String matchMe = translations.get(0).getTranslation();
+                EmbedBuilder builder = MessageUtils.getDefaultEmbed(user);
+                String matchMe = "Match me | Tinder";
                 builder.setAuthor(matchMe, getShard().url, getShard().bot.getAvatarUrl());
                 builder.setThumbnail(potentialMatch.getAvatarUrl());
                 StringBuilder description = new StringBuilder();
                 description.append("**" + matchMe + "**");
-                description.append("\n" + translations.get(4).getTranslation() + ": " + UserUtils.getNameWithDiscriminator(potentialMatch
+                description.append("\nTheir name: " + UserUtils.getNameWithDiscriminator(potentialMatch
                         .getId()));
-                description.append("\n\n" + translations.get(1).getTranslation() + "\n" + translations.get(2).getTranslation());
-                Message sent = sendEmbed(builder.setDescription(description.toString()), channel, user, ":arrow_left:", ":arrow_right:");
-                interactiveReaction(language, channel, sent, user, 15, messageReaction -> {
+                description.append("Swipe right (rightreaction) to connect with this person, or swipe left (left reaction) to pass them " +
+                        "by\nType /tinder connect to connect with the people you've swiped right on");
+                Message sent = sendEmbed(builder.setDescription(description.toString()), channel, user, ":arrow_left:",
+                        ":arrow_right:");
+                interactiveReaction(channel, sent, user, 15, messageReaction -> {
                     String name = messageReaction.getEmote().getName();
                     if (name != null) {
                         if (name.equals("➡")) {
                             r.table("tinder_matches").insert(r.json(gson.toJson(new TinderMatch(user.getId(), potentialMatch.getId
                                     (), true)))
                             ).run(connection);
-                            sendEditedTranslation("tomder", language, "swipedright", user, channel, potentialMatch.getName());
+                            sendEditedTranslation("You swiped right on {0}! Connect with them using /tinder connect", user, channel,
+                                    potentialMatch.getName());
                         }
                         else if (name.equals("⬅")) {
                             r.table("tinder_matches").insert(r.json(gson.toJson(new TinderMatch(user.getId(), potentialMatch.getId
                                     (), false)))
                             ).run(connection);
-                            sendEditedTranslation("tinder", language, "swipedleft", user, channel, potentialMatch.getName());
+                            sendEditedTranslation("You swiped right on {0} - Don't worry, you can find better!", user, channel,
+                                    potentialMatch.getName());
                         }
-                        else sendRetrievedTranslation(channel, "tinder", language, "invalidreaction", user);
+                        else sendTranslatedMessage("You reacted with an unexpected emoji :thinking:", channel, user);
                     }
                 });
             }
         });
 
-        subcommands.add(new Subcommand(this, "connect") {
+        subcommands.add(new Subcommand("Connect with the people you've swiped right on", "connect", "connect") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws
                     Exception {
-                HashMap<Integer, TranslationResponse> translations = getTranslations(language,
-                        new Translation("tinder", "yourmatches"), new Translation("tinder", "swipedrightonyou"),
-                        new Translation("tinder", "usetindermessagenumber"), new Translation("tinder", "noconnections"));
-                String yourMatches = translations.get(0).getTranslation();
-                String swipedRightOnYou = translations.get(1).getTranslation();
-                EmbedBuilder builder = MessageUtils.getDefaultEmbed(guild, user, Tinder.this);
+                String yourMatches = "Discord Tinder | Your Matches";
+                String swipedRightOnYou = "Swiped right on you";
+                EmbedBuilder builder = MessageUtils.getDefaultEmbed(user);
                 builder.setAuthor(yourMatches, getShard().url, getShard().bot.getAvatarUrl());
                 builder.setThumbnail(user.getAvatarUrl());
                 StringBuilder description = new StringBuilder();
@@ -141,7 +134,7 @@ public class Tinder extends Command {
                 ArrayList<TinderMatch> matches = queryAsArrayList(TinderMatch.class, r.table("tinder_matches").filter(r.hashMap("user_id",
                         user.getId()).with("swipedRight", true)).run(connection));
                 if (matches.size() == 0) {
-                    description.append("\n" + translations.get(3).getTranslation());
+                    description.append("\nYou don't have any connections :frowning:");
                 }
                 else {
                     for (int i = 0; i < matches.size(); i++) {
@@ -154,36 +147,39 @@ public class Tinder extends Command {
                                 swipedRightOnYou + ": " + yesNo);
                     }
                 }
-                description.append("\n\n" + translations.get(2).getTranslation());
+                description.append("\n\nUse /tinder message [number on connection list] to message that person. However, they must have " +
+                        "swiped right on you as well to be able to contact them");
                 sendEmbed(builder.setDescription(description), channel, user);
             }
         });
 
-        subcommands.add(new Subcommand(this, "message") {
+        subcommands.add(new Subcommand("Message one of your mutual connections!", "message [number in connection list]", "message") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws
                     Exception {
                 if (args.length == 2) {
-                    sendRetrievedTranslation(channel, "tinder", language, "messagesyntax", user);
+                    sendTranslatedMessage("Usage: /tinder message [person's number in /tinder connect] [message here]", channel, user);
                     return;
                 }
                 if (message.getRawContent().split(" ").length == 3) {
-                    sendRetrievedTranslation(channel, "tinder", language, "needtoincludemessage", user);
+                    sendTranslatedMessage("You need to include a message to send that person!", channel, user);
                     return;
                 }
                 try {
                     int number = Integer.parseInt(args[2]) - 1;
-                    if (number < 0) sendRetrievedTranslation(channel, "tinder", language, "messagesyntax", user);
+                    if (number < 0)
+                        sendTranslatedMessage("Usage: /tinder message [person's number in /tinder connect] [message here]", channel, user);
+
                     else {
                         ArrayList<TinderMatch> matches = queryAsArrayList(TinderMatch.class, r.table("tinder_matches").filter(r.hashMap
                                 ("user_id", user.getId()).with("swipedRight", true)).run(connection));
                         if (number >= matches.size()) {
-                            sendRetrievedTranslation(channel, "tinder", language, "youdonthavethismanymatches", user);
+                            sendTranslatedMessage("Sorry, but you don't have this many matches!", channel, user);
                             return;
                         }
                         TinderMatch selected = matches.get(number);
                         if (!swipedRightWith(user.getId(), selected.getPerson_id())) {
-                            sendRetrievedTranslation(channel, "tinder", language, "thatpersondidntaddyou", user);
+                            sendTranslatedMessage("That person hasn't swiped right on you!", channel, user);
                             return;
                         }
                         User toMessage = UserUtils.getUserById(selected.getPerson_id());
@@ -202,45 +198,45 @@ public class Tinder extends Command {
                                     sentTo.add(toMessage.getId());
                                 });
                             }
-                            sendRetrievedTranslation(channel, "tinder", language, "sentthemamessage", user);
+                            sendTranslatedMessage("Ok! I sent that person your message :wink:", channel, user);
                         }
                         catch (Exception e) {
-                            sendRetrievedTranslation(channel, "tinder", language, "unabletomentionthem", user);
+                            sendTranslatedMessage("I was unable to message that person :frowning:", channel, user);
                         }
                     }
                 }
                 catch (NumberFormatException e) {
-                    sendRetrievedTranslation(channel, "tinder", language, "messagesyntax", user);
+                    sendTranslatedMessage("Usage: /tinder message [person's number in /tinder connect] [message here]", channel, user);
                 }
             }
         });
 
-        subcommands.add(new Subcommand(this, "remove") {
+        subcommands.add(new Subcommand("Remove one of your connections", "remove [number in connection list]", "remove") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws
                     Exception {
                 if (args.length == 2) {
-                    sendRetrievedTranslation(channel, "tinder", language, "removesyntax", user);
+                    sendTranslatedMessage("Usage: /tinder remove [person's number in /tinder connect]", channel, user);
                     return;
                 }
                 try {
                     int number = Integer.parseInt(args[2]) - 1;
-                    if (number < 0) sendRetrievedTranslation(channel, "tinder", language, "removesyntax", user);
+                    if (number < 0) sendTranslatedMessage("Usage: /tinder remove [person's number in /tinder connect]", channel, user);
                     else {
                         ArrayList<TinderMatch> matches = queryAsArrayList(TinderMatch.class, r.table("tinder_matches").filter(r.hashMap
                                 ("user_id", user.getId()).with("swipedRight", true)).run(connection));
                         if (number >= matches.size()) {
-                            sendRetrievedTranslation(channel, "tinder", language, "youdonthavethismanymatches", user);
+                            sendTranslatedMessage("Sorry, but you don't have this many matches!", channel, user);
                             return;
                         }
                         TinderMatch selected = matches.get(number);
                         r.table("tinder_matches").filter(r.hashMap("user_id", user.getId()).with("person_id", selected.getPerson_id()))
                                 .delete().run(connection);
-                        sendRetrievedTranslation(channel, "tinder", language, "removedperson", user);
+                        sendTranslatedMessage(":ok_hand: Removed that person from your connection list", channel, user);
                     }
                 }
                 catch (NumberFormatException e) {
-                    sendRetrievedTranslation(channel, "tinder", language, "removesyntax", user);
+                    sendTranslatedMessage("Usage: /tinder remove [person's number in /tinder connect]", channel, user);
                 }
             }
         });

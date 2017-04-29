@@ -8,7 +8,6 @@ import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.requests.RestAction;
 import org.apache.commons.lang3.tuple.Triple;
 import tk.ardentbot.core.executor.Command;
-import tk.ardentbot.core.translate.Language;
 import tk.ardentbot.main.Ardent;
 import tk.ardentbot.main.ShardManager;
 import tk.ardentbot.utils.Engine;
@@ -24,8 +23,7 @@ public class Eval extends Command {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
-            language) throws Exception {
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
         if (Ardent.developers.contains(user.getId())) {
             if (args.length == 1) channel.sendMessage("Use " + args[0] + " (code) to evaluate stuff").queue();
             else {

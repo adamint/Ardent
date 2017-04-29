@@ -5,7 +5,6 @@ import tk.ardentbot.commands.music.GuildMusicManager;
 import tk.ardentbot.commands.music.Music;
 import tk.ardentbot.core.executor.Command;
 import tk.ardentbot.core.misc.logging.BotException;
-import tk.ardentbot.core.translate.Language;
 import tk.ardentbot.main.Ardent;
 import tk.ardentbot.main.Shard;
 import tk.ardentbot.main.ShardManager;
@@ -28,7 +27,7 @@ public class Admin extends Command {
         super(commandSettings);
     }
 
-    public static void update(Command command, Language language, MessageChannel channel) throws Exception {
+    public static void update(Command command, MessageChannel channel) throws Exception {
         channel.sendMessage("Updating now!").queue();
         for (Shard shard : getShards()) {
             for (Guild g : shard.jda.getGuilds()) {
@@ -36,14 +35,10 @@ public class Admin extends Command {
                     GuildMusicManager manager = Music.getGuildAudioPlayer(g, null);
                     TextChannel ch = manager.scheduler.manager.getChannel();
                     if (ch == null) {
-                        g.getPublicChannel().sendMessage(command.getTranslation("music", language,
-                                "restartingfiveminutes")
-
-                                .getTranslation()).queue();
+                        g.getPublicChannel().sendMessage("I'm restarting in **5** minutes for updates!").queue();
                     }
                     else {
-                        ch.sendMessage(command.getTranslation("music", language, "restartingfiveminutes")
-                                .getTranslation()).queue();
+                        ch.sendMessage("I'm restarting in **5** minutes for updates!").queue();
                     }
                 }
             }
@@ -80,12 +75,11 @@ public class Admin extends Command {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
-            language) throws Exception {
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
         if (Ardent.developers.contains(user.getId())) {
             if (args.length > 1) {
                 if (args[1].equalsIgnoreCase("update")) {
-                    update(this, language, channel);
+                    update(this, channel);
                 }
                 else if (args[1].equalsIgnoreCase("softupdate")) {
                     ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
@@ -93,7 +87,7 @@ public class Admin extends Command {
                         if (getVoiceConnections() <= 1 || (secondsWaitedForRestart >= (60 * 60 * 3))) {
                             if (getVoiceConnections() <= 3) {
                                 try {
-                                    update(Admin.this, language, channel);
+                                    update(Admin.this, channel);
                                 }
                                 catch (Exception e) {
                                     new BotException(e);
@@ -150,13 +144,6 @@ public class Admin extends Command {
                         }
                     }
                     else sendTranslatedMessage("bad", channel, user);
-                }
-                else if (args[1].equalsIgnoreCase("test2")) {
-                    interactiveOperation(language, channel, message, (returnedMessage) -> {
-                        if (returnedMessage.getContent().equalsIgnoreCase("5")) {
-                            sendTranslatedMessage("5", channel, user);
-                        }
-                    });
                 }
                 else if (args[1].equalsIgnoreCase("disable")) {
                     if (args.length == 2) {
@@ -217,7 +204,6 @@ public class Admin extends Command {
                 }
             }
         }
-        else sendRetrievedTranslation(channel, "other", language, "needdeveloperpermission", user);
     }
 
     @Override

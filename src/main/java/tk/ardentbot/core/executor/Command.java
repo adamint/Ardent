@@ -251,7 +251,12 @@ public abstract class Command extends BaseCommand {
         else {
             final boolean[] found = {false};
             subcommands.forEach(subcommand -> {
-                if (subcommand.containsAlias(args[1])) subcommand.onCall(guild, channel, user, message, args);
+                if (subcommand.containsAlias(args[1])) try {
+                    subcommand.onCall(guild, channel, user, message, args);
+                }
+                catch (Exception e) {
+                    new BotException(e);
+                }
             });
             if (message.getRawContent().split(" ").length == 2 && (message.getMentionedUsers().size() > 0)) {
                 noArgs(guild, channel, user, message, args);

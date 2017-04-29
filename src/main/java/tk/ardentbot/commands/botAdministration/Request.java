@@ -2,7 +2,6 @@ package tk.ardentbot.commands.botAdministration;
 
 import net.dv8tion.jda.core.entities.*;
 import tk.ardentbot.core.executor.Ratelimitable;
-import tk.ardentbot.core.translate.Language;
 import tk.ardentbot.utils.discord.GuildUtils;
 
 import static tk.ardentbot.main.Ardent.botLogsShard;
@@ -13,8 +12,7 @@ public class Request extends Ratelimitable {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language
-            language) throws Exception {
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
         String prefix = GuildUtils.getPrefix(guild);
         if (args.length == 1) {
             sendTranslatedMessage(getTranslation("request", language, "requesthelp").getTranslation().replace("{0}",

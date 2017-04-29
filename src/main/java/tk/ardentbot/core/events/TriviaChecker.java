@@ -34,8 +34,8 @@ class TriviaChecker {
                             });
                             if (correct[0]) {
                                 triviaGame.addPoint(user);
-                                shard.help.sendEditedTranslation("trivia", GuildUtils.getLanguage(guild), "gotitright", user, channel,
-                                        user.getName());
+                                shard.help.sendEditedTranslation("{0} got it right!", user, channel,
+                                        user.getAsMention());
                                 if (triviaGame.getRound() != triviaGame.getTotalRounds()) {
                                     Trivia.dispatchRound(guild, channel, guild.getMemberById(triviaGame.getCreator()).getUser(), triviaGame,
                                             triviaGame.getEx());

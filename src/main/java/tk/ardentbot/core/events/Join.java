@@ -55,6 +55,14 @@ public class Join {
         Shard shard = GuildUtils.getShard(guild);
         Cursor<GuildModel> guilds = r.db("data").table("guilds").filter(r.hashMap("guild_id", guild.getId())).run(connection);
         if (!guilds.hasNext()) {
+            TextChannel channel = guild.getPublicChannel();
+            channel.sendMessage("Thanks for adding **Ardent**. This server's prefix is `/`, and you can use `/help` to see a list of " +
+                    "commands" +
+                    ". " +
+                    "If you don't speak english, use `/language` to change Ardent's language - Reset Ardent to english by typing @Ardent " +
+                    "english.\n" +
+                    "Enjoy, and if you have questions, join our support server @ https://ardentbot.tk/guild!").queue();
+
             r.db("data").table("guilds").insert(r.hashMap("guild_id", guild.getId()).with("language", "english").with("prefix", "/")).run
                     (connection);
             String prefix = "/";
@@ -78,12 +86,6 @@ public class Join {
                                         " support server @ https://discordapp.com/invite/rfGSxNA").queue());
             }, 3, TimeUnit.SECONDS);
         }
-        TextChannel channel = guild.getPublicChannel();
-        channel.sendMessage("Thanks for adding **Ardent**. This server's prefix is `/`, and you can use `/help` to see a list of commands" +
-                ". " +
-                "If you don't speak english, use `/language` to change Ardent's language - Reset Ardent to english by typing @Ardent " +
-                "english.\n" +
-                "Enjoy, and if you have questions, join our support server @ https://ardentbot.tk/guild!").queue();
     }
 
     @SubscribeEvent
