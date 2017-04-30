@@ -89,8 +89,9 @@ public class SparkServer {
         get("/api/status", (rq, rs) -> {
             InternalStats internalStats = InternalStats.collect();
             return shard0.gson.toJson(new Status(internalStats.getMessagesReceived(),
-                    internalStats.getCommandsReceived(), internalStats.getLoadedCommands(), ManagementFactory.getRuntimeMXBean()
-                    .getUptime() / 1000, internalStats.getGuilds(), internalStats.getUsers(), internalStats.getRoleCount(), internalStats
+                    internalStats.getCommandsReceived(), ManagementFactory.getRuntimeMXBean()
+                    .getUptime() / 1000, internalStats.getLoadedCommands(), internalStats.getGuilds(), internalStats.getUsers(),
+                    internalStats.getRoleCount(), internalStats
                     .getTextChannelCount(), internalStats.getVoiceChannelCount(), internalStats.getMusicPlayers()));
         });
     }

@@ -64,7 +64,7 @@ public class Status extends Command {
         embedBuilder.addField("Commands Received", cmds, true);
 
         embedBuilder.addField("Servers", String.valueOf(internalStats.getGuilds()), true);
-        embedBuilder.addField("Music Players", String.valueOf(musicStats.getK()), true);
+        embedBuilder.addField("Music Players", String.valueOf(internalStats.getMusicPlayers()), true);
 
         embedBuilder.addField("Queue Length", String.valueOf(musicStats.getV()), true);
         embedBuilder.addField("CPU Usage", UsageUtils.getProcessCpuLoad() + "%", true);
