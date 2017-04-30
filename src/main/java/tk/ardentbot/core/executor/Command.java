@@ -40,6 +40,7 @@ public abstract class Command extends BaseCommand {
         this.category = commandSettings.getCategory();
         this.description = commandSettings.getDescription();
         this.aliases = commandSettings.getAliases();
+        this.botCommand = this;
     }
 
     public static void interactiveReaction(MessageChannel channel, Message message, User user, int seconds,
@@ -227,7 +228,7 @@ public abstract class Command extends BaseCommand {
         description.append(getDescription());
 
         if (subcommands.size() > 0) {
-            description.append("\n\n**Subcommands**");
+            description.append("\n\n**Subcommands**\n");
             for (Subcommand subcommand : subcommands) {
                 description.append(subcommand.getSyntax() + ": *" + subcommand.getDescription
                         () + "*\n");
@@ -253,6 +254,7 @@ public abstract class Command extends BaseCommand {
             subcommands.forEach(subcommand -> {
                 if (subcommand.containsAlias(args[1])) try {
                     subcommand.onCall(guild, channel, user, message, args);
+                    found[0] = true;
                 }
                 catch (Exception e) {
                     new BotException(e);

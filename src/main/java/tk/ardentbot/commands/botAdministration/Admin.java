@@ -9,6 +9,7 @@ import tk.ardentbot.main.Ardent;
 import tk.ardentbot.main.Shard;
 import tk.ardentbot.main.ShardManager;
 import tk.ardentbot.utils.discord.GuildUtils;
+import tk.ardentbot.utils.discord.InternalStats;
 import tk.ardentbot.utils.discord.UsageUtils;
 import tk.ardentbot.utils.rpg.profiles.Profile;
 
@@ -17,7 +18,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static tk.ardentbot.commands.botinfo.Status.getVoiceConnections;
 import static tk.ardentbot.main.ShardManager.getShards;
 
 public class Admin extends Command {
@@ -84,8 +84,9 @@ public class Admin extends Command {
                 else if (args[1].equalsIgnoreCase("softupdate")) {
                     ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
                     ex.scheduleAtFixedRate(() -> {
-                        if (getVoiceConnections() <= 1 || (secondsWaitedForRestart >= (60 * 60 * 3))) {
-                            if (getVoiceConnections() <= 3) {
+                        long connections = InternalStats.collect().getMusicPlayers();
+                        if (connections <= 1 || (secondsWaitedForRestart >= (60 * 60 * 3))) {
+                            if (connections <= 3) {
                                 try {
                                     update(Admin.this, channel);
                                 }

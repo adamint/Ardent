@@ -26,16 +26,6 @@ public class Status extends Command {
         super(commandSettings);
     }
 
-    public static int getVoiceConnections() {
-        int counter = 0;
-        for (Shard shard : getShards()) {
-            for (Guild guild : shard.jda.getGuilds()) {
-                if (guild.getAudioManager().isConnected()) counter++;
-            }
-        }
-        return counter;
-    }
-
     public static int getUserAmount() {
         int amount = 0;
         for (Shard shard : getShards()) {
@@ -74,7 +64,7 @@ public class Status extends Command {
         embedBuilder.addField("Commands Received", cmds, true);
 
         embedBuilder.addField("Servers", String.valueOf(internalStats.getGuilds()), true);
-        embedBuilder.addField("", String.valueOf(musicStats.getK()), true);
+        embedBuilder.addField("Music Players", String.valueOf(musicStats.getK()), true);
 
         embedBuilder.addField("Queue Length", String.valueOf(musicStats.getV()), true);
         embedBuilder.addField("CPU Usage", UsageUtils.getProcessCpuLoad() + "%", true);

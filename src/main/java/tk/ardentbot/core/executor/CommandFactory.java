@@ -6,7 +6,6 @@ import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.eclipse.jetty.util.ConcurrentArrayQueue;
 import tk.ardentbot.core.misc.logging.BotException;
 import tk.ardentbot.main.Ardent;
 import tk.ardentbot.main.Shard;
@@ -15,13 +14,14 @@ import tk.ardentbot.utils.models.RestrictedUser;
 import tk.ardentbot.utils.rpg.EntityGuild;
 
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class CommandFactory {
     private Shard shard;
 
     private HashMap<String, Long> commandUsages = new HashMap<>();
 
-    private ConcurrentArrayQueue<BaseCommand> baseCommands = new ConcurrentArrayQueue<>();
+    private ConcurrentLinkedQueue<BaseCommand> baseCommands = new ConcurrentLinkedQueue<>();
     private long messagesReceived = 0;
     private long commandsReceived = 0;
 
@@ -37,7 +37,7 @@ public class CommandFactory {
         return Ardent.cleverbots.get(guild.getId());
     }
 
-    public ConcurrentArrayQueue<BaseCommand> getBaseCommands() {
+    public ConcurrentLinkedQueue<BaseCommand> getBaseCommands() {
         return baseCommands;
     }
 

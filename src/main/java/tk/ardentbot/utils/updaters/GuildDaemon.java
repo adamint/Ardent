@@ -26,7 +26,6 @@ public class GuildDaemon implements Runnable {
                     if (!guildIds.contains(guild.getId())) {
                         r.db("data").table("guilds").insert(r.json(BaseCommand.getStaticGson().toJson(new GuildModel(guild.getId(),
                                 "english", "/"))));
-                        shard.botLanguageData.set(guild, "english");
                     }
                 }
             }

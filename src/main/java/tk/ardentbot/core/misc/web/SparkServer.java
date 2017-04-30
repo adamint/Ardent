@@ -1,6 +1,7 @@
 package tk.ardentbot.core.misc.web;
 
 import com.google.gson.Gson;
+import spark.Spark;
 import tk.ardentbot.core.executor.CommandFactory;
 import tk.ardentbot.core.misc.logging.BotException;
 import tk.ardentbot.core.misc.web.models.Command;
@@ -8,6 +9,7 @@ import tk.ardentbot.core.misc.web.models.Status;
 import tk.ardentbot.core.misc.web.models.User;
 import tk.ardentbot.main.Ardent;
 import tk.ardentbot.utils.discord.InternalStats;
+import tk.ardentbot.utils.discord.UserUtils;
 
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
@@ -25,6 +27,9 @@ public class SparkServer {
      */
     public static void setup() {
         port(666);
+        Spark.exception(Exception.class, (exception, request, response) -> {
+            exception.printStackTrace();
+        });
         get("/api/commands", (rq, rs) -> {
             CommandFactory factory = shard0.factory;
             ArrayList<Command> commands = new ArrayList<>();
@@ -43,30 +48,50 @@ public class SparkServer {
         get("/api/staff", (rq, rs) -> {
             ArrayList<User> developers = new ArrayList<>();
             for (String id : Ardent.developers) {
-                net.dv8tion.jda.core.entities.User user = shard0.jda.getUserById(id);
-                String avatarUrl = user.getAvatarUrl();
-                if (avatarUrl == null) avatarUrl = getDefaultImage();
-
-                developers.add(new User(id, user.getName(), user.getDiscriminator(), avatarUrl, "developer"));
+                try {
+                    long u = Long.parseLong(id);
+                    net.dv8tion.jda.core.entities.User user = UserUtils.getUserById(id);
+                    String avatarUrl = user.getAvatarUrl();
+                    if (avatarUrl == null) avatarUrl = getDefaultImage();
+                    developers.add(new User(id, user.getName(), user.getDiscriminator(), avatarUrl, "developer"));
+                }
+                catch (NumberFormatException ignored) {
+                }
             }
             ArrayList<User> translators = new ArrayList<>();
             for (String id : Ardent.translators) {
-                net.dv8tion.jda.core.entities.User user = shard0.jda.getUserById(id);
-                String avatarUrl = user.getAvatarUrl();
-                if (avatarUrl == null) avatarUrl = getDefaultImage();
-
-                translators.add(new User(id, user.getName(), user.getDiscriminator(), avatarUrl, "translator"));
+                try {
+                    net.dv8tion.jda.core.entities.User user = UserUtils.getUserById(id);
+                    String avatarUrl = user.getAvatarUrl();
+                    if (avatarUrl == null) avatarUrl = getDefaultImage();
+                    translators.add(new User(id, user.getName(), user.getDiscriminator(), avatarUrl, "translator"));
+                }
+                catch (NumberFormatException ignored) {
+                }
+            }
+            ArrayList<User> moderators = new ArrayList<>();
+            for (String id : Ardent.moderators) {
+                try {
+                    net.dv8tion.jda.core.entities.User user = UserUtils.getUserById(id);
+                    String avatarUrl = user.getAvatarUrl();
+                    if (avatarUrl == null) avatarUrl = getDefaultImage();
+                    moderators.add(new User(id, user.getName(), user.getDiscriminator(), avatarUrl, "moderator"));
+                }
+                catch (NumberFormatException ignored) {
+                }
             }
             ArrayList<ArrayList<User>> staff = new ArrayList<>();
             staff.add(developers);
             staff.add(translators);
+            staff.add(moderators);
             return shard0.gson.toJson(staff);
         });
         get("/api/status", (rq, rs) -> {
             InternalStats internalStats = InternalStats.collect();
             return shard0.gson.toJson(new Status(internalStats.getMessagesReceived(),
-                    internalStats.getCommandsReceived(), ManagementFactory.getRuntimeMXBean().getUptime() / 1000,
-                    internalStats.getLoadedCommands(), internalStats.getGuilds(), internalStats.getUsers()));
+                    internalStats.getCommandsReceived(), internalStats.getLoadedCommands(), ManagementFactory.getRuntimeMXBean()
+                    .getUptime() / 1000, internalStats.getGuilds(), internalStats.getUsers(), internalStats.getRoleCount(), internalStats
+                    .getTextChannelCount(), internalStats.getVoiceChannelCount(), internalStats.getMusicPlayers()));
         });
     }
 

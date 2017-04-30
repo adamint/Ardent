@@ -16,7 +16,8 @@ public class Kick extends Command {
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
         if (args.length == 1) {
-            sendTranslatedMessage("Kick users by typing **{0}kick** and then mentioning one or more users. The bot must have permission to kick users".replace("{0}", GuildUtils
+            sendTranslatedMessage(("Kick users by typing **{0}** and then mentioning one or more users. The bot must have permission to " +
+                    "kick users").replace("{0}", GuildUtils
                     .getPrefix(guild) + args[0]), channel, user);
         } else {
             Member userMember = guild.getMember(user);

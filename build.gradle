@@ -27,7 +27,7 @@ dependencies {
     compile 'com.github.vbauer:yandex-translate-api:1.2.4'
     compile group: 'ca.pjer', name: 'chatter-bot-api', version: '2.0.0'
     compile group: 'com.mashape.unirest', name: 'unirest-java', version: '1.4.9'
-    compile 'com.sparkjava:spark-core:2.5.5'
+    compile 'com.sparkjava:spark-core:2.6.0.RC0'
     compile 'com.sparkjava:spark-template-handlebars:2.5.5'
     compile group: 'org.twitter4j', name: 'twitter4j-core', version: '4.0.6'
     compile group: 'org.apache.commons', name: 'commons-csv', version: '1.4'

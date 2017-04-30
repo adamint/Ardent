@@ -9,7 +9,7 @@ import java.time.Instant;
 import java.util.HashMap;
 
 public abstract class Ratelimitable extends Command {
-    private int time;
+    private int time = 15;
     private HashMap<String, Long> ratelimited = new HashMap<>();
 
     public Ratelimitable(CommandSettings commandSettings) {

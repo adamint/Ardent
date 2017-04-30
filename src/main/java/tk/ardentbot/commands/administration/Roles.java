@@ -6,7 +6,6 @@ import net.dv8tion.jda.core.exceptions.PermissionException;
 import tk.ardentbot.core.executor.Command;
 import tk.ardentbot.core.executor.Subcommand;
 import tk.ardentbot.core.misc.logging.BotException;
-import tk.ardentbot.core.translate.Language;
 
 import java.util.List;
 
@@ -16,15 +15,15 @@ public class Roles extends Command {
     }
 
     @Override
-    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws Exception {
-        sendHelp(language, channel, guild, user, this);
+    public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
+        sendHelp(channel, guild, user, this);
     }
 
     @Override
     public void setupSubcommands() throws Exception {
-        subcommands.add(new Subcommand(this, "add") {
+        subcommands.add(new Subcommand("Adds the specified role to a user", "add @User [Role name]", "add") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws
                     Exception {
                 if (args.length > 2) {
                     Member userMember = guild.getMember(user);
@@ -46,8 +45,8 @@ public class Roles extends Command {
                                         Role r = roles.get(0);
                                         guild.getController().addRolesToMember(mentionedMember, r).queue(aVoid -> {
                                             try {
-                                                String reply = getTranslation("roles", language, "addedrole").getTranslation().replace
-                                                        ("{0}", r.getName()).replace("{1}", mentioned.getName());
+                                                String reply = "Added **{0}** to {1}".replace
+                                                        ("{0}", r.getName()).replace("{1}", mentioned.getAsMention());
                                                 sendTranslatedMessage(reply, channel, user);
                                             }
                                             catch (Exception e) {
@@ -56,25 +55,24 @@ public class Roles extends Command {
                                         });
                                     }
                                     catch (PermissionException ex) {
-                                        sendRetrievedTranslation(channel, "other", language, "needproperpermissions",
-                                                user);
+                                        sendTranslatedMessage("I don't have permission to do this", channel, user);
                                     }
                                 }
-                                else sendRetrievedTranslation(channel, "roles", language, "norolesfound", user);
+                                else sendTranslatedMessage("No roles with that name were found", channel, user);
                             }
-                            else sendRetrievedTranslation(channel, "roles", language, "cannotmodify", user);
+                            else sendTranslatedMessage("You cannot modify this user!", channel, user);
                         }
-                        else sendRetrievedTranslation(channel, "other", language, "mentionuser", user);
+                        else sendTranslatedMessage("You need to mention a user", channel, user);
                     }
-                    else sendRetrievedTranslation(channel, "other", language, "needmanageroles", user);
+                    else sendTranslatedMessage("You need the Manage Roles permission", channel, user);
                 }
-                else sendRetrievedTranslation(channel, "roles", language, "mentionuserandrole", user);
+                else sendTranslatedMessage("Please mention a user and type a role name", channel, user);
             }
         });
 
-        subcommands.add(new Subcommand(this, "remove") {
+        subcommands.add(new Subcommand("Removes the specified role from a user", "remove @user [Role name]", "remove") {
             @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args, Language language) throws
+            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws
                     Exception {
                 if (args.length > 2) {
                     Member userMember = guild.getMember(user);
@@ -96,8 +94,8 @@ public class Roles extends Command {
                                         Role r = roles.get(0);
                                         guild.getController().removeRolesFromMember(mentionedMember, r).queue(aVoid -> {
                                             try {
-                                                String reply = getTranslation("roles", language, "removedrole").getTranslation().replace
-                                                        ("{0}", r.getName()).replace("{1}", mentioned.getName());
+                                                String reply = "Successfully removed role {0} from {1}".replace
+                                                        ("{0}", r.getName()).replace("{1}", mentioned.getAsMention());
                                                 sendTranslatedMessage(reply, channel, user);
                                             }
                                             catch (Exception e) {
@@ -106,18 +104,18 @@ public class Roles extends Command {
                                         });
                                     }
                                     catch (PermissionException ex) {
-                                        sendRetrievedTranslation(channel, "other", language, "needproperpermissions", user);
+                                        sendTranslatedMessage("I don't have permission to do this", channel, user);
                                     }
                                 }
-                                else sendRetrievedTranslation(channel, "roles", language, "norolesfound", user);
+                                else sendTranslatedMessage("No roles with that name were found", channel, user);
                             }
-                            else sendRetrievedTranslation(channel, "roles", language, "cannotmodify", user);
+                            else sendTranslatedMessage("You cannot modify this user!", channel, user);
                         }
-                        else sendRetrievedTranslation(channel, "other", language, "mentionuser", user);
+                        else sendTranslatedMessage("You need to mention a user", channel, user);
                     }
-                    else sendRetrievedTranslation(channel, "other", language, "needmanageroles", user);
+                    else sendTranslatedMessage("You need the Manage Roles permission", channel, user);
                 }
-                else sendRetrievedTranslation(channel, "roles", language, "mentionuserandrole", user);
+                else sendTranslatedMessage("Please mention a user and type a role name", channel, user);
             }
         });
     }

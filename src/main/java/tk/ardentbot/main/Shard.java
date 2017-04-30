@@ -174,10 +174,10 @@ public class Shard {
                 factory.registerCommand(new Status(new BaseCommand.CommandSettings(true, true, Category
                         .BOTINFO, "View the current status of Ardent", "status", "statut")));
                 factory.registerCommand(new Ping(new BaseCommand.CommandSettings(true, true, Category
-                        .BOTINFO, "Checks and displays the bot response time", "status", "statut")).with(30));
+                        .BOTINFO, "Checks and displays the bot response time", "ping")).with(30));
                 factory.registerCommand(help);
                 factory.registerCommand(new Stats(new BaseCommand.CommandSettings(true, true, Category
-                        .BOTINFO, "View interesting stats about Ardent", "status", "statut")));
+                        .BOTINFO, "View interesting stats about Ardent", "stats")));
 
                 factory.registerCommand(new Music(new BaseCommand.CommandSettings(false, true, Category.FUN,
                         "Play music from youtube, soundcloud, or even search for songs!", "music", "m", "moosic"), this));
@@ -234,8 +234,6 @@ public class Shard {
                         "defaultrole")));
                 factory.registerCommand(new Unmute(new BaseCommand.CommandSettings(false, true, Category
                         .GUILDADMINISTRATION, "Unmute users who have been muted!", "unmute")));
-                factory.registerCommand(new Mute(new BaseCommand.CommandSettings(false, true, Category
-                        .GUILDADMINISTRATION, "Stop users from speaking", "mute")));
                 factory.registerCommand(new Automessage(new BaseCommand.CommandSettings(false, true,
                         Category.GUILDADMINISTRATION, "Set an automated join & leave message for your server!", "automessage")));
 

@@ -1,7 +1,6 @@
 package tk.ardentbot.utils.discord;
 
 import net.dv8tion.jda.core.entities.Guild;
-import org.eclipse.jetty.util.ConcurrentArrayQueue;
 import tk.ardentbot.commands.botinfo.Status;
 import tk.ardentbot.core.executor.BaseCommand;
 
@@ -11,6 +10,7 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static tk.ardentbot.main.Ardent.shard0;
 import static tk.ardentbot.utils.MapUtils.sortByValue;
@@ -23,7 +23,7 @@ public class UsageUtils {
     };
 
     public static ArrayList<BaseCommand> orderByUsageDesc() {
-        ConcurrentArrayQueue<BaseCommand> unsorted = shard0.factory.getBaseCommands();
+        ConcurrentLinkedQueue<BaseCommand> unsorted = shard0.factory.getBaseCommands();
         ArrayList<BaseCommand> baseCommands = new ArrayList<>();
         for (BaseCommand c : unsorted) {
             if (!c.getName().equalsIgnoreCase("patreon") && !c.getName().equalsIgnoreCase

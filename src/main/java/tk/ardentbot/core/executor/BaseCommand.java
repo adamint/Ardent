@@ -31,7 +31,6 @@ public abstract class BaseCommand {
     Category category;
     @Getter
     String description;
-    private String[] aliases;
     private Shard shard;
 
     /**
@@ -191,7 +190,7 @@ public abstract class BaseCommand {
     }
 
     public String getName() {
-        return aliases[0];
+        return botCommand.getAliases()[0];
     }
 
     boolean isPrivateChannelUsage() {
@@ -219,7 +218,7 @@ public abstract class BaseCommand {
      */
     @Override
     public boolean equals(Object o) {
-        return o instanceof BaseCommand && aliases[0].equals(((BaseCommand) o).aliases[0]);
+        return o instanceof BaseCommand && botCommand.getAliases()[0].equals(((BaseCommand) o).botCommand.getAliases()[0]);
     }
 
     public Shard getShard() {

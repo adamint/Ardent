@@ -302,7 +302,8 @@ public class Music extends Command {
                 }
                 try {
                     audioManager.openAudioConnection(voiceChannel);
-                    command.sendTranslatedMessage("Connected to {0}".replace("{0}", voiceChannel.getName()), channel, user.getUser());
+                    command.sendTranslatedMessage("Connected to channel **{0}**".replace("{0}", voiceChannel.getName()), channel, user
+                            .getUser());
                 }
                 catch (PermissionException e) {
                     command.sendTranslatedMessage("I don't have permission to join " + voiceChannel.getName() + "!", channel, user

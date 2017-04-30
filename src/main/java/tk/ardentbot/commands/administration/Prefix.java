@@ -27,7 +27,7 @@ public class Prefix extends Command {
         subcommands.add(new Subcommand("View the prefix of your server!", "view", "view") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
-                sendTranslatedMessage("The prefix for this server is {0}.".replace
+                sendTranslatedMessage("The prefix for this server is **{0}**.".replace
                         ("{0}", GuildUtils.getPrefix(guild)), channel, user);
             }
         });

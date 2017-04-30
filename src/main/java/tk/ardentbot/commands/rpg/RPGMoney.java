@@ -33,12 +33,12 @@ public class RPGMoney extends Ratelimitable {
         List<User> mentionedUsers = message.getMentionedUsers();
         if (mentionedUsers.size() > 0) {
             User mentioned = mentionedUsers.get(0);
-            sendTranslatedMessage("{0}'s balance: {1}".replace("{0}", mentioned.getName())
+            sendTranslatedMessage("{0}'s balance: **{1}**".replace("{0}", mentioned.getName())
                     .replace("{1}", RPGUtils.formatMoney(Profile.get(mentioned).getMoney())), channel, user);
         }
         else {
             StringBuilder sb = new StringBuilder();
-            sb.append("Your balance: ".replace("{0}", RPGUtils.formatMoney(Profile.get(user).getMoney())));
+            sb.append("Your balance: **{0}**".replace("{0}", RPGUtils.formatMoney(Profile.get(user).getMoney())));
             sb.append("\n\nWho's the richest in your guild? In the entire Ardent database? Check with */money server* and */money top*");
             sendTranslatedMessage(sb.toString(), channel, user);
         }
