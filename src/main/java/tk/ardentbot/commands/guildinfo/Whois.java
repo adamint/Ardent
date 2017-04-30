@@ -48,11 +48,11 @@ public class Whois extends Command {
         builder.addField("Username", member.getUser().getName(), true);
         builder.addField("Nickname", nick, true);
 
-        builder.addField("None", "#" + member.getUser().getDiscriminator(), true);
-        builder.addField("Discriminator", member.getJoinDate().toLocalDate().toString(), true);
+        builder.addField("Discriminator", "#" + member.getUser().getDiscriminator(), true);
+        builder.addField("Join Date", member.getJoinDate().toLocalDate().toString(), true);
 
         builder.addField("Joindate", String.valueOf(daysInGuild), true);
-        builder.addField("roles", roles.toString(), true);
+        builder.addField("Roles", roles.toString(), true);
 
         sendEmbed(builder, channel, user);
     }

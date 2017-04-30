@@ -149,7 +149,7 @@ public class Shard {
                 factory = new CommandFactory(this);
 
                 help = new Help(new BaseCommand.CommandSettings(true, true, Category.BOTINFO, "See command help", "help", "watH"));
-                patreon = new Patreon(new BaseCommand.CommandSettings(true, true, Category.BOTINFO, "View Ardent's patreon", "patreon"));
+                patreon = new Donate(new BaseCommand.CommandSettings(true, true, Category.BOTINFO, "Learn how to support Ardent", "Patreon"));
                 request = new Request(new BaseCommand.CommandSettings(true, true, Category.BOTADMINISTRATION, "Request a feature for " +
                         "Ardent", "request"));
 
