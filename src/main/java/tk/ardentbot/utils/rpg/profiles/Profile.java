@@ -142,7 +142,7 @@ public class Profile {
     }
 
     public String getCollectionTime() {
-        return canCollect() ? "You can collect your daily cash now!" : "You will be able to use /daily at " + Date.from(Instant
+        return canCollect() ? "You can collect your daily cash now!" : "You will be able to use /daily again at " + Date.from(Instant
                 .ofEpochSecond(last_collected)
                 .plus(1, ChronoUnit.DAYS)).toLocaleString();
     }

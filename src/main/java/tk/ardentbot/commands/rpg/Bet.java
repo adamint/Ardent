@@ -55,7 +55,8 @@ public class Bet extends Command {
                                                     (amountToBet)), channel, user);
                                         }
                                         else {
-                                            sendTranslatedMessage("Sorry, you lost " + amountToBet + " :frowning: The correct answer " +
+                                            sendTranslatedMessage("Sorry, you lost " + RPGUtils.formatMoney(amountToBet) + " :frowning: " +
+                                                    "The correct answer " +
                                                     "was " + generated, channel, user);
                                             profile.removeMoney(amountToBet);
                                         }
@@ -103,7 +104,7 @@ public class Bet extends Command {
                                                 (profile.getMoney())), channel, user);
                                     }
                                     else {
-                                        sendTranslatedMessage("Sorry, you lost " + profile.getMoney() + " :frowning: The correct answer " +
+                                        sendTranslatedMessage("Sorry, you lost " + RPGUtils.formatMoney(profile.getMoney()) + " :frowning: The correct answer " +
                                                 "was " + generated, channel, user);
                                         profile.setZero();
                                     }
