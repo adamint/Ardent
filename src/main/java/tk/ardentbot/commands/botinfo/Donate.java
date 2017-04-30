@@ -13,7 +13,7 @@ public class Donate extends Command {
 
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
-        sendTranslatedMessage("Want to support Ardent? Pledge at https://patreon.com/ardent and receive perks!/n You can also donate directly at https://www.paypal.me/ardentbot", channel, user);
+        sendTranslatedMessage("Want to support Ardent? Pledge at https://patreon.com/ardent and receive perks!\n You can also donate directly at https://www.paypal.me/ardentbot", channel, user);
     }
 
     @Override
