@@ -19,9 +19,10 @@ public class Daily extends Command {
         Profile profile = Profile.get(user);
         if (profile.canCollect()) {
             Random rand = new Random();
-            int random = 1000 + rand.nextInt(5000);
+            int random = rand.nextInt(1000);
             profile.addMoney(random);
-            sendTranslatedMessage("Your daily bonus was $**" + random + "**, you can use this again in 24 hours!", channel, user);
+            sendTranslatedMessage("Your daily bonus was **$" + random + "**, you can use this again in 24 hours!", channel, user);
+            profile.setCollected();
         }
         else {
             sendTranslatedMessage(profile.getCollectionTime(), channel, user);
