@@ -1,7 +1,6 @@
 package tk.ardentbot.commands.music;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
-import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
@@ -17,21 +16,20 @@ public class ArdentMusicManager {
     private AudioPlayer player;
     private Instant lastPlayedAt;
     private BlockingQueue<ArdentTrack> queue = new LinkedBlockingQueue<>();
-    private String channel;
+    private MessageChannel channel;
     private ArdentTrack currentlyPlaying;
-    private JDA jda;
+
     public ArdentMusicManager(AudioPlayer player, MessageChannel channel) {
         this.player = player;
-        this.channel = channel.getId();
-        this.jda = channel.getJDA();
+        this.channel = channel;
     }
 
     public TextChannel getChannel() {
-        return jda.getTextChannelById(channel);
+        return (TextChannel) channel;
     }
 
     public void setChannel(MessageChannel channel) {
-        this.channel = channel.getId();
+        this.channel = channel;
     }
 
     public boolean isTrackCurrentlyPlaying() {

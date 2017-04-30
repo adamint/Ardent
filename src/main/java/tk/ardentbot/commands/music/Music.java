@@ -342,8 +342,8 @@ public class Music extends Command {
                                             player.setPaused(true);
                                         }
                                         if (voiceChannel.getMembers().size() == 1) {
-                                            shard.help.sendTranslatedMessage("Left {0} because " +
-                                                            "no one was in the channel!".replace("{0}", voiceChannel.getName()),
+                                            shard.help.sendTranslatedMessage("Left {0} because no one was in the channel!".replace("{0}",
+                                                    voiceChannel.getName()),
                                                     channel, null);
                                             guild.getAudioManager().closeAudioConnection();
                                         }

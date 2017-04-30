@@ -13,12 +13,15 @@ import tk.ardentbot.utils.discord.InternalStats;
 import tk.ardentbot.utils.discord.UsageUtils;
 import tk.ardentbot.utils.rpg.profiles.Profile;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static tk.ardentbot.main.ShardManager.getShards;
+import static tk.ardentbot.rethink.Database.connection;
+import static tk.ardentbot.rethink.Database.r;
 
 public class Admin extends Command {
     private static int secondsWaitedForRestart = 0;
@@ -119,6 +122,20 @@ public class Admin extends Command {
                         shard.jda.getGuilds().forEach(g -> {
                             Ardent.sentAnnouncement.put(g.getId(), false);
                         });
+                    }
+                }
+                else if (args[1].equalsIgnoreCase("addpatron")) {
+                    List<User> mentioned = message.getMentionedUsers();
+                    if (mentioned.size() == 1) {
+                        User u = mentioned.get(0);
+                        String[] uArgs = message.getRawContent().split(" ");
+                        if (uArgs.length == 4) {
+                            String role = uArgs[3];
+                            if (role.equalsIgnoreCase("tier1") || role.equalsIgnoreCase("tier2") || role.equalsIgnoreCase("tier3")) {
+                                r.table("patrons").insert(r.hashMap("user_id", u.getId()).with("tier", role)).run(connection);
+                                channel.sendMessage("done").queue();
+                            }
+                        }
                     }
                 }
                 else if (args[1].equalsIgnoreCase("stop")) {
