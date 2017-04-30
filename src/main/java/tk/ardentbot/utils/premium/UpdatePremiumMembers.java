@@ -44,14 +44,9 @@ public class UpdatePremiumMembers implements Runnable {
     }
 
     private boolean checkIfHasPermissions(Member member, String tierName) throws SQLException {
-        boolean has = false;
         String id = member.getUser().getId();
         Cursor<HashMap> set = r.db("data").table("patrons").filter(row -> row.g("tier").eq(tierName).and(
                 row.g("user_id").eq(id))).run(connection);
-        if (set.hasNext()) has = true;
-        else {
-            r.db("data").table("patrons").filter(row -> row.g("user_id").eq(id)).delete().run(connection);
-        }
-        return has;
+        return set.hasNext();
     }
 }

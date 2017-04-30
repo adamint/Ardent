@@ -11,7 +11,6 @@ import tk.ardentbot.main.Shard;
 import tk.ardentbot.utils.discord.GuildUtils;
 import tk.ardentbot.utils.discord.InternalStats;
 import tk.ardentbot.utils.discord.MessageUtils;
-import tk.ardentbot.utils.discord.UsageUtils;
 import tk.ardentbot.utils.javaAdditions.Pair;
 
 import java.text.DecimalFormat;
@@ -37,8 +36,6 @@ public class Status extends Command {
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
         Shard shard = GuildUtils.getShard(guild);
-        double totalRAM = Runtime.getRuntime().totalMemory() / 1024 / 1024;
-        double usedRAM = totalRAM - Runtime.getRuntime().freeMemory() / 1024 / 1024;
 
         StringBuilder devUsernames = new StringBuilder();
         devUsernames.append("Adam#9261, Akio Nakao#7507");
@@ -67,9 +64,9 @@ public class Status extends Command {
         embedBuilder.addField("Music Players", String.valueOf(internalStats.getMusicPlayers()), true);
 
         embedBuilder.addField("Queue Length", String.valueOf(musicStats.getV()), true);
-        embedBuilder.addField("CPU Usage", UsageUtils.getProcessCpuLoad() + "%", true);
+        embedBuilder.addField("CPU Usage", internalStats.getCpu_usage() + "%", true);
 
-        embedBuilder.addField("RAM Usage", usedRAM + " / " + totalRAM + " MB", true);
+        embedBuilder.addField("RAM Usage", internalStats.getUsed_ram() + " / " + internalStats.getTotal_ram() + " MB", true);
         embedBuilder.addField("Developers", devUsernames.toString(), true);
 
         embedBuilder.addField("Website", "https://ardentbot.tk", true);

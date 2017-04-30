@@ -9,7 +9,9 @@ import tk.ardentbot.rethink.models.OneTimeBadgeModel;
 import tk.ardentbot.utils.discord.UserUtils;
 import tk.ardentbot.utils.rpg.BadgesList;
 
+import java.sql.Date;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +29,8 @@ public class Profile {
     private String user_id;
     @Getter
     private int credit;
+    @Getter
+    private long last_collected;
     protected Profile(User user) {
         this.user_id = user.getId();
         Profile profile = asPojo(r.db("data").table("profiles").get(user.getId()).run(connection), Profile.class);
@@ -36,11 +40,13 @@ public class Profile {
             rBadges.forEach(b -> badges.add(asPojo(b, Badge.class)));
             this.money = profile.getMoney();
             this.stocksOwned = profile.getStocksOwned();
+            this.last_collected = profile.getLast_collected();
         }
         else {
             this.stocksOwned = 0;
             this.money = 25;
             this.credit = 100;
+            this.last_collected = 0;
             r.table("profiles").insert(r.json(gson.toJson(this))).run(connection);
         }
     }
@@ -118,7 +124,6 @@ public class Profile {
         setCredit(credit + amount);
     }
 
-
     public void addMoney(double amount) {
         money += amount;
         r.table("profiles").get(user_id).update(r.hashMap("money", money)).run(connection);
@@ -127,6 +132,20 @@ public class Profile {
         }
     }
 
+    public void setCollected() {
+        last_collected = Instant.now().getEpochSecond();
+        r.table("profiles").get(user_id).update(r.hashMap("last_collected", last_collected)).run(connection);
+    }
+
+    private boolean canCollect() {
+        return Instant.now().minus(1, ChronoUnit.DAYS).getEpochSecond() >= last_collected;
+    }
+
+    public String getCollectionTime() {
+        return canCollect() ? "You can collect your daily cash now!" : "You will be able to use /daily at " + Date.from(Instant
+                .ofEpochSecond(last_collected)
+                .plus(1, ChronoUnit.DAYS)).toLocaleString();
+    }
     public void removeMoney(double amount) {
         addMoney(-amount);
     }

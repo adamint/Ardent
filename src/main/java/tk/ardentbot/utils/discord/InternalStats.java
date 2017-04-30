@@ -26,7 +26,12 @@ public class InternalStats {
     private long voiceChannelCount;
     @Getter
     private long musicPlayers;
-
+    @Getter
+    private double used_ram;
+    @Getter
+    private double total_ram;
+    @Getter
+    private double cpu_usage;
     public InternalStats(long messagesReceived, long commandsReceived, long loadedCommands, long guilds, long users, long roleCount, long
             textChannelCount,
                          long voiceChannelCount, long musicPlayers) {
@@ -39,6 +44,14 @@ public class InternalStats {
         this.textChannelCount = textChannelCount;
         this.voiceChannelCount = voiceChannelCount;
         this.musicPlayers = musicPlayers;
+        this.total_ram = Runtime.getRuntime().totalMemory() / 1024 / 1024;
+        this.used_ram = total_ram - Runtime.getRuntime().freeMemory() / 1024 / 1024;
+        try {
+            this.cpu_usage = UsageUtils.getProcessCpuLoad();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static InternalStats collect() {
