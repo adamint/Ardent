@@ -232,6 +232,7 @@ public class Shard {
                 factory.registerCommand(new DefaultRole(new BaseCommand.CommandSettings(false, true,
                         Category.GUILDADMINISTRATION, "Add a role that all users will be given when they join your server",
                         "defaultrole")));
+                factory.registerCommand(new GuildInvite(new BaseCommand.CommandSettings(false, true, Category.GUILDINFO, "Get the invite link for your bot", "ginvite")));
                 factory.registerCommand(new Unmute(new BaseCommand.CommandSettings(false, true, Category
                         .GUILDADMINISTRATION, "Unmute users who have been muted!", "unmute")));
                 factory.registerCommand(new Automessage(new BaseCommand.CommandSettings(false, true,
