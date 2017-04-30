@@ -51,7 +51,7 @@ public class Whois extends Command {
         builder.addField("Discriminator", "#" + member.getUser().getDiscriminator(), true);
         builder.addField("Join Date", member.getJoinDate().toLocalDate().toString(), true);
 
-        builder.addField("Joindate", String.valueOf(daysInGuild), true);
+        builder.addField("Days in Server", String.valueOf(daysInGuild), true);
         builder.addField("Roles", roles.toString(), true);
 
         sendEmbed(builder, channel, user);

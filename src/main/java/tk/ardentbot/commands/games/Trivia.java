@@ -93,7 +93,6 @@ public class Trivia extends Command {
                     solo = content.equalsIgnoreCase("yes");
                     TriviaGame currentGame = new TriviaGame(user, solo, (TextChannel) channel, 15);
                     gamesInSession.add(currentGame);
-                    sendTranslatedMessage("There's already a game in session in this server!", channel, user);
                     sendTranslatedMessage("The game is starting! Type your answers in this channel. You have **15** seconds to answer " +
                             "each question.", channel, user);
                     commenceRounds(guild, (TextChannel) channel, user, currentGame);
