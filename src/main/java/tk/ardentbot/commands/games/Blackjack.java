@@ -68,8 +68,9 @@ public class Blackjack extends Command {
             String content = actionMessage.getContent();
             if (content.equalsIgnoreCase("hit")) {
                 yourHand.generate();
-                if (yourHand.total() > 21)
+                if (yourHand.total() > 21) {
                     showResults(bet, yourHand, dealerHand, guild, channel, user, message, args);
+                }
                 else dispatchRound(bet, yourHand, dealerHand, guild, channel, user, message, args);
             }
             else if (content.equalsIgnoreCase("stay")) {
@@ -97,7 +98,6 @@ public class Blackjack extends Command {
             if (yourHand.total() > 21) {
                 builder.setDescription("You busted and lost {0} :frowning:".replace("{0}", RPGUtils.formatMoney(bet)));
                 Profile.get(user).removeMoney(bet);
-                return;
             }
             while (dealerHand.total() < 17) dealerHand.generate();
             if (dealerHand.total() > 21 && yourHand.total() <= 21 || dealerHand.total() < yourHand.total()) {

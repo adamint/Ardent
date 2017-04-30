@@ -264,6 +264,8 @@ public class Shard {
                         "you like :wink:", "tinder")));
                 factory.registerCommand(new UserProfile(new BaseCommand.CommandSettings(true, true, Category
                         .RPG, "View your Ardent profile using this!", "profile")));
+                factory.registerCommand(new Daily(new BaseCommand.CommandSettings(true, true, Category
+                        .RPG, "Get a daily stipend of money", "daily")));
 
                 factory.registerCommand(new NSFW(new BaseCommand.CommandSettings(false, true, Category.NSFW, "See and set the " +
                         "NSFW settings for your server :wink: ", "nsfw")));

@@ -1,4 +1,4 @@
-package tk.ardentbot.commands.games;
+package tk.ardentbot.commands.rpg;
 
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
@@ -16,13 +16,16 @@ public class Daily extends Command {
 
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
-        Random rand = new Random();
-        int random = 1000 + rand.nextInt(5000);
         Profile profile = Profile.get(user);
-        profile.addMoney(random);
-        sendTranslatedMessage("Your daily bonus was **" + random + "**", channel, user);
-
-
+        if (profile.canCollect()) {
+            Random rand = new Random();
+            int random = 1000 + rand.nextInt(5000);
+            profile.addMoney(random);
+            sendTranslatedMessage("Your daily bonus was $**" + random + "**, you can use this again in 24 hours!", channel, user);
+        }
+        else {
+            sendTranslatedMessage(profile.getCollectionTime(), channel, user);
+        }
     }
 
 
