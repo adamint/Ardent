@@ -48,25 +48,18 @@ public class Roles extends Command {
                                                 String reply = "Added **{0}** to {1}".replace
                                                         ("{0}", r.getName()).replace("{1}", mentioned.getAsMention());
                                                 sendTranslatedMessage(reply, channel, user);
-                                            }
-                                            catch (Exception e) {
+                                            } catch (Exception e) {
                                                 new BotException(e);
                                             }
                                         });
-                                    }
-                                    catch (PermissionException ex) {
+                                    } catch (PermissionException ex) {
                                         sendTranslatedMessage("I don't have permission to do this", channel, user);
                                     }
-                                }
-                                else sendTranslatedMessage("No roles with that name were found", channel, user);
-                            }
-                            else sendTranslatedMessage("You cannot modify this user!", channel, user);
-                        }
-                        else sendTranslatedMessage("You need to mention a user", channel, user);
-                    }
-                    else sendTranslatedMessage("You need the Manage Roles permission", channel, user);
-                }
-                else sendTranslatedMessage("Please mention a user and type a role name", channel, user);
+                                } else sendTranslatedMessage("No roles with that name were found", channel, user);
+                            } else sendTranslatedMessage("You cannot modify this user!", channel, user);
+                        } else sendTranslatedMessage("You need to mention a user", channel, user);
+                    } else sendTranslatedMessage("You need the Manage Roles permission", channel, user);
+                } else sendTranslatedMessage("Please mention a user and type a role name", channel, user);
             }
         });
 
@@ -97,25 +90,18 @@ public class Roles extends Command {
                                                 String reply = "Successfully removed role {0} from {1}".replace
                                                         ("{0}", r.getName()).replace("{1}", mentioned.getAsMention());
                                                 sendTranslatedMessage(reply, channel, user);
-                                            }
-                                            catch (Exception e) {
+                                            } catch (Exception e) {
                                                 new BotException(e);
                                             }
                                         });
-                                    }
-                                    catch (PermissionException ex) {
+                                    } catch (PermissionException ex) {
                                         sendTranslatedMessage("I don't have permission to do this", channel, user);
                                     }
-                                }
-                                else sendTranslatedMessage("No roles with that name were found", channel, user);
-                            }
-                            else sendTranslatedMessage("You cannot modify this user!", channel, user);
-                        }
-                        else sendTranslatedMessage("You need to mention a user", channel, user);
-                    }
-                    else sendTranslatedMessage("You need the Manage Roles permission", channel, user);
-                }
-                else sendTranslatedMessage("Please mention a user and type a role name", channel, user);
+                                } else sendTranslatedMessage("No roles with that name were found", channel, user);
+                            } else sendTranslatedMessage("You cannot modify this user!", channel, user);
+                        } else sendTranslatedMessage("You need to mention a user", channel, user);
+                    } else sendTranslatedMessage("You need the Manage Roles permission", channel, user);
+                } else sendTranslatedMessage("Please mention a user and type a role name", channel, user);
             }
         });
     }
