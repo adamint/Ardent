@@ -137,7 +137,7 @@ public class Profile {
         r.table("profiles").get(user_id).update(r.hashMap("last_collected", last_collected)).run(connection);
     }
 
-    private boolean canCollect() {
+    public boolean canCollect() {
         return Instant.now().minus(1, ChronoUnit.DAYS).getEpochSecond() >= last_collected;
     }
 
