@@ -34,6 +34,8 @@ public class GuildInfo extends Command {
         builder.addField("# of Text Channels", String.valueOf(guild.getTextChannels().size()), true);
         builder.addField("# of Roles", String.valueOf(guild.getRoles().size()), true);
         builder.addField("Region", guild.getRegion().getName(), true);
+        builder.addField("Number of emotes", String.valueOf(guild.getEmotes().size()), true);
+
 
         sendEmbed(builder, channel, user);
     }
