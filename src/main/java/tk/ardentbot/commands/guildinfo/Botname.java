@@ -18,8 +18,18 @@ public class Botname extends Command {
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
         if (args.length == 1) {
             sendTranslatedMessage("Enter what you want me to nickname myself", channel, user);
+            interactiveOperation(channel, message, howLongMessage -> {
+                String howLong = howLongMessage.getRawContent();
+                try {guild.getController().setNickname(guild.getSelfMember(), howLong).queue(aVoid -> {
+                        sendTranslatedMessage("Changed my nickname!", channel, user);
+                    });
+                }
+                catch (Exception e) {
+                    new BotException(e);
+                }
+             });
         }
-        else {
+        else{
             String name = message.getContent().replace(GuildUtils.getPrefix(guild) + args[0] + " ", "");
             if (name.equalsIgnoreCase("reset")) {
                 name = "";
