@@ -45,11 +45,11 @@ public class Whois extends Command {
                 "https://ardentbot.tk/guild", shard.bot.getAvatarUrl());
         builder.setThumbnail(member.getUser().getAvatarUrl());
 
-        builder.addField("Username", member.getUser().getName(), true);
+        builder.addField("Discord Name", member.getUser().getName() , true);
         builder.addField("Nickname", nick, true);
 
         builder.addField("Discriminator", "#" + member.getUser().getDiscriminator(), true);
-        builder.addField("Join Date", member.getJoinDate().toLocalDate().toString(), true);
+        builder.addField("Server Join Date", member.getJoinDate().toLocalDate().toString(), true);
 
         builder.addField("Days in Server", String.valueOf(daysInGuild), true);
         builder.addField("Roles", roles.toString(), true);

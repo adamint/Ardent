@@ -153,6 +153,9 @@ public class Shard {
                 request = new Request(new BaseCommand.CommandSettings(true, true, Category.BOTADMINISTRATION, "Request a feature for " +
                         "Ardent", "request"));
 
+
+
+                factory.registerCommand(new SoftBan(new BaseCommand.CommandSettings(true, true, Category.GUILDADMINISTRATION, "Ban people and then immediately unban them", "softban")));
                 factory.registerCommand(new Tweet(new BaseCommand.CommandSettings(true, true, Category
                         .BOTADMINISTRATION, "Send tweets to the Ardent twitter", "tweet")));
                 factory.registerCommand(new Admin(new BaseCommand.CommandSettings(true, true, Category

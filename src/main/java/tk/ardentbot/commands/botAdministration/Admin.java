@@ -1,5 +1,6 @@
 package tk.ardentbot.commands.botAdministration;
 
+import com.rethinkdb.net.Cursor;
 import net.dv8tion.jda.core.entities.*;
 import tk.ardentbot.commands.music.GuildMusicManager;
 import tk.ardentbot.commands.music.Music;
@@ -8,17 +9,22 @@ import tk.ardentbot.core.misc.logging.BotException;
 import tk.ardentbot.main.Ardent;
 import tk.ardentbot.main.Shard;
 import tk.ardentbot.main.ShardManager;
+import tk.ardentbot.rethink.models.Staff;
 import tk.ardentbot.utils.discord.GuildUtils;
 import tk.ardentbot.utils.discord.InternalStats;
 import tk.ardentbot.utils.discord.UsageUtils;
 import tk.ardentbot.utils.rpg.profiles.Profile;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import static tk.ardentbot.main.Ardent.developers;
+import static tk.ardentbot.main.Ardent.moderators;
+import static tk.ardentbot.main.Ardent.translators;
 import static tk.ardentbot.main.ShardManager.getShards;
 import static tk.ardentbot.rethink.Database.connection;
 import static tk.ardentbot.rethink.Database.r;
@@ -138,6 +144,24 @@ public class Admin extends Command {
                         }
                     }
                 }
+                else if (args[1].equalsIgnoreCase("addstaff")) {
+                    Cursor<HashMap> staff = r.db("data").table("staff").run(connection);
+                    staff.forEach(hashMap -> {
+                        Staff staffMember = asPojo(hashMap, Staff.class);
+                        List<User> mentioned = message.getMentionedUsers();
+                        User u = mentioned.get(0);
+                        String roleToAdd = args[3];
+                        if (staffMember.getRole().equalsIgnoreCase("Developer")) {
+                            if (!developers.contains(staffMember.getId())) developers.add(staffMember.getId());
+                        }
+                        else if (staffMember.getRole().equalsIgnoreCase("Moderator")) {
+                            if (!moderators.contains(staffMember.getId())) moderators.add(staffMember.getId());
+                        }
+
+
+
+
+
                 else if (args[1].equalsIgnoreCase("stop")) {
                     for (Shard shard : getShards()) {
                         shard.jda.shutdown(true);
@@ -152,10 +176,10 @@ public class Admin extends Command {
                     String[] raw = message.getRawContent().split(" ");
                     if (raw.length == 4) {
                         try {
-                            User mentioned = message.getMentionedUsers().get(0);
+                            User mentioned1 = message.getMentionedUsers().get(0);
                             double amount = Double.parseDouble(raw[3]);
-                            Profile.get(mentioned).addMoney(amount);
-                            sendTranslatedMessage("added " + amount + " to " + mentioned.getName(), channel, user);
+                            Profile.get(mentioned1).addMoney(amount);
+                            sendTranslatedMessage("added " + amount + " to " + mentioned1.getName(), channel, user);
                         }
                         catch (Exception e) {
                             sendTranslatedMessage("bad", channel, user);
