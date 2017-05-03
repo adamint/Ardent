@@ -32,7 +32,7 @@ public class Marry extends Command {
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
         if (args.length == 1) {
             Marriage marriage = getMarriage(user);
-            if (marriage == null) sendTranslatedMessage("You're not married!", channel, user);
+            if (marriage == null) sendTranslatedMessage("You're not married! Marry someone with /marry @(User)", channel, user);
             else {
                 sendEditedTranslation("**{0}** is married to **{1}**", user, channel, UserUtils.getUserById(marriage.getUser_one())
                         .getName(), UserUtils.getUserById(marriage.getUser_two()).getName());
