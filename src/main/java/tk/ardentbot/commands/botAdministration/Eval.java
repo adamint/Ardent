@@ -10,6 +10,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import tk.ardentbot.core.executor.Command;
 import tk.ardentbot.main.Ardent;
 import tk.ardentbot.main.ShardManager;
+import tk.ardentbot.rethink.Database;
 import tk.ardentbot.utils.Engine;
 import tk.ardentbot.utils.discord.GuildUtils;
 
@@ -35,7 +36,8 @@ public class Eval extends Command {
                 shortcuts.put("channel", channel);
                 shortcuts.put("server", guild);
                 shortcuts.put("guild", guild);
-
+                shortcuts.put("connection", Database.connection);
+                shortcuts.put("r", Database.r);
                 shortcuts.put("message", message);
                 shortcuts.put("msg", message);
                 shortcuts.put("me", message.getAuthor());

@@ -4,6 +4,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
+import tk.ardentbot.utils.discord.UserUtils;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -26,7 +27,7 @@ public abstract class Ratelimitable extends Command {
             throws Exception {
         long now = Instant.now().getEpochSecond();
         if (ratelimited.get(user.getId()) != null) {
-            if (ratelimited.get(user.getId()) > now) {
+            if (ratelimited.get(user.getId()) > now && !UserUtils.isStaff(user)) {
                 sendTranslatedMessage("Whoah, hold on there " + user.getAsMention() + "! You can use this command again in " +
                         String.valueOf(ratelimited.get(user.getId()) - now) + " seconds", channel, user);
                 return;

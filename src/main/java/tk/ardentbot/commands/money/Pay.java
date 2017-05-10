@@ -1,4 +1,4 @@
-package tk.ardentbot.commands.rpg;
+package tk.ardentbot.commands.money;
 
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;

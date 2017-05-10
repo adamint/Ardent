@@ -32,7 +32,7 @@ public class Help extends Command {
         StringBuilder description = new StringBuilder();
         for (Category category : Category.values()) {
             if (category == Category.NSFW) {
-                if (!NSFW.canSendNSFW(user, channel, guild, this)) {
+                if (!NSFW.csn(user, channel, guild)) {
                     continue;
                 }
             }

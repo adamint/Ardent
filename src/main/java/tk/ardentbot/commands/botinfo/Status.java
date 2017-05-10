@@ -46,7 +46,7 @@ public class Status extends Command {
         long seconds = secondsUptime % 60;
         if (days > 0) uptime.append(String.valueOf(days) + " day(s), ");
         if (hours > 0) uptime.append(String.valueOf(hours) + " hour(s), ");
-        if (minutes > 0) uptime.append(String.valueOf(minutes) + "minute(s), ");
+        if (minutes > 0) uptime.append(String.valueOf(minutes) + " minute(s), ");
         uptime.append(String.valueOf(seconds) + " second(s)");
 
         DecimalFormat formatter = new DecimalFormat("#,###");

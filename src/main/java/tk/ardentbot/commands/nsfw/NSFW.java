@@ -26,6 +26,26 @@ public class NSFW extends Command {
         return settings;
     }
 
+    public static boolean csn(User user, MessageChannel mc, Guild guild) {
+        TextChannel channel = (TextChannel) mc;
+        NSFWSettings settings = getSettings(guild);
+        if (!settings.isGlobal()) {
+            if (!settings.getNsfwChannels().contains(channel.getId())) {
+                return false;
+            }
+        }
+        if (settings.isNeedNsfwRole()) {
+            final boolean[] hasRole = {false};
+            guild.getMember(user).getRoles().forEach(role -> {
+                if (role.getName().equalsIgnoreCase("nsfw")) hasRole[0] = true;
+            });
+            if (!hasRole[0]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static boolean canSendNSFW(User user, MessageChannel mc, Guild guild, Command command) {
         TextChannel channel = (TextChannel) mc;
         NSFWSettings settings = getSettings(guild);

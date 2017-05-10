@@ -19,6 +19,10 @@ public class ProfileUpdater implements Runnable {
         Cursor<HashMap> profiles = r.db("data").table("profiles").run(connection);
         profiles.forEach(hashMap -> {
             Profile profile = asPojo(hashMap, Profile.class);
+            if (profile.getUser() == null && !Ardent.testingBot) {
+                r.table("profiles").get(profile.user_id).delete().run(connection);
+                return;
+            }
             for (Iterator<Badge> iterator = profile.getBadges().iterator(); iterator.hasNext(); ) {
                 Badge badge = iterator.next();
                 if (badge.getExpirationEpochSeconds() < Instant.now().getEpochSecond() && badge.getExpirationEpochSeconds() != 1) {

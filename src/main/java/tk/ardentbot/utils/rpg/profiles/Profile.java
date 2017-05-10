@@ -22,11 +22,11 @@ import static tk.ardentbot.rethink.Database.r;
 
 public class Profile {
     private static final Gson gson = new Gson();
+    public String user_id;
     private List<Badge> badges = new ArrayList<>();
     private double money;
     @Getter
     private double stocksOwned;
-    private String user_id;
     @Getter
     private int credit;
     @Getter

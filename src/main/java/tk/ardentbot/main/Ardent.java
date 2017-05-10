@@ -168,7 +168,7 @@ public class Ardent {
         globalExecutorService.scheduleAtFixedRate(updatePremiumMembers, 0, 1, TimeUnit.MINUTES);
 
         ProfileUpdater profileUpdater = new ProfileUpdater();
-        globalExecutorService.scheduleWithFixedDelay(profileUpdater, 5, 5, TimeUnit.MINUTES);
+        globalExecutorService.scheduleWithFixedDelay(profileUpdater, 1, 5, TimeUnit.MINUTES);
 
         if (!premiumBot) {
             SparkServer.setup();
