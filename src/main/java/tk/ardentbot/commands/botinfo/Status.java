@@ -36,11 +36,18 @@ public class Status extends Command {
     @Override
     public void noArgs(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
         Shard shard = GuildUtils.getShard(guild);
-
-        StringBuilder devUsernames = new StringBuilder();
-        devUsernames.append("Adam#9261, Akio Nakao#7507");
-
         InternalStats internalStats = InternalStats.collect();
+
+        StringBuilder uptime = new StringBuilder();
+        long secondsUptime = internalStats.getUptime();
+        long days = secondsUptime / 86400;
+        long hours = (secondsUptime / 3600) % 24;
+        long minutes = (secondsUptime / 60) % 60;
+        long seconds = secondsUptime % 60;
+        if (days > 0) uptime.append(String.valueOf(days) + " day(s), ");
+        if (hours > 0) uptime.append(String.valueOf(hours) + " hour(s), ");
+        if (minutes > 0) uptime.append(String.valueOf(minutes) + "minute(s), ");
+        uptime.append(String.valueOf(seconds) + " second(s)");
 
         DecimalFormat formatter = new DecimalFormat("#,###");
         String cmds = formatter.format(internalStats.getCommandsReceived());
@@ -52,7 +59,6 @@ public class Status extends Command {
                 .getAvatarUrl());
         embedBuilder.setThumbnail("https://a.dryicons.com/images/icon_sets/polygon_icons/png/256x256/computer.png");
 
-        embedBuilder.addField("Bot Status", ":thumbsup:", true);
         embedBuilder.addField("Loaded Commands", String.valueOf(shard.factory
                 .getLoadedCommandsAmount()), true);
 
@@ -61,13 +67,13 @@ public class Status extends Command {
         embedBuilder.addField("Commands Received", cmds, true);
 
         embedBuilder.addField("Servers", String.valueOf(internalStats.getGuilds()), true);
-        embedBuilder.addField("Music Players", String.valueOf(internalStats.getMusicPlayers()), true);
+        embedBuilder.addField("Music Players", String.valueOf(musicStats.getK()), true);
 
         embedBuilder.addField("Queue Length", String.valueOf(musicStats.getV()), true);
         embedBuilder.addField("CPU Usage", internalStats.getCpu_usage() + "%", true);
 
         embedBuilder.addField("RAM Usage", internalStats.getUsed_ram() + " / " + internalStats.getTotal_ram() + " MB", true);
-        embedBuilder.addField("Developers", devUsernames.toString(), true);
+        embedBuilder.addField("Uptime", uptime.toString(), true);
 
         embedBuilder.addField("Website", "https://ardentbot.tk", true);
         embedBuilder.addField("Get Help", "https://ardentbot.tk/guild", true);

@@ -62,7 +62,8 @@ public class Marry extends Command {
                 sendTranslatedMessage("Why are you even trying that??", channel, user);
                 return;
             }
-            sendEditedTranslation("{0}, {1} is proposing to you", user, channel, toMarryTo.getAsMention(), user.getAsMention());
+            sendEditedTranslation("{0}, {1} is proposing to you! Type `yes` to accept or `no` to brutally reject them", user, channel,
+                    toMarryTo.getAsMention(), user.getAsMention());
             longInteractiveOperation(channel, message, toMarryTo, 90, replyMessage -> {
                 String reply = replyMessage.getContent();
                 if (reply.equalsIgnoreCase("yes")) {

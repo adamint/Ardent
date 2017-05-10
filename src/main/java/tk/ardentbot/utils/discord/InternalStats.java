@@ -5,6 +5,8 @@ import net.dv8tion.jda.core.entities.Guild;
 import tk.ardentbot.core.executor.CommandFactory;
 import tk.ardentbot.main.Shard;
 
+import java.lang.management.ManagementFactory;
+
 import static tk.ardentbot.main.ShardManager.getShards;
 
 public class InternalStats {
@@ -80,5 +82,9 @@ public class InternalStats {
         }
         return new InternalStats(messagesReceived, commandsReceived, loadedCommands, guilds, users, roleCount, textChannelCount,
                 voiceChannelCount, musicPlayers);
+    }
+
+    public long getUptime() {
+        return ManagementFactory.getRuntimeMXBean().getUptime() / 1000;
     }
 }

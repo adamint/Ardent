@@ -27,7 +27,7 @@ public class UD extends Command {
         Shard shard = GuildUtils.getShard(guild);
         if (args.length == 1) {
             sendTranslatedMessage("Search a word's definition from Urban Dictionary. Example: {0}ud test".replace("{0}", GuildUtils
-                    .getPrefix(guild) + args[0]), channel, user);
+                    .getPrefix(guild)), channel, user);
         } else {
             GetRequest getRequest = Unirest.get("http://api.urbandictionary.com/v0/define?term=" + message
                     .getRawContent().replace(GuildUtils.getPrefix(guild) + args[0] + " ", "").replaceAll(" ", "%20"));

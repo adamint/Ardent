@@ -42,12 +42,7 @@ public class Join {
             ". There " +
             "are so many commands to play with!\n" +
             "**Question 4: How do I see this message again?**\n" +
-            "Simple! Just type /joinmessage\n" +
-            "**Question 5: I'm not english!!! How do I find Ardent in my language??**\n" +
-            "Easy! Simply do /language view to see a list of all supported language - then do /language set " +
-            "myLanguageNameHere!\n\n" +
-            "**Reset Ardent to english at ANY time by mentioning Ardent and typing english - Example: @Ardent " +
-            "english**";
+            "Simple! Just type /joinmessage";
 
     @SubscribeEvent
     public void onJoin(GuildJoinEvent event) {
@@ -56,17 +51,11 @@ public class Join {
         Cursor<GuildModel> guilds = r.db("data").table("guilds").filter(r.hashMap("guild_id", guild.getId())).run(connection);
         if (!guilds.hasNext()) {
             TextChannel channel = guild.getPublicChannel();
-            channel.sendMessage("Thanks for adding **Ardent**. This server's prefix is `/`, and you can use `/help` to see a list of " +
-                    "commands" +
-                    ". " +
-                    "If you don't speak english, use `/language` to change Ardent's language - Reset Ardent to english by typing @Ardent " +
-                    "english.\n" +
-                    "Enjoy, and if you have questions, join our support server @ https://ardentbot.tk/guild!").queue();
+            channel.sendMessage(welcomeText).queue();
 
             r.db("data").table("guilds").insert(r.hashMap("guild_id", guild.getId()).with("language", "english").with("prefix", "/")).run
                     (connection);
             String prefix = "/";
-            String language = "english";
 
             shard.botPrefixData.set(guild, prefix);
 

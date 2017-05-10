@@ -5,7 +5,8 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
-import org.apache.commons.lang.WordUtils;
+import org.apache.commons.lang3.text.WordUtils;
+import tk.ardentbot.commands.nsfw.NSFW;
 import tk.ardentbot.core.executor.BaseCommand;
 import tk.ardentbot.core.executor.Category;
 import tk.ardentbot.core.executor.Command;
@@ -30,6 +31,11 @@ public class Help extends Command {
 
         StringBuilder description = new StringBuilder();
         for (Category category : Category.values()) {
+            if (category == Category.NSFW) {
+                if (!NSFW.canSendNSFW(user, channel, guild, this)) {
+                    continue;
+                }
+            }
             description.append("**" + WordUtils.capitalize(category.name().toLowerCase()) + "**\n");
             ArrayList<BaseCommand> commandsInCategory = getCommandsInCategory(category);
             for (BaseCommand baseCommand : commandsInCategory) {
@@ -74,7 +80,7 @@ public class Help extends Command {
                     EmbedBuilder embedBuilder = MessageUtils.getDefaultEmbed(user);
                     embedBuilder.setAuthor("Commands in Category ".replace("{0}", WordUtils.capitalize(category.name().toLowerCase())),
                             "https://ardentbot.tk/guild", getShard().
-                            bot.getAvatarUrl());
+                                    bot.getAvatarUrl());
                     ArrayList<BaseCommand> commandsInCategory = Help.this.getCommandsInCategory(category);
                     StringBuilder description = new StringBuilder();
                     for (BaseCommand baseCommand : commandsInCategory) {

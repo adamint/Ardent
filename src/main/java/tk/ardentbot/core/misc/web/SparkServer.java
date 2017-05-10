@@ -11,7 +11,6 @@ import tk.ardentbot.main.Ardent;
 import tk.ardentbot.utils.discord.InternalStats;
 import tk.ardentbot.utils.discord.UserUtils;
 
-import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -89,8 +88,8 @@ public class SparkServer {
         get("/api/status", (rq, rs) -> {
             InternalStats internalStats = InternalStats.collect();
             return shard0.gson.toJson(new Status(internalStats.getMessagesReceived(),
-                    internalStats.getCommandsReceived(), ManagementFactory.getRuntimeMXBean()
-                    .getUptime() / 1000, internalStats.getLoadedCommands(), internalStats.getGuilds(), internalStats.getUsers(),
+                    internalStats.getCommandsReceived(), internalStats.getUptime(), internalStats.getLoadedCommands(), internalStats
+                    .getGuilds(), internalStats.getUsers(),
                     internalStats.getRoleCount(), internalStats
                     .getTextChannelCount(), internalStats.getVoiceChannelCount(), internalStats.getMusicPlayers()));
         });

@@ -1,6 +1,5 @@
 package tk.ardentbot.commands.botAdministration;
 
-import com.rethinkdb.net.Cursor;
 import net.dv8tion.jda.core.entities.*;
 import tk.ardentbot.commands.music.GuildMusicManager;
 import tk.ardentbot.commands.music.Music;
@@ -15,16 +14,12 @@ import tk.ardentbot.utils.discord.InternalStats;
 import tk.ardentbot.utils.discord.UsageUtils;
 import tk.ardentbot.utils.rpg.profiles.Profile;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static tk.ardentbot.main.Ardent.developers;
-import static tk.ardentbot.main.Ardent.moderators;
-import static tk.ardentbot.main.Ardent.translators;
 import static tk.ardentbot.main.ShardManager.getShards;
 import static tk.ardentbot.rethink.Database.connection;
 import static tk.ardentbot.rethink.Database.r;
@@ -145,23 +140,12 @@ public class Admin extends Command {
                     }
                 }
                 else if (args[1].equalsIgnoreCase("addstaff")) {
-                    Cursor<HashMap> staff = r.db("data").table("staff").run(connection);
-                    staff.forEach(hashMap -> {
-                        Staff staffMember = asPojo(hashMap, Staff.class);
-                        List<User> mentioned = message.getMentionedUsers();
-                        User u = mentioned.get(0);
-                        String roleToAdd = args[3];
-                        if (staffMember.getRole().equalsIgnoreCase("Developer")) {
-                            if (!developers.contains(staffMember.getId())) developers.add(staffMember.getId());
-                        }
-                        else if (staffMember.getRole().equalsIgnoreCase("Moderator")) {
-                            if (!moderators.contains(staffMember.getId())) moderators.add(staffMember.getId());
-                        }
-
-
-
-
-
+                    List<User> mentioned = message.getMentionedUsers();
+                    User u = mentioned.get(0);
+                    String roleToAdd = args[3];
+                    r.table("staff").insert(r.json(gson.toJson(new Staff(u.getId(), roleToAdd)))).run(connection);
+                    channel.sendMessage("done").queue();
+                }
                 else if (args[1].equalsIgnoreCase("stop")) {
                     for (Shard shard : getShards()) {
                         shard.jda.shutdown(true);
@@ -229,11 +213,15 @@ public class Admin extends Command {
                     // All credit to Kodehawa @ Mantaro
                     StringBuilder builder = new StringBuilder();
                     for (Shard shard : ShardManager.getShards()) {
-                        builder.append(shard.jda.getShardInfo()).append(" | STATUS: ").append(shard.jda.getStatus()).append(" | U: ")
-                                .append(shard.jda.getUsers().size()).append(" | G: ").append(shard.jda.getGuilds().size()).append(" | L: ")
+                        builder.append(shard.jda.getShardInfo()).append(" | STATUS: ").append(shard.jda.getStatus()).append(" | " +
+                                "U: ")
+
+                                .append(shard.jda.getUsers().size()).append(" | G: ").append(shard.jda.getGuilds().size()).append
+                                (" | L: ")
                                 .append(" | MC: ")
                                 .append(shard.jda.getVoiceChannels().stream().filter
-                                        (voiceChannel -> voiceChannel.getMembers().contains(voiceChannel.getGuild().getSelfMember()))
+                                        (voiceChannel -> voiceChannel.getMembers().contains(voiceChannel.getGuild().getSelfMember
+                                                ()))
                                         .count());
 
                         if (shard.jda.getShardInfo() != null && shard.jda.getShardInfo().equals(guild.getJDA().getShardInfo())) {

@@ -26,7 +26,7 @@ public class NSFW extends Command {
         return settings;
     }
 
-    static boolean canSendNSFW(User user, MessageChannel mc, Guild guild, Command command) {
+    public static boolean canSendNSFW(User user, MessageChannel mc, Guild guild, Command command) {
         TextChannel channel = (TextChannel) mc;
         NSFWSettings settings = getSettings(guild);
         if (!settings.isGlobal()) {

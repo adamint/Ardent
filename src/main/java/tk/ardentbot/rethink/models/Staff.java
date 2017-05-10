@@ -7,4 +7,9 @@ public class Staff {
     private String id;
     @Getter
     private String role;
+
+    public Staff(String id, String roleToAdd) {
+        this.id = id;
+        this.role = roleToAdd;
+    }
 }

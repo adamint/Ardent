@@ -37,7 +37,7 @@ public class SoftBan extends Command {
 
             }
         } else {
-            sendTranslatedMessage("You don't have the: ```BAN MEMBERS``` permission", channel, user);
+            sendTranslatedMessage("You don't have the: `Ban Members` permission", channel, user);
         }
     }
 

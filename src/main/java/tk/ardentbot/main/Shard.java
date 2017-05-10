@@ -151,7 +151,7 @@ public class Shard {
                 help = new Help(new BaseCommand.CommandSettings(true, true, Category.BOTINFO, "See command help", "help", "watH"));
                 patreon = new Donate(new BaseCommand.CommandSettings(true, true, Category.BOTINFO, "Learn how to support Ardent", "Patreon"));
                 request = new Request(new BaseCommand.CommandSettings(true, true, Category.BOTADMINISTRATION, "Request a feature for " +
-                        "Ardent", "request"));
+                        "Ardent", "request")).with(300);
 
 
 
@@ -235,7 +235,6 @@ public class Shard {
                 factory.registerCommand(new DefaultRole(new BaseCommand.CommandSettings(false, true,
                         Category.GUILDADMINISTRATION, "Add a role that all users will be given when they join your server",
                         "defaultrole")));
-                factory.registerCommand(new GuildInvite(new BaseCommand.CommandSettings(false, true, Category.GUILDINFO, "Get the invite link for your bot", "ginvite")));
                 factory.registerCommand(new Unmute(new BaseCommand.CommandSettings(false, true, Category
                         .GUILDADMINISTRATION, "Unmute users who have been muted!", "unmute")));
                 factory.registerCommand(new Automessage(new BaseCommand.CommandSettings(false, true,
