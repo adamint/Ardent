@@ -212,8 +212,7 @@ public abstract class Command extends BaseCommand {
     public abstract void setupSubcommands() throws Exception;
 
     public void sendHelp(MessageChannel channel, Guild guild, User author, BaseCommand
-            baseCommand) throws
-            Exception {
+            baseCommand) throws Exception {
         sendEmbed(getHelp(guild, author), channel, author);
     }
 

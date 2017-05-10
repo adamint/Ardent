@@ -34,9 +34,7 @@ import tk.ardentbot.commands.fun.*;
 import tk.ardentbot.commands.games.Blackjack;
 import tk.ardentbot.commands.games.Trivia;
 import tk.ardentbot.commands.guildinfo.*;
-import tk.ardentbot.commands.music.GuildMusicManager;
-import tk.ardentbot.commands.music.Music;
-import tk.ardentbot.commands.music.Play;
+import tk.ardentbot.commands.music.*;
 import tk.ardentbot.commands.nsfw.Asses;
 import tk.ardentbot.commands.nsfw.Feet;
 import tk.ardentbot.commands.nsfw.NSFW;
@@ -149,13 +147,13 @@ public class Shard {
                 factory = new CommandFactory(this);
 
                 help = new Help(new BaseCommand.CommandSettings(true, true, Category.BOTINFO, "See command help", "help", "watH"));
-                patreon = new Donate(new BaseCommand.CommandSettings(true, true, Category.BOTINFO, "Learn how to support Ardent", "Patreon"));
+                patreon = new Donate(new BaseCommand.CommandSettings(true, true, Category.BOTINFO, "Learn how to support Ardent",
+                        "Patreon"));
                 request = new Request(new BaseCommand.CommandSettings(true, true, Category.BOTADMINISTRATION, "Request a feature for " +
                         "Ardent", "request")).with(300);
 
-
-
-                factory.registerCommand(new SoftBan(new BaseCommand.CommandSettings(true, true, Category.GUILDADMINISTRATION, "Ban people and then immediately unban them", "softban")));
+                factory.registerCommand(new SoftBan(new BaseCommand.CommandSettings(true, true, Category.GUILDADMINISTRATION, "Ban people" +
+                        " and then immediately unban them", "softban")));
                 factory.registerCommand(new Tweet(new BaseCommand.CommandSettings(true, true, Category
                         .BOTADMINISTRATION, "Send tweets to the Ardent twitter", "tweet")));
                 factory.registerCommand(new Admin(new BaseCommand.CommandSettings(true, true, Category
@@ -182,10 +180,6 @@ public class Shard {
                 factory.registerCommand(new Stats(new BaseCommand.CommandSettings(true, true, Category
                         .BOTINFO, "View interesting stats about Ardent", "stats")));
 
-                factory.registerCommand(new Music(new BaseCommand.CommandSettings(false, true, Category.FUN,
-                        "Play music from youtube, soundcloud, or even search for songs!", "music", "m", "moosic"), this));
-                factory.registerCommand(new Play(new BaseCommand.CommandSettings(false, true, Category.FUN,
-                        "Shortcut for /music play", "play", "p")));
                 factory.registerCommand(new UD(new BaseCommand.CommandSettings(false, true, Category.FUN,
                         "Retrieves the urban dictionary definition for a word", "ud", "urban")));
                 factory.registerCommand(new GIF(new BaseCommand.CommandSettings(false, true, Category.FUN,
@@ -280,6 +274,51 @@ public class Shard {
 
                 factory.registerCommand(new AdBlock(new BaseCommand.CommandSettings(false, true, Category
                         .ANTI_TROLL, "Prevent users from advertising other servers", "adblock")));
+
+                factory.registerCommand(new Music(new BaseCommand.CommandSettings(false, true, Category.MUSIC,
+                        "Play music from youtube, soundcloud, or even search for songs!", "music", "m", "moosic"), this));
+                factory.registerCommand(new Play(new BaseCommand.CommandSettings(false, true, Category.FUN,
+                        "Play a song by its name or url", "play", "p")));
+                factory.registerCommand(new FancyPlay(new BaseCommand.CommandSettings(false, true,
+                        Category.MUSIC, "Play a song by its name or url - choose between search results", "fancyplay", "fp")));
+                factory.registerCommand(new ClearQueue(new BaseCommand.CommandSettings(false, true,
+                        Category.MUSIC, "Clear all songs from the queue", "clear", "cl")));
+                factory.registerCommand(new GetUrl(new BaseCommand.CommandSettings(false, true,
+                        Category.MUSIC, "Want to know the link of that cool song you're playing now? This subcommand will display it",
+                        "geturl")));
+                factory.registerCommand(new MusicLeave(new BaseCommand.CommandSettings(false, true,
+                        Category.MUSIC, "Makes me leave the voice channel I'm currently in", "leave")));
+                factory.registerCommand(new MusicOutput(new BaseCommand.CommandSettings(false, true,
+                        Category.MUSIC, "Set a channel to send all music output to", "musicoutput", "moutput")));
+                factory.registerCommand(new Pause(new BaseCommand.CommandSettings(false, true,
+                        Category.MUSIC, "Pause music playback", "pause")));
+                factory.registerCommand(new Playing(new BaseCommand.CommandSettings(false, true,
+                        Category.MUSIC, "View information about the currently playing song", "playing")));
+                factory.registerCommand(new Queue(new BaseCommand.CommandSettings(false, true,
+                        Category.MUSIC, "View the currently queued songs", "queue")));
+                factory.registerCommand(new Recommend(new BaseCommand.CommandSettings(false, true,
+                        Category.MUSIC, "Ardent will add recommended tracks based on currently playing songs", "recommend")));
+                factory.registerCommand(new Remove(new BaseCommand.CommandSettings(false, true,
+                        Category.MUSIC, "Remove a song from the queue by its number", "remove")));
+                factory.registerCommand(new RemoveFrom(new BaseCommand.CommandSettings(false, true,
+                        Category.MUSIC, "Removes all the tracks of the mentioned user from the queue", "removeallfrom", "removefrom")));
+                factory.registerCommand(new Restart(new BaseCommand.CommandSettings(false, true,
+                        Category.MUSIC, "Restarts the currently playing song", "restart")));
+                factory.registerCommand(new Resume(new BaseCommand.CommandSettings(false, true,
+                        Category.MUSIC, "Resumes music playback if it has been paused", "resume")));
+                factory.registerCommand(new Shuffle(new BaseCommand.CommandSettings(false, true,
+                        Category.MUSIC, "Shuffle the songs in the queue", "shuffle")));
+                factory.registerCommand(new Skip(new BaseCommand.CommandSettings(false, true,
+                        Category.MUSIC, "Skip the currently playing song (must have queued it or have permissions)", "skip")));
+                factory.registerCommand(new Stop(new BaseCommand.CommandSettings(false, true,
+                        Category.MUSIC, "Stops playback and clears the queue", "stop")));
+                factory.registerCommand(new Volume(new BaseCommand.CommandSettings(false, true,
+                        Category.MUSIC, "Sets the volume of the music player to the specified value", "volume")));
+                factory.registerCommand(new VoteToSkip(new BaseCommand.CommandSettings(false, true,
+                        Category.MUSIC, "Vote to skip the current song", "votetoskip", "vts")));
+                factory.registerCommand(new Loop(new BaseCommand.CommandSettings(false, true,
+                        Category.MUSIC, "This will loop the given amount of songs, starting at the first song in the queue, for the " +
+                        "amount of times given", "loop")));
 
                 musicManagers = new HashMap<>();
 

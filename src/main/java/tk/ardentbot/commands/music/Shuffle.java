@@ -8,8 +8,8 @@ import tk.ardentbot.utils.discord.UserUtils;
 import static tk.ardentbot.commands.music.Music.getGuildAudioPlayer;
 import static tk.ardentbot.commands.music.Music.sendTo;
 
-public class Stop extends Command {
-    public Stop(CommandSettings commandSettings) {
+public class Shuffle extends Command {
+    public Shuffle(CommandSettings commandSettings) {
         super(commandSettings);
     }
 
@@ -21,10 +21,8 @@ public class Stop extends Command {
                 .getConnectedChannel().getMembers().size() == 2)) {
             if (audioManager.isConnected()) {
                 GuildMusicManager manager = getGuildAudioPlayer(guild, channel);
-                if (manager.player.getPlayingTrack() != null) manager.player.stopTrack();
-                manager.scheduler.manager.resetQueue();
-                getShard().musicManagers.remove(Long.parseLong(guild.getId()));
-                sendTranslatedMessage("Stopped playback and cleared songs in the queue", sendTo(channel, guild), user);
+                manager.scheduler.manager.shuffle();
+                sendTranslatedMessage("Shuffled the queue!", sendTo(channel, guild), user);
             }
             else sendTranslatedMessage("I'm not in a voice channel!", channel, user);
         }
@@ -33,6 +31,5 @@ public class Stop extends Command {
 
     @Override
     public void setupSubcommands() throws Exception {
-
     }
 }

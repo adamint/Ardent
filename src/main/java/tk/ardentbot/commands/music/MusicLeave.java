@@ -5,8 +5,8 @@ import net.dv8tion.jda.core.managers.AudioManager;
 import tk.ardentbot.core.executor.Command;
 import tk.ardentbot.utils.discord.UserUtils;
 
-public class Leave extends Command {
-    public Leave(CommandSettings commandSettings) {
+public class MusicLeave extends Command {
+    public MusicLeave(CommandSettings commandSettings) {
         super(commandSettings);
     }
 

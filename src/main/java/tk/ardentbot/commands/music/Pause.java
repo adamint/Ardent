@@ -6,10 +6,9 @@ import tk.ardentbot.core.executor.Command;
 import tk.ardentbot.utils.discord.UserUtils;
 
 import static tk.ardentbot.commands.music.Music.getGuildAudioPlayer;
-import static tk.ardentbot.commands.music.Music.sendTo;
 
-public class Stop extends Command {
-    public Stop(CommandSettings commandSettings) {
+public class Pause extends Command {
+    public Pause(CommandSettings commandSettings) {
         super(commandSettings);
     }
 
@@ -21,10 +20,13 @@ public class Stop extends Command {
                 .getConnectedChannel().getMembers().size() == 2)) {
             if (audioManager.isConnected()) {
                 GuildMusicManager manager = getGuildAudioPlayer(guild, channel);
-                if (manager.player.getPlayingTrack() != null) manager.player.stopTrack();
-                manager.scheduler.manager.resetQueue();
-                getShard().musicManagers.remove(Long.parseLong(guild.getId()));
-                sendTranslatedMessage("Stopped playback and cleared songs in the queue", sendTo(channel, guild), user);
+                if (!manager.player.isPaused()) {
+                    sendTranslatedMessage("Paused music playback", channel, user);
+                    manager.player.setPaused(true);
+                }
+                else {
+                    sendTranslatedMessage("Can't pause an already-paused player!", channel, user);
+                }
             }
             else sendTranslatedMessage("I'm not in a voice channel!", channel, user);
         }
