@@ -10,6 +10,8 @@ import tk.ardentbot.core.executor.Subcommand;
 import tk.ardentbot.rethink.models.Lottery;
 import tk.ardentbot.utils.discord.MessageUtils;
 
+import java.sql.Date;
+import java.time.Instant;
 import java.util.ArrayList;
 
 import static tk.ardentbot.rethink.Database.connection;
@@ -36,8 +38,11 @@ public class RPGLottery extends Command {
                         .getSelfMember().getUser().getEffectiveAvatarUrl());
                 StringBuilder description = new StringBuilder();
                 lotteries.forEach(lottery -> {
-
+                    description.append("**ID**: " + lottery.getId() + " | **Total Pot:** " + lottery.getPot() + " | **Ticket cost**: " +
+                            lottery.getTicketCost() + " | " +
+                            "**End Time**: " + Date.from(Instant.ofEpochSecond(lottery.getEndTime())).toLocaleString() + "\n");
                 });
+                description.append("\nUse /ticket buy ");
                 builder.setDescription(description.toString());
                 sendEmbed(builder, channel, user);
             }

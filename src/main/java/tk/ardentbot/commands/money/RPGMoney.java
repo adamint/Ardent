@@ -77,7 +77,7 @@ public class RPGMoney extends Ratelimitable {
                     return;
                 }
                 try {
-                    int page = Integer.parseInt(args[2]);
+                    int page = Integer.parseInt(args[2]) - 1;
                     HashMap<User, Double> moneyAmounts = new HashMap<>();
                     Cursor<HashMap> top = r.db("data").table("profiles").orderBy()
                             .optArg("index", r.desc("money")).slice((page * 20), (page * 20) + 11).limit(25).run(connection);

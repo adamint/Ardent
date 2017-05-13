@@ -2,6 +2,7 @@ group 'tk.ardentbot'
 version '1.0-SNAPSHOT'
 
 apply plugin: 'java'
+apply plugin: 'kotlin'
 
 sourceCompatibility = 1.8
 
@@ -39,6 +40,14 @@ dependencies {
     compile 'com.google.oauth-client:google-oauth-client-jetty:1.22.0'
     compile 'com.google.apis:google-api-services-sheets:v4-rev468-1.22.0'
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.0'
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
 }
 buildscript {
+    ext.kotlin_version = '1.1.2-3'
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
 }

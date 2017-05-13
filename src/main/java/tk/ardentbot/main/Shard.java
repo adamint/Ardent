@@ -38,10 +38,7 @@ import tk.ardentbot.commands.money.Bet;
 import tk.ardentbot.commands.money.Pay;
 import tk.ardentbot.commands.money.RPGMoney;
 import tk.ardentbot.commands.music.*;
-import tk.ardentbot.commands.nsfw.Asses;
-import tk.ardentbot.commands.nsfw.Feet;
-import tk.ardentbot.commands.nsfw.NSFW;
-import tk.ardentbot.commands.nsfw.Tits;
+import tk.ardentbot.commands.nsfw.*;
 import tk.ardentbot.commands.rpg.*;
 import tk.ardentbot.core.data.BotMuteData;
 import tk.ardentbot.core.data.BotPrefixData;
@@ -274,6 +271,8 @@ public class Shard {
                 factory.registerCommand(new Tits(new BaseCommand.CommandSettings(false, true, Category.NSFW, "See some bosoms - NSFW!",
                         "tits", "boobs")));
                 factory.registerCommand(new Feet(new BaseCommand.CommandSettings(false, true, Category.NSFW, "Feet o.o", "feet")));
+                factory.registerCommand(new Men(new BaseCommand.CommandSettings(false, true, Category.NSFW, "Hot men according to our " +
+                        "staff o.o", "men", "faithhoes")));
 
                 factory.registerCommand(new AdBlock(new BaseCommand.CommandSettings(false, true, Category
                         .ANTI_TROLL, "Prevent users from advertising other servers", "adblock")));
@@ -285,7 +284,7 @@ public class Shard {
                 factory.registerCommand(new FancyPlay(new BaseCommand.CommandSettings(false, true,
                         Category.MUSIC, "Play a song by its name or url - choose between search results", "fancyplay", "fp")));
                 factory.registerCommand(new ClearQueue(new BaseCommand.CommandSettings(false, true,
-                        Category.MUSIC, "Clear all songs from the queue", "clear", "cl")));
+                        Category.MUSIC, "Clear all songs from the queue", "clearqueue", "cq")));
                 factory.registerCommand(new GetUrl(new BaseCommand.CommandSettings(false, true,
                         Category.MUSIC, "Want to know the link of that cool song you're playing now? This subcommand will display it",
                         "geturl")));
