@@ -8,6 +8,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.core.misc.logging.BotException;
@@ -44,7 +45,8 @@ public class TrackScheduler extends AudioEventAdapter {
                     .addField("Duration", Music.getDuration(track), true)
                     .addField("URL", info.uri, true)
                     .addField("Is Stream", String.valueOf(info.isStream), true);
-            GuildUtils.getShard(manager.jda).help.sendEmbed(builder, manager.getChannel(), me);
+            Message m = GuildUtils.getShard(manager.jda).help.sendEmbed(builder, manager.getChannel(), me);
+            manager.setLastAnnouncementId(m.getId());
         }
     }
 

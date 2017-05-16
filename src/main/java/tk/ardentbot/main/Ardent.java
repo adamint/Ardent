@@ -200,6 +200,9 @@ public class Ardent {
         MuteDaemon muteDaemon = new MuteDaemon();
         globalExecutorService.scheduleAtFixedRate(muteDaemon, 1, 5, TimeUnit.SECONDS);
 
+        RankableDaemon rankableDaemon = new RankableDaemon();
+        globalExecutorService.scheduleAtFixedRate(rankableDaemon, 0, 1, TimeUnit.MINUTES);
+
         Music.checkMusicConnections();
 
         GIF.setupCategories();
