@@ -180,6 +180,8 @@ public class Shard {
                 factory.registerCommand(new Stats(new BaseCommand.CommandSettings(true, true, Category
                         .BOTINFO, "View interesting stats about Ardent", "stats")));
 
+                //   factory.registerCommand(new IsStreaming(new BaseCommand.CommandSettings(false, true, Category.FUN,
+                //           "Get info about your favorite streamers", "twitch")).setClientId(twitch));
                 factory.registerCommand(new UD(new BaseCommand.CommandSettings(false, true, Category.FUN,
                         "Retrieves the urban dictionary definition for a word", "ud", "urban")));
                 factory.registerCommand(new GIF(new BaseCommand.CommandSettings(false, true, Category.FUN,
@@ -279,7 +281,7 @@ public class Shard {
 
                 factory.registerCommand(new Music(new BaseCommand.CommandSettings(false, true, Category.MUSIC,
                         "Play music from youtube, soundcloud, or even search for songs!", "music", "m", "moosic"), this));
-                factory.registerCommand(new Play(new BaseCommand.CommandSettings(false, true, Category.FUN,
+                factory.registerCommand(new Play(new BaseCommand.CommandSettings(false, true, Category.MUSIC,
                         "Play a song by its name or url", "play", "p")));
                 factory.registerCommand(new FancyPlay(new BaseCommand.CommandSettings(false, true,
                         Category.MUSIC, "Play a song by its name or url - choose between search results", "fancyplay", "fp")));

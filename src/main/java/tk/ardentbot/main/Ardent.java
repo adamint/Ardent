@@ -39,9 +39,6 @@ import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
 
 import java.io.*;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -64,7 +61,7 @@ public class Ardent {
     public static Process premiumProcess;
     public static boolean premiumBot = false;
     public static String premiumBotToken;
-    public static boolean testingBot = true;
+    public static boolean testingBot = false;
     public static Api spotifyApi;
     public static ArrayList<String> tierOnepatrons = new ArrayList<>();
     public static ArrayList<String> tierTwopatrons = new ArrayList<>();
@@ -77,7 +74,7 @@ public class Ardent {
     public static ScheduledExecutorService globalExecutorService = Executors.newScheduledThreadPool(20);
     public static Shard shard0;
     public static Shard botLogsShard;
-    public static int shardCount = 2;
+    public static int shardCount = 4;
     public static ConcurrentHashMap<String, ChatterBotSession> cleverbots = new ConcurrentHashMap<>();
     public static String announcement;
     public static ConcurrentHashMap<String, Boolean> sentAnnouncement = new ConcurrentHashMap<>();
@@ -90,6 +87,7 @@ public class Ardent {
     public static ValueRange triviaSheet;
     public static Twitter twitter;
     public static boolean started = false;
+    public static String twitch;
     static String node0Url;
     private static HttpTransport transport;
     private static JacksonFactory jsonFactory;
@@ -100,7 +98,6 @@ public class Ardent {
     private static String clientSecret;
 
     public static void main(String[] args) throws Exception {
-        disableSsl();
         new DefaultAudioPlayerManager();
         Logger root1 = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         root1.setLevel(Level.OFF);
@@ -153,6 +150,7 @@ public class Ardent {
                 else if (id.equalsIgnoreCase("premiumbottoken")) premiumBotToken = value;
                 else if (id.equalsIgnoreCase("testbottoken")) testBotToken = value;
                 else if (id.equalsIgnoreCase("googlesecret")) clientSecret = value;
+                else if (id.equalsIgnoreCase("twitch")) twitch = value;
             });
         });
 
@@ -257,10 +255,6 @@ public class Ardent {
             e.printStackTrace();
         }
         started = true;
-    }
-
-    private static void disableSsl() throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException, IOException {
-        // TODO: 4/27/2017 implement because unirest is fucking stupid 
     }
 
     public static Credential authorize() throws IOException {

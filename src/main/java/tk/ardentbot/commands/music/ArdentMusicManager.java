@@ -25,7 +25,7 @@ public class ArdentMusicManager {
     private AudioPlayer player;
     private Instant lastPlayedAt;
     private BlockingQueue<ArdentTrack> queue = new LinkedBlockingQueue<>();
-    private String channel;
+    private MessageChannel channel;
     private ArdentTrack currentlyPlaying;
     @Getter
     @Setter
@@ -35,19 +35,26 @@ public class ArdentMusicManager {
 
     public ArdentMusicManager(AudioPlayer player, MessageChannel channel) {
         this.player = player;
-        this.channel = channel.getId();
-        this.jda = channel.getJDA();
-        MusicSettingsModel guildMusicSettings = BaseCommand.asPojo(r.db("data").table("music_settings")
-                .get(((TextChannel) channel).getGuild().getId()).run(connection), MusicSettingsModel.class);
-        shouldAnnounce = !(guildMusicSettings == null || !guildMusicSettings.announce_music);
+        this.channel = channel;
+        if (channel != null) {
+            MusicSettingsModel guildMusicSettings = BaseCommand.asPojo(r.db("data").table("music_settings")
+                    .get(((TextChannel) channel).getGuild().getId()).run(connection), MusicSettingsModel.class);
+            shouldAnnounce = !(guildMusicSettings == null || !guildMusicSettings.announce_music);
+        }
+        else shouldAnnounce = false;
     }
 
     public TextChannel getChannel() {
-        return jda.getTextChannelById(channel);
+        return (TextChannel) channel;
     }
 
     public void setChannel(MessageChannel channel) {
-        this.channel = channel.getId();
+        this.channel = channel;
+        if (channel != null) {
+            MusicSettingsModel guildMusicSettings = BaseCommand.asPojo(r.db("data").table("music_settings")
+                    .get(((TextChannel) channel).getGuild().getId()).run(connection), MusicSettingsModel.class);
+            shouldAnnounce = !(guildMusicSettings == null || !guildMusicSettings.announce_music);
+        }
     }
 
     public boolean isTrackCurrentlyPlaying() {
