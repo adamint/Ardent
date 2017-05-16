@@ -419,8 +419,7 @@ public class Music extends Command {
         else {
             id = null;
             r.db("data").table("music_settings").insert(r.json(getStaticGson().toJson(new MusicSettingsModel(guild.getId(), false,
-                    "none"))))
-                    .run(connection);
+                    "none")))).run(connection);
         }
         if (id == null || id.length() < 5) return null;
         else return guild.getTextChannelById(id);

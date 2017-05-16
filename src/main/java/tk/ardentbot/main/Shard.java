@@ -321,6 +321,8 @@ public class Shard {
                 factory.registerCommand(new Loop(new BaseCommand.CommandSettings(false, true,
                         Category.MUSIC, "This will loop the given amount of songs, starting at the first song in the queue, for the " +
                         "amount of times given", "loop")));
+                factory.registerCommand(new AnnounceMusic(new BaseCommand.CommandSettings(false, true,
+                        Category.MUSIC, "Announce each song when it starts playing", "announcemusic", "announce")));
 
                 musicManagers = new HashMap<>();
 

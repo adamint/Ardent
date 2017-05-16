@@ -19,7 +19,8 @@ public class UrbanDictionary {
     @Expose
     private java.util.List<String> sounds = new ArrayList<String>();
 
-    public UrbanDictionary() {}
+    public UrbanDictionary() {
+    }
 
     public UrbanDictionary(java.util.List<String> tags, String resultType, java.util.List<UDList> list, java.util.List<String> sounds) {
         this.tags = tags;

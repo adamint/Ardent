@@ -3,7 +3,6 @@ package tk.ardentbot.utils.updaters;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import org.json.JSONObject;
-import tk.ardentbot.core.misc.logging.BotException;
 import tk.ardentbot.main.Ardent;
 import tk.ardentbot.main.Shard;
 import tk.ardentbot.main.ShardManager;
@@ -25,8 +24,7 @@ public class BotlistUpdater implements Runnable {
                     .body(new JSONObject().append("server_count", guilds).append("shard_count", Ardent.shardCount))
                     .asString().getBody();
         }
-        catch (UnirestException e) {
-            new BotException(e);
+        catch (UnirestException ignored) {
         }
     }
 }

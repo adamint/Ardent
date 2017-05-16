@@ -10,10 +10,13 @@ public class VoiceLeaveEvent {
     @SubscribeEvent
     public void onVoiceLeaveEvent(GuildVoiceLeaveEvent event) throws Exception {
         Guild guild = event.getGuild();
-        GuildMusicManager musicManager = Music.getGuildAudioPlayer(guild, null);
-        assert musicManager != null;
-        if (event.getMember().getUser().getId().equalsIgnoreCase(guild.getSelfMember().getUser().getId())) {
-            musicManager.scheduler.manager.resetQueue();
+        try {
+            GuildMusicManager musicManager = Music.getGuildAudioPlayer(guild, null);
+            if (event.getMember().getUser().getId().equalsIgnoreCase(guild.getSelfMember().getUser().getId())) {
+                musicManager.scheduler.manager.resetQueue();
+            }
+        }
+        catch (Exception ignored) {
         }
     }
 }

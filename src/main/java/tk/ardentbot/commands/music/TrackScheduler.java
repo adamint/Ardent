@@ -5,9 +5,14 @@ import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.core.misc.logging.BotException;
+import tk.ardentbot.utils.discord.GuildUtils;
+import tk.ardentbot.utils.discord.MessageUtils;
 
 public class TrackScheduler extends AudioEventAdapter {
     private final AudioPlayer player;
@@ -16,6 +21,31 @@ public class TrackScheduler extends AudioEventAdapter {
     TrackScheduler(AudioPlayer player, MessageChannel channel) {
         this.player = player;
         this.manager = new ArdentMusicManager(player, channel);
+    }
+
+    @Override
+    public void onTrackStart(AudioPlayer player, AudioTrack track) {
+        if (manager.isShouldAnnounce()) {
+            if (manager.getLastAnnouncementId() != null) {
+                try {
+                    manager.getChannel().getMessageById(manager.getLastAnnouncementId()).queue(message -> message.delete().queue());
+                }
+                catch (Exception ignored) {
+                }
+            }
+            User me = manager.getChannel().getGuild().getSelfMember().getUser();
+            AudioTrackInfo info = track.getInfo();
+            EmbedBuilder builder = MessageUtils.getDefaultEmbed(me);
+            builder.setAuthor("Now playing " + info.title, "https://ardentbot.tk", "https://s-media-cache-ak0.pinimg" +
+                    ".com/736x/69/96/5c/69965c2849ec9b7148a5547ce6714735.jpg");
+            builder.setThumbnail("https://s-media-cache-ak0.pinimg.com/736x/69/96/5c/69965c2849ec9b7148a5547ce6714735.jpg");
+            builder.addField("Title", info.title, true)
+                    .addField("Author", info.author, true)
+                    .addField("Duration", Music.getDuration(track), true)
+                    .addField("URL", info.uri, true)
+                    .addField("Is Stream", String.valueOf(info.isStream), true);
+            GuildUtils.getShard(manager.jda).help.sendEmbed(builder, manager.getChannel(), me);
+        }
     }
 
     @Override

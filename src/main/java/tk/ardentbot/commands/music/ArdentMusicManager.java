@@ -1,9 +1,14 @@
 package tk.ardentbot.commands.music;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
+import lombok.Getter;
+import lombok.Setter;
+import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import tk.ardentbot.core.executor.BaseCommand;
+import tk.ardentbot.rethink.models.MusicSettingsModel;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -12,24 +17,37 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import static tk.ardentbot.rethink.Database.connection;
+import static tk.ardentbot.rethink.Database.r;
+
 public class ArdentMusicManager {
+    JDA jda;
     private AudioPlayer player;
     private Instant lastPlayedAt;
     private BlockingQueue<ArdentTrack> queue = new LinkedBlockingQueue<>();
-    private MessageChannel channel;
+    private String channel;
     private ArdentTrack currentlyPlaying;
+    @Getter
+    @Setter
+    private String lastAnnouncementId = null;
+    @Getter
+    private boolean shouldAnnounce;
 
     public ArdentMusicManager(AudioPlayer player, MessageChannel channel) {
         this.player = player;
-        this.channel = channel;
+        this.channel = channel.getId();
+        this.jda = channel.getJDA();
+        MusicSettingsModel guildMusicSettings = BaseCommand.asPojo(r.db("data").table("music_settings")
+                .get(((TextChannel) channel).getGuild().getId()).run(connection), MusicSettingsModel.class);
+        shouldAnnounce = !(guildMusicSettings == null || !guildMusicSettings.announce_music);
     }
 
     public TextChannel getChannel() {
-        return (TextChannel) channel;
+        return jda.getTextChannelById(channel);
     }
 
     public void setChannel(MessageChannel channel) {
-        this.channel = channel;
+        this.channel = channel.getId();
     }
 
     public boolean isTrackCurrentlyPlaying() {

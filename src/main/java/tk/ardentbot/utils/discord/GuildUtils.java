@@ -1,5 +1,6 @@
 package tk.ardentbot.utils.discord;
 
+import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
@@ -35,6 +36,13 @@ public class GuildUtils {
         long modulus = bitwise % Ardent.shardCount;
         int numbered = (int) modulus;
         return getShard(numbered);
+    }
+
+    public static Shard getShard(JDA jda) {
+        for (Shard shard : getShards()) {
+            if (shard.jda.equals(jda)) return shard;
+        }
+        return null;
     }
 
     public static void updatePrefix(String prefix, Guild guild) {

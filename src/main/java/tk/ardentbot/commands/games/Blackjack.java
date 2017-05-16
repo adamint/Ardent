@@ -100,7 +100,10 @@ public class Blackjack extends Command {
                 builder.setDescription("You busted and lost {0} :frowning:".replace("{0}", RPGUtils.formatMoney(bet)));
                 Profile.get(user).removeMoney(bet);
             }
-            else if (dealerHand.total() > 21) builder.setDescription("I busted! You won {0}".replace("{0}", RPGUtils.formatMoney(bet)));
+            else if (dealerHand.total() > 21) {
+                builder.setDescription("I busted! You won {0}".replace("{0}", RPGUtils.formatMoney(bet)));
+                Profile.get(user).addMoney(bet);
+            }
             else if (dealerHand.total() == yourHand.total()) builder.setDescription("We tied! You don't win or lose anything >.>");
             else if (dealerHand.total() < yourHand.total()) {
                 builder.setDescription("You had a higher numbered hand than me! You win {0}".replace("{0}", RPGUtils.formatMoney(bet)));
