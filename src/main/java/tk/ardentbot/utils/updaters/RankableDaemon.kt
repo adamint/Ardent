@@ -18,12 +18,12 @@ class RankableDaemon : Runnable {
             guildModel.role_permissions.forEach({
                 rolePermission ->
                 val rankable = rolePermission.rankable
-                val roleToAdd = guild.getRoleById(rankable.roleId) ?: return
+                val roleToAdd = guild.getRoleById(rankable!!.roleId) ?: return
                 rankable.queued.forEach({
                     queued ->
-                    if ((Instant.now().epochSecond - queued.second) <= rankable.secondsToWait) {
-                        val user = guild.jda.getUserById(queued.first)
-                        rankable.queued.remove(queued)
+                    if ((Instant.now().epochSecond - queued.value) <= rankable.secondsToWait) {
+                        val user = guild.jda.getUserById(queued.key)
+                        rankable.queued.remove(queued.key)
                         try {
                             val member = guild.getMember(user)
                             guild.controller.addRolesToMember(member, roleToAdd).queue()

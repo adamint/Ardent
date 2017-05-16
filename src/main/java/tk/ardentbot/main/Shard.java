@@ -136,6 +136,7 @@ public class Shard {
                 jda.addEventListener(new Leave());
                 jda.addEventListener(new VoiceLeaveEvent());
                 jda.addEventListener(new ReactionEvent());
+                jda.addEventListener(new RoleAddRemoveEvents());
 
                 // Adding the "handler" for mutes
                 botMuteData = new BotMuteData();
