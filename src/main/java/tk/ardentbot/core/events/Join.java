@@ -1,6 +1,7 @@
 package tk.ardentbot.core.events;
 
 import com.rethinkdb.net.Cursor;
+import kotlin.Pair;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
@@ -10,9 +11,11 @@ import tk.ardentbot.commands.administration.Automessage;
 import tk.ardentbot.commands.administration.DefaultRole;
 import tk.ardentbot.commands.botinfo.Status;
 import tk.ardentbot.commands.music.GuildMusicManager;
+import tk.ardentbot.core.executor.BaseCommand;
 import tk.ardentbot.main.Ardent;
 import tk.ardentbot.main.Shard;
 import tk.ardentbot.rethink.models.GuildModel;
+import tk.ardentbot.rethink.models.Rankable;
 import tk.ardentbot.utils.discord.GuildUtils;
 import tk.ardentbot.utils.javaAdditions.Triplet;
 
@@ -107,5 +110,12 @@ public class Join {
                 }
             }
         }
+        GuildModel guildModel = BaseCommand.asPojo(r.table("guilds").get(guild.getId()).run(connection), GuildModel.class);
+        guildModel.role_permissions.forEach(rolePermission -> {
+            Rankable rankable = rolePermission.getRankable();
+            if (rankable.getStartsOnServerJoin()) {
+                rankable.getQueued().add(new Pair<>(joinedUser.getId(), Instant.now().getEpochSecond()));
+            }
+        });
     }
 }

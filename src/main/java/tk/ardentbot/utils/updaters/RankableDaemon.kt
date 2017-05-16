@@ -17,21 +17,25 @@ class RankableDaemon : Runnable {
             val guild: Guild = GuildUtils.getShard(guildModel.guild_id.toInt()).jda.getGuildById(guildModel.guild_id) ?: return
             guildModel.role_permissions.forEach({
                 rolePermission ->
-                val role = guild.getRoleById(rolePermission.id) ?: return
                 val rankable = rolePermission.rankable
                 val roleToAdd = guild.getRoleById(rankable.roleId) ?: return
                 rankable.queued.forEach({
                     queued ->
                     if ((Instant.now().epochSecond - queued.second) <= rankable.secondsToWait) {
                         val user = guild.jda.getUserById(queued.first)
+                        rankable.queued.remove(queued)
                         try {
                             val member = guild.getMember(user)
                             guild.controller.addRolesToMember(member, roleToAdd).queue()
+                            user.openPrivateChannel().queue { pc ->
+                                pc.sendMessage("Congrats! You've ranked up to $**{roleToAdd.name}** in **${guild.name}**")
+                            }
                         } catch (e: PermissionException) {
-                            guild.publicChannel.sendMessage("I cannot promote ${user.}")
-                            }
-                            }
-                            })
+                            guild.publicChannel.sendMessage("I cannot promote ${user.name} to **${roleToAdd.name}** because I don't have " +
+                                    "permission to add roles!").queue()
+                        }
+                    }
+                })
             })
         })
     }
