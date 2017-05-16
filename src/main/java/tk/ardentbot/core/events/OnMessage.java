@@ -4,6 +4,7 @@ import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.SubscribeEvent;
 import tk.ardentbot.core.executor.BaseCommand;
@@ -26,6 +27,12 @@ import static tk.ardentbot.rethink.Database.connection;
 import static tk.ardentbot.rethink.Database.r;
 
 public class OnMessage {
+    @SubscribeEvent
+    public void onEvent(Event event) {
+        Shard shard = GuildUtils.getShard(event.getJDA());
+        shard.setLAST_EVENT(System.currentTimeMillis());
+    }
+
     @SubscribeEvent
     public void onMessage(MessageReceivedEvent event) {
         if (!Ardent.started) return;
@@ -91,7 +98,7 @@ public class OnMessage {
                                             AdvertisingInfraction(event.getAuthor().getId(), guild.getId())))).run(connection);
                                     shard.help.sendEditedTranslation("{0}, you can't advertise Discord servers here!", event.getAuthor(),
                                             event
-                                            .getChannel(), event.getAuthor().getAsMention());
+                                                    .getChannel(), event.getAuthor().getAsMention());
                                 }
                                 return;
                             }

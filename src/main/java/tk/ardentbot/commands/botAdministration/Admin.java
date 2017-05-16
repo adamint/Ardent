@@ -214,15 +214,10 @@ public class Admin extends Command {
                     StringBuilder builder = new StringBuilder();
                     for (Shard shard : ShardManager.getShards()) {
                         builder.append(shard.jda.getShardInfo()).append(" | STATUS: ").append(shard.jda.getStatus()).append(" | " +
-                                "U: ")
-
-                                .append(shard.jda.getUsers().size()).append(" | G: ").append(shard.jda.getGuilds().size()).append
-                                (" | L: ")
-                                .append(" | MC: ")
-                                .append(shard.jda.getVoiceChannels().stream().filter
+                                "U: ").append(shard.jda.getUsers().size()).append(" | G: ").append(shard.jda.getGuilds().size()).append
+                                (" | L: ").append(" | MC: ").append(shard.jda.getVoiceChannels().stream().filter
                                         (voiceChannel -> voiceChannel.getMembers().contains(voiceChannel.getGuild().getSelfMember
-                                                ()))
-                                        .count());
+                                                ())).count()).append(" | LE: " + (System.currentTimeMillis() - shard.getLAST_EVENT()));
 
                         if (shard.jda.getShardInfo() != null && shard.jda.getShardInfo().equals(guild.getJDA().getShardInfo())) {
                             builder.append(" <- CURRENT");
