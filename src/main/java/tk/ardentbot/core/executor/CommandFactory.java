@@ -11,7 +11,6 @@ import tk.ardentbot.core.misc.logging.BotException;
 import tk.ardentbot.main.Ardent;
 import tk.ardentbot.main.Shard;
 import tk.ardentbot.rethink.models.GuildModel;
-import tk.ardentbot.rethink.models.Rankable;
 import tk.ardentbot.rethink.models.RolePermission;
 import tk.ardentbot.utils.discord.UserUtils;
 import tk.ardentbot.utils.models.RestrictedUser;
@@ -150,17 +149,20 @@ public class CommandFactory {
                                     }
                                     GuildModel guildModel = BaseCommand.asPojo(r.table("guilds").get(guild.getId()).run(connection),
                                             GuildModel.class);
-                                    for (RolePermission rolePermission : guildModel.role_permissions) {
-                                        Rankable rankable = rolePermission.getRankable();
-                                        Member member = guild.getMember(user);
-                                        Role r = guild.getRoleById(rolePermission.getId());
-                                        if (r != null && member.getRoles().contains(r) &&
-                                                !rolePermission.getCanUseArdentCommands() && !member.hasPermission(Permission
-                                                .MANAGE_SERVER))
-                                        {
-                                            channel.sendMessage("One of your roles, **" + r.getName() + "**, cannot send Ardent commands!")
-                                                    .queue();
-                                            return;
+                                    if (guildModel.role_permissions != null) {
+                                        for (RolePermission rolePermission : guildModel.role_permissions) {
+                                            Member member = guild.getMember(user);
+                                            Role r = guild.getRoleById(rolePermission.getId());
+                                            if (r != null && member.getRoles().contains(r) &&
+                                                    !rolePermission.getCanUseArdentCommands() && !member.hasPermission(Permission
+                                                    .MANAGE_SERVER))
+                                            {
+                                                channel.sendMessage("One of your roles, **" + r.getName() + "**, cannot send Ardent " +
+                                                        "commands!")
+
+                                                        .queue();
+                                                return;
+                                            }
                                         }
                                     }
                                     shard.executorService.execute(new AsyncCommandExecutor(command.botCommand,

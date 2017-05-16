@@ -17,13 +17,14 @@ class RoleAddRemoveEvents {
         val roles = event.roles
         val user = event.member.user
         val guildModel = BaseCommand.asPojo(r.table("guilds").get(guild.id).run(connection), GuildModel::class.java)
-        guildModel.role_permissions.forEach {
-            rolePermission ->
-            val rankable: Rankable? = rolePermission.rankable ?: return
-            if (!rankable?.startsOnServerJoin!! && roles.contains(guild.getRoleById(rankable.startsOnAddedThisRole))) {
-                rankable.queued.putIfAbsent(user.id, Instant.now().epochSecond)
+        if (guildModel.role_permissions != null)
+            guildModel.role_permissions.forEach {
+                rolePermission ->
+                val rankable: Rankable? = rolePermission.rankable ?: return
+                if (!rankable?.startsOnServerJoin!! && roles.contains(guild.getRoleById(rankable.startsOnAddedThisRole))) {
+                    rankable.queued.putIfAbsent(user.id, Instant.now().epochSecond)
+                }
             }
-        }
     }
 
     @SubscribeEvent
@@ -32,13 +33,14 @@ class RoleAddRemoveEvents {
         val roles = event.roles
         val user = event.member.user
         val guildModel = BaseCommand.asPojo(r.table("guilds").get(guild.id).run(connection), GuildModel::class.java)
-        guildModel.role_permissions.forEach {
-            rolePermission ->
-            val rankable: Rankable? = rolePermission.rankable ?: return
-            if (!rankable?.startsOnServerJoin!! && roles.contains(guild.getRoleById(rankable.startsOnAddedThisRole))) {
-                rankable.queued.remove(user.id)
+        if (guildModel.role_permissions != null)
+            guildModel.role_permissions.forEach {
+                rolePermission ->
+                val rankable: Rankable? = rolePermission.rankable ?: return
+                if (!rankable?.startsOnServerJoin!! && roles.contains(guild.getRoleById(rankable.startsOnAddedThisRole))) {
+                    rankable.queued.remove(user.id)
+                }
             }
-        }
 
     }
 }

@@ -55,7 +55,8 @@ public class Join {
             TextChannel channel = guild.getPublicChannel();
             channel.sendMessage(welcomeText).queue();
 
-            r.db("data").table("guilds").insert(r.hashMap("guild_id", guild.getId()).with("language", "english").with("prefix", "/")).run
+            r.db("data").table("guilds").insert(r.hashMap("guild_id", guild.getId()).with("language", "english").with("prefix", "/")
+                    .with("role_permissions", new ArrayList<>())).run
                     (connection);
             String prefix = "/";
 

@@ -62,7 +62,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static tk.ardentbot.core.executor.BaseCommand.asPojo;
-import static tk.ardentbot.main.Ardent.twitch;
 import static tk.ardentbot.rethink.Database.connection;
 import static tk.ardentbot.rethink.Database.r;
 
@@ -182,8 +181,8 @@ public class Shard {
                 factory.registerCommand(new Stats(new BaseCommand.CommandSettings(true, true, Category
                         .BOTINFO, "View interesting stats about Ardent", "stats")));
 
-                factory.registerCommand(new IsStreaming(new BaseCommand.CommandSettings(false, true, Category.FUN,
-                        "Get info about your favorite streamers", "twitch")).setClientId(twitch));
+                //       factory.registerCommand(new IsStreaming(new BaseCommand.CommandSettings(false, true, Category.FUN,
+                //               "Get info about your favorite streamers", "twitch")).setClientId(twitch));
                 factory.registerCommand(new UD(new BaseCommand.CommandSettings(false, true, Category.FUN,
                         "Retrieves the urban dictionary definition for a word", "ud", "urban")));
                 factory.registerCommand(new GIF(new BaseCommand.CommandSettings(false, true, Category.FUN,

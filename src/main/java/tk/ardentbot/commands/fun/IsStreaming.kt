@@ -84,7 +84,7 @@ class IsStreaming(commandSettings: BaseCommand.CommandSettings) : Command(comman
     override fun setupSubcommands() {
     }
 
-    fun setClientId(id: String): IsStreaming {
+    fun setClientId(id: String?): IsStreaming {
         twitch.clientId = id
         return this
     }
