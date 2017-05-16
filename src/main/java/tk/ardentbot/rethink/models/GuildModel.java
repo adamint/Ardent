@@ -8,11 +8,11 @@ public class GuildModel {
     @Getter
     public ArrayList<RolePermission> role_permissions;
     @Getter
-    private String guild_id;
+    public String guild_id;
     @Getter
-    private String language;
+    public String language;
     @Getter
-    private String prefix;
+    public String prefix;
     public GuildModel(String guild_id, String language, String prefix) {
         this.guild_id = guild_id;
         this.language = language;

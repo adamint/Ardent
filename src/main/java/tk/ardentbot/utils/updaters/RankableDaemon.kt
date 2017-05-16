@@ -27,9 +27,7 @@ class RankableDaemon : Runnable {
                         try {
                             val member = guild.getMember(user)
                             guild.controller.addRolesToMember(member, roleToAdd).queue()
-                            user.openPrivateChannel().queue { pc ->
-                                pc.sendMessage("Congrats! You've ranked up to $**{roleToAdd.name}** in **${guild.name}**")
-                            }
+                            guild.publicChannel.sendMessage("${user.name} has ranked up to **${roleToAdd.name}**!").queue()
                         } catch (e: PermissionException) {
                             guild.publicChannel.sendMessage("I cannot promote ${user.name} to **${roleToAdd.name}** because I don't have " +
                                     "permission to add roles!").queue()

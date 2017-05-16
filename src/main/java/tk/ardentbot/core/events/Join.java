@@ -1,7 +1,6 @@
 package tk.ardentbot.core.events;
 
 import com.rethinkdb.net.Cursor;
-import kotlin.Pair;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
@@ -113,8 +112,8 @@ public class Join {
         GuildModel guildModel = BaseCommand.asPojo(r.table("guilds").get(guild.getId()).run(connection), GuildModel.class);
         guildModel.role_permissions.forEach(rolePermission -> {
             Rankable rankable = rolePermission.getRankable();
-            if (rankable.getStartsOnServerJoin()) {
-                rankable.getQueued().add(new Pair<>(joinedUser.getId(), Instant.now().getEpochSecond()));
+            if (rankable != null && rankable.getStartsOnServerJoin()) {
+                rankable.getQueued().put(joinedUser.getId(), Instant.now().getEpochSecond());
             }
         });
     }

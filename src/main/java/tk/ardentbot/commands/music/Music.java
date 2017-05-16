@@ -270,6 +270,7 @@ public class Music extends Command {
             public void loadFailed(FriendlyException exception) {
                 try {
                     command.sendTranslatedMessage("I wasn't able to play that song, skipping...", channel, user);
+                    exception.printStackTrace();
                 }
                 catch (Exception e) {
                     new BotException(e);
