@@ -53,7 +53,7 @@ public class Whois extends Command {
 
         builder.addField("Days in Server", String.valueOf(daysInGuild), true);
         builder.addField("Roles", roles.toString(), true);
-        builder.addField("Discord Join Date", user.getCreationTime().toLocalDate().toString(), true);
+        builder.addField("Discord Join Date", member.getUser().getCreationTime().toLocalDate().toString(), true);
 
         sendEmbed(builder, channel, user);
     }

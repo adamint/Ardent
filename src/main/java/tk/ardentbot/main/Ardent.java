@@ -22,7 +22,6 @@ import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.wrapper.spotify.Api;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.LoggerFactory;
-import tk.ardentbot.commands.fun.GIF;
 import tk.ardentbot.commands.games.Trivia;
 import tk.ardentbot.commands.music.Music;
 import tk.ardentbot.commands.music.StuckVoiceConnection;
@@ -204,8 +203,6 @@ public class Ardent {
         globalExecutorService.scheduleAtFixedRate(rankableDaemon, 0, 1, TimeUnit.MINUTES);
 
         Music.checkMusicConnections();
-
-        GIF.setupCategories();
 
         if (!testingBot) {
             ConfigurationBuilder cb = new ConfigurationBuilder();
