@@ -13,7 +13,7 @@ import tk.ardentbot.rethink.models.RolePermission
 import tk.ardentbot.utils.discord.MessageUtils
 
 class Rankables(commandSettings: CommandSettings) : Command(commandSettings) {
-    override fun noArgs(guild: Guild?, channel: MessageChannel?, user: User?, message: Message?, args: Array<out String>?) {
+    override fun noArgs(guild: Guild?, channel: MessageChannel?, user: User?, message: Message?, args: Array<String>?) {
         sendHelp(channel, guild, user, this)
     }
 

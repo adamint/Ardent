@@ -149,6 +149,10 @@ public class CommandFactory {
                                     }
                                     GuildModel guildModel = BaseCommand.asPojo(r.table("guilds").get(guild.getId()).run(connection),
                                             GuildModel.class);
+                                    if (guildModel == null) {
+                                        guildModel = new GuildModel(guild.getId(), "english", "/");
+                                        r.table("guilds").insert(r.json(getShard().gson.toJson(guildModel))).run(connection);
+                                    }
                                     if (guildModel.role_permissions != null) {
                                         for (RolePermission rolePermission : guildModel.role_permissions) {
                                             Member member = guild.getMember(user);
