@@ -79,6 +79,7 @@ public class Shard {
     public Command help;
     public BaseCommand patreon;
     public BaseCommand request;
+    public InteractiveEvent interactiveEvent;
     public String url = "https://ardentbot.tk";
     public Gson gson = new Gson();
     @Getter
@@ -130,12 +131,12 @@ public class Shard {
             try {
                 // Register event listeners
                 jda.addEventListener(new OnMessage());
-                jda.addEventListener(new InteractiveOnMessage());
                 jda.addEventListener(new Join());
                 jda.addEventListener(new Leave());
                 jda.addEventListener(new VoiceLeaveEvent());
-                jda.addEventListener(new ReactionEvent());
                 jda.addEventListener(new RoleAddRemoveEvents());
+                interactiveEvent = new InteractiveEvent();
+                jda.addEventListener(interactiveEvent);
 
                 // Adding the "handler" for mutes
                 botMuteData = new BotMuteData();

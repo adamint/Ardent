@@ -1,29 +1,31 @@
 package tk.ardentbot.core.executor;
 
+import kotlin.Pair;
 import lombok.Getter;
 import lombok.NonNull;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.*;
-import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
-import tk.ardentbot.core.events.ReactionEvent;
+import tk.ardentbot.core.events.InteractiveEvent;
 import tk.ardentbot.core.misc.logging.BotException;
 import tk.ardentbot.main.Ardent;
 import tk.ardentbot.main.Shard;
 import tk.ardentbot.utils.discord.GuildUtils;
 import tk.ardentbot.utils.discord.MessageUtils;
+import tk.ardentbot.utils.javaAdditions.Triplet;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import static tk.ardentbot.core.events.InteractiveOnMessage.lastMessages;
-import static tk.ardentbot.core.events.InteractiveOnMessage.queuedInteractives;
 
 public abstract class Command extends BaseCommand {
+    private static ScheduledExecutorService ex = Executors.newScheduledThreadPool(5);
     public int usages = 0;
     public ArrayList<Subcommand> subcommands = new ArrayList<>();
     @Getter
@@ -45,35 +47,21 @@ public abstract class Command extends BaseCommand {
 
     public static void interactiveReaction(MessageChannel channel, Message message, User user, int seconds,
                                            Consumer<MessageReaction> function) {
-        ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
-        final int interval = 50;
-        final int[] ranFor = {0};
-        ex.scheduleAtFixedRate(() -> {
-            if (ranFor[0] > 10000) {
+        Pair<String, Triplet<String, String, Consumer<MessageReaction>>> p = new Pair<>(channel.getId(), new Triplet<>(user.getId(), message
+                .getId(), function));
+        InteractiveEvent e = GuildUtils.getShard(channel.getJDA()).interactiveEvent;
+        e.getReactionInteractivesQueue().add(p);
+        ex.schedule(() -> {
+            if (e.getReactionInteractivesQueue().contains(p)) {
+                e.getReactionInteractivesQueue().remove(p);
                 channel.sendMessage("Cancelled your reaction event because you didn't respond in time!").queue();
-                ex.shutdown();
             }
-            else {
-                ranFor[0] += interval;
-                for (Map.Entry<String, MessageReactionAddEvent> current : ReactionEvent.reactionEvents.entrySet()) {
-                    String channelId = current.getKey();
-                    MessageReactionAddEvent event = current.getValue();
-                    if (channelId.equals(channel.getId())) {
-                        if (event.getMessageId().equals(message.getId()) && event.getUser().getId().equals(user.getId())) {
-                            function.accept(event.getReaction());
-                            ex.shutdown();
-                        }
-                    }
-
-                }
-            }
-        }, interval, interval, TimeUnit.MILLISECONDS);
+        }, seconds, TimeUnit.SECONDS);
     }
 
     public static void longInteractiveOperation(MessageChannel channel, Message message, User user, int seconds,
                                                 Consumer<Message> function) {
         if (channel instanceof TextChannel) {
-            queuedInteractives.put(message.getId(), user.getId());
             Ardent.globalExecutorService.execute(() -> dispatchInteractiveEvent(message.getCreationTime(), (TextChannel) channel,
                     message, user, function, seconds * 1000, false));
         }
@@ -83,7 +71,6 @@ public abstract class Command extends BaseCommand {
                                                    Consumer<Message> function) {
         final boolean[] succeeded = {false};
         if (channel instanceof TextChannel) {
-            queuedInteractives.put(message.getId(), message.getAuthor().getId());
             Ardent.globalExecutorService.execute(() -> succeeded[0] = dispatchInteractiveEvent(message.getCreationTime(), (TextChannel)
                             channel,
                     message, function, seconds * 1000, true));
@@ -95,7 +82,6 @@ public abstract class Command extends BaseCommand {
     public static boolean interactiveOperation(MessageChannel channel, Message message, Consumer<Message> function) {
         final boolean[] succeeded = {false};
         if (channel instanceof TextChannel) {
-            queuedInteractives.put(message.getId(), message.getAuthor().getId());
             Ardent.globalExecutorService.execute(() -> {
                 succeeded[0] = dispatchInteractiveEvent(message.getCreationTime(), (TextChannel) channel,
                         message, function, 10000, true);
@@ -108,90 +94,52 @@ public abstract class Command extends BaseCommand {
     private static boolean dispatchInteractiveEvent(OffsetDateTime creationTime, TextChannel channel, Message message, User user,
                                                     Consumer<Message> function, int time, boolean sendMessage) {
         final boolean[] success = {false};
-        ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
-        final int interval = 50;
-        final int[] ranFor = {0};
-        ex.scheduleAtFixedRate(() -> {
-            if (ranFor[0] >= time) {
-                try {
-                    if (sendMessage) {
-                        if (time >= 15000) {
-                            channel.sendMessage("Cancelled your interactive operation because you didn't respond within 15 seconds!")
-                                    .queue();
-                        }
-                        else {
-                            channel.sendMessage("Cancelled your reaction event because you didn't respond within **" + String.valueOf
-                                    (time / 1000) + "** seconds").queue();
-                        }
+        Pair<String, Triplet<String, String, Consumer<Message>>> p = new Pair<>(channel.getId(), new Triplet<>(user.getId
+                (), message.getId(), function));
+        InteractiveEvent e = GuildUtils.getShard(channel.getJDA()).interactiveEvent;
+        e.getMessageInteractivesQueue().add(p);
+        ex.schedule(() -> {
+            if (e.getMessageInteractivesQueue().contains(p)) {
+                e.getMessageInteractivesQueue().remove(p);
+                if (sendMessage) {
+                    if (time >= 15) {
+                        channel.sendMessage("Cancelled your interactive operation because you didn't respond within " + time + " seconds!")
+                                .queue();
                     }
-                }
-                catch (Exception e) {
-                    new BotException(e);
-                }
-                ex.shutdown();
-                return;
-            }
-            Iterator<Message> iterator = lastMessages.keySet().iterator();
-            while (iterator.hasNext()) {
-                Message m = iterator.next();
-                if (m.getCreationTime().isAfter(creationTime)) {
-                    if (m.getAuthor().getId().equalsIgnoreCase(user.getId()) &&
-                            m.getChannel().getId().equalsIgnoreCase(channel.getId()))
-                    {
-                        success[0] = true;
-                        function.accept(m);
-                        iterator.remove();
-                        ex.shutdown();
+                    else {
+                        channel.sendMessage("Cancelled your reaction event because you didn't respond within **" + String.valueOf
+                                (time / 1000) + "** seconds").queue();
                     }
                 }
             }
-            ranFor[0] += interval;
-        }, interval, interval, TimeUnit.MILLISECONDS);
+            return success[0];
+        }, time, TimeUnit.SECONDS);
         return success[0];
     }
 
     private static boolean dispatchInteractiveEvent(OffsetDateTime creationTime, TextChannel channel, Message message, Consumer<Message>
             function, int time, boolean sendMessage) {
         final boolean[] success = {false};
-        ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
-        final int interval = 50;
-        final int[] ranFor = {0};
-        ex.scheduleAtFixedRate(() -> {
-            if (ranFor[0] >= time) {
-                try {
-                    if (sendMessage) {
-                        if (time >= 15000) {
-                            channel.sendMessage("Cancelled your interactive operation because you didn't respond within 15 seconds!")
-                                    .queue();
-                        }
-                        else {
-                            channel.sendMessage("Cancelled your reaction event because you didn't respond within **" + String.valueOf
-                                    (time / 1000) + "** seconds").queue();
-                        }
+        Pair<String, Triplet<String, String, Consumer<Message>>> p = new Pair<>(channel.getId(), new Triplet<>(message.getAuthor().getId
+                (), message.getId(), function));
+        InteractiveEvent e = GuildUtils.getShard(channel.getJDA()).interactiveEvent;
+        e.getMessageInteractivesQueue().add(p);
+        ex.schedule(() -> {
+            if (e.getMessageInteractivesQueue().contains(p)) {
+                e.getMessageInteractivesQueue().remove(p);
+                if (sendMessage) {
+                    if (time >= 15) {
+                        channel.sendMessage("Cancelled your interactive operation because you didn't respond within " + time + " seconds!")
+                                .queue();
                     }
-                }
-                catch (Exception e) {
-                    new BotException(e);
-                }
-                ex.shutdown();
-                return;
-            }
-            Iterator<Message> iterator = lastMessages.keySet().iterator();
-            while (iterator.hasNext()) {
-                Message m = iterator.next();
-                if (m.getCreationTime().isAfter(creationTime)) {
-                    if (m.getAuthor().getId().equalsIgnoreCase(message.getAuthor().getId()) &&
-                            m.getChannel().getId().equalsIgnoreCase(channel.getId()))
-                    {
-                        success[0] = true;
-                        function.accept(m);
-                        iterator.remove();
-                        ex.shutdown();
+                    else {
+                        channel.sendMessage("Cancelled your reaction event because you didn't respond within **" + String.valueOf
+                                (time / 1000) + "** seconds").queue();
                     }
                 }
             }
-            ranFor[0] += interval;
-        }, interval, interval, TimeUnit.MILLISECONDS);
+            return success[0];
+        }, time, TimeUnit.SECONDS);
         return success[0];
     }
 
