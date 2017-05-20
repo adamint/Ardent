@@ -16,7 +16,11 @@ class RoleAddRemoveEvents {
         val guild = event.guild
         val roles = event.roles
         val user = event.member.user
-        val guildModel = BaseCommand.asPojo(r.table("guilds").get(guild.id).run(connection), GuildModel::class.java)
+        var guildModel: GuildModel? = BaseCommand.asPojo(r.table("guilds").get(guild.id).run(connection), GuildModel::class.java)
+        if (guildModel == null) {
+            guildModel = GuildModel(guild.id, "english", "/")
+            r.table("guilds").insert(r.json(BaseCommand.staticGson.toJson(guildModel))).runNoReply(connection)
+        }
         if (guildModel.role_permissions != null)
             guildModel.role_permissions.forEach {
                 rolePermission ->

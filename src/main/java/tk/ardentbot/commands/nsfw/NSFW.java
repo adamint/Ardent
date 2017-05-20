@@ -6,7 +6,6 @@ import net.dv8tion.jda.core.entities.*;
 import tk.ardentbot.core.executor.Command;
 import tk.ardentbot.core.executor.Subcommand;
 import tk.ardentbot.rethink.models.NSFWSettings;
-import tk.ardentbot.utils.discord.GuildUtils;
 import tk.ardentbot.utils.discord.MessageUtils;
 
 import static tk.ardentbot.rethink.Database.connection;
@@ -50,8 +49,8 @@ public class NSFW extends Command {
         TextChannel channel = (TextChannel) mc;
         NSFWSettings settings = getSettings(guild);
         if (!settings.isGlobal()) {
-            if (!settings.getNsfwChannels().contains(channel.getId())) {
-                channel.sendMessage("You can't use NSFW commands in this channel").queue();
+            if (!mc.getName().startsWith("nsfw")) {
+                channel.sendMessage("You can't use NSFW commands in this channel - it must be a channel name prefixed with nsfw").queue();
                 return false;
             }
         }
@@ -122,47 +121,6 @@ public class NSFW extends Command {
             }
         });
 
-        subcommands.add(new Subcommand("Add the channel you're in to the list of allowed channels for NSFW", "addchannel", "addchannel") {
-            @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws
-                    Exception {
-                MessageChannel toAdd = message.getMentionedChannels().size() > 0 ? message.getMentionedChannels().get(0) : channel;
-                if (guild.getMember(user).hasPermission(Permission.MANAGE_SERVER)) {
-                    NSFWSettings settings = getSettings(guild);
-                    if (settings.getNsfwChannels().contains(channel.getId())) {
-                        sendTranslatedMessage("This channel has already been added to the NSFW list", channel, user);
-                    }
-                    else {
-                        settings.getNsfwChannels().add(toAdd.getId());
-                        r.table("nsfw_settings").get(guild.getId()).update(r.hashMap("nsfwChannels", settings.getNsfwChannels())).run
-                                (connection);
-                        sendTranslatedMessage("You can now send NSFW commands in this channel", channel, user);
-                    }
-                }
-                else sendTranslatedMessage("You need the Manage Server permission to use this command", channel, user);
-            }
-        });
-
-        subcommands.add(new Subcommand("Remove the channel you're in from the NSFW list", "removechannel", "removechannel") {
-            @Override
-            public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws
-                    Exception {
-                if (guild.getMember(user).hasPermission(Permission.MANAGE_SERVER)) {
-                    NSFWSettings settings = getSettings(guild);
-                    if (!settings.getNsfwChannels().contains(channel.getId())) {
-                        sendTranslatedMessage("This channel isn't on the NSFW list", channel, user);
-                    }
-                    else {
-                        settings.getNsfwChannels().remove(channel.getId());
-                        r.table("nsfw_settings").get(guild.getId()).update(r.hashMap("nsfwChannels", settings.getNsfwChannels())).run
-                                (connection);
-                        sendTranslatedMessage("You now **cannot** send NSFW commands in this channel", channel, user);
-                    }
-                }
-                else sendTranslatedMessage("You need the Manage Server permission to use this command", channel, user);
-            }
-        });
-
         subcommands.add(new Subcommand("View the current NSFW settings for your server", "settings", "settings") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws
@@ -177,8 +135,7 @@ public class NSFW extends Command {
                 description.append("\n\nAble to use NSFW commands in all channels: " + settings.isGlobal());
                 description.append("\n\nNeed the NSFW role: " + settings.isNeedNsfwRole());
                 if (!settings.isGlobal()) {
-                    description.append("\n\nChannels where you can use NSFW commands: " + MessageUtils.listWithCommas(GuildUtils
-                            .getChannelNames(settings.getNsfwChannels(), guild)));
+                    description.append("\n\nCan only use these command in discord NSFFW channels");
                 }
                 embedBuilder.setDescription(description.toString());
                 sendEmbed(embedBuilder, channel, user);

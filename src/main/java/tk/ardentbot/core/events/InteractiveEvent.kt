@@ -6,14 +6,15 @@ import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.core.events.message.guild.react.GuildMessageReactionAddEvent
 import net.dv8tion.jda.core.hooks.SubscribeEvent
 import tk.ardentbot.utils.javaAdditions.Triplet
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.function.Consumer
 
 class InteractiveEvent {
     /**
      * CHM<Text channel Id, Triplet<User id, Message id, Function to call with the consumable object type>>
      */
-    val messageInteractivesQueue = mutableListOf<Pair<String, Triplet<String, String, Consumer<Message>>>>()
-    val reactionInteractivesQueue = mutableListOf<Pair<String, Triplet<String, String, Consumer<MessageReaction>>>>()
+    val messageInteractivesQueue = CopyOnWriteArrayList<Pair<String, Triplet<String, String, Consumer<Message>>>>()
+    val reactionInteractivesQueue = CopyOnWriteArrayList<Pair<String, Triplet<String, String, Consumer<MessageReaction>>>>()
 
     @SubscribeEvent
     fun miq(e: GuildMessageReceivedEvent) {
@@ -28,10 +29,11 @@ class InteractiveEvent {
                             m ->
                             if (e.message.creationTime.isAfter(m.creationTime)) {
                                 userMessageFunction.c.accept(e.message)
-                                iterator.remove()
+                                messageInteractivesQueue.remove(interactive)
                             }
                         }
                     } catch (ignored: Exception) {
+                        messageInteractivesQueue.remove(interactive)
                     }
                 }
             }
@@ -49,9 +51,10 @@ class InteractiveEvent {
                     try {
                         if (e.messageId == userMessageFunction.b) {
                             userMessageFunction.c.accept(e.reaction)
-                            iterator.remove()
+                            reactionInteractivesQueue.remove(interactive)
                         }
                     } catch (ignored: Exception) {
+                        reactionInteractivesQueue.remove(interactive)
                     }
                 }
             }

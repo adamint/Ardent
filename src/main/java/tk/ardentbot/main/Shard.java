@@ -25,6 +25,7 @@ import net.dv8tion.jda.core.hooks.AnnotatedEventManager;
 import org.apache.commons.io.IOUtils;
 import tk.ardentbot.commands.administration.*;
 import tk.ardentbot.commands.antitroll.AdBlock;
+import tk.ardentbot.commands.antitroll.ModifyRolePermissions;
 import tk.ardentbot.commands.botAdministration.Admin;
 import tk.ardentbot.commands.botAdministration.Eval;
 import tk.ardentbot.commands.botAdministration.Request;
@@ -280,6 +281,8 @@ public class Shard {
 
                 factory.registerCommand(new AdBlock(new BaseCommand.CommandSettings(false, true, Category
                         .ANTI_TROLL, "Prevent users from advertising other servers", "adblock")));
+                factory.registerCommand(new ModifyRolePermissions(new BaseCommand.CommandSettings(false, true, Category
+                        .ANTI_TROLL, "Modify role permissions - useful for administrators", "permissions", "modifypermissions")));
 
                 factory.registerCommand(new Music(new BaseCommand.CommandSettings(false, true, Category.MUSIC,
                         "Play music from youtube, soundcloud, or even search for songs!", "music", "m", "moosic"), this));

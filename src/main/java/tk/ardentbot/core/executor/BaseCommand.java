@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  */
 public abstract class BaseCommand {
     @Getter
-    private static final Gson staticGson = new Gson();
+    public static final Gson staticGson = new Gson();
     public final Gson gson = new Gson();
     Command botCommand;
     boolean privateChannelUsage = true;

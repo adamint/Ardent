@@ -151,7 +151,7 @@ public class CommandFactory {
                                             GuildModel.class);
                                     if (guildModel == null) {
                                         guildModel = new GuildModel(guild.getId(), "english", "/");
-                                        r.table("guilds").insert(r.json(getShard().gson.toJson(guildModel))).run(connection);
+                                        r.table("guilds").insert(r.json(shard.gson.toJson(guildModel))).runNoReply(connection);
                                     }
                                     if (guildModel.role_permissions != null) {
                                         for (RolePermission rolePermission : guildModel.role_permissions) {
@@ -170,8 +170,7 @@ public class CommandFactory {
                                         }
                                     }
                                     shard.executorService.execute(new AsyncCommandExecutor(command.botCommand,
-                                            guild, channel,
-                                            event.getAuthor(), message, args, user));
+                                            guild, channel, event.getAuthor(), message, args, user));
                                     commandsReceived++;
                                     ranCommand[0] = true;
                                     UserUtils.addMoney(user, 1);
@@ -192,12 +191,10 @@ public class CommandFactory {
                 }
             }
         }
-        catch (Exception ex) {
+        catch (Throwable ex) {
             if (ex instanceof PermissionException) {
-                event.getAuthor().openPrivateChannel().queue(privateChannel -> {
-                    privateChannel.sendMessage("I don't have permission to send a message in this channel, please " +
-                            "tell a server administrator").queue();
-                });
+                event.getAuthor().openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage("I don't have permission to " +
+                        "send a message in this channel, please tell a server administrator").queue());
             }
             else {
                 new BotException(ex);

@@ -45,6 +45,7 @@ public abstract class Command extends BaseCommand {
         this.botCommand = this;
     }
 
+
     public static void interactiveReaction(MessageChannel channel, Message message, User user, int seconds,
                                            Consumer<MessageReaction> function) {
         Pair<String, Triplet<String, String, Consumer<MessageReaction>>> p = new Pair<>(channel.getId(), new Triplet<>(user.getId(), message
