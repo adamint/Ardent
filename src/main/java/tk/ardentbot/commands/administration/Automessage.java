@@ -160,9 +160,9 @@ public class Automessage extends Command {
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) {
                 if (guild.getMember(user).hasPermission(Permission.MANAGE_SERVER)) {
                     if (args.length == 2) {
-                        sendTranslatedMessage("Type **join** to remove this server's join message, **leave** to remove this server's " +
-                                "leave message, or " +
-                                "**channel** to remove the set channel", channel, user);
+                        sendTranslatedMessage("Type **/automessage remove join** to remove this server's join message, **/automessage " +
+                                "remove leave** to remove this server's " +
+                                "leave message, or **/automessage remove channel** to remove the set channel", channel, user);
                     }
                     else {
                         String type = args[2];

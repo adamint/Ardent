@@ -157,20 +157,38 @@ public class CommandFactory {
                                         for (RolePermission rolePermission : guildModel.role_permissions) {
                                             Member member = guild.getMember(user);
                                             Role r = guild.getRoleById(rolePermission.getId());
-                                            if (r != null && member.getRoles().contains(r) &&
-                                                    !rolePermission.getCanUseArdentCommands() && !member.hasPermission(Permission
+                                            if (r != null && member.getRoles().contains(r) && !member.hasPermission(Permission
                                                     .MANAGE_SERVER))
                                             {
-                                                channel.sendMessage("One of your roles, **" + r.getName() + "**, cannot send Ardent " +
-                                                        "commands!")
-
-                                                        .queue();
-                                                return;
+                                                if (!rolePermission.getCanUseArdentCommands()) {
+                                                    user.openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage("One of " +
+                                                            "your roles, **" + r.getName() + "**, cannot send Ardent commands!").queue());
+                                                    return;
+                                                }
+                                                if (!message.getRawContent().toLowerCase().contains("discord.gg") && !rolePermission
+                                                        .getCanSendDiscordInvites())
+                                                {
+                                                    message.delete().queue();
+                                                    user.openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage("One of " +
+                                                            "your roles, **" + r.getName() + "**, cannot send Discord server invite " +
+                                                            "links!").queue());
+                                                    return;
+                                                }
+                                                if (!rolePermission.getCanSendLinks()) {
+                                                    if (message.getContent().toLowerCase().contains("http://") ||
+                                                            message.getContent().toLowerCase().contains("https://"))
+                                                    {
+                                                        message.delete().queue();
+                                                        user.openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage("One" +
+                                                                " of " +
+                                                                "your roles, **" + r.getName() + "**, cannot send websiet links!").queue());
+                                                        return;
+                                                    }
+                                                }
                                             }
                                         }
                                     }
-                                    shard.executorService.execute(new AsyncCommandExecutor(command.botCommand,
-                                            guild, channel, event.getAuthor(), message, args, user));
+                                    new AsyncCommandExecutor(command.botCommand, guild, channel, event.getAuthor(), message, args, user).run();
                                     commandsReceived++;
                                     ranCommand[0] = true;
                                     UserUtils.addMoney(user, 1);

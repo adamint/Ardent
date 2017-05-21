@@ -204,6 +204,22 @@ public class Ardent {
 
         Music.checkMusicConnections();
 
+        globalExecutorService.scheduleAtFixedRate(() -> {
+            Shard[] shards = ShardManager.getShards();
+            for (int i = 0; i < shards.length; i++) {
+                Shard shard = shards[i];
+                if ((System.currentTimeMillis() - shard.getLAST_EVENT()) > 10000) {
+                    shard.jda.shutdown(false);
+                    try {
+                        shards[i] = new Shard(testingBot, i, shardCount);
+                    }
+                    catch (Exception e) {
+                        new BotException(e);
+                    }
+                }
+            }
+        }, 60, 15, TimeUnit.SECONDS);
+
         if (!testingBot) {
             ConfigurationBuilder cb = new ConfigurationBuilder();
             cb.setDebugEnabled(true)

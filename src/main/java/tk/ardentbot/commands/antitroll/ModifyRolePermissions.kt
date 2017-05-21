@@ -41,11 +41,11 @@ achieved the rankable requirement)""")
         })
         subcommands.add(object : Subcommand("Change role permissions using this!", "set @MentionRole <setting> <true/false>", "set") {
             override fun onCall(guild: Guild, channel: MessageChannel, user: User, message: Message, args: Array<out String>) {
-                if (args.size == 4) {
+                if (args.size == 5) {
                     val mentionedRoles = message.mentionedRoles
                     if (mentionedRoles.size == 1) {
                         val role = mentionedRoles[0]
-                        val setTo = when (args[3]) {
+                        val setTo = when (args[4]) {
                             "false" -> false
                             "true" -> true
                             else -> {
@@ -64,13 +64,26 @@ achieved the rankable requirement)""")
                             r ->
                             if (r.id == role.id) rolePermission = r
                         }
-                        if (rolePermission == null) rolePermission = RolePermission(role.id, rankable = null)
-                        when (args[2]) {
+                        if (rolePermission == null) {
+                            rolePermission = RolePermission(role.id, rankable = null)
+                            gm.role_permissions.add(rolePermission)
+                        }
+                        when (args[3]) {
                             "canusecommands" -> {
-
+                                rolePermission!!.canUseArdentCommands = setTo
+                                sendTranslatedMessage("Set **${args[3]}** to **$setTo** for the role **${role.name}**", channel, user)
+                            }
+                            "cansendlinks" -> {
+                                rolePermission!!.canSendLinks = setTo
+                                sendTranslatedMessage("Set **${args[3]}** to **$setTo** for the role **${role.name}**", channel, user)
+                            }
+                            "cansendinvites" -> {
+                                rolePermission!!.canSendDiscordInvites = setTo
+                                sendTranslatedMessage("Set **${args[3]}** to **$setTo** for the role **${role.name}**", channel, user)
                             }
                             else -> sendTranslatedMessage("Type /permissions help to see a list of available settings", channel, user)
                         }
+                        r.table("guilds").get(guild.id).update(r.hashMap("role_permissions", gm.role_permissions)).runNoReply(connection)
                         return
                     }
                     sendTranslatedMessage("You need to mention a role >.>", channel, user)
