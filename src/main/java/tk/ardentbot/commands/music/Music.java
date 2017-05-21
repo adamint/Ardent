@@ -336,7 +336,7 @@ public class Music extends Command {
                                             shard.help.sendTranslatedMessage("Pausing player now because I'm muted", channel, null);
                                             player.setPaused(true);
                                         }
-                                        if (voiceChannel.getMembers().size() == 1) {
+                                        if (voiceChannel.getMembers().size() == 1 && !EntityGuild.get(guild).isPremium()) {
                                             shard.help.sendTranslatedMessage("Left {0} because no one was in the channel!".replace("{0}",
                                                     voiceChannel.getName()),
                                                     channel, null);

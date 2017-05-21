@@ -287,6 +287,10 @@ public class Shard {
                         "Play music from youtube, soundcloud, or even search for songs!", "music", "m", "moosic"), this));
                 factory.registerCommand(new Play(new BaseCommand.CommandSettings(false, true, Category.MUSIC,
                         "Play a song by its name or url", "play", "p")));
+                factory.registerCommand(new FastForward(new BaseCommand.CommandSettings(false, true, Category.MUSIC,
+                        "Fast forward a song the specified amount of seconds!", "fastforward", "ff")));
+                factory.registerCommand(new Rewind(new BaseCommand.CommandSettings(false, true, Category.MUSIC,
+                        "Rewind a song the specified amount of seconds", "rewind", "rw")));
                 factory.registerCommand(new FancyPlay(new BaseCommand.CommandSettings(false, true,
                         Category.MUSIC, "Play a song by its name or url - choose between search results", "fancyplay", "fp")));
                 factory.registerCommand(new ClearQueue(new BaseCommand.CommandSettings(false, true,
