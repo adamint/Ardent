@@ -60,5 +60,6 @@ public class Whois extends Command {
 
     @Override
     public void setupSubcommands() {
+
     }
 }

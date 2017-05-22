@@ -209,24 +209,6 @@ public class Admin extends Command {
                     }
                     else sendTranslatedMessage("/admin restrict true/false command_identifier", channel, user);
                 }
-                else if (args[1].equals("shards")) {
-                    // All credit to Kodehawa @ Mantaro
-                    StringBuilder builder = new StringBuilder();
-                    for (Shard shard : ShardManager.getShards()) {
-                        builder.append(shard.jda.getShardInfo()).append(" | STATUS: ").append(shard.jda.getStatus()).append(" | " +
-                                "U: ").append(shard.jda.getUsers().size()).append(" | G: ").append(shard.jda.getGuilds().size()).append
-                                (" | L: ").append(" | MC: ").append(shard.jda.getVoiceChannels().stream().filter
-                                        (voiceChannel -> voiceChannel.getMembers().contains(voiceChannel.getGuild().getSelfMember
-                                                ())).count()).append(" | LE: " + (System.currentTimeMillis() - shard.getLAST_EVENT()));
-
-                        if (shard.jda.getShardInfo() != null && shard.jda.getShardInfo().equals(guild.getJDA().getShardInfo())) {
-                            builder.append(" <- CURRENT");
-                        }
-
-                        builder.append("\n");
-                    }
-                    channel.sendMessage(String.format("```prolog\n%s```", builder.toString())).queue();
-                }
             }
         }
     }

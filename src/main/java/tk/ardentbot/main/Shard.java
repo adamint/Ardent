@@ -326,6 +326,7 @@ public class Shard {
                         "amount of times given", "loop")));
                 factory.registerCommand(new AnnounceMusic(new BaseCommand.CommandSettings(false, true,
                         Category.MUSIC, "Announce each song when it starts playing", "announcemusic", "announce")));
+                factory.registerCommand(new ShardInfo(new BaseCommand.CommandSettings(false, true, Category.BOTINFO, "Get details on Ardent's shards", "shards")));
 
                 musicManagers = new HashMap<>();
 

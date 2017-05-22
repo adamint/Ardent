@@ -17,7 +17,8 @@ class Request(commandSettings: CommandSettings) : Ratelimitable(commandSettings)
         }
         val prefix = GuildUtils.getPrefix(guild)
         val request = message.rawContent.replace(prefix + args[0] + " ", "")
-        val ideasChannel = botLogsShard.jda.getTextChannelById("262810786186002432")
+        val channel1 = "262810786186002432"
+        val ideasChannel = botLogsShard.jda.getTextChannelById(channel1)
         ideasChannel.sendMessage("Request: " + user.name + "#" + user.discriminator + " (" +
                 guild.name + "): " + request).queue()
         sendTranslatedMessage("Sent your request to Ardent's owner! He will message you if your suggestion will be implemented", channel, user)
