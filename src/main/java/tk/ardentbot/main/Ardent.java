@@ -22,7 +22,6 @@ import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.wrapper.spotify.Api;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.LoggerFactory;
-import tk.ardentbot.commands.fun.GIF;
 import tk.ardentbot.commands.games.Trivia;
 import tk.ardentbot.commands.music.Music;
 import tk.ardentbot.commands.music.StuckVoiceConnection;
@@ -205,7 +204,21 @@ public class Ardent {
 
         Music.checkMusicConnections();
 
-        GIF.setupCategories();
+        globalExecutorService.scheduleAtFixedRate(() -> {
+            Shard[] shards = ShardManager.getShards();
+            for (int i = 0; i < shards.length; i++) {
+                Shard shard = shards[i];
+                if ((System.currentTimeMillis() - shard.getLAST_EVENT()) > 10000) {
+                    shard.jda.shutdown(false);
+                    try {
+                        shards[i] = new Shard(testingBot, i, shardCount);
+                    }
+                    catch (Exception e) {
+                        new BotException(e);
+                    }
+                }
+            }
+        }, 60, 15, TimeUnit.SECONDS);
 
         if (!testingBot) {
             ConfigurationBuilder cb = new ConfigurationBuilder();

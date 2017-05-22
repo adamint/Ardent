@@ -7,7 +7,6 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
@@ -60,7 +59,7 @@ public class TrackScheduler extends AudioEventAdapter {
     @Override
     public void onTrackStuck(AudioPlayer player, AudioTrack track, long thresholdMs) {
         manager.nextTrack();
-        onException(player, track, thresholdMs);
+        onException(player, track, new FriendlyException("Track got stuck", FriendlyException.Severity.COMMON, new Exception()));
     }
 
     @Override
@@ -69,12 +68,12 @@ public class TrackScheduler extends AudioEventAdapter {
     }
 
 
-    private void onException(AudioPlayer player, AudioTrack track, Object exception) {
+    private void onException(AudioPlayer player, AudioTrack track, FriendlyException exception) {
         manager.setCurrentlyPlaying(null);
         manager.nextTrack();
         try {
-            Guild guild = manager.getChannel().getGuild();
-            manager.getChannel().sendMessage("I wasn't able to play that track, skipping...").queue();
+            manager.getChannel().sendMessage("I wasn't able to play that track, skipping... **Reason: **" + exception.getLocalizedMessage
+                    ()).queue();
         }
         catch (Exception ex) {
             new BotException(ex);

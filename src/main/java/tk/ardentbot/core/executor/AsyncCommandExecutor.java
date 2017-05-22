@@ -52,11 +52,10 @@ class AsyncCommandExecutor implements Runnable {
                     }, 5, TimeUnit.SECONDS);
                 }
             }
-
             command.getBotCommand().onUsage(guild, channel, author, message, args);
             shard.factory.addCommandUsage(command.getName());
         }
-        catch (Exception e) {
+        catch (Throwable e) {
             new BotException(e);
         }
     }

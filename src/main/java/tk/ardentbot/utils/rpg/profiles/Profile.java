@@ -5,6 +5,7 @@ import com.rethinkdb.net.Cursor;
 import lombok.Getter;
 import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.core.misc.logging.BotException;
+import tk.ardentbot.rethink.models.Food;
 import tk.ardentbot.rethink.models.OneTimeBadgeModel;
 import tk.ardentbot.utils.discord.UserUtils;
 import tk.ardentbot.utils.rpg.BadgesList;
@@ -31,6 +32,8 @@ public class Profile {
     private int credit;
     @Getter
     private long last_collected;
+    @Getter
+    private ArrayList<Food> food = new ArrayList<>();
     protected Profile(User user) {
         this.user_id = user.getId();
         Profile profile = asPojo(r.db("data").table("profiles").get(user.getId()).run(connection), Profile.class);

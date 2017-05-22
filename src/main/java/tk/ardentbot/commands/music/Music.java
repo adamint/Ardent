@@ -96,7 +96,12 @@ public class Music extends Command {
     private static void play(User user, Guild guild, VoiceChannel channel, GuildMusicManager musicManager, AudioTrack
             track, TextChannel textChannel) {
         if (guild.getAudioManager().getConnectedChannel() == null) {
-            guild.getAudioManager().openAudioConnection(channel);
+            try {
+                guild.getAudioManager().openAudioConnection(channel);
+            }
+            catch (PermissionException e) {
+                textChannel.sendMessage("I don't have permission to connect to this channel!").queue();
+            }
         }
         musicManager.scheduler.manager.addToQueue(new ArdentTrack(user.getId(), textChannel, track));
     }
@@ -269,9 +274,8 @@ public class Music extends Command {
             @Override
             public void loadFailed(FriendlyException exception) {
                 try {
-                    command.sendTranslatedMessage("I wasn't able to play that song, skipping...", channel, user);
-                    exception.printStackTrace();
-                    new BotException(exception);
+                    sendTo(channel, guild).sendMessage("I wasn't able to play that track... **Reason: **" + exception.getLocalizedMessage
+                            ()).queue();
                 }
                 catch (Exception e) {
                     new BotException(e);
@@ -332,7 +336,7 @@ public class Music extends Command {
                                             shard.help.sendTranslatedMessage("Pausing player now because I'm muted", channel, null);
                                             player.setPaused(true);
                                         }
-                                        if (voiceChannel.getMembers().size() == 1) {
+                                        if (voiceChannel.getMembers().size() == 1 && !EntityGuild.get(guild).isPremium()) {
                                             shard.help.sendTranslatedMessage("Left {0} because no one was in the channel!".replace("{0}",
                                                     voiceChannel.getName()),
                                                     channel, null);
@@ -612,7 +616,8 @@ public class Music extends Command {
                 " Staff and Patrons only!", "volume") {
             @Override
             public void onCall(Guild guild, MessageChannel channel, User user, Message message, String[] args) throws Exception {
-                sendTranslatedMessage("Please use /volume <number [optional]> instead or type /help for to see our music category commands!",
+                sendTranslatedMessage("Please use /volume <number [optional]> instead or type /help for to see our music category " +
+                                "commands!",
                         channel, user);
             }
         });

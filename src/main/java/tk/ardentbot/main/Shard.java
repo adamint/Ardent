@@ -67,7 +67,7 @@ import static tk.ardentbot.rethink.Database.r;
 
 public class Shard {
     public boolean testingBot;
-    public ScheduledExecutorService executorService = Executors.newScheduledThreadPool(10);
+    public ScheduledExecutorService executorService = Executors.newScheduledThreadPool(2);
     public BotMuteData botMuteData;
     public BotPrefixData botPrefixData;
     public AudioPlayerManager playerManager;
@@ -79,6 +79,7 @@ public class Shard {
     public Command help;
     public BaseCommand patreon;
     public BaseCommand request;
+    public InteractiveEvent interactiveEvent;
     public String url = "https://ardentbot.tk";
     public Gson gson = new Gson();
     @Getter
@@ -130,12 +131,12 @@ public class Shard {
             try {
                 // Register event listeners
                 jda.addEventListener(new OnMessage());
-                jda.addEventListener(new InteractiveOnMessage());
                 jda.addEventListener(new Join());
                 jda.addEventListener(new Leave());
                 jda.addEventListener(new VoiceLeaveEvent());
-                jda.addEventListener(new ReactionEvent());
                 jda.addEventListener(new RoleAddRemoveEvents());
+                interactiveEvent = new InteractiveEvent();
+                jda.addEventListener(interactiveEvent);
 
                 // Adding the "handler" for mutes
                 botMuteData = new BotMuteData();
@@ -279,11 +280,17 @@ public class Shard {
 
                 factory.registerCommand(new AdBlock(new BaseCommand.CommandSettings(false, true, Category
                         .ANTI_TROLL, "Prevent users from advertising other servers", "adblock")));
+                //factory.registerCommand(new ModifyRolePermissions(new BaseCommand.CommandSettings(false, true, Category
+                //      .ANTI_TROLL, "Modify role permissions - useful for administrators", "permissions", "modifypermissions")));
 
                 factory.registerCommand(new Music(new BaseCommand.CommandSettings(false, true, Category.MUSIC,
                         "Play music from youtube, soundcloud, or even search for songs!", "music", "m", "moosic"), this));
                 factory.registerCommand(new Play(new BaseCommand.CommandSettings(false, true, Category.MUSIC,
                         "Play a song by its name or url", "play", "p")));
+                factory.registerCommand(new FastForward(new BaseCommand.CommandSettings(false, true, Category.MUSIC,
+                        "Fast forward a song the specified amount of seconds!", "fastforward", "ff")));
+                factory.registerCommand(new Rewind(new BaseCommand.CommandSettings(false, true, Category.MUSIC,
+                        "Rewind a song the specified amount of seconds", "rewind", "rw")));
                 factory.registerCommand(new FancyPlay(new BaseCommand.CommandSettings(false, true,
                         Category.MUSIC, "Play a song by its name or url - choose between search results", "fancyplay", "fp")));
                 factory.registerCommand(new ClearQueue(new BaseCommand.CommandSettings(false, true,

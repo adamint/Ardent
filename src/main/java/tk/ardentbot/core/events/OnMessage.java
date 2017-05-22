@@ -64,7 +64,6 @@ public class OnMessage {
         try {
             switch (event.getChannel().getType()) {
                 case TEXT:
-                    InteractiveOnMessage.onMessage(event);
                     TriviaChecker.check(event);
                     Guild guild = event.getGuild();
                     Shard shard = GuildUtils.getShard(guild);
