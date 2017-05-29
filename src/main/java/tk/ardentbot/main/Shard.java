@@ -67,7 +67,7 @@ import static tk.ardentbot.rethink.Database.r;
 
 public class Shard {
     public boolean testingBot;
-    public ScheduledExecutorService executorService = Executors.newScheduledThreadPool(2);
+    public ScheduledExecutorService executorService = Executors.newScheduledThreadPool(10);
     public BotMuteData botMuteData;
     public BotPrefixData botPrefixData;
     public AudioPlayerManager playerManager;
@@ -120,6 +120,7 @@ public class Shard {
                 .setEnableShutdownHook(true)
                 .setAudioSendFactory(new NativeAudioSendFactory())
                 .useSharding(shardNumber, totalShardCount)
+                .setCorePoolSize(8)
                 .buildBlocking();
 
         bot = jda.getUserById(jda.getSelfUser().getId());

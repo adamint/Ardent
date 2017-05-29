@@ -77,4 +77,11 @@ public class GuildUtils {
         return names;
     }
 
+    public static TextChannel getTextChannelById(String channel) {
+        for (Shard shard : getShards()) {
+            TextChannel ch = shard.jda.getTextChannelById(channel);
+            if (ch != null) return ch;
+        }
+        return null;
+    }
 }

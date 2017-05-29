@@ -91,121 +91,106 @@ public class CommandFactory {
      * and creates a new AsyncCommandExecutor that will execute the command
      *
      * @param event the MessageReceivedEvent to be handled
-     * @throws Exception this will create a BotException
      */
-    public void pass(MessageReceivedEvent event, String prefix) throws
-            Exception {
+    public void pass(MessageReceivedEvent event, String prefix) {
         try {
+            Guild guild = event.getGuild();
+            User ardent = guild.getSelfMember().getUser();
             User user = event.getAuthor();
+            if (user.isBot()) return;
             Message message = event.getMessage();
             MessageChannel channel = event.getChannel();
             String[] args = message.getContent().split(" ");
-            Guild guild = event.getGuild();
             String rawContent = message.getRawContent();
-            String mentionedContent = null;
-            if (rawContent.startsWith("<@!" + shard.bot.getId() + ">")) {
-                mentionedContent = rawContent.replace("<@!" + shard.bot.getId() + ">", "");
-            }
-            else if (rawContent.startsWith("<@" + shard.bot.getId() + ">")) {
-                mentionedContent = rawContent.replace("<@" + shard.bot.getId() + ">", "");
-            }
-            if (mentionedContent != null) {
-                mentionedContent = mentionedContent.replace(" ", "");
-                if (mentionedContent.length() == 0) {
-                    channel.sendMessage("Type @Ardent [msg] to talk to the bot\n" +
-                            "FYI: The help command name is /help in your server").queue();
-                }
+            if (rawContent.startsWith(guild.getSelfMember().getUser().getAsMention())) {
+                rawContent = rawContent.replaceFirst(ardent.getAsMention(), "");
+                if (rawContent.length() == 0)
+                    channel.sendMessage("Type @Ardent [msg] to talk to me or /help to see a list of commands").queue();
                 else {
                     if (!Ardent.disabledCommands.contains("cleverbot")) {
                         channel.sendMessage(Unirest.post("https://cleverbot.io/1.0/ask").field("user", Ardent.cleverbotUser)
-                                .field("key", Ardent.cleverbotKey).field("nick", "ardent").field("text", mentionedContent).asJson()
+                                .field("key", Ardent.cleverbotKey).field("nick", "ardent").field("text", rawContent).asJson()
                                 .getBody().getObject().getString("response")).queue();
                     }
-                    else {
-                        channel.sendMessage("Cleverbot is currently disabled, sorry.").queue();
-                    }
+                    else channel.sendMessage("Cleverbot is currently disabled, sorry.").queue();
                 }
+                return;
             }
-            else {
-                if (event.getAuthor().isBot()) return;
-                if (channel instanceof PrivateChannel) {
-                    channel.sendMessage("Private channel integration will be re-added soon, please type this command in a guild!").queue();
-                }
-                else {
-                    final boolean[] ranCommand = {false};
-                    String pre = StringEscapeUtils.escapeJava(prefix);
-                    if (args[0].startsWith(pre)) {
-                        args[0] = args[0].replaceFirst(pre, "");
-                        baseCommands.forEach(command -> {
-                            if (command.getBotCommand().containsAlias(args[0])) {
-                                command.botCommand.usages++;
-                                if (!Ardent.disabledCommands.contains(command.getName())) {
-                                    EntityGuild entityGuild = EntityGuild.get(guild);
-                                    for (RestrictedUser u : entityGuild.getRestrictedUsers()) {
-                                        if (u.getUserId().equalsIgnoreCase(user.getId())) {
-                                            command.sendRestricted(user);
+            if (!args[0].startsWith(prefix)) return;
+            String cmd = args[0].replaceFirst(prefix, "");
+            final boolean[] ranCommand = {false};
+            String pre = StringEscapeUtils.escapeJava(prefix);
+            if (args[0].startsWith(pre)) {
+                args[0] = args[0].replaceFirst(pre, "");
+                baseCommands.forEach(command -> {
+                    if (command.getBotCommand().containsAlias(args[0])) {
+                        command.botCommand.usages++;
+                        if (!Ardent.disabledCommands.contains(command.getName())) {
+                            EntityGuild entityGuild = EntityGuild.get(guild);
+                            for (RestrictedUser u : entityGuild.getRestrictedUsers()) {
+                                if (u.getUserId().equalsIgnoreCase(user.getId())) {
+                                    command.sendRestricted(user);
+                                    return;
+                                }
+                            }
+                            GuildModel guildModel = BaseCommand.asPojo(r.table("guilds").get(guild.getId()).run(connection),
+                                    GuildModel.class);
+                            if (guildModel == null) {
+                                guildModel = new GuildModel(guild.getId(), "english", "/");
+                                r.table("guilds").insert(r.json(shard.gson.toJson(guildModel))).runNoReply(connection);
+                            }
+                            if (guildModel.role_permissions != null) {
+                                for (RolePermission rolePermission : guildModel.role_permissions) {
+                                    Member member = guild.getMember(user);
+                                    Role r = guild.getRoleById(rolePermission.getId());
+                                    if (r != null && member.getRoles().contains(r) && !member.hasPermission(Permission
+                                            .MANAGE_SERVER))
+                                    {
+                                        if (!rolePermission.getCanUseArdentCommands()) {
+                                            user.openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage("One of " +
+                                                    "your roles, **" + r.getName() + "**, cannot send Ardent commands!").queue());
                                             return;
                                         }
-                                    }
-                                    GuildModel guildModel = BaseCommand.asPojo(r.table("guilds").get(guild.getId()).run(connection),
-                                            GuildModel.class);
-                                    if (guildModel == null) {
-                                        guildModel = new GuildModel(guild.getId(), "english", "/");
-                                        r.table("guilds").insert(r.json(shard.gson.toJson(guildModel))).runNoReply(connection);
-                                    }
-                                    if (guildModel.role_permissions != null) {
-                                        for (RolePermission rolePermission : guildModel.role_permissions) {
-                                            Member member = guild.getMember(user);
-                                            Role r = guild.getRoleById(rolePermission.getId());
-                                            if (r != null && member.getRoles().contains(r) && !member.hasPermission(Permission
-                                                    .MANAGE_SERVER))
+                                        if (!message.getRawContent().toLowerCase().contains("discord.gg") && !rolePermission
+                                                .getCanSendDiscordInvites())
+                                        {
+                                            message.delete().queue();
+                                            user.openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage("One of " +
+                                                    "your roles, **" + r.getName() + "**, cannot send Discord server invite " +
+                                                    "links!").queue());
+                                            return;
+                                        }
+                                        if (!rolePermission.getCanSendLinks()) {
+                                            if (message.getContent().toLowerCase().contains("http://") ||
+                                                    message.getContent().toLowerCase().contains("https://"))
                                             {
-                                                if (!rolePermission.getCanUseArdentCommands()) {
-                                                    user.openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage("One of " +
-                                                            "your roles, **" + r.getName() + "**, cannot send Ardent commands!").queue());
-                                                    return;
-                                                }
-                                                if (!message.getRawContent().toLowerCase().contains("discord.gg") && !rolePermission
-                                                        .getCanSendDiscordInvites())
-                                                {
-                                                    message.delete().queue();
-                                                    user.openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage("One of " +
-                                                            "your roles, **" + r.getName() + "**, cannot send Discord server invite " +
-                                                            "links!").queue());
-                                                    return;
-                                                }
-                                                if (!rolePermission.getCanSendLinks()) {
-                                                    if (message.getContent().toLowerCase().contains("http://") ||
-                                                            message.getContent().toLowerCase().contains("https://"))
-                                                    {
-                                                        message.delete().queue();
-                                                        user.openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage("One" +
-                                                                " of " +
-                                                                "your roles, **" + r.getName() + "**, cannot send websiet links!").queue());
-                                                        return;
-                                                    }
-                                                }
+                                                message.delete().queue();
+                                                user.openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage("One" +
+                                                        " of " +
+                                                        "your roles, **" + r.getName() + "**, cannot send websiet links!").queue());
+                                                return;
                                             }
                                         }
                                     }
-                                    new AsyncCommandExecutor(command.botCommand, guild, channel, event.getAuthor(), message, args, user).run();
-                                    commandsReceived++;
-                                    ranCommand[0] = true;
-                                    UserUtils.addMoney(user, 1);
-                                }
-                                else {
-                                    command.sendTranslatedMessage("Sorry, this command is currently disabled and will be re-enabled soon."
-                                            , channel, user);
-                                    ranCommand[0] = true;
                                 }
                             }
-                        });
-                    }
-                    if (!ranCommand[0]) {
-                        if (!prefix.equalsIgnoreCase("/")) {
-                            pass(event, "/");
+                            new AsyncCommandExecutor(command.botCommand, guild, channel, event.getAuthor(), message, args, user)
+                                    .run();
+                            commandsReceived++;
+                            ranCommand[0] = true;
+                            UserUtils.addMoney(user, 1);
+                        }
+                        else {
+                            command.sendTranslatedMessage("Sorry, this command is currently disabled and will be re-enabled soon."
+                                    , channel, user);
+                            ranCommand[0] = true;
                         }
                     }
+                });
+            }
+            if (!ranCommand[0]) {
+                if (!prefix.equalsIgnoreCase("/")) {
+                    pass(event, "/");
                 }
             }
         }

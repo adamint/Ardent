@@ -14,6 +14,7 @@ class Donate(commandSettings: BaseCommand.CommandSettings) : Command(commandSett
                 " You can also donate directly at https://www.paypal.me/ardentbot", channel, user)
     }
 
+
     override fun setupSubcommands() {
     }
 }

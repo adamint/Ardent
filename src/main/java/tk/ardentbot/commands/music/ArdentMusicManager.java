@@ -3,12 +3,12 @@ package tk.ardentbot.commands.music;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import lombok.Getter;
 import lombok.Setter;
-import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import tk.ardentbot.core.executor.BaseCommand;
 import tk.ardentbot.rethink.models.MusicSettingsModel;
+import tk.ardentbot.utils.discord.GuildUtils;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -21,11 +21,10 @@ import static tk.ardentbot.rethink.Database.connection;
 import static tk.ardentbot.rethink.Database.r;
 
 public class ArdentMusicManager {
-    JDA jda;
     private AudioPlayer player;
     private Instant lastPlayedAt;
     private BlockingQueue<ArdentTrack> queue = new LinkedBlockingQueue<>();
-    private MessageChannel channel;
+    private String channel;
     private ArdentTrack currentlyPlaying;
     @Getter
     @Setter
@@ -35,26 +34,21 @@ public class ArdentMusicManager {
 
     public ArdentMusicManager(AudioPlayer player, MessageChannel channel) {
         this.player = player;
-        this.channel = channel;
-        if (channel != null) {
-            MusicSettingsModel guildMusicSettings = BaseCommand.asPojo(r.db("data").table("music_settings")
-                    .get(((TextChannel) channel).getGuild().getId()).run(connection), MusicSettingsModel.class);
-            shouldAnnounce = !(guildMusicSettings == null || !guildMusicSettings.announce_music);
-        }
-        else shouldAnnounce = false;
+        this.channel = channel.getId();
+        MusicSettingsModel guildMusicSettings = BaseCommand.asPojo(r.db("data").table("music_settings")
+                .get(((TextChannel) channel).getGuild().getId()).run(connection), MusicSettingsModel.class);
+        shouldAnnounce = !(guildMusicSettings == null || !guildMusicSettings.announce_music);
     }
 
     public TextChannel getChannel() {
-        return (TextChannel) channel;
+        return GuildUtils.getTextChannelById(channel);
     }
 
     public void setChannel(MessageChannel channel) {
-        this.channel = channel;
-        if (channel != null) {
-            MusicSettingsModel guildMusicSettings = BaseCommand.asPojo(r.db("data").table("music_settings")
-                    .get(((TextChannel) channel).getGuild().getId()).run(connection), MusicSettingsModel.class);
-            shouldAnnounce = !(guildMusicSettings == null || !guildMusicSettings.announce_music);
-        }
+        this.channel = channel.getId();
+        MusicSettingsModel guildMusicSettings = BaseCommand.asPojo(r.db("data").table("music_settings")
+                .get(((TextChannel) channel).getGuild().getId()).run(connection), MusicSettingsModel.class);
+        shouldAnnounce = !(guildMusicSettings == null || !guildMusicSettings.announce_music);
     }
 
     public boolean isTrackCurrentlyPlaying() {

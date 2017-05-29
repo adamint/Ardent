@@ -208,14 +208,19 @@ public class Ardent {
             Shard[] shards = ShardManager.getShards();
             for (int i = 0; i < shards.length; i++) {
                 Shard shard = shards[i];
-                if ((System.currentTimeMillis() - shard.getLAST_EVENT()) > 10000) {
-                    shard.jda.shutdown(false);
-                    try {
-                        shards[i] = new Shard(testingBot, i, shardCount);
-                    }
-                    catch (Exception e) {
-                        new BotException(e);
-                    }
+                if ((System.currentTimeMillis() - shard.getLAST_EVENT()) > 20000) {
+                    shard.jda.getRegisteredListeners().forEach(shard.jda::removeEventListener);
+                    int finalI = i;
+                    globalExecutorService.schedule(() -> {
+                        shard.jda.shutdown(false);
+                        try {
+                            shards[finalI] = new Shard(testingBot, finalI, shardCount);
+                        }
+                        catch (Exception e) {
+                            new BotException(e);
+                        }
+                    }, 3, TimeUnit.SECONDS);
+
                 }
             }
         }, 60, 15, TimeUnit.SECONDS);

@@ -18,8 +18,8 @@ public class ShardInfo extends Command {
         StringBuilder builder = new StringBuilder();
         for (Shard shard : ShardManager.getShards()) {
             builder.append(shard.jda.getShardInfo()).append(" | STATUS: ").append(shard.jda.getStatus()).append(" | " +
-                    "U: ").append(shard.jda.getUsers().size()).append(" | G: ").append(shard.jda.getGuilds().size()).append
-                    (" | L: ").append(" | MC: ").append(shard.jda.getVoiceChannels().stream().filter
+                    "U: ").append(shard.jda.getUsers().size()).append(" | G: ").append(shard.jda.getGuilds().size()).append(" | MC: ")
+                    .append(shard.jda.getVoiceChannels().stream().filter
                     (voiceChannel -> voiceChannel.getMembers().contains(voiceChannel.getGuild().getSelfMember
                             ())).count()).append(" | LE: " + (System.currentTimeMillis() - shard.getLAST_EVENT()));
 

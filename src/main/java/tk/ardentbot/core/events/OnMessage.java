@@ -3,7 +3,6 @@ package tk.ardentbot.core.events;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.SubscribeEvent;
@@ -19,8 +18,6 @@ import tk.ardentbot.utils.discord.UserUtils;
 import java.sql.Date;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 
 import static tk.ardentbot.main.Ardent.shard0;
 import static tk.ardentbot.rethink.Database.connection;
@@ -37,30 +34,6 @@ public class OnMessage {
     public void onMessage(MessageReceivedEvent event) {
         if (!Ardent.started) return;
         if (event.getAuthor().isBot()) return;
-        if (event.getMessage().getContent().startsWith("fuck off")) {
-            String[] fucks;
-            List<User> mentioned = event.getMessage().getMentionedUsers();
-            if (mentioned.size() == 0) {
-                fucks = new String[]{
-                        "no, fuck you",
-                        "print(fucksGiven)\nInput: print(fucksGiven)\nOutput: Not a single fuck\n",
-                        "wanna curse at someone? type fuck off @User",
-                        "no one cares {0}...",
-                        "someone's getting a bit salty, hmm?"
-                };
-            }
-            else {
-                fucks = new String[]{
-                        "Hey {0}, if you run fast enough, you might catch the bus to FuckOffVille!",
-                        "Hey {0}, go drive a van containing you and all the fucks I have off a cliff!",
-                        "Hey, {0} You're going the wrong way, RetardVille is back the way you came",
-                        ":clap: congrats {0}, you even managed to make a bot angry. Fuck off",
-                        "{0}, shut the fuck up"
-                };
-            }
-            event.getChannel().sendMessage(fucks[new Random().nextInt(fucks.length)].replace("{0}", mentioned.size() == 0 ? "" :
-                    mentioned.get(0).getAsMention()) + " (" + event.getAuthor().getAsMention() + ")").queue();
-        }
         try {
             switch (event.getChannel().getType()) {
                 case TEXT:
@@ -133,7 +106,7 @@ public class OnMessage {
                             .queue());
                     break;
                 case PRIVATE:
-                    shard0.factory.pass(event, "/");
+                    event.getChannel().sendMessage("Please use Ardent commands inside of a guild!").queue();
                     shard0.factory.incrementMessagesReceived();
                     break;
             }
