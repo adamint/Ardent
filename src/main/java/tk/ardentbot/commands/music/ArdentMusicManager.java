@@ -34,17 +34,22 @@ public class ArdentMusicManager {
 
     public ArdentMusicManager(AudioPlayer player, MessageChannel channel) {
         this.player = player;
-        this.channel = channel.getId();
-        MusicSettingsModel guildMusicSettings = BaseCommand.asPojo(r.db("data").table("music_settings")
-                .get(((TextChannel) channel).getGuild().getId()).run(connection), MusicSettingsModel.class);
-        shouldAnnounce = !(guildMusicSettings == null || !guildMusicSettings.announce_music);
+        if (channel != null) {
+            this.channel = channel.getId();
+            MusicSettingsModel guildMusicSettings = BaseCommand.asPojo(r.db("data").table("music_settings")
+                    .get(((TextChannel) channel).getGuild().getId()).run(connection), MusicSettingsModel.class);
+            shouldAnnounce = !(guildMusicSettings == null || !guildMusicSettings.announce_music);
+        }
+        else shouldAnnounce = false;
     }
 
     public TextChannel getChannel() {
+        if (channel == null) return null;
         return GuildUtils.getTextChannelById(channel);
     }
 
     public void setChannel(MessageChannel channel) {
+        assert channel != null;
         this.channel = channel.getId();
         MusicSettingsModel guildMusicSettings = BaseCommand.asPojo(r.db("data").table("music_settings")
                 .get(((TextChannel) channel).getGuild().getId()).run(connection), MusicSettingsModel.class);

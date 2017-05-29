@@ -1,23 +1,6 @@
 package tk.ardentbot.commands.rpg;
 
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageChannel;
-import net.dv8tion.jda.core.entities.User;
-import tk.ardentbot.core.executor.Command;
-import tk.ardentbot.core.executor.Subcommand;
-import tk.ardentbot.rethink.models.LoanModel;
-import tk.ardentbot.utils.rpg.RPGUtils;
-import tk.ardentbot.utils.rpg.profiles.Profile;
-
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-
-import static tk.ardentbot.rethink.Database.connection;
-import static tk.ardentbot.rethink.Database.r;
-
-public class Loan extends Command {
+/*public class Loan extends Command {
     public Loan(CommandSettings commandSettings) {
         super(commandSettings);
     }
@@ -161,4 +144,4 @@ public class Loan extends Command {
             }
         });
     }
-}
+}*/

@@ -42,20 +42,26 @@ public class Music extends Command {
     }
 
     public static Pair<Integer, Integer> getMusicStats() {
-        int playingGuilds = 0;
-        int queueLength = 0;
-        for (Shard shard : ShardManager.getShards()) {
-            for (Guild guild : shard.jda.getGuilds()) {
-                GuildMusicManager guildMusicManager = getGuildAudioPlayer(guild, null, shard);
-                ArdentMusicManager manager = guildMusicManager.scheduler.manager;
-                if (guildMusicManager.player.getPlayingTrack() != null) {
-                    playingGuilds++;
-                    queueLength++;
-                    queueLength += manager.getQueue().size();
+        try {
+            int playingGuilds = 0;
+            int queueLength = 0;
+            for (Shard shard : ShardManager.getShards()) {
+                for (Guild guild : shard.jda.getGuilds()) {
+                    GuildMusicManager guildMusicManager = getGuildAudioPlayer(guild, null, shard);
+                    ArdentMusicManager manager = guildMusicManager.scheduler.manager;
+                    if (guildMusicManager.player.getPlayingTrack() != null) {
+                        playingGuilds++;
+                        queueLength++;
+                        queueLength += manager.getQueue().size();
+                    }
                 }
             }
+            return new Pair<>(playingGuilds, queueLength);
         }
-        return new Pair<>(playingGuilds, queueLength);
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     static synchronized GuildMusicManager getGuildAudioPlayer(Guild guild, MessageChannel channel, Shard shard) {
@@ -69,7 +75,7 @@ public class Music extends Command {
         }
         else {
             ArdentMusicManager ardentMusicManager = musicManager.scheduler.manager;
-            if (ardentMusicManager.getChannel() == null) {
+            if (ardentMusicManager.getChannel() == null && channel != null) {
                 ardentMusicManager.setChannel(channel);
             }
         }

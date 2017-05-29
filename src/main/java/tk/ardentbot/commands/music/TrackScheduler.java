@@ -44,7 +44,7 @@ public class TrackScheduler extends AudioEventAdapter {
                     .addField("Duration", Music.getDuration(track), true)
                     .addField("URL", info.uri, true)
                     .addField("Is Stream", String.valueOf(info.isStream), true);
-            Message m = GuildUtils.getShard(manager.jda).help.sendEmbed(builder, manager.getChannel(), me);
+            Message m = GuildUtils.getShard(manager.getChannel().getJDA()).help.sendEmbed(builder, manager.getChannel(), me);
             manager.setLastAnnouncementId(m.getId());
         }
     }

@@ -73,7 +73,7 @@ public class Ardent {
     public static ScheduledExecutorService globalExecutorService = Executors.newScheduledThreadPool(20);
     public static Shard shard0;
     public static Shard botLogsShard;
-    public static int shardCount = 4;
+    public static int shardCount = 5;
     public static ConcurrentHashMap<String, ChatterBotSession> cleverbots = new ConcurrentHashMap<>();
     public static String announcement;
     public static ConcurrentHashMap<String, Boolean> sentAnnouncement = new ConcurrentHashMap<>();
@@ -125,12 +125,12 @@ public class Ardent {
         else {
             try {
                 dbPassword = IOUtils.toString(new
-                        FileReader(new File("C:\\Users\\AMR\\Desktop\\Ardent\\dbpassword.key")));
+                        FileReader(new File("C:\\Users\\AMR\\Desktop\\Ardent\\v2password.key")));
                 discordBotsOrgToken =
                         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjE2OTkwNDMyNDk4MDI0NDQ4MCIsImlhdCI6MTQ5MzMyNDM1OX0.LQ97UtslzaM5Qo__gkihOX5afaZA5z3TjMjSovMzDTI";
             }
             catch (Exception ex) {
-                dbPassword = IOUtils.toString(new FileReader(new File("/root/Ardent/v2password.key")));
+                dbPassword = IOUtils.toString(new FileReader(new File("/root/Ardent/.key")));
             }
         }
         Database.setup();

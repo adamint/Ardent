@@ -17,6 +17,7 @@ import java.util.Random;
 import static spark.Spark.get;
 import static spark.Spark.port;
 import static tk.ardentbot.main.Ardent.shard0;
+import static tk.ardentbot.main.Ardent.testingBot;
 
 public class SparkServer {
     private static final Gson webGson = new Gson();
@@ -25,7 +26,8 @@ public class SparkServer {
      * Sets up the web server and the endpoints
      */
     public static void setup() {
-        port(666);
+        if (!testingBot) port(666);
+        else return;
         Spark.exception(Exception.class, (exception, request, response) -> {
             exception.printStackTrace();
         });

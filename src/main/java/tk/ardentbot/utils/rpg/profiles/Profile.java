@@ -147,7 +147,7 @@ public class Profile {
     public String getCollectionTime() {
         return canCollect() ? "You can collect your daily cash now!" : "You will be able to use /daily again at " + Date.from(Instant
                 .ofEpochSecond(last_collected)
-                .plus(1, ChronoUnit.DAYS)).toLocaleString();
+                .plus(1, ChronoUnit.DAYS)).toLocaleString() + " EST";
     }
     public void removeMoney(double amount) {
         addMoney(-amount);
