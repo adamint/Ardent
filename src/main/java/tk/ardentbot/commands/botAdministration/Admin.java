@@ -7,7 +7,6 @@ import tk.ardentbot.core.executor.Command;
 import tk.ardentbot.core.misc.logging.BotException;
 import tk.ardentbot.main.Ardent;
 import tk.ardentbot.main.Shard;
-import tk.ardentbot.main.ShardManager;
 import tk.ardentbot.rethink.models.Staff;
 import tk.ardentbot.utils.discord.GuildUtils;
 import tk.ardentbot.utils.discord.InternalStats;
@@ -150,6 +149,15 @@ public class Admin extends Command {
                     for (Shard shard : getShards()) {
                         shard.jda.shutdown(true);
                     }
+                    System.exit(0);
+                }
+                else if (args[1].equalsIgnoreCase("restart")) {
+                    for (Shard shard : getShards()) {
+                        shard.jda.shutdown(true);
+                    }
+                    channel.sendMessage("This subcommand is untested and could fail.").queue();
+                    Runtime.getRuntime().exec("java -jar " + getClass().getProtectionDomain().getCodeSource().getLocation()
+                            .toURI().getPath());
                     System.exit(0);
                 }
                 else if (args[1].equalsIgnoreCase("setgameurl")) {
